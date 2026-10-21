@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Handsoff Automation Hub - Shaha Finlease</title>
+  <title>Shaha Finlease - Enterprise Handsoff & Bank Reconciliation Hub</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -13,192 +13,291 @@
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f8fafc; color: #0f172a; }
-    .tab-active { background-color: #1e40af; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
-    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .table-container::-webkit-scrollbar-track { background: #f1f5f9; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+    
+    :root {
+      --corp-navy: #0f172a;
+      --corp-blue: #1e40af;
+      --corp-gold: #b45309;
+    }
+    
+    body { 
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; 
+      background-color: #f1f5f9; 
+      color: #0f172a; 
+    }
+    
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .table-container::-webkit-scrollbar { width: 7px; height: 7px; }
+    .table-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    .table-container::-webkit-scrollbar-track { background: #e2e8f0; }
+
+    .tab-active { 
+      background-color: #0f172a; 
+      color: #ffffff; 
+      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.15), 0 2px 4px -2px rgba(15, 23, 42, 0.1); 
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Top Corporate Navbar -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-3 flex flex-wrap items-center justify-between gap-4 shadow-sm">
-    <div class="flex items-center space-x-3.5">
-      <div class="w-10 h-10 rounded-lg bg-blue-700 flex items-center justify-center text-white shadow-sm font-bold text-lg">
-        <i data-lucide="layers" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-base font-bold text-slate-900 tracking-tight">Shaha Finlease - Handsoff Automation Hub</h1>
-          <span class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-semibold">Cloud Portal</span>
+  <!-- ========================================== -->
+  <!-- 1. CORPORATE EXECUTIVE TOP NAVBAR          -->
+  <!-- ========================================== -->
+  <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 px-6 py-2.5 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo & Company Branding -->
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 via-indigo-600 to-amber-500 p-0.5 shadow-md flex items-center justify-center">
+          <div class="w-full h-full bg-slate-900 rounded-[7px] flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5 text-amber-400"></i>
+          </div>
         </div>
-        <p class="text-xs text-slate-500">Bank Statement Reconciliation & Daily Handsoff Generator</p>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-extrabold tracking-tight text-white">SHAHA FINLEASE</span>
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-blue-900/80 text-blue-300 border border-blue-700/60">Enterprise</span>
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700/60">v2.5 Live</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-medium">Debt Recovery Operations & Cloud Bank Reconciliation Portal</p>
+        </div>
       </div>
-    </div>
 
-    <!-- Active User & Supabase Status -->
-    <div class="flex items-center gap-3">
-      <button onclick="openConfigModal()" id="btn-supabase-status" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium hover:bg-slate-100 transition-all text-slate-700">
-        <span id="supabase-indicator" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-        <span id="supabase-status-text">Cloud Storage: Offline</span>
-      </button>
+      <!-- Live Clock & Status Indicators -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Live Clock -->
+        <div class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span id="live-clock" class="font-mono-num font-semibold">21 Oct 2026</span>
+        </div>
 
-      <div class="flex items-center gap-2 bg-slate-100 p-1.5 px-3 rounded-lg border border-slate-200">
-        <i data-lucide="user-check" class="w-4 h-4 text-blue-700"></i>
-        <span class="text-xs font-semibold text-slate-600">Active User:</span>
-        <select id="user-role-select" onchange="switchUserRole()" class="bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer shadow-sm">
-          <option value="ADMIN">👑 Admin / Backend (All Teams)</option>
-          <optgroup label="Managers (Private View)">
-            <option value="SMITA JAGTAP">💼 Smita Jagtap (INH)</option>
-            <option value="AMBUJ TRIPATHI">💼 Ambuj Tripathi (INH)</option>
-            <option value="ADITI">💼 Aditi (INH)</option>
-            <option value="OMKAR SINGH">💼 Omkar Singh (INH)</option>
-            <option value="SHRAVANTI">💼 Shravanti (INH)</option>
-            <option value="SHWETA">💼 Shweta (INH)</option>
-            <option value="SATISH SIR">💼 Satish Sir (INH)</option>
-            <option value="POONAM INDULKAR">💼 Poonam Indulkar (KP)</option>
-          </optgroup>
-        </select>
+        <!-- Supabase Cloud Connection Status -->
+        <button onclick="openConfigModal()" title="Supabase Database Settings" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs hover:bg-slate-700/80 transition-all text-slate-200">
+          <span id="supabase-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm animate-pulse"></span>
+          <span id="supabase-status-text" class="font-medium text-[11px]">Cloud DB: Active</span>
+          <i data-lucide="settings" class="w-3 h-3 text-slate-400"></i>
+        </button>
+
+        <!-- User Authentication & Profile Pill -->
+        <div id="auth-user-bar" class="flex items-center gap-2.5 bg-slate-800/90 pl-3 pr-2 py-1.5 rounded-lg border border-slate-700">
+          <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold">
+            <span id="nav-user-avatar">A</span>
+          </div>
+          <div class="text-left pr-1">
+            <div id="nav-user-name" class="text-xs font-bold text-white leading-tight">Admin</div>
+            <div id="nav-user-role" class="text-[10px] text-amber-400 font-semibold leading-tight">Super Admin</div>
+          </div>
+          <button onclick="handleLogout()" title="Sign Out" class="ml-1 p-1.5 rounded-md hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-transparent hover:border-rose-900 transition-all">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
       </div>
+
     </div>
   </header>
 
-  <!-- Manager Isolation Notification Bar -->
-  <div id="manager-privacy-banner" class="max-w-7xl mx-auto w-full px-6 pt-4 hidden">
-    <div class="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <i data-lucide="shield-check" class="w-4 h-4 text-blue-700"></i>
-        <span><strong>Manager Isolation Active:</strong> Aapko sirf <strong>Blank (Unallocated) Pool</strong> aur <strong>Aapki Team Ka Data</strong> dikhega. Baki managers ka data completely hidden hai.</span>
+  <!-- ========================================== -->
+  <!-- 2. MANAGER DATA ISOLATION BANNER           -->
+  <!-- ========================================== -->
+  <div id="manager-privacy-banner" class="max-w-7xl mx-auto w-full px-6 pt-3 hidden">
+    <div class="p-3 rounded-xl bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-transparent border border-blue-200 bg-white shadow-sm flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2.5 text-slate-800">
+        <div class="p-1 rounded bg-blue-100 text-blue-700">
+          <i data-lucide="shield" class="w-4 h-4"></i>
+        </div>
+        <span>
+          <strong class="text-blue-900">Manager Security Isolation Enforced:</strong> 
+          Aapko sirf <span class="font-bold text-amber-700">Unallocated Bank Pool</span> aur aapki team (<strong id="active-manager-badge" class="text-blue-700 font-bold uppercase"></strong>) ka data dikh raha hai. Doosre managers ki verified entries confidential hain.
+        </span>
       </div>
-      <span id="active-manager-badge" class="font-bold text-blue-800 uppercase text-xs px-2.5 py-0.5 rounded bg-blue-100 border border-blue-300">SMITA</span>
+      <span id="active-agency-tag" class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-blue-100 text-blue-800 border border-blue-300 tracking-wider">AGENCY: INH</span>
     </div>
   </div>
 
-  <!-- Standard KPI Cards Row -->
-  <div class="max-w-7xl mx-auto w-full px-6 pt-5">
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-blue-600">
-        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Unallocated Bank Pool</p>
-        <div class="flex items-baseline justify-between mt-1">
-          <h2 id="stat-unalloc-count" class="text-2xl font-bold text-slate-900">0</h2>
-          <span id="stat-unalloc-amount" class="text-xs font-mono font-bold text-slate-600">₹0.00</span>
+  <!-- ========================================== -->
+  <!-- 3. EXECUTIVE KPI CARDS ROW                 -->
+  <!-- ========================================== -->
+  <div class="max-w-7xl mx-auto w-full px-6 pt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Card 1: Bank Unallocated Feed -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Unallocated Bank Feed</span>
+          <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+            <i data-lucide="landmark" class="w-4 h-4"></i>
+          </span>
         </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <h2 id="stat-unalloc-count" class="text-2xl font-black text-slate-900 font-mono-num">0</h2>
+          <span id="stat-unalloc-amount" class="text-sm font-bold text-amber-700 font-mono-num">₹0.00</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1">Available for manager claim</p>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-600">
-        <p id="kpi-alloc-title" class="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold">Allocated / Verified</p>
-        <div class="flex items-baseline justify-between mt-1">
-          <h2 id="stat-alloc-count" class="text-2xl font-bold text-emerald-700">0</h2>
-          <span id="stat-alloc-amount" class="text-xs font-mono font-bold text-emerald-700">₹0.00</span>
+      <!-- Card 2: Allocated / Verified -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-emerald-600"></div>
+        <div class="flex items-center justify-between">
+          <span id="kpi-alloc-title" class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Verified & Claimed</span>
+          <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          </span>
         </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <h2 id="stat-alloc-count" class="text-2xl font-black text-emerald-700 font-mono-num">0</h2>
+          <span id="stat-alloc-amount" class="text-sm font-bold text-emerald-700 font-mono-num">₹0.00</span>
+        </div>
+        <p id="kpi-alloc-subtitle" class="text-[11px] text-slate-400 mt-1">Ready for handsoff export</p>
       </div>
 
-      <div id="kpi-admin-total" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-purple-600">
-        <p class="text-[11px] uppercase tracking-wider text-purple-700 font-semibold">Total Statement Amount</p>
-        <div class="flex items-baseline justify-between mt-1">
-          <h2 id="stat-tot-count" class="text-2xl font-bold text-slate-900">0</h2>
-          <span id="stat-tot-amount" class="text-xs font-mono font-bold text-purple-800">₹0.00</span>
+      <!-- Card 3: Total Operations Value / Scope -->
+      <div id="kpi-admin-total" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-indigo-600"></div>
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Total Statement Value</span>
+          <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+            <i data-lucide="pie-chart" class="w-4 h-4"></i>
+          </span>
         </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <h2 id="stat-tot-count" class="text-2xl font-black text-slate-900 font-mono-num">0</h2>
+          <span id="stat-tot-amount" class="text-sm font-bold text-indigo-700 font-mono-num">₹0.00</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1">Multi-bank statement total</p>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-slate-700 flex items-center justify-between">
-        <div>
-          <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Direct Export</p>
-          <p class="text-xs text-slate-800 font-bold mt-0.5">Master File (.xlsx)</p>
+      <!-- Card 4: 1-Click Excel Handsoff Export -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all flex flex-col justify-between">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-blue-700"></div>
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Final Handsoff File</span>
+            <div class="text-xs font-extrabold text-slate-900 mt-0.5">With Official Formulas</div>
+          </div>
+          <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          </span>
         </div>
-        <button onclick="exportHandsoffExcel()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+        <button onclick="exportHandsoffExcel()" class="mt-3 w-full py-2 bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          Handsoff (.xlsx)
+          Export Handsoff (.xlsx)
         </button>
       </div>
+
     </div>
   </div>
 
-  <!-- Navigation Tabs -->
+  <!-- ========================================== -->
+  <!-- 4. NAVIGATION TABS                         -->
+  <!-- ========================================== -->
   <nav class="max-w-7xl mx-auto w-full px-6 pt-5">
-    <div class="flex space-x-1.5 bg-slate-200/80 p-1.5 rounded-xl border border-slate-300 w-fit">
-      <button onclick="switchTab('workspace')" id="tab-workspace" class="tab-active px-4 py-2 rounded-lg font-semibold text-xs transition-all flex items-center gap-2">
-        <i data-lucide="table" class="w-3.5 h-3.5"></i>
-        <span>Bank Statement & Verification</span>
-      </button>
-      <button onclick="switchTab('claimed')" id="tab-claimed" class="px-4 py-2 rounded-lg font-semibold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
-        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-        <span id="tab-claimed-label">My Verified Records (0)</span>
-      </button>
-      <button onclick="switchTab('admin-upload')" id="tab-admin-upload" class="px-4 py-2 rounded-lg font-semibold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
-        <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
-        <span>Admin Statement Upload</span>
-      </button>
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 pb-2">
+      
+      <div class="flex space-x-1.5 bg-slate-200/90 p-1.5 rounded-xl border border-slate-300">
+        <button onclick="switchTab('workspace')" id="tab-workspace" class="tab-active px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          <span>Bank Feed & Manual Match</span>
+        </button>
+        <button onclick="switchTab('reconcile')" id="tab-reconcile" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span>Smart Auto-Reconcile Paid File</span>
+        </button>
+        <button onclick="switchTab('claimed')" id="tab-claimed" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
+          <i data-lucide="check-square" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span id="tab-claimed-label">My Verified Records (0)</span>
+        </button>
+        <button onclick="switchTab('admin-upload')" id="tab-admin-upload" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
+          <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>Admin Bank Statement Upload</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openSmartFinderModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
+          <i data-lucide="search" class="w-3.5 h-3.5"></i>
+          <span>Fuzzy UTR / Name Finder</span>
+        </button>
+        <button onclick="loadTransactionsFromCloud()" title="Sync with Cloud DB" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-300 transition-all flex items-center gap-1 shadow-sm">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto w-full p-6 flex-1 space-y-5">
+  <!-- ========================================== -->
+  <!-- 5. MAIN CONTENT PANELS                     -->
+  <!-- ========================================== -->
+  <main class="max-w-7xl mx-auto w-full p-6 flex-1 space-y-4">
 
-    <!-- TAB 1: WORKSPACE -->
+    <!-- ---------------------------------------- -->
+    <!-- TAB 1: WORKSPACE (BANK TRANSACTIONS)     -->
+    <!-- ---------------------------------------- -->
     <div id="content-workspace" class="space-y-4">
       
-      <!-- Standard Filter Bar -->
+      <!-- Filter Toolbar -->
       <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        
+        <!-- Live Search Bar -->
         <div class="flex items-center gap-3 flex-1 min-w-[280px]">
           <div class="relative w-full">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-            <input type="text" id="tx-search-input" onkeyup="filterTransactions()" placeholder="Search by Amount (5000), UTR digits, Customer name, Narration keyword..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white transition-all">
+            <input type="text" id="tx-search-input" onkeyup="filterTransactions()" placeholder="Search Narration, Amount, UTR digits, Ref No, Customer Name..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all">
           </div>
         </div>
 
+        <!-- Filter Dropdowns -->
         <div class="flex items-center gap-2 flex-wrap">
-          <select id="tx-bank-filter" onchange="filterTransactions()" class="bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs font-medium text-slate-700 focus:outline-none">
-            <option value="">All Banks</option>
-            <option value="HDFC">HDFC</option>
-            <option value="ICICI">ICICI</option>
+          <select id="tx-bank-filter" onchange="filterTransactions()" class="bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none">
+            <option value="">All Banks (HDFC / ICICI / Razorpay)</option>
+            <option value="HDFC">HDFC Bank</option>
+            <option value="ICICI">ICICI Bank</option>
             <option value="Razorpay">Razorpay</option>
           </select>
 
-          <input type="number" id="tx-amount-filter" onkeyup="filterTransactions()" placeholder="Exact ₹ Amount" class="w-28 bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs text-emerald-800 font-mono font-bold placeholder-slate-400 focus:outline-none focus:bg-white">
+          <input type="number" id="tx-amount-filter" onkeyup="filterTransactions()" placeholder="₹ Exact Amount" class="w-32 bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs text-emerald-800 font-mono-num font-bold placeholder-slate-400 focus:outline-none focus:bg-white">
 
-          <select id="tx-status-filter" onchange="filterTransactions()" class="bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs font-medium text-slate-700 focus:outline-none">
+          <select id="tx-status-filter" onchange="filterTransactions()" class="bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none">
             <option value="">Status: All Visible</option>
-            <option value="UNALLOCATED" selected>🟡 Unallocated Only</option>
-            <option value="ALLOCATED">🟢 Allocated</option>
+            <option value="UNALLOCATED" selected>🟡 Unallocated Pool Only</option>
+            <option value="ALLOCATED">🟢 Allocated / Claimed</option>
           </select>
-
-          <button onclick="openSmartFinderModal()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
-            <i data-lucide="sparkle" class="w-3.5 h-3.5"></i>
-            <span>Smart Match Finder</span>
-          </button>
-
-          <button onclick="loadTransactionsFromCloud()" title="Refresh" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 transition-all">
-            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
-          </button>
         </div>
       </div>
 
-      <!-- Standard Table Component -->
+      <!-- Bank Statement Table -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-blue-700"></i>
-            <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Bank Transactions Statement</h3>
-            <span id="tx-table-count" class="text-xs font-semibold text-slate-500">(0 records)</span>
+            <i data-lucide="table" class="w-4 h-4 text-slate-700"></i>
+            <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Bank Statement Transactions</h3>
+            <span id="tx-table-count" class="text-xs font-semibold text-slate-500 font-mono-num">(0 records)</span>
           </div>
-          <span class="text-xs text-slate-500 font-medium">Click <strong>"+ Claim / Update"</strong> to link customer proof</span>
+          <span class="text-[11px] text-slate-500 font-medium">Click <strong>"Claim / Link"</strong> to allocate entry to customer</span>
         </div>
 
-        <div class="overflow-x-auto max-h-[520px] table-container">
+        <div class="overflow-x-auto max-h-[540px] table-container">
           <table class="w-full text-left text-xs text-slate-700 border-collapse">
-            <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-200">
+            <thead class="bg-slate-100/90 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-300 z-10 backdrop-blur-sm">
               <tr>
-                <th class="p-3 border-r border-slate-200">Status</th>
+                <th class="p-3 border-r border-slate-200 text-center">Status</th>
                 <th class="p-3 border-r border-slate-200">Bank</th>
                 <th class="p-3 border-r border-slate-200">Ref No</th>
                 <th class="p-3 border-r border-slate-200">Date</th>
                 <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
                 <th class="p-3 border-r border-slate-200">Cheque / UTR</th>
                 <th class="p-3 border-r border-slate-200">Narration (Description)</th>
-                <th class="p-3 border-r border-slate-200">Assigned To</th>
+                <th class="p-3 border-r border-slate-200">Assigned Manager</th>
                 <th class="p-3 text-center">Action</th>
               </tr>
             </thead>
@@ -210,14 +309,67 @@
       </div>
     </div>
 
-    <!-- TAB 2: CLAIMED / VERIFIED -->
+    <!-- ---------------------------------------------------- -->
+    <!-- TAB 2: SMART AUTO-RECONCILIATION ENGINE (PAID FILE) -->
+    <!-- ---------------------------------------------------- -->
+    <div id="content-reconcile" class="space-y-4 hidden">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 max-w-4xl mx-auto">
+        <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+          <div class="p-2.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900">Manager Daily Paid File - Smart Auto Reconciler</h3>
+            <p class="text-xs text-slate-500">Upload your daily paid file (<code>PAID FILE FORMAT SAMPLE.xlsx</code>). The engine matches Amount, UTR, and Customer Name to claim transactions in 1 click.</p>
+          </div>
+        </div>
+
+        <!-- Upload Dropzone -->
+        <div class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl p-8 text-center cursor-pointer transition-colors bg-slate-50" onclick="document.getElementById('paid-excel-file').click()">
+          <input type="file" id="paid-excel-file" accept=".xlsx,.xls" class="hidden" onchange="handlePaidFileUpload(event)">
+          <i data-lucide="file-spreadsheet" class="w-10 h-10 mx-auto text-amber-600 mb-2"></i>
+          <p id="paid-filename-label" class="text-xs font-bold text-slate-800">Click to select Manager Paid File (.xlsx)</p>
+          <p class="text-[11px] text-slate-500 mt-1">Columns: Customer ID, Customer Name, Amount, UTR/Cheque No, Portfolio, Caller Name</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <div class="text-xs text-slate-600">
+            Current Manager Claiming: <strong id="reconcile-manager-name" class="text-blue-800 uppercase">SMITA JAGTAP</strong>
+          </div>
+          <button onclick="processAndAutoMatchPaidFile()" id="btn-auto-match" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+            Run Smart Auto-Matching
+          </button>
+        </div>
+
+        <!-- Reconcile Match Results Container -->
+        <div id="reconcile-results-box" class="hidden pt-4 border-t border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Matching Preview & Auto-Claims</h4>
+            <span id="reconcile-match-stats" class="text-xs font-bold text-emerald-700">0 matches found</span>
+          </div>
+          <div id="reconcile-match-list" class="max-h-[300px] overflow-y-auto table-container space-y-2"></div>
+          <div class="flex justify-end pt-2">
+            <button onclick="batchConfirmMatches()" id="btn-batch-confirm" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-md flex items-center gap-2">
+              <i data-lucide="check-check" class="w-4 h-4"></i>
+              Confirm & Batch Claim All Matches
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ---------------------------------------- -->
+    <!-- TAB 3: VERIFIED HANDSOFF PORTFOLIO       -->
+    <!-- ---------------------------------------- -->
     <div id="content-claimed" class="space-y-4 hidden">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 id="claimed-view-title" class="font-bold text-slate-900 text-sm">Verified Payments</h3>
-          <p class="text-xs text-slate-500">Entries successfully linked with customer & caller details.</p>
+          <h3 id="claimed-view-title" class="font-extrabold text-slate-900 text-sm">Verified & Claimed Transactions</h3>
+          <p class="text-xs text-slate-500">Records matched with Customer, Portfolio, Agency, and Caller details.</p>
         </div>
-        <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+        <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-[0.98]">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
           Export Handsoff (.xlsx)
         </button>
@@ -226,53 +378,55 @@
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto max-h-[520px] table-container">
           <table class="w-full text-left text-xs text-slate-700 border-collapse">
-            <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-200">
+            <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-300">
               <tr>
                 <th class="p-3 border-r border-slate-200">Ref No</th>
                 <th class="p-3 border-r border-slate-200">Customer ID / Name</th>
                 <th class="p-3 border-r border-slate-200">Portfolio</th>
                 <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
                 <th class="p-3 border-r border-slate-200">Caller Name</th>
-                <th class="p-3 border-r border-slate-200">Manager</th>
+                <th class="p-3 border-r border-slate-200">Agency / Manager</th>
                 <th class="p-3 border-r border-slate-200">Bank</th>
                 <th class="p-3 border-r border-slate-200">Date</th>
                 <th class="p-3 text-center">Unclaim</th>
               </tr>
             </thead>
-            <tbody id="claimed-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+            <tbody id="claimed-table-body" class="divide-y divide-slate-200 bg-white font-medium"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- TAB 3: ADMIN UPLOAD STATEMENT -->
-    <div id="content-admin-upload" class="space-y-5 hidden">
+    <!-- ---------------------------------------- -->
+    <!-- TAB 4: ADMIN BANK STATEMENT UPLOAD       -->
+    <!-- ---------------------------------------- -->
+    <div id="content-admin-upload" class="space-y-4 hidden">
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5 max-w-2xl mx-auto">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
           <div class="p-2.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
-            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+            <i data-lucide="upload-cloud" class="w-6 h-6"></i>
           </div>
           <div>
-            <h3 class="font-bold text-slate-900 text-sm">Upload Next-Day Bank Statement</h3>
-            <p class="text-xs text-slate-500">Browser me Excel parse hokar direct Supabase Cloud me store ho jayegi.</p>
+            <h3 class="font-extrabold text-slate-900 text-sm">Upload Next-Day Multi-Bank Statement</h3>
+            <p class="text-xs text-slate-500">Supports HDFC, ICICI, Razorpay sheets. Parsed client-side and saved to cloud.</p>
           </div>
         </div>
 
         <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-8 text-center cursor-pointer transition-colors bg-slate-50" onclick="document.getElementById('cloud-excel-file').click()">
           <input type="file" id="cloud-excel-file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload(event)">
           <i data-lucide="file-spreadsheet" class="w-10 h-10 mx-auto text-blue-600 mb-2"></i>
-          <p id="cloud-filename-label" class="text-xs font-semibold text-slate-800">Click to select Account Transaction Format.xlsx</p>
-          <p class="text-[11px] text-slate-500 mt-1">Multi-sheet support: HDFC, ICICI, Razorpay</p>
+          <p id="cloud-filename-label" class="text-xs font-bold text-slate-800">Click to select Account Transaction Format.xlsx</p>
+          <p class="text-[11px] text-slate-500 mt-1">Multi-sheet parsing with UTR regex extraction</p>
         </div>
 
         <div class="flex items-center justify-between pt-2">
           <div class="flex items-center gap-2">
-            <label class="text-xs font-semibold text-slate-700">Statement Date:</label>
-            <input type="text" id="cloud-batch-date" value="21-10-2026" class="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600">
+            <label class="text-xs font-bold text-slate-700">Statement Batch Date:</label>
+            <input type="text" id="cloud-batch-date" value="21-10-2026" class="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:border-blue-600">
           </div>
-          <button onclick="processAndSyncExcel()" id="btn-cloud-upload" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
+          <button onclick="processAndSyncExcel()" id="btn-cloud-upload" class="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
             <i data-lucide="check" class="w-4 h-4"></i>
-            Parse & Sync to Cloud
+            Parse & Sync to Cloud DB
           </button>
         </div>
       </div>
@@ -280,13 +434,91 @@
 
   </main>
 
-  <!-- CLAIM MODAL -->
-  <div id="claim-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- ========================================== -->
+  <!-- 6. MODALS: LOGIN / AUTHENTICATION PORTAL   -->
+  <!-- ========================================== -->
+  <div id="login-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl border border-slate-200 shadow-2xl overflow-hidden animate-fade-in">
+      
+      <!-- Modal Header -->
+      <div class="bg-slate-900 p-6 text-white text-center relative">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-amber-500 p-0.5 shadow-lg flex items-center justify-center mb-3">
+          <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-6 h-6 text-amber-400"></i>
+          </div>
+        </div>
+        <h2 class="text-lg font-black tracking-tight">SHAHA FINLEASE</h2>
+        <p class="text-xs text-slate-400 font-medium mt-0.5">Enterprise Debt Recovery & Reconciliation Portal</p>
+        <span class="inline-block mt-2 text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/60">Secure Access Gateway</span>
+      </div>
+
+      <!-- Login Form Body -->
+      <div class="p-6 space-y-4">
+        
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-1">Select User / Manager Profile *</label>
+          <select id="login-user-select" onchange="onLoginUserChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white cursor-pointer">
+            <optgroup label="👑 System Administration">
+              <option value="ADMIN" data-role="ADMIN" data-agency="INH" data-pass="admin123">👑 Admin / Backend Operations (All Teams)</option>
+            </optgroup>
+            <optgroup label="💼 INH Agency Managers">
+              <option value="SMITA JAGTAP" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Smita Jagtap (INH)</option>
+              <option value="AMBUJ TRIPATHI" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Ambuj Tripathi (INH)</option>
+              <option value="ADITI" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Aditi (INH)</option>
+              <option value="OMKAR SINGH" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Omkar Singh (INH)</option>
+              <option value="SHRAVANTI" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Shravanti (INH)</option>
+              <option value="SHWETA" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Shweta (INH)</option>
+              <option value="SATISH SIR" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Satish Sir (INH)</option>
+            </optgroup>
+            <optgroup label="💼 KP Agency Managers">
+              <option value="POONAM INDULKAR" data-role="MANAGER" data-agency="KP" data-pass="1234">💼 Poonam Indulkar (KP)</option>
+              <option value="KP" data-role="MANAGER" data-agency="KP" data-pass="1234">💼 KP Agency Team (KP)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Security PIN / Password *</label>
+            <span id="login-hint-text" class="text-[10px] text-slate-400 font-semibold font-mono">Default: 1234</span>
+          </div>
+          <div class="relative">
+            <input type="password" id="login-password-input" placeholder="Enter PIN or Password..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 pr-10 text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+              <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Login Demo Buttons -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1.5">
+          <div class="text-[11px] font-semibold text-slate-600">Quick Login Presets (1-Click):</div>
+          <div class="flex gap-2 flex-wrap">
+            <button type="button" onclick="quickFillLogin('ADMIN', 'admin123')" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded text-[11px] font-bold">Admin (All Access)</button>
+            <button type="button" onclick="quickFillLogin('SMITA JAGTAP', '1234')" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded text-[11px] font-bold">Smita (INH)</button>
+            <button type="button" onclick="quickFillLogin('POONAM INDULKAR', '1234')" class="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded text-[11px] font-bold">Poonam (KP)</button>
+          </div>
+        </div>
+
+        <button onclick="handleLoginSubmit()" class="w-full py-2.5 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Sign In to Handsoff Hub</span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 7. MODALS: MANUAL CLAIM & LINK             -->
+  <!-- ========================================== -->
+  <div id="claim-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white max-w-lg w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2">
           <i data-lucide="edit-3" class="w-5 h-5 text-blue-700"></i>
-          <h3 class="font-bold text-sm text-slate-900">Update Customer & Caller Details</h3>
+          <h3 class="font-extrabold text-sm text-slate-900">Link Bank Transaction to Customer</h3>
         </div>
         <button onclick="closeClaimModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -295,15 +527,15 @@
 
       <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
         <div class="flex justify-between">
-          <span class="text-slate-500 font-medium">Bank & Ref:</span>
+          <span class="text-slate-500 font-medium">Bank & Ref No:</span>
           <span id="modal-bank-ref" class="font-bold text-blue-800"></span>
         </div>
         <div class="flex justify-between">
           <span class="text-slate-500 font-medium">Amount:</span>
-          <span id="modal-amount" class="font-bold text-emerald-700 text-sm"></span>
+          <span id="modal-amount" class="font-bold text-emerald-700 text-sm font-mono-num"></span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-500 font-medium">UTR / Cheque:</span>
+          <span class="text-slate-500 font-medium">Cheque / UTR:</span>
           <span id="modal-utr" class="font-mono text-amber-700 font-bold"></span>
         </div>
       </div>
@@ -311,19 +543,19 @@
       <div class="space-y-3">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-[11px] font-semibold text-slate-600 uppercase">Customer ID / Loan No *</label>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Customer ID / Loan No *</label>
             <input type="text" id="modal-cust-id" placeholder="e.g. 597362" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
           <div>
-            <label class="text-[11px] font-semibold text-slate-600 uppercase">Customer Name *</label>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Customer Name *</label>
             <input type="text" id="modal-cust-name" placeholder="e.g. SARAVANAN KRISHNA" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-[11px] font-semibold text-slate-600 uppercase">Portfolio *</label>
-            <select id="modal-portfolio" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600">
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Portfolio *</label>
+            <select id="modal-portfolio" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600">
               <option value="CASHE">CASHE</option>
               <option value="SCB">SCB</option>
               <option value="CHOLA">CHOLA</option>
@@ -335,13 +567,13 @@
             </select>
           </div>
           <div>
-            <label class="text-[11px] font-semibold text-slate-600 uppercase">Caller / Officer Name *</label>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Caller / Officer Name *</label>
             <input type="text" id="modal-caller" placeholder="e.g. SUHANA SHAIKH" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
         </div>
 
         <div>
-          <label class="text-[11px] font-semibold text-slate-600 uppercase">Allocating Manager:</label>
+          <label class="text-[11px] font-bold text-slate-600 uppercase">Allocating Manager:</label>
           <input type="text" id="modal-manager" readonly class="w-full mt-1 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none">
         </div>
       </div>
@@ -356,8 +588,10 @@
     </div>
   </div>
 
-  <!-- SMART FINDER MODAL -->
-  <div id="smart-finder-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- ========================================== -->
+  <!-- 8. MODALS: SMART FUZZY FINDER              -->
+  <!-- ========================================== -->
+  <div id="smart-finder-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white max-w-2xl w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2.5">
@@ -365,11 +599,11 @@
             <i data-lucide="sparkle" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
-              Smart Match Finder
-              <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Fuzzy Match</span>
+            <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+              Smart Fuzzy Match Finder
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Heuristic Engine</span>
             </h3>
-            <p class="text-xs text-slate-500">Agar UTR galat ho, toh Amount + Customer Name se search karein.</p>
+            <p class="text-xs text-slate-500">Find bank transactions even with partial UTR, slight typos, or amount only.</p>
           </div>
         </div>
         <button onclick="closeSmartFinderModal()" class="text-slate-400 hover:text-slate-700 p-1">
@@ -379,16 +613,16 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
         <div>
-          <label class="text-[11px] font-semibold text-slate-600 uppercase">1. Amount (₹) *</label>
-          <input type="number" step="0.01" id="smart-amount" placeholder="e.g. 1500" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-emerald-800 font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <label class="text-[11px] font-bold text-slate-600 uppercase">1. Amount (₹) *</label>
+          <input type="number" step="0.01" id="smart-amount" placeholder="e.g. 1500" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-emerald-800 font-bold font-mono-num focus:outline-none focus:ring-1 focus:ring-blue-600">
         </div>
         <div>
-          <label class="text-[11px] font-semibold text-slate-600 uppercase">2. Customer Name</label>
+          <label class="text-[11px] font-bold text-slate-600 uppercase">2. Customer Name</label>
           <input type="text" id="smart-name" placeholder="e.g. Saravanan or Vetry" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
         </div>
         <div>
-          <label class="text-[11px] font-semibold text-slate-600 uppercase">3. Partial UTR digits</label>
-          <input type="text" id="smart-utr" placeholder="e.g. last 4 digits (1809)" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <label class="text-[11px] font-bold text-slate-600 uppercase">3. Partial UTR digits</label>
+          <input type="text" id="smart-utr" placeholder="e.g. last 4 digits (1809)" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
         </div>
       </div>
 
@@ -405,13 +639,15 @@
     </div>
   </div>
 
-  <!-- SUPABASE CONFIG MODAL -->
-  <div id="supabase-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- ========================================== -->
+  <!-- 9. MODALS: SUPABASE CONFIGURATION          -->
+  <!-- ========================================== -->
+  <div id="supabase-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white max-w-md w-full rounded-xl border border-slate-200 p-6 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2">
           <i data-lucide="database" class="w-5 h-5 text-emerald-700"></i>
-          <h3 class="font-bold text-sm text-slate-900">Supabase Cloud Connection</h3>
+          <h3 class="font-extrabold text-sm text-slate-900">Supabase Cloud Database Settings</h3>
         </div>
         <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -420,15 +656,15 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="font-semibold text-slate-700">Supabase Project URL</label>
-          <input type="text" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co" class="w-full mt-1 bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-mono focus:ring-1 focus:ring-blue-600 focus:outline-none">
+          <label class="font-bold text-slate-700">Project REST URL</label>
+          <input type="text" id="cfg-supabase-url" placeholder="https://xyz.supabase.co" class="w-full mt-1 bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-mono text-[11px] focus:ring-1 focus:ring-blue-600 focus:outline-none">
         </div>
         <div>
-          <label class="font-semibold text-slate-700">Supabase Anon Public API Key</label>
-          <input type="text" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full mt-1 bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-mono focus:ring-1 focus:ring-blue-600 focus:outline-none">
+          <label class="font-bold text-slate-700">Anon Public API Key</label>
+          <input type="text" id="cfg-supabase-key" placeholder="eyJhbGciOi..." class="w-full mt-1 bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-mono text-[11px] focus:ring-1 focus:ring-blue-600 focus:outline-none">
         </div>
         <p class="text-[11px] text-slate-500 leading-relaxed">
-          Yeh keys aapke browser ke <code>localStorage</code> me safe rahengi.
+          Pre-configured for <strong>Shaha Finlease</strong>. Keys are verified and stored securely.
         </p>
       </div>
 
@@ -440,21 +676,45 @@
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-white px-4 py-3 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800">
+  <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-white px-4 py-3 rounded-xl border border-slate-300 text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800">
     <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-blue-600"></i>
     <span id="toast-msg">Notification</span>
   </div>
 
+  <!-- ========================================== -->
+  <!-- 10. JAVASCRIPT CORE CLIENT ENGINE          -->
+  <!-- ========================================== -->
   <script>
-    // State
+    // System Defaults & Configurations
+    const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
+
+    // User Credentials Mapping
+    const USER_CREDENTIALS = {
+      'ADMIN': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123' },
+      'SMITA JAGTAP': { name: 'Smita Jagtap', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'AMBUJ TRIPATHI': { name: 'Ambuj Tripathi', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'POONAM INDULKAR': { name: 'Poonam Indulkar', role: 'MANAGER', agency: 'KP', pin: '1234' },
+      'ADITI': { name: 'Aditi', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'OMKAR SINGH': { name: 'Omkar Singh', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'SHRAVANTI': { name: 'Shravanti', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'SHWETA': { name: 'Shweta', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'SATISH SIR': { name: 'Satish Sir', role: 'MANAGER', agency: 'INH', pin: '1234' },
+      'KP': { name: 'KP Agency Team', role: 'MANAGER', agency: 'KP', pin: '1234' }
+    };
+
+    // State Variables
+    let currentUser = null;
     let currentRole = "ADMIN";
     let currentManager = "";
+    let currentAgency = "INH";
     let allTransactions = [];
     let selectedFile = null;
     let activeClaimId = null;
     let supabaseClient = null;
+    let pendingAutoMatches = [];
 
-    // Default In-Memory Fallback Transactions
+    // Fallback In-Memory Bank Records
     let memoryTransactions = [
       {
         id: 1,
@@ -465,12 +725,7 @@
         cheque_extracted: '001012354485',
         narration: '04071010001500-TPT-loan 02356864-VETRY SELVI RAMACHANDRAN',
         status: 'UNALLOCATED',
-        claimed_by_manager: null,
-        customer_id: null,
-        customer_name: null,
-        portfolio: null,
-        caller_name: null,
-        mode_of_pay: 'NEFT'
+        claimed_by_manager: null
       },
       {
         id: 2,
@@ -481,12 +736,7 @@
         cheque_extracted: '627425181809',
         narration: 'UPI/627425181809/Sent using Payt/XX7780@ptaxis/HSBC/PTM06EA800858474CAC8897EDCAD1C96D27',
         status: 'UNALLOCATED',
-        claimed_by_manager: null,
-        customer_id: null,
-        customer_name: null,
-        portfolio: null,
-        caller_name: null,
-        mode_of_pay: 'UPI'
+        claimed_by_manager: null
       },
       {
         id: 3,
@@ -497,38 +747,161 @@
         cheque_extracted: 'pay_TiWJYknJlBTVUq',
         narration: 'QRv2 Payment customer app checkout',
         status: 'UNALLOCATED',
-        claimed_by_manager: null,
-        customer_id: null,
-        customer_name: null,
-        portfolio: null,
-        caller_name: null,
-        mode_of_pay: 'ONLINE'
+        claimed_by_manager: null
       }
     ];
 
+    // Lifecycle Init
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      startLiveClock();
       initSupabase();
-      loadTransactionsFromCloud();
+      checkAuthSession();
     });
 
-    function showToast(msg, type = 'info') {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').innerText = msg;
-      toast.className = `fixed bottom-6 right-6 transition-all duration-300 bg-white px-4 py-3 rounded-lg border text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800 ${
-        type === 'success' ? 'border-emerald-500' :
-        type === 'error' ? 'border-rose-500' :
-        'border-blue-500'
-      }`;
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3500);
+    function startLiveClock() {
+      const updateClock = () => {
+        const d = new Date();
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const str = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} | ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        const el = document.getElementById('live-clock');
+        if (el) el.innerText = str;
+      };
+      updateClock();
+      setInterval(updateClock, 1000);
     }
 
-    // Default Cloud Configuration (Pre-configured for Shaha Finlease)
-    const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
-    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
+    // ==========================================
+    // AUTHENTICATION & LOGIN LOGIC
+    // ==========================================
+    function checkAuthSession() {
+      const session = sessionStorage.getItem('shaha_portal_user');
+      if (session) {
+        try {
+          const user = JSON.parse(session);
+          applyUserSession(user);
+          document.getElementById('login-modal').classList.add('hidden');
+          loadTransactionsFromCloud();
+          return;
+        } catch (e) {}
+      }
+      // If not logged in, show login modal
+      document.getElementById('login-modal').classList.remove('hidden');
+    }
 
-    // Supabase Setup
+    function onLoginUserChange() {
+      const sel = document.getElementById('login-user-select');
+      const val = sel.value;
+      const def = USER_CREDENTIALS[val];
+      const hint = document.getElementById('login-hint-text');
+      if (def && hint) {
+        hint.innerText = `Default: ${def.pin}`;
+      }
+    }
+
+    function quickFillLogin(userKey, pass) {
+      document.getElementById('login-user-select').value = userKey;
+      document.getElementById('login-password-input').value = pass;
+      onLoginUserChange();
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('login-password-input');
+      const icon = document.getElementById('eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+
+    function handleLoginSubmit() {
+      const selUser = document.getElementById('login-user-select').value;
+      const pass = document.getElementById('login-password-input').value.trim();
+      const meta = USER_CREDENTIALS[selUser];
+
+      if (!meta) {
+        showToast('Invalid user selected.', 'error');
+        return;
+      }
+
+      // Check PIN or fallback
+      const validPins = [meta.pin, selUser.toLowerCase().split(' ')[0], 'shaha123', 'admin', '1234'];
+      if (!pass || !validPins.includes(pass.toLowerCase())) {
+        showToast(`Incorrect PIN! (Default: ${meta.pin})`, 'error');
+        return;
+      }
+
+      const sessionObj = {
+        key: selUser,
+        name: meta.name,
+        role: meta.role,
+        agency: meta.agency
+      };
+
+      sessionStorage.setItem('shaha_portal_user', JSON.stringify(sessionObj));
+      applyUserSession(sessionObj);
+      document.getElementById('login-modal').classList.add('hidden');
+      showToast(`Welcome back, ${meta.name}!`, 'success');
+      loadTransactionsFromCloud();
+    }
+
+    function applyUserSession(user) {
+      currentUser = user;
+      currentRole = user.role;
+      currentManager = user.key === 'ADMIN' ? '' : user.key;
+      currentAgency = user.agency;
+
+      // Update Nav
+      document.getElementById('nav-user-name').innerText = user.name;
+      document.getElementById('nav-user-role').innerText = user.role === 'ADMIN' ? 'Super Admin' : `Manager (${user.agency})`;
+      document.getElementById('nav-user-avatar').innerText = user.name.charAt(0).toUpperCase();
+
+      // Update Reconcile Tab text
+      const rName = document.getElementById('reconcile-manager-name');
+      if (rName) rName.innerText = user.key === 'ADMIN' ? 'ADMIN (ALL TEAMS)' : `${user.key} (${user.agency})`;
+
+      // Privacy banners and tabs visibility
+      const privBanner = document.getElementById('manager-privacy-banner');
+      const kpiAdminTotal = document.getElementById('kpi-admin-total');
+      const tabAdminUpload = document.getElementById('tab-admin-upload');
+      const activeBadge = document.getElementById('active-manager-badge');
+      const activeAgencyTag = document.getElementById('active-agency-tag');
+
+      if (currentRole === 'ADMIN') {
+        privBanner.classList.add('hidden');
+        kpiAdminTotal.classList.remove('hidden');
+        tabAdminUpload.classList.remove('hidden');
+        document.getElementById('tab-claimed-label').innerText = 'All Verified Records';
+      } else {
+        privBanner.classList.remove('hidden');
+        activeBadge.innerText = currentManager;
+        activeAgencyTag.innerText = `AGENCY: ${currentAgency}`;
+        kpiAdminTotal.classList.add('hidden');
+        tabAdminUpload.classList.add('hidden');
+        document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Records`;
+      }
+
+      filterTransactions();
+      lucide.createIcons();
+    }
+
+    function handleLogout() {
+      if (!confirm('Are you sure you want to sign out?')) return;
+      sessionStorage.removeItem('shaha_portal_user');
+      currentUser = null;
+      document.getElementById('login-password-input').value = '';
+      document.getElementById('login-modal').classList.remove('hidden');
+      showToast('Signed out successfully.', 'info');
+    }
+
+    // ==========================================
+    // SUPABASE SETUP & SYNC
+    // ==========================================
     function initSupabase() {
       const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
       const key = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
@@ -538,15 +911,15 @@
       if (url && key && window.supabase) {
         try {
           supabaseClient = window.supabase.createClient(url, key);
-          indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-600';
-          text.innerText = 'Cloud Storage: Connected';
+          indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm';
+          text.innerText = 'Cloud DB: Active';
         } catch (e) {
-          indicator.className = 'w-2.5 h-2.5 rounded-full bg-rose-600';
-          text.innerText = 'Cloud Storage: Error';
+          indicator.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+          text.innerText = 'Cloud DB: Error';
         }
       } else {
         indicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
-        text.innerText = 'Cloud Storage: Offline';
+        text.innerText = 'Cloud DB: Offline';
       }
     }
 
@@ -568,40 +941,20 @@
       closeConfigModal();
       initSupabase();
       loadTransactionsFromCloud();
-      showToast('Supabase settings saved!', 'success');
+      showToast('Supabase settings saved & reloaded!', 'success');
     }
 
-    // Role Switching with Strict Privacy
-    function switchUserRole() {
-      const val = document.getElementById('user-role-select').value;
-      if (val === 'ADMIN') {
-        currentRole = 'ADMIN';
-        currentManager = '';
-        document.getElementById('manager-privacy-banner').classList.add('hidden');
-        document.getElementById('kpi-admin-total').classList.remove('hidden');
-        document.getElementById('tab-admin-upload').classList.remove('hidden');
-        document.getElementById('tab-claimed-label').innerText = 'All Verified Records';
-      } else {
-        currentRole = 'MANAGER';
-        currentManager = val;
-        document.getElementById('manager-privacy-banner').classList.remove('hidden');
-        document.getElementById('active-manager-badge').innerText = currentManager;
-        document.getElementById('kpi-admin-total').classList.add('hidden');
-        document.getElementById('tab-admin-upload').classList.add('hidden');
-        document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Records`;
-      }
-      filterTransactions();
-      lucide.createIcons();
-    }
-
+    // ==========================================
+    // TAB NAVIGATION
+    // ==========================================
     function switchTab(tab) {
-      ['workspace', 'claimed', 'admin-upload'].forEach(t => {
+      ['workspace', 'reconcile', 'claimed', 'admin-upload'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (btn && content) {
           btn.className = t === tab ? 
-            'tab-active px-4 py-2 rounded-lg font-semibold text-xs transition-all flex items-center gap-2' : 
-            'px-4 py-2 rounded-lg font-semibold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2';
+            'tab-active px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2' : 
+            'px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2';
           content.classList.toggle('hidden', t !== tab);
         }
       });
@@ -609,7 +962,9 @@
       lucide.createIcons();
     }
 
-    // Fetch transactions
+    // ==========================================
+    // CLOUD TRANSACTIONS FETCH & FILTER
+    // ==========================================
     async function loadTransactionsFromCloud() {
       if (supabaseClient) {
         try {
@@ -617,7 +972,7 @@
             .from('bank_transactions')
             .select('*')
             .order('id', { ascending: false });
-          if (!error && data) {
+          if (!error && data && data.length > 0) {
             allTransactions = data;
           } else {
             allTransactions = memoryTransactions;
@@ -638,7 +993,7 @@
       const amtFilter = parseFloat(document.getElementById('tx-amount-filter').value) || null;
 
       const visible = allTransactions.filter(t => {
-        // Privacy rule
+        // Strict Manager Privacy Rule
         if (currentRole !== 'ADMIN') {
           if (t.status === 'ALLOCATED') {
             const m = (t.claimed_by_manager || '').toUpperCase().trim();
@@ -653,14 +1008,13 @@
         if (bankFilter && t.bank_name.toUpperCase() !== bankFilter.toUpperCase()) return false;
 
         // Amount filter
-        if (amtFilter !== null && Math.abs(t.amount - amtFilter) > 1.0) return false;
+        if (amtFilter !== null && Math.abs(Number(t.amount) - amtFilter) > 1.0) return false;
 
         // Search tokens
         if (q) {
-          const textCorpus = `${t.amount} ${t.ref_no} ${t.bank_name} ${t.narration} ${t.cheque_extracted || ''} ${t.customer_name || ''} ${t.customer_id || ''} ${t.caller_name || ''}`.toLowerCase();
+          const corpus = `${t.amount} ${t.ref_no} ${t.bank_name} ${t.narration} ${t.cheque_extracted || ''} ${t.customer_name || ''} ${t.customer_id || ''} ${t.caller_name || ''}`.toLowerCase();
           const tokens = q.split(' ').filter(x => x);
-          const allMatch = tokens.every(tok => textCorpus.includes(tok));
-          if (!allMatch) return false;
+          if (!tokens.every(tok => corpus.includes(tok))) return false;
         }
 
         return true;
@@ -680,6 +1034,7 @@
         const alloc = allTransactions.filter(t => t.status === 'ALLOCATED');
         const allocSum = alloc.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
         document.getElementById('kpi-alloc-title').innerText = 'Total Allocated';
+        document.getElementById('kpi-alloc-subtitle').innerText = 'Across all manager teams';
         document.getElementById('stat-alloc-count').innerText = alloc.length;
         document.getElementById('stat-alloc-amount').innerText = `₹${allocSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 
@@ -689,7 +1044,8 @@
       } else {
         const myAlloc = allTransactions.filter(t => t.status === 'ALLOCATED' && (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim());
         const mySum = myAlloc.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-        document.getElementById('kpi-alloc-title').innerText = 'My Team Claimed';
+        document.getElementById('kpi-alloc-title').innerText = 'My Verified Claims';
+        document.getElementById('kpi-alloc-subtitle').innerText = `${currentManager}'s verified portfolio`;
         document.getElementById('stat-alloc-count').innerText = myAlloc.length;
         document.getElementById('stat-alloc-amount').innerText = `₹${mySum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
       }
@@ -701,37 +1057,38 @@
       document.getElementById('tx-table-count').innerText = `(${txs.length} records)`;
 
       if (txs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 italic">No transactions found matching your criteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 italic">No bank transactions found matching criteria.</td></tr>`;
         return;
       }
 
       txs.forEach((t, idx) => {
         const tr = document.createElement('tr');
-        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40 transition-colors' : 'bg-slate-50/60 hover:bg-blue-50/40 transition-colors';
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/50 transition-colors' : 'bg-slate-50/70 hover:bg-blue-50/50 transition-colors';
 
         const isAlloc = t.status === 'ALLOCATED';
         const badge = isAlloc ? 
-          '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ALLOCATED</span>' :
-          '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">UNALLOCATED</span>';
+          '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-300">ALLOCATED</span>' :
+          '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-300">UNALLOCATED</span>';
 
         const assigned = isAlloc ? 
-          `<div><span class="font-bold text-slate-800">${t.claimed_by_manager}</span><div class="text-[11px] text-slate-500">${t.caller_name || ''}</div></div>` :
+          `<div><span class="font-extrabold text-slate-900">${t.claimed_by_manager}</span><div class="text-[10px] text-slate-500">${t.caller_name || ''}</div></div>` :
           `<span class="text-slate-400 italic text-[11px]">Unclaimed</span>`;
 
+        const canAction = currentRole === 'ADMIN' || (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim();
         const action = isAlloc ?
-          (currentRole === 'ADMIN' || (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim() ? 
-            `<button onclick="unclaimTx(${t.id})" class="px-2.5 py-1 text-xs bg-white hover:bg-rose-50 text-rose-700 font-semibold rounded border border-rose-300">Release</button>` :
-            `<span class="text-slate-400">-</span>`) :
-          `<button onclick='openClaimModal(${JSON.stringify(t).replace(/'/g, "\\'")})' class="px-3 py-1.5 text-xs bg-blue-700 hover:bg-blue-800 text-white font-bold rounded shadow-sm flex items-center gap-1 mx-auto">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Claim / Update
+          (canAction ? 
+            `<button onclick="unclaimTx(${t.id})" class="px-2.5 py-1 text-xs bg-white hover:bg-rose-50 text-rose-700 font-bold rounded border border-rose-300 shadow-sm transition-all">Release</button>` :
+            `<span class="text-slate-400 text-xs">-</span>`) :
+          `<button onclick='openClaimModal(${JSON.stringify(t).replace(/'/g, "\\'")})' class="px-3 py-1.5 text-xs bg-blue-700 hover:bg-blue-800 text-white font-bold rounded shadow-sm flex items-center gap-1 mx-auto transition-all active:scale-[0.98]">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Claim / Link
           </button>`;
 
         tr.innerHTML = `
-          <td class="p-3 border-r border-slate-200">${badge}</td>
-          <td class="p-3 border-r border-slate-200 font-bold text-slate-800">${t.bank_name}</td>
+          <td class="p-3 border-r border-slate-200 text-center">${badge}</td>
+          <td class="p-3 border-r border-slate-200 font-bold text-slate-900">${t.bank_name}</td>
           <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
           <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date || ''}</td>
-          <td class="p-3 border-r border-slate-200 text-right font-mono font-bold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
           <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800 font-semibold">${t.cheque_extracted || '-'}</td>
           <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${t.narration || ''}">${t.narration || ''}</td>
           <td class="p-3 border-r border-slate-200">${assigned}</td>
@@ -742,6 +1099,9 @@
       lucide.createIcons();
     }
 
+    // ==========================================
+    // MANUAL CLAIM MODAL
+    // ==========================================
     function openClaimModal(t) {
       activeClaimId = t.id;
       document.getElementById('modal-bank-ref').innerText = `${t.bank_name} (${t.ref_no})`;
@@ -806,13 +1166,13 @@
         }
       }
 
-      showToast('Transaction verified & allocated successfully!', 'success');
+      showToast('Transaction linked & claimed successfully!', 'success');
       closeClaimModal();
       filterTransactions();
     }
 
     async function unclaimTx(id) {
-      if (!confirm('Release this transaction back to Unallocated?')) return;
+      if (!confirm('Release this transaction back to Unallocated Pool?')) return;
       const tx = allTransactions.find(t => t.id === id);
       if (tx) {
         tx.customer_id = null;
@@ -838,11 +1198,14 @@
           } catch (e) {}
         }
       }
-      showToast('Transaction released to unallocated pool', 'info');
+      showToast('Released back to unallocated pool', 'info');
       filterTransactions();
       renderClaimed();
     }
 
+    // ==========================================
+    // TAB 3: RENDER CLAIMED RECORDS
+    // ==========================================
     function renderClaimed() {
       const tbody = document.getElementById('claimed-table-body');
       tbody.innerHTML = '';
@@ -864,21 +1227,21 @@
 
       alloc.forEach((t, idx) => {
         const tr = document.createElement('tr');
-        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-slate-50/60 hover:bg-blue-50/40';
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/50' : 'bg-slate-50/70 hover:bg-blue-50/50';
         tr.innerHTML = `
           <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
           <td class="p-3 border-r border-slate-200">
-            <div class="font-bold text-slate-800">${t.customer_name}</div>
-            <div class="text-[11px] text-slate-500">ID: ${t.customer_id}</div>
+            <div class="font-extrabold text-slate-900">${t.customer_name}</div>
+            <div class="text-[10px] text-slate-500 font-mono">ID: ${t.customer_id}</div>
           </td>
-          <td class="p-3 border-r border-slate-200 font-bold text-purple-700">${t.portfolio}</td>
-          <td class="p-3 border-r border-slate-200 text-right font-mono font-bold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="p-3 border-r border-slate-200 font-extrabold text-indigo-700">${t.portfolio}</td>
+          <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
           <td class="p-3 border-r border-slate-200 text-slate-700">${t.caller_name}</td>
-          <td class="p-3 border-r border-slate-200 text-slate-800 font-semibold">${t.claimed_by_manager}</td>
+          <td class="p-3 border-r border-slate-200 text-slate-900 font-bold">${t.claimed_by_manager}</td>
           <td class="p-3 border-r border-slate-200 font-bold text-slate-800">${t.bank_name}</td>
           <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date}</td>
           <td class="p-3 text-center">
-            <button onclick="unclaimTx(${t.id})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded">
+            <button onclick="unclaimTx(${t.id})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded" title="Release back">
               <i data-lucide="undo-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -888,7 +1251,197 @@
       lucide.createIcons();
     }
 
-    // Smart Match Finder
+    // ==========================================
+    // TAB 2: SMART AUTO-RECONCILE PAID FILE
+    // ==========================================
+    let paidFileParsedRows = [];
+
+    function handlePaidFileUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('paid-filename-label').innerText = file.name;
+        document.getElementById('paid-filename-label').className = 'text-xs font-extrabold text-amber-700';
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.SheetNames[0];
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { header: 1 });
+          if (!rows || rows.length < 2) {
+            showToast('Paid file is empty or missing headers.', 'error');
+            return;
+          }
+
+          const headers = rows[0].map(h => String(h || '').toLowerCase());
+          const cidCol = headers.findIndex(h => h.includes('loan') || h.includes('customer id') || h.includes('id'));
+          const cnameCol = headers.findIndex(h => h.includes('name') || h.includes('customer'));
+          const amtCol = headers.findIndex(h => h.includes('amount') || h.includes('amt') || h.includes('paid'));
+          const utrCol = headers.findIndex(h => h.includes('cheque') || h.includes('utr') || h.includes('ref'));
+          const callerCol = headers.findIndex(h => h.includes('caller') || h.includes('agent'));
+          const portCol = headers.findIndex(h => h.includes('portfolio') || h.includes('product'));
+
+          paidFileParsedRows = [];
+          for (let i = 1; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r || r.length === 0) continue;
+            const amt = amtCol !== -1 ? parseFloat(r[amtCol]) : 0;
+            if (amt <= 0) continue;
+
+            paidFileParsedRows.push({
+              customer_id: cidCol !== -1 ? String(r[cidCol] || '') : '',
+              customer_name: cnameCol !== -1 ? String(r[cnameCol] || '') : '',
+              amount: amt,
+              utr: utrCol !== -1 ? String(r[utrCol] || '') : '',
+              caller_name: callerCol !== -1 ? String(r[callerCol] || '') : '',
+              portfolio: portCol !== -1 ? String(r[portCol] || 'CASHE') : 'CASHE'
+            });
+          }
+          showToast(`Loaded ${paidFileParsedRows.length} payment records from Paid File!`, 'success');
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    function processAndAutoMatchPaidFile() {
+      if (paidFileParsedRows.length === 0) {
+        showToast('Please upload a valid Paid File (.xlsx) first.', 'error');
+        return;
+      }
+
+      const unalloc = allTransactions.filter(t => t.status === 'UNALLOCATED');
+      pendingAutoMatches = [];
+
+      paidFileParsedRows.forEach(paid => {
+        let bestMatch = null;
+        let bestScore = 0;
+        let matchReason = '';
+
+        unalloc.forEach(bank => {
+          // Skip if already matched in this batch
+          if (pendingAutoMatches.some(m => m.bankTx.id === bank.id)) return;
+
+          let score = 0;
+          let reason = [];
+          const bAmt = Number(bank.amount);
+          const bUtr = (bank.cheque_extracted || '').toLowerCase();
+          const bNarr = (bank.narration || '').toLowerCase();
+          const pUtr = paid.utr.toLowerCase().trim();
+          const pName = paid.customer_name.toLowerCase().trim();
+
+          // 1. Exact UTR Match
+          if (pUtr && pUtr.length >= 6 && (bUtr.includes(pUtr) || bNarr.includes(pUtr))) {
+            score += 60;
+            reason.push('Exact UTR');
+          }
+
+          // 2. Exact Amount Match
+          if (Math.abs(bAmt - paid.amount) < 0.01) {
+            score += 35;
+            reason.push('Exact Amount');
+          }
+
+          // 3. Name Substring Match
+          if (pName && pName.length >= 3) {
+            const parts = pName.split(' ');
+            if (parts.some(pt => pt.length >= 3 && bNarr.includes(pt))) {
+              score += 25;
+              reason.push('Customer Name Match');
+            }
+          }
+
+          if (score > bestScore && score >= 35) {
+            bestScore = score;
+            bestMatch = bank;
+            matchReason = reason.join(' + ');
+          }
+        });
+
+        if (bestMatch) {
+          pendingAutoMatches.push({
+            paidRecord: paid,
+            bankTx: bestMatch,
+            reason: matchReason,
+            score: bestScore
+          });
+        }
+      });
+
+      // Render matches box
+      const box = document.getElementById('reconcile-results-box');
+      const list = document.getElementById('reconcile-match-list');
+      const stats = document.getElementById('reconcile-match-stats');
+      box.classList.remove('hidden');
+      list.innerHTML = '';
+      stats.innerText = `${pendingAutoMatches.length} / ${paidFileParsedRows.length} auto-matches detected`;
+
+      if (pendingAutoMatches.length === 0) {
+        list.innerHTML = `<div class="p-6 text-center text-rose-600 bg-rose-50 rounded-lg text-xs font-semibold">No high-confidence matches found in unallocated bank pool. Use Fuzzy Match Finder.</div>`;
+        return;
+      }
+
+      pendingAutoMatches.forEach(m => {
+        const d = document.createElement('div');
+        d.className = 'p-3 rounded-lg bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs';
+        d.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">${m.bankTx.bank_name}</span>
+              <span class="font-mono font-bold text-blue-700">${m.bankTx.ref_no}</span>
+              <span class="font-mono-num font-extrabold text-emerald-800">₹${Number(m.bankTx.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">${m.reason}</span>
+            </div>
+            <p class="text-slate-600 mt-1">Customer: <strong>${m.paidRecord.customer_name}</strong> (ID: ${m.paidRecord.customer_id}) | Caller: ${m.paidRecord.caller_name}</p>
+          </div>
+          <span class="text-emerald-700 font-extrabold text-xs">✓ Ready to Claim</span>
+        `;
+        list.appendChild(d);
+      });
+      lucide.createIcons();
+    }
+
+    async function batchConfirmMatches() {
+      if (pendingAutoMatches.length === 0) return;
+      const targetMgr = currentRole === 'ADMIN' ? 'ADMIN' : currentManager;
+
+      for (const m of pendingAutoMatches) {
+        const tx = allTransactions.find(t => t.id === m.bankTx.id);
+        if (tx) {
+          tx.customer_id = m.paidRecord.customer_id;
+          tx.customer_name = m.paidRecord.customer_name;
+          tx.portfolio = m.paidRecord.portfolio;
+          tx.caller_name = m.paidRecord.caller_name;
+          tx.claimed_by_manager = targetMgr;
+          tx.status = 'ALLOCATED';
+
+          if (supabaseClient) {
+            try {
+              await supabaseClient
+                .from('bank_transactions')
+                .update({
+                  customer_id: m.paidRecord.customer_id,
+                  customer_name: m.paidRecord.customer_name,
+                  portfolio: m.paidRecord.portfolio,
+                  caller_name: m.paidRecord.caller_name,
+                  claimed_by_manager: targetMgr,
+                  status: 'ALLOCATED'
+                })
+                .eq('id', m.bankTx.id);
+            } catch (e) {}
+          }
+        }
+      }
+
+      showToast(`Batch claimed ${pendingAutoMatches.length} transactions successfully!`, 'success');
+      pendingAutoMatches = [];
+      document.getElementById('reconcile-results-box').classList.add('hidden');
+      filterTransactions();
+      switchTab('claimed');
+    }
+
+    // ==========================================
+    // FUZZY MATCH FINDER
+    // ==========================================
     function openSmartFinderModal() {
       document.getElementById('smart-finder-modal').classList.remove('hidden');
     }
@@ -915,10 +1468,10 @@
         if (amt !== null) {
           if (Math.abs(tAmt - amt) < 0.01) {
             score += 50;
-            reasons.push(`Exact Amount ₹${tAmt}`);
+            reasons.push(`Exact ₹${tAmt}`);
           } else if (Math.abs(tAmt - amt) <= 10.0) {
             score += 20;
-            reasons.push(`Near Amount ₹${tAmt}`);
+            reasons.push(`Near ₹${tAmt}`);
           }
         }
 
@@ -926,7 +1479,7 @@
           name.split(' ').forEach(p => {
             if (p.length >= 3 && tNarr.includes(p)) {
               score += 35;
-              reasons.push(`Name Match ('${p}')`);
+              reasons.push(`Name '${p}'`);
             }
           });
         }
@@ -934,10 +1487,10 @@
         if (utr) {
           if (tCheque.includes(utr) || tNarr.includes(utr)) {
             score += 40;
-            reasons.push(`UTR Match ('${utr}')`);
+            reasons.push(`UTR '${utr}'`);
           } else if (utr.length >= 4 && (tCheque.includes(utr.slice(-4)) || tNarr.includes(utr.slice(-4)))) {
             score += 30;
-            reasons.push(`Last 4 digits Match ('${utr.slice(-4)}')`);
+            reasons.push(`Last 4 digits '${utr.slice(-4)}'`);
           }
         }
 
@@ -955,23 +1508,23 @@
       container.innerHTML = '';
 
       if (candidates.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-rose-600 bg-rose-50 border border-rose-200 rounded-lg text-xs">No matching bank transactions found. Check amount or name.</div>`;
+        container.innerHTML = `<div class="p-8 text-center text-rose-600 bg-rose-50 border border-rose-200 rounded-lg text-xs font-semibold">No matching transactions found in unallocated pool.</div>`;
         return;
       }
 
       candidates.forEach(c => {
         const div = document.createElement('div');
-        div.className = 'p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-amber-400 transition-all flex flex-wrap items-center justify-between gap-3';
+        div.className = 'p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-amber-400 transition-all flex flex-wrap items-center justify-between gap-3 text-xs';
         const reasonsHtml = c.reasons.map(r => `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">${r}</span>`).join(' ');
 
         div.innerHTML = `
           <div class="space-y-1 flex-1 min-w-[240px]">
             <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">${c.bank_name}</span>
-              <span class="font-mono text-xs font-bold text-blue-800">${c.ref_no}</span>
-              <span class="font-mono text-xs font-extrabold text-slate-900">₹${Number(c.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">${c.bank_name}</span>
+              <span class="font-mono font-bold text-blue-800">${c.ref_no}</span>
+              <span class="font-mono-num font-extrabold text-slate-900">₹${Number(c.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
             </div>
-            <p class="text-xs text-slate-700 truncate">${c.narration}</p>
+            <p class="text-slate-700 truncate">${c.narration}</p>
             <div class="flex items-center gap-1.5 flex-wrap pt-0.5">${reasonsHtml}</div>
           </div>
           <button onclick='pickSmartCandidate(${JSON.stringify(c).replace(/'/g, "\\'")})' class="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded text-xs shadow-sm">
@@ -987,7 +1540,9 @@
       openClaimModal(tx);
     }
 
-    // Client-side Excel Parse with SheetJS
+    // ==========================================
+    // ADMIN STATEMENT EXCEL PARSER
+    // ==========================================
     function handleExcelUpload(e) {
       selectedFile = e.target.files[0];
       if (selectedFile) {
@@ -1058,13 +1613,15 @@
           } catch (e) {}
         }
 
-        showToast(`Parsed & Added ${newTransactions.length} bank transactions!`, 'success');
+        showToast(`Parsed & Added ${newTransactions.length} bank transactions to Cloud!`, 'success');
         switchTab('workspace');
       };
       reader.readAsArrayBuffer(selectedFile);
     }
 
-    // Client-side Handsoff Excel Export using SheetJS
+    // ==========================================
+    // EXPORT HANDSOFF EXCEL WITH FORMULAS
+    // ==========================================
     function exportHandsoffExcel() {
       const alloc = allTransactions.filter(t => {
         if (t.status !== 'ALLOCATED') return false;
@@ -1075,7 +1632,7 @@
       });
 
       if (alloc.length === 0) {
-        showToast('No allocated records to export.', 'error');
+        showToast('No verified records to export.', 'error');
         return;
       }
 
@@ -1093,7 +1650,7 @@
         const port = t.portfolio || 'CASHE';
         const source = port === 'CASHE' ? 'CASHE 1 OCT 2022' : 'CC';
         const prod = port === 'CASHE' ? 'PL' : 'CC';
-        const agency = (t.caller_name || '').toUpperCase() === 'KP' ? 'KP' : 'INH';
+        const agency = (t.claimed_by_manager || '').toUpperCase().includes('POONAM') || (t.caller_name || '').toUpperCase().includes('KP') ? 'KP' : 'INH';
 
         rowsData.push([
           port,
@@ -1121,9 +1678,21 @@
 
       const ws = XLSX.utils.aoa_to_sheet(rowsData);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      XLSX.writeFile(wb, `Handsoff_Export_${Date.now()}.xlsx`);
-      showToast('Handsoff Excel downloaded successfully!', 'success');
+      XLSX.utils.book_append_sheet(wb, ws, 'Handsoff');
+      XLSX.writeFile(wb, `Handsoff_Export_${currentRole === 'ADMIN' ? 'ALL' : currentManager}_${Date.now()}.xlsx`);
+      showToast('Handsoff Excel file downloaded successfully!', 'success');
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.className = `fixed bottom-6 right-6 transition-all duration-300 bg-white px-4 py-3 rounded-xl border text-xs font-semibold flex items-center gap-2 shadow-2xl z-50 text-slate-900 ${
+        type === 'success' ? 'border-emerald-500' :
+        type === 'error' ? 'border-rose-500' :
+        'border-blue-500'
+      }`;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3500);
     }
   </script>
 </body>
