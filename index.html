@@ -202,8 +202,12 @@
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 pb-2">
       
       <div class="flex space-x-1.5 bg-slate-200/90 p-1.5 rounded-xl border border-slate-300">
-        <button onclick="switchTab('workspace')" id="tab-workspace" class="tab-active px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2">
-          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-active px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Executive Dashboard</span>
+        </button>
+        <button onclick="switchTab('workspace')" id="tab-workspace" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-slate-500"></i>
           <span>Bank Feed & Manual Match</span>
         </button>
         <button onclick="switchTab('claimed')" id="tab-claimed" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
@@ -233,12 +237,174 @@
   <!-- ========================================== -->
   <!-- 5. MAIN CONTENT PANELS                     -->
   <!-- ========================================== -->
-  <main class="max-w-7xl mx-auto w-full p-6 flex-1 space-y-4">
+  <main class="max-w-7xl mx-auto w-full p-6 flex-1 space-y-5">
 
     <!-- ---------------------------------------- -->
-    <!-- TAB 1: WORKSPACE (BANK TRANSACTIONS)     -->
+    <!-- TAB 1: EXECUTIVE DASHBOARD               -->
     <!-- ---------------------------------------- -->
-    <div id="content-workspace" class="space-y-4">
+    <div id="content-dashboard" class="space-y-5">
+      
+      <!-- Welcome Executive Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 p-6 rounded-2xl border border-slate-800 text-white shadow-md flex flex-wrap items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] uppercase font-bold tracking-wider">Executive Overview</span>
+            <span class="text-xs text-slate-400">| Shaha Finlease Pvt Ltd</span>
+          </div>
+          <h2 class="text-xl font-extrabold tracking-tight">Bank Statement & Collections Reconciliation</h2>
+          <p class="text-xs text-slate-300 font-medium max-w-xl">Live financial intelligence across recovery manager portfolios, banking statement feeds, and customer verified payments.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="switchTab('workspace')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center gap-2">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            <span>Go to Bank Feed</span>
+          </button>
+          <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center gap-2">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export Handsoff (.xlsx)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Key Metric Cards with Progress -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Card 1: Reconciled Volume -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Reconciled / Claimed</span>
+            <span id="dash-reconcile-pct" class="text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono-num">0%</span>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <h3 id="dash-reconciled-sum" class="text-2xl font-black text-slate-900 font-mono-num">₹0.00</h3>
+            <span id="dash-reconciled-count" class="text-xs font-bold text-emerald-700 font-mono-num">0 claims</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div id="dash-progress-bar" class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <p class="text-[11px] text-slate-400">Total verified amount matched with customer IDs</p>
+        </div>
+
+        <!-- Card 2: Pending Unallocated -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Bank Pool</span>
+            <span id="dash-pending-pct" class="text-xs font-extrabold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-mono-num">0%</span>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <h3 id="dash-unalloc-sum" class="text-2xl font-black text-amber-700 font-mono-num">₹0.00</h3>
+            <span id="dash-unalloc-count" class="text-xs font-bold text-amber-800 font-mono-num">0 pending</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div id="dash-pending-bar" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <p class="text-[11px] text-slate-400">Awaiting manager verification & customer linking</p>
+        </div>
+
+        <!-- Card 3: Total Inflow Multi-Bank -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Inflow Volume</span>
+            <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Multi-Bank</span>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <h3 id="dash-total-sum" class="text-2xl font-black text-slate-900 font-mono-num">₹0.00</h3>
+            <span id="dash-total-count" class="text-xs font-bold text-blue-700 font-mono-num">0 total txns</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-blue-600 h-2 rounded-full w-full"></div>
+          </div>
+          <p class="text-[11px] text-slate-400">Consolidated statement data across HDFC, ICICI & Razorpay</p>
+        </div>
+
+      </div>
+
+      <!-- Analytics Breakdown Grids -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
+        <!-- Left: Bank Distribution -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="landmark" class="w-4 h-4 text-blue-700"></i>
+              <span>Bank Statement Volume</span>
+            </h4>
+            <span class="text-[11px] text-slate-400 font-medium">Bank-wise</span>
+          </div>
+          <div id="dash-bank-list" class="space-y-3">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Center: Team & Manager Leaderboard -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+              <span>Manager Collections</span>
+            </h4>
+            <span class="text-[11px] text-slate-400 font-medium">Verified Claims</span>
+          </div>
+          <div id="dash-manager-leaderboard" class="space-y-2.5 max-h-[280px] overflow-y-auto table-container pr-1">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Right: Portfolio & Product Breakdown -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-600"></i>
+              <span>Portfolio Allocation</span>
+            </h4>
+            <span class="text-[11px] text-slate-400 font-medium">By Product</span>
+          </div>
+          <div id="dash-portfolio-list" class="space-y-2.5 max-h-[280px] overflow-y-auto table-container pr-1">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Verified Claims Table Preview -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4 text-slate-700"></i>
+            <h4 class="font-extrabold text-xs text-slate-800 uppercase tracking-wider">Latest Verified Transactions</h4>
+          </div>
+          <button onclick="switchTab('claimed')" class="text-xs font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1">
+            <span>View All Records</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <div class="overflow-x-auto table-container">
+          <table class="w-full text-left text-xs text-slate-700 border-collapse">
+            <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold border-b border-slate-200">
+              <tr>
+                <th class="p-3 border-r border-slate-200">Ref No</th>
+                <th class="p-3 border-r border-slate-200">Customer Name / ID</th>
+                <th class="p-3 border-r border-slate-200">Portfolio</th>
+                <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
+                <th class="p-3 border-r border-slate-200">Caller / Officer</th>
+                <th class="p-3 border-r border-slate-200">Manager</th>
+                <th class="p-3">Bank</th>
+              </tr>
+            </thead>
+            <tbody id="dash-recent-tbody" class="divide-y divide-slate-200 bg-white font-medium">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ---------------------------------------- -->
+    <!-- TAB 2: WORKSPACE (BANK TRANSACTIONS)     -->
+    <!-- ---------------------------------------- -->
+    <div id="content-workspace" class="space-y-4 hidden">
       
       <!-- Filter Toolbar -->
       <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
@@ -1169,7 +1335,7 @@
     // TAB NAVIGATION
     // ==========================================
     function switchTab(tab) {
-      ['workspace', 'claimed', 'admin-upload'].forEach(t => {
+      ['dashboard', 'workspace', 'claimed', 'admin-upload'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (btn && content) {
@@ -1179,7 +1345,191 @@
           content.classList.toggle('hidden', t !== tab);
         }
       });
+      if (tab === 'dashboard') renderDashboardAnalytics();
       if (tab === 'claimed') renderClaimed();
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // EXECUTIVE DASHBOARD ANALYTICS RENDERER
+    // ==========================================
+    function renderDashboardAnalytics() {
+      const totalCount = allTransactions.length;
+      const totalSum = allTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED');
+      const allocCount = alloc.length;
+      const allocSum = alloc.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+      const unalloc = allTransactions.filter(t => t.status === 'UNALLOCATED');
+      const unallocCount = unalloc.length;
+      const unallocSum = unalloc.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+      const recPct = totalSum > 0 ? Math.round((allocSum / totalSum) * 100) : 0;
+      const penPct = 100 - recPct;
+
+      // Update KPI widgets
+      const recPctEl = document.getElementById('dash-reconcile-pct');
+      if (recPctEl) recPctEl.innerText = `${recPct}%`;
+      const recSumEl = document.getElementById('dash-reconciled-sum');
+      if (recSumEl) recSumEl.innerText = `₹${allocSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const recCntEl = document.getElementById('dash-reconciled-count');
+      if (recCntEl) recCntEl.innerText = `${allocCount} claims`;
+      const pBar = document.getElementById('dash-progress-bar');
+      if (pBar) pBar.style.width = `${recPct}%`;
+
+      const penPctEl = document.getElementById('dash-pending-pct');
+      if (penPctEl) penPctEl.innerText = `${penPct}%`;
+      const unSumEl = document.getElementById('dash-unalloc-sum');
+      if (unSumEl) unSumEl.innerText = `₹${unallocSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const unCntEl = document.getElementById('dash-unalloc-count');
+      if (unCntEl) unCntEl.innerText = `${unallocCount} pending`;
+      const penBar = document.getElementById('dash-pending-bar');
+      if (penBar) penBar.style.width = `${penPct}%`;
+
+      const totSumEl = document.getElementById('dash-total-sum');
+      if (totSumEl) totSumEl.innerText = `₹${totalSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      const totCntEl = document.getElementById('dash-total-count');
+      if (totCntEl) totCntEl.innerText = `${totalCount} total txns`;
+
+      // 1. Bank Breakdown
+      const bankStats = {};
+      allTransactions.forEach(t => {
+        const b = (t.bank_name || 'OTHER').toUpperCase();
+        if (!bankStats[b]) bankStats[b] = { count: 0, sum: 0, allocCount: 0, allocSum: 0 };
+        bankStats[b].count++;
+        bankStats[b].sum += (Number(t.amount) || 0);
+        if (t.status === 'ALLOCATED') {
+          bankStats[b].allocCount++;
+          bankStats[b].allocSum += (Number(t.amount) || 0);
+        }
+      });
+
+      const bankList = document.getElementById('dash-bank-list');
+      if (bankList) {
+        bankList.innerHTML = '';
+        const bKeys = Object.keys(bankStats);
+        if (bKeys.length === 0) {
+          bankList.innerHTML = '<div class="text-xs text-slate-400 italic">No bank transactions loaded yet.</div>';
+        } else {
+          bKeys.forEach(bk => {
+            const st = bankStats[bk];
+            const pct = st.sum > 0 ? Math.round((st.allocSum / st.sum) * 100) : 0;
+            const bDiv = document.createElement('div');
+            bDiv.className = 'p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-2';
+            bDiv.innerHTML = `
+              <div class="flex items-center justify-between text-xs font-bold">
+                <span class="text-slate-800">${bk} Bank</span>
+                <span class="font-mono-num text-slate-900">₹${st.sum.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-blue-600 h-1.5 rounded-full" style="width: ${pct}%"></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-500">
+                <span>${st.count} entries</span>
+                <span class="text-emerald-700 font-semibold">${pct}% Reconciled</span>
+              </div>
+            `;
+            bankList.appendChild(bDiv);
+          });
+        }
+      }
+
+      // 2. Manager Collections Leaderboard
+      const mgrStats = {};
+      alloc.forEach(t => {
+        const m = (t.claimed_by_manager || 'UNASSIGNED').toUpperCase().trim();
+        if (!mgrStats[m]) mgrStats[m] = { count: 0, sum: 0 };
+        mgrStats[m].count++;
+        mgrStats[m].sum += (Number(t.amount) || 0);
+      });
+
+      const mgrList = document.getElementById('dash-manager-leaderboard');
+      if (mgrList) {
+        mgrList.innerHTML = '';
+        const sortedMgrs = Object.keys(mgrStats).sort((a, b) => mgrStats[b].sum - mgrStats[a].sum);
+        if (sortedMgrs.length === 0) {
+          mgrList.innerHTML = '<div class="text-xs text-slate-400 italic p-3 text-center">No manager verified claims yet.</div>';
+        } else {
+          sortedMgrs.forEach((m, idx) => {
+            const st = mgrStats[m];
+            const item = document.createElement('div');
+            item.className = 'p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs';
+            item.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">${idx + 1}</span>
+                <span class="font-bold text-slate-800">${m}</span>
+              </div>
+              <div class="text-right">
+                <div class="font-mono-num font-bold text-emerald-800">₹${st.sum.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                <div class="text-[10px] text-slate-400">${st.count} claims</div>
+              </div>
+            `;
+            mgrList.appendChild(item);
+          });
+        }
+      }
+
+      // 3. Portfolio Allocation
+      const portStats = {};
+      alloc.forEach(t => {
+        const p = (t.portfolio || 'CASHE').toUpperCase();
+        if (!portStats[p]) portStats[p] = { count: 0, sum: 0 };
+        portStats[p].count++;
+        portStats[p].sum += (Number(t.amount) || 0);
+      });
+
+      const portList = document.getElementById('dash-portfolio-list');
+      if (portList) {
+        portList.innerHTML = '';
+        const pKeys = Object.keys(portStats);
+        if (pKeys.length === 0) {
+          portList.innerHTML = '<div class="text-xs text-slate-400 italic p-3 text-center">No portfolio claims yet.</div>';
+        } else {
+          pKeys.forEach(p => {
+            const st = portStats[p];
+            const pDiv = document.createElement('div');
+            pDiv.className = 'p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs';
+            pDiv.innerHTML = `
+              <span class="font-bold text-indigo-700">${p}</span>
+              <div class="text-right">
+                <span class="font-mono-num font-bold text-slate-900">₹${st.sum.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                <div class="text-[10px] text-slate-400">${st.count} verified</div>
+              </div>
+            `;
+            portList.appendChild(pDiv);
+          });
+        }
+      }
+
+      // 4. Recent Verified Claims
+      const recTbody = document.getElementById('dash-recent-tbody');
+      if (recTbody) {
+        recTbody.innerHTML = '';
+        const recentAlloc = alloc.slice(0, 5);
+        if (recentAlloc.length === 0) {
+          recTbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">No verified transactions yet.</td></tr>';
+        } else {
+          recentAlloc.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50 transition-colors text-xs';
+            tr.innerHTML = `
+              <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
+              <td class="p-3 border-r border-slate-200">
+                <div class="font-bold text-slate-800">${t.customer_name || 'N/A'}</div>
+                <div class="text-[10px] text-slate-500 font-mono">ID: ${t.customer_id || '-'}</div>
+              </td>
+              <td class="p-3 border-r border-slate-200 font-bold text-indigo-700">${t.portfolio || 'CASHE'}</td>
+              <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+              <td class="p-3 border-r border-slate-200 text-slate-600">${t.caller_name || '-'}</td>
+              <td class="p-3 border-r border-slate-200 font-bold text-slate-800">${t.claimed_by_manager || '-'}</td>
+              <td class="p-3 font-semibold text-slate-700">${t.bank_name || '-'}</td>
+            `;
+            recTbody.appendChild(tr);
+          });
+        }
+      }
+
       lucide.createIcons();
     }
 
@@ -1243,6 +1593,7 @@
 
       renderTransactions(visible);
       updateKPIs();
+      renderDashboardAnalytics();
     }
 
     function updateKPIs() {
