@@ -435,52 +435,70 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- 6. MODALS: LOGIN / AUTHENTICATION PORTAL   -->
+  <!-- 6. CLEAN CORPORATE LOGIN SCREEN            -->
   <!-- ========================================== -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white max-w-sm w-full rounded-2xl border border-slate-200 shadow-2xl p-7 space-y-5">
-      
-      <!-- Modal Header -->
-      <div class="text-center space-y-2">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
-          <i data-lucide="shield-check" class="w-6 h-6"></i>
+  <div id="login-modal" class="fixed inset-0 bg-slate-100 z-50 flex flex-col justify-between">
+    
+    <!-- Top Corporate Header -->
+    <div class="w-full bg-white border-b border-slate-200 px-6 sm:px-10 py-3.5 flex items-center justify-between shadow-sm">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-700 flex items-center justify-center text-white shadow-sm font-bold">
+          <i data-lucide="shield-check" class="w-5 h-5 text-amber-300"></i>
         </div>
         <div>
-          <h2 class="text-base font-extrabold text-slate-900 tracking-tight">Shaha Finlease Pvt Ltd</h2>
-          <p class="text-xs text-slate-500 font-medium">Bank Reconciliation & Handsoff Portal</p>
+          <h1 class="text-sm font-extrabold text-slate-900 tracking-tight">SHAHA FINLEASE PVT LTD</h1>
+          <p class="text-[11px] text-slate-500 font-medium">Enterprise Debt Recovery & Reconciliation Portal</p>
         </div>
       </div>
-
-      <!-- Login Form Body -->
-      <div class="space-y-4">
-        <div>
-          <label class="text-xs font-semibold text-slate-700 block mb-1">Username / Employee ID</label>
-          <div class="relative">
-            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
-            <input type="text" id="login-username-input" placeholder="Enter username..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all font-medium" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs font-semibold text-slate-700 block mb-1">Password</label>
-          <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
-            <input type="password" id="login-password-input" placeholder="Enter password..." class="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
-            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
-              <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-
-        <button onclick="handleLoginSubmit()" class="w-full py-2.5 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
-          <span>Sign In</span>
-          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-        </button>
-
-        <p class="text-[11px] text-center text-slate-400 pt-1">Authorized company access only.</p>
+      <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+        <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-600"></i>
+        <span>Authorized Access</span>
       </div>
-
     </div>
+
+    <!-- Center Login Card -->
+    <div class="flex-1 flex items-center justify-center p-6">
+      <div class="bg-white max-w-sm w-full rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6">
+        
+        <div class="text-left space-y-1">
+          <h2 class="text-lg font-black text-slate-900">Sign in to your account</h2>
+          <p class="text-xs text-slate-500 font-medium">Enter your credentials to continue.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Username / Employee ID</label>
+            <div class="relative">
+              <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+              <input type="text" id="login-username-input" placeholder="Enter username..." class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white focus:border-blue-600 transition-all font-medium" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">Password</label>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+              <input type="password" id="login-password-input" placeholder="Enter password..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white focus:border-blue-600 transition-all" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
+              <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <button onclick="handleLoginSubmit()" class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
+            <span>Sign In</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Corporate Footer -->
+    <div class="w-full py-3.5 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-medium">
+      &copy; 2026 Shaha Finlease Pvt Ltd. All rights reserved. Confidential Financial Operations Portal.
+    </div>
+
   </div>
 
   <!-- ========================================== -->
