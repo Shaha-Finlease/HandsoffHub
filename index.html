@@ -443,10 +443,23 @@
   <!-- ========================================== -->
   <!-- 6. CLEAN CORPORATE LOGIN SCREEN            -->
   <!-- ========================================== -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-100 z-50 flex flex-col justify-between">
+  <div id="login-modal" class="fixed inset-0 bg-slate-100 z-50 flex flex-col justify-between relative overflow-hidden">
     
+    <!-- Ambient Watermark Emblem in Background -->
+    <div class="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0">
+      <div class="w-[520px] h-[520px] opacity-[0.04] transform select-none">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-slate-900">
+          <path d="M100 15L170 45V105C170 148 139 181 100 192C61 181 30 148 30 105V45L100 15Z" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
+          <path d="M100 28L158 53V103C158 139 133 167 100 177C67 167 42 139 42 103V53L100 28Z" fill="currentColor" fill-opacity="0.1"/>
+          <path d="M75 75C75 66.7 81.7 60 90 60H112C120.3 60 127 66.7 127 75C127 83.3 120.3 90 112 90H88C79.7 90 73 96.7 73 105C73 113.3 79.7 120 88 120H110C118.3 120 125 126.7 125 135" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+          <path d="M100 50V145" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="100" cy="48" r="6" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+
     <!-- Top Corporate Header -->
-    <div class="w-full bg-white border-b border-slate-200 px-6 sm:px-10 py-3.5 flex items-center justify-between shadow-sm">
+    <div class="w-full bg-white border-b border-slate-200 px-6 sm:px-10 py-3.5 flex items-center justify-between shadow-sm relative z-10">
       <div class="flex items-center space-x-3">
         <div class="w-9 h-9 rounded-lg bg-blue-700 flex items-center justify-center text-white shadow-sm font-bold">
           <i data-lucide="shield-check" class="w-5 h-5 text-amber-300"></i>
@@ -458,17 +471,27 @@
       </div>
       <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
         <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-600"></i>
-        <span>Authorized Access</span>
+        <span>Authorized Personnel Only</span>
       </div>
     </div>
 
     <!-- Center Login Card -->
-    <div class="flex-1 flex items-center justify-center p-6">
+    <div class="flex-1 flex items-center justify-center p-6 relative z-10">
       <div class="bg-white max-w-sm w-full rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6">
         
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-700 flex items-center justify-center text-white shadow-md">
+            <i data-lucide="shield-check" class="w-6 h-6 text-amber-300"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-black text-slate-900 tracking-tight leading-tight">SHAHA FINLEASE PVT LTD</h2>
+            <p class="text-[11px] text-slate-500 font-medium">Internal Operations Access</p>
+          </div>
+        </div>
+
         <div class="text-left space-y-1">
-          <h2 class="text-lg font-black text-slate-900">Sign in to your account</h2>
-          <p class="text-xs text-slate-500 font-medium">Enter your credentials to continue.</p>
+          <h3 class="text-base font-extrabold text-slate-900">Sign in to your account</h3>
+          <p class="text-xs text-slate-500 font-medium">Enter your assigned credentials to continue.</p>
         </div>
 
         <div class="space-y-4">
@@ -501,7 +524,7 @@
     </div>
 
     <!-- Bottom Corporate Footer -->
-    <div class="w-full py-3.5 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-medium">
+    <div class="w-full py-3.5 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-medium relative z-10">
       &copy; 2026 Shaha Finlease Pvt Ltd. All rights reserved. Confidential Financial Operations Portal.
     </div>
 
