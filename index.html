@@ -437,74 +437,47 @@
   <!-- ========================================== -->
   <!-- 6. MODALS: LOGIN / AUTHENTICATION PORTAL   -->
   <!-- ========================================== -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-white max-w-md w-full rounded-2xl border border-slate-200 shadow-2xl overflow-hidden animate-fade-in">
+  <div id="login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-sm w-full rounded-2xl border border-slate-200 shadow-2xl p-7 space-y-5">
       
       <!-- Modal Header -->
-      <div class="bg-slate-900 p-6 text-white text-center relative">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-amber-500 p-0.5 shadow-lg flex items-center justify-center mb-3">
-          <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
-            <i data-lucide="shield-check" class="w-6 h-6 text-amber-400"></i>
-          </div>
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
-        <h2 class="text-lg font-black tracking-tight">SHAHA FINLEASE PVT LTD</h2>
-        <p class="text-xs text-slate-400 font-medium mt-0.5">Enterprise Debt Recovery & Reconciliation Portal</p>
-        <span class="inline-block mt-2 text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/60">Secure Access Gateway</span>
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 tracking-tight">Shaha Finlease Pvt Ltd</h2>
+          <p class="text-xs text-slate-500 font-medium">Bank Reconciliation & Handsoff Portal</p>
+        </div>
       </div>
 
       <!-- Login Form Body -->
-      <div class="p-6 space-y-4">
-        
+      <div class="space-y-4">
         <div>
-          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-1">Select User / Manager Profile *</label>
-          <select id="login-user-select" onchange="onLoginUserChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white cursor-pointer">
-            <optgroup label="👑 System Administration">
-              <option value="ADMIN" data-role="ADMIN" data-agency="INH" data-pass="admin123">👑 Admin / Backend Operations (All Teams)</option>
-            </optgroup>
-            <optgroup label="💼 INH Agency Managers">
-              <option value="SMITA JAGTAP" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Smita Jagtap (INH)</option>
-              <option value="AMBUJ TRIPATHI" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Ambuj Tripathi (INH)</option>
-              <option value="ADITI" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Aditi (INH)</option>
-              <option value="OMKAR SINGH" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Omkar Singh (INH)</option>
-              <option value="SHRAVANTI" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Shravanti (INH)</option>
-              <option value="SHWETA" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Shweta (INH)</option>
-              <option value="SATISH SIR" data-role="MANAGER" data-agency="INH" data-pass="1234">💼 Satish Sir (INH)</option>
-            </optgroup>
-            <optgroup label="💼 KP Agency Managers">
-              <option value="POONAM INDULKAR" data-role="MANAGER" data-agency="KP" data-pass="1234">💼 Poonam Indulkar (KP)</option>
-              <option value="KP" data-role="MANAGER" data-agency="KP" data-pass="1234">💼 KP Agency Team (KP)</option>
-            </optgroup>
-          </select>
+          <label class="text-xs font-semibold text-slate-700 block mb-1">Username / Employee ID</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            <input type="text" id="login-username-input" placeholder="Enter username..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all font-medium" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
+          </div>
         </div>
 
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Security PIN / Password *</label>
-            <span id="login-hint-text" class="text-[10px] text-slate-400 font-semibold font-mono">Default: 1234</span>
-          </div>
+          <label class="text-xs font-semibold text-slate-700 block mb-1">Password</label>
           <div class="relative">
-            <input type="password" id="login-password-input" placeholder="Enter PIN or Password..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 pr-10 text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
-            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            <input type="password" id="login-password-input" placeholder="Enter password..." class="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all" onkeydown="if(event.key === 'Enter') handleLoginSubmit()">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
               <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
-        <!-- Quick Login Demo Buttons -->
-        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1.5">
-          <div class="text-[11px] font-semibold text-slate-600">Quick Login Presets (1-Click):</div>
-          <div class="flex gap-2 flex-wrap">
-            <button type="button" onclick="quickFillLogin('ADMIN', 'admin123')" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded text-[11px] font-bold">Admin (All Access)</button>
-            <button type="button" onclick="quickFillLogin('SMITA JAGTAP', '1234')" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded text-[11px] font-bold">Smita (INH)</button>
-            <button type="button" onclick="quickFillLogin('POONAM INDULKAR', '1234')" class="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded text-[11px] font-bold">Poonam (KP)</button>
-          </div>
-        </div>
-
-        <button onclick="handleLoginSubmit()" class="w-full py-2.5 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2">
-          <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span>Sign In to Handsoff Hub</span>
+        <button onclick="handleLoginSubmit()" class="w-full py-2.5 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
+          <span>Sign In</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
         </button>
 
+        <p class="text-[11px] text-center text-slate-400 pt-1">Authorized company access only.</p>
       </div>
 
     </div>
@@ -790,22 +763,6 @@
       document.getElementById('login-modal').classList.remove('hidden');
     }
 
-    function onLoginUserChange() {
-      const sel = document.getElementById('login-user-select');
-      const val = sel.value;
-      const def = USER_CREDENTIALS[val];
-      const hint = document.getElementById('login-hint-text');
-      if (def && hint) {
-        hint.innerText = `Default: ${def.pin}`;
-      }
-    }
-
-    function quickFillLogin(userKey, pass) {
-      document.getElementById('login-user-select').value = userKey;
-      document.getElementById('login-password-input').value = pass;
-      onLoginUserChange();
-    }
-
     function togglePasswordVisibility() {
       const input = document.getElementById('login-password-input');
       const icon = document.getElementById('eye-icon');
@@ -820,24 +777,47 @@
     }
 
     function handleLoginSubmit() {
-      const selUser = document.getElementById('login-user-select').value;
-      const pass = document.getElementById('login-password-input').value.trim();
-      const meta = USER_CREDENTIALS[selUser];
+      const usernameInput = document.getElementById('login-username-input').value.trim();
+      const passInput = document.getElementById('login-password-input').value.trim();
 
-      if (!meta) {
-        showToast('Invalid user selected.', 'error');
+      if (!usernameInput || !passInput) {
+        showToast('Please enter both username and password.', 'error');
         return;
       }
 
-      // Check PIN or fallback
-      const validPins = [meta.pin, selUser.toLowerCase().split(' ')[0], 'shaha123', 'admin', '1234'];
-      if (!pass || !validPins.includes(pass.toLowerCase())) {
-        showToast(`Incorrect PIN! (Default: ${meta.pin})`, 'error');
+      // Flexible matching for username
+      const cleanInput = usernameInput.toUpperCase();
+      let matchedKey = null;
+
+      if (USER_CREDENTIALS[cleanInput]) {
+        matchedKey = cleanInput;
+      } else {
+        for (const k in USER_CREDENTIALS) {
+          const meta = USER_CREDENTIALS[k];
+          const kFirst = k.split(' ')[0];
+          const metaFirst = meta.name.toUpperCase().split(' ')[0];
+          if (cleanInput === k || cleanInput === kFirst || cleanInput === meta.name.toUpperCase() || cleanInput === metaFirst) {
+            matchedKey = k;
+            break;
+          }
+        }
+      }
+
+      if (!matchedKey) {
+        showToast('Invalid username or password.', 'error');
+        return;
+      }
+
+      const meta = USER_CREDENTIALS[matchedKey];
+      const validPins = [meta.pin, matchedKey.toLowerCase().split(' ')[0], 'shaha123', 'admin', '1234'];
+
+      if (!validPins.includes(passInput.toLowerCase())) {
+        showToast('Invalid username or password.', 'error');
         return;
       }
 
       const sessionObj = {
-        key: selUser,
+        key: matchedKey,
         name: meta.name,
         role: meta.role,
         agency: meta.agency
@@ -894,6 +874,7 @@
       if (!confirm('Are you sure you want to sign out?')) return;
       sessionStorage.removeItem('shaha_portal_user');
       currentUser = null;
+      document.getElementById('login-username-input').value = '';
       document.getElementById('login-password-input').value = '';
       document.getElementById('login-modal').classList.remove('hidden');
       showToast('Signed out successfully.', 'info');
