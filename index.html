@@ -638,32 +638,73 @@
   <!-- 10. MODAL: USER & PASSWORD MANAGEMENT      -->
   <!-- ========================================== -->
   <div id="user-manager-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-2xl w-full rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[90vh] flex flex-col">
+    <div class="bg-white max-w-3xl w-full rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[90vh] flex flex-col">
+      
+      <!-- Modal Header -->
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="p-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
-            <i data-lucide="key" class="w-5 h-5 text-amber-500"></i>
+            <i data-lucide="shield-check" class="w-5 h-5 text-amber-500"></i>
           </div>
           <div>
-            <h3 class="font-extrabold text-sm text-slate-900">Manager User & Password Control</h3>
-            <p class="text-xs text-slate-500">Admin panel to view, set, or reset passwords for any team manager.</p>
+            <h3 class="font-extrabold text-sm text-slate-900">User Profile & Access Control</h3>
+            <p class="text-xs text-slate-500">Rename username, reset password, delete profile, or add new managers.</p>
           </div>
         </div>
-        <button onclick="closeUserManagerModal()" class="text-slate-400 hover:text-slate-700 p-1">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleAddUserForm()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1 transition-all">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>+ Add Manager</span>
+          </button>
+          <button onclick="closeUserManagerModal()" class="text-slate-400 hover:text-slate-700 p-1">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
-      <!-- Password Table -->
+      <!-- Add New User Form (Collapsible) -->
+      <div id="add-user-box" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <div class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-blue-600"></i>
+          <span>Create New Manager Profile</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Full Name *</label>
+            <input type="text" id="new-user-name" placeholder="e.g. Smita Jagtap" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:ring-1 focus:ring-blue-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Username / Login ID *</label>
+            <input type="text" id="new-user-username" placeholder="e.g. smita" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-mono font-bold focus:ring-1 focus:ring-blue-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Agency</label>
+            <select id="new-user-agency" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-blue-600 focus:outline-none">
+              <option value="INH">INH Agency</option>
+              <option value="KP">KP Agency</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Initial Password *</label>
+            <input type="text" id="new-user-pin" placeholder="e.g. 123456" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-mono focus:ring-1 focus:ring-blue-600 focus:outline-none">
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button onclick="toggleAddUserForm()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold">Cancel</button>
+          <button onclick="addNewUserProfile()" class="px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm">Save Profile</button>
+        </div>
+      </div>
+
+      <!-- Password & Profile Table -->
       <div class="flex-1 overflow-y-auto table-container border border-slate-200 rounded-xl">
         <table class="w-full text-left text-xs text-slate-700 border-collapse">
-          <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-200">
+          <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-200 z-10">
             <tr>
               <th class="p-3 border-r border-slate-200">User / Manager</th>
               <th class="p-3 border-r border-slate-200">Login ID</th>
               <th class="p-3 border-r border-slate-200">Agency</th>
-              <th class="p-3 border-r border-slate-200">Current Password</th>
-              <th class="p-3">New Password / Action</th>
+              <th class="p-3 border-r border-slate-200">Password</th>
+              <th class="p-3">Actions (Reset, Rename, Delete)</th>
             </tr>
           </thead>
           <tbody id="user-mgmt-tbody" class="divide-y divide-slate-200 bg-white">
@@ -673,7 +714,7 @@
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
-        <span>Passwords updated here take effect immediately upon saving.</span>
+        <span>All updates (rename, password reset, delete) take effect immediately.</span>
         <button onclick="closeUserManagerModal()" class="px-5 py-2 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-sm">
           Done / Close
         </button>
@@ -695,18 +736,9 @@
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
 
-    // User Credentials Mapping
-    const USER_CREDENTIALS = {
-      'ADMIN': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123' },
-      'SMITA JAGTAP': { name: 'Smita Jagtap', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'AMBUJ TRIPATHI': { name: 'Ambuj Tripathi', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'POONAM INDULKAR': { name: 'Poonam Indulkar', role: 'MANAGER', agency: 'KP', pin: '1234' },
-      'ADITI': { name: 'Aditi', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'OMKAR SINGH': { name: 'Omkar Singh', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'SHRAVANTI': { name: 'Shravanti', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'SHWETA': { name: 'Shweta', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'SATISH SIR': { name: 'Satish Sir', role: 'MANAGER', agency: 'INH', pin: '1234' },
-      'KP': { name: 'KP Agency Team', role: 'MANAGER', agency: 'KP', pin: '1234' }
+    // User Credentials Mapping (Only Admin by default, Admin creates/manages other profiles)
+    let USER_CREDENTIALS = {
+      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' }
     };
 
     // State Variables
@@ -767,16 +799,22 @@
     });
 
     function loadSavedCredentials() {
-      const saved = localStorage.getItem('shaha_custom_credentials');
+      const saved = localStorage.getItem('shaha_custom_credentials_v3');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          Object.assign(USER_CREDENTIALS, parsed);
+          if (parsed && typeof parsed === 'object') {
+            USER_CREDENTIALS = parsed;
+          }
         } catch (e) {}
+      }
+      // Ensure primary Admin always exists
+      if (!USER_CREDENTIALS['admin']) {
+        USER_CREDENTIALS['admin'] = { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' };
       }
     }
 
-    // Admin Password Management Functions
+    // Admin User & Password Management Functions
     function openUserManagerModal() {
       renderUserManagerTable();
       document.getElementById('user-manager-modal').classList.remove('hidden');
@@ -787,6 +825,101 @@
       document.getElementById('user-manager-modal').classList.add('hidden');
     }
 
+    function toggleAddUserForm() {
+      const box = document.getElementById('add-user-box');
+      box.classList.toggle('hidden');
+    }
+
+    function addNewUserProfile() {
+      const name = document.getElementById('new-user-name').value.trim();
+      const rawUser = document.getElementById('new-user-username').value.trim().toLowerCase();
+      const agency = document.getElementById('new-user-agency').value;
+      const pin = document.getElementById('new-user-pin').value.trim();
+
+      if (!name || !rawUser || !pin) {
+        showToast('Please fill Name, Username, and Password.', 'error');
+        return;
+      }
+
+      if (USER_CREDENTIALS[rawUser]) {
+        showToast(`Username '${rawUser}' already exists!`, 'error');
+        return;
+      }
+
+      USER_CREDENTIALS[rawUser] = {
+        name: name,
+        role: 'MANAGER',
+        agency: agency,
+        pin: pin,
+        username: rawUser
+      };
+
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      document.getElementById('new-user-name').value = '';
+      document.getElementById('new-user-username').value = '';
+      document.getElementById('new-user-pin').value = '';
+      toggleAddUserForm();
+      renderUserManagerTable();
+      showToast(`Profile created for ${name}!`, 'success');
+    }
+
+    function renameUser(userKey) {
+      const u = USER_CREDENTIALS[userKey];
+      const newUsername = prompt(`Enter new Username / Login ID for ${u.name}:`, u.username || userKey);
+      if (!newUsername) return;
+      const cleanNew = newUsername.trim().toLowerCase();
+      if (!cleanNew) return;
+
+      if (cleanNew !== userKey && USER_CREDENTIALS[cleanNew]) {
+        showToast(`Username '${cleanNew}' is already taken!`, 'error');
+        return;
+      }
+
+      const newName = prompt(`Enter display name for this user:`, u.name);
+      if (newName && newName.trim()) {
+        u.name = newName.trim();
+      }
+
+      u.username = cleanNew;
+      if (cleanNew !== userKey) {
+        delete USER_CREDENTIALS[userKey];
+        USER_CREDENTIALS[cleanNew] = u;
+      }
+
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      renderUserManagerTable();
+      showToast(`Renamed to '${cleanNew}' successfully!`, 'success');
+    }
+
+    function saveNewPassword(userKey) {
+      const safeKey = userKey.replace(/[^a-zA-Z0-9]/g, '_');
+      const input = document.getElementById(`new-pwd-${safeKey}`);
+      const newPin = input.value.trim();
+      if (!newPin) {
+        showToast('Please type a new password.', 'error');
+        return;
+      }
+      USER_CREDENTIALS[userKey].pin = newPin;
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      input.value = '';
+      renderUserManagerTable();
+      showToast(`Password reset for ${USER_CREDENTIALS[userKey].name}!`, 'success');
+    }
+
+    function deleteUser(userKey) {
+      const u = USER_CREDENTIALS[userKey];
+      if (u.role === 'ADMIN' || userKey === 'admin') {
+        showToast('Primary Admin profile cannot be deleted.', 'error');
+        return;
+      }
+      if (!confirm(`Are you sure you want to delete profile for ${u.name} (${userKey})?`)) return;
+
+      delete USER_CREDENTIALS[userKey];
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      renderUserManagerTable();
+      showToast(`Profile for ${u.name} deleted.`, 'info');
+    }
+
     function renderUserManagerTable() {
       const tbody = document.getElementById('user-mgmt-tbody');
       tbody.innerHTML = '';
@@ -794,18 +927,21 @@
         const u = USER_CREDENTIALS[k];
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
-        const isAdm = u.role === 'ADMIN';
+        const isAdm = u.role === 'ADMIN' || k === 'admin';
         const badge = isAdm ? 
           '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">ADMIN</span>' :
-          `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-700">${u.agency}</span>`;
+          `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-700 font-bold">${u.agency}</span>`;
 
         const safeKey = k.replace(/[^a-zA-Z0-9]/g, '_');
-        const loginId = k.toLowerCase().split(' ')[0];
+        const loginId = u.username || k;
+
+        const deleteAction = isAdm ?
+          `<span class="text-slate-300 text-[11px] font-medium italic">Protected</span>` :
+          `<button onclick="deleteUser('${k}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-200 text-xs font-bold transition-all" title="Delete Profile">Delete</button>`;
 
         tr.innerHTML = `
           <td class="p-3 border-r border-slate-200">
-            <div class="font-bold text-slate-900">${u.name}</div>
-            <div class="text-[10px] text-slate-500">${k}</div>
+            <div class="font-extrabold text-slate-900">${u.name}</div>
           </td>
           <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${loginId}</td>
           <td class="p-3 border-r border-slate-200">${badge}</td>
@@ -814,14 +950,17 @@
             <button onclick="toggleViewPassword('${k}')" class="ml-2 text-blue-600 hover:text-blue-800 text-[11px] font-bold">Show</button>
           </td>
           <td class="p-3">
-            <div class="flex items-center gap-1.5">
-              <input type="text" id="new-pwd-${safeKey}" placeholder="Type new password" class="w-36 bg-slate-50 border border-slate-300 px-2.5 py-1 rounded text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono">
-              <button onclick="saveNewPassword('${k}')" class="px-3 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded text-xs font-bold shadow-sm transition-all">Save</button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <input type="text" id="new-pwd-${safeKey}" placeholder="New pwd" class="w-24 bg-slate-50 border border-slate-300 px-2 py-1 rounded text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono">
+              <button onclick="saveNewPassword('${k}')" class="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded text-xs font-bold shadow-sm transition-all" title="Reset Password">Reset</button>
+              <button onclick="renameUser('${k}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded border border-slate-300 text-xs font-bold transition-all" title="Rename Username">Rename</button>
+              ${deleteAction}
             </div>
           </td>
         `;
         tbody.appendChild(tr);
       }
+      lucide.createIcons();
     }
 
     function toggleViewPassword(userKey) {
@@ -834,21 +973,6 @@
           el.innerText = '••••••••';
         }
       }
-    }
-
-    function saveNewPassword(userKey) {
-      const safeKey = userKey.replace(/[^a-zA-Z0-9]/g, '_');
-      const input = document.getElementById(`new-pwd-${safeKey}`);
-      const newPin = input.value.trim();
-      if (!newPin) {
-        showToast('Please type a new password.', 'error');
-        return;
-      }
-      USER_CREDENTIALS[userKey].pin = newPin;
-      localStorage.setItem('shaha_custom_credentials', JSON.stringify(USER_CREDENTIALS));
-      input.value = '';
-      renderUserManagerTable();
-      showToast(`Password updated for ${USER_CREDENTIALS[userKey].name}!`, 'success');
     }
 
     function startLiveClock() {
@@ -904,21 +1028,16 @@
         return;
       }
 
-      // Flexible matching for username
-      const cleanInput = usernameInput.toUpperCase();
+      const cleanInput = usernameInput.toLowerCase();
       let matchedKey = null;
 
-      if (USER_CREDENTIALS[cleanInput]) {
-        matchedKey = cleanInput;
-      } else {
-        for (const k in USER_CREDENTIALS) {
-          const meta = USER_CREDENTIALS[k];
-          const kFirst = k.split(' ')[0];
-          const metaFirst = meta.name.toUpperCase().split(' ')[0];
-          if (cleanInput === k || cleanInput === kFirst || cleanInput === meta.name.toUpperCase() || cleanInput === metaFirst) {
-            matchedKey = k;
-            break;
-          }
+      for (const k in USER_CREDENTIALS) {
+        const u = USER_CREDENTIALS[k];
+        const uName = (u.username || k).toLowerCase();
+        const fName = (u.name || '').toLowerCase();
+        if (cleanInput === uName || cleanInput === k.toLowerCase() || cleanInput === fName || cleanInput === fName.split(' ')[0]) {
+          matchedKey = k;
+          break;
         }
       }
 
@@ -928,15 +1047,14 @@
       }
 
       const meta = USER_CREDENTIALS[matchedKey];
-      const validPins = [meta.pin, matchedKey.toLowerCase().split(' ')[0], 'shaha123', 'admin', '1234'];
-
-      if (!validPins.includes(passInput.toLowerCase())) {
+      if (passInput !== meta.pin && passInput.toLowerCase() !== meta.pin.toLowerCase()) {
         showToast('Invalid username or password.', 'error');
         return;
       }
 
       const sessionObj = {
         key: matchedKey,
+        username: meta.username || matchedKey,
         name: meta.name,
         role: meta.role,
         agency: meta.agency
