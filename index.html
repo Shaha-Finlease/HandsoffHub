@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Handsoff Automation Cloud - GitHub & Supabase</title>
+  <title>Handsoff Automation Hub - Shaha Finlease</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -13,44 +13,44 @@
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b1120; color: #f8fafc; }
-    .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .tab-active { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35); }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .tab-active { background-color: #1e40af; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .table-container::-webkit-scrollbar-track { background: #f1f5f9; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col custom-scrollbar">
+<body class="min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="glass sticky top-0 z-50 border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-xl">
-    <div class="flex items-center space-x-3">
-      <div class="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl shadow-md shadow-blue-500/20">
-        <i data-lucide="cloud-lightning" class="w-6 h-6 text-white"></i>
+  <!-- Top Corporate Navbar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-3 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+    <div class="flex items-center space-x-3.5">
+      <div class="w-10 h-10 rounded-lg bg-blue-700 flex items-center justify-center text-white shadow-sm font-bold text-lg">
+        <i data-lucide="layers" class="w-5 h-5"></i>
       </div>
       <div>
-        <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-          Handsoff Automation Cloud
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-wider">GitHub Pages + Supabase</span>
-        </h1>
-        <p class="text-xs text-slate-400">Cloud Bank Statement Verification & Handsoff Generator</p>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-slate-900 tracking-tight">Shaha Finlease - Handsoff Automation Hub</h1>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-semibold">Cloud Portal</span>
+        </div>
+        <p class="text-xs text-slate-500">Bank Statement Reconciliation & Daily Handsoff Generator</p>
       </div>
     </div>
 
     <!-- Active User & Supabase Status -->
     <div class="flex items-center gap-3">
-      <button onclick="openConfigModal()" id="btn-supabase-status" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold hover:border-blue-500 transition-all">
-        <span id="supabase-indicator" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-        <span id="supabase-status-text" class="text-slate-300">Supabase Config</span>
+      <button onclick="openConfigModal()" id="btn-supabase-status" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium hover:bg-slate-100 transition-all text-slate-700">
+        <span id="supabase-indicator" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+        <span id="supabase-status-text">Cloud Storage: Offline</span>
       </button>
 
-      <div class="flex items-center gap-2 bg-slate-900 p-1.5 px-3 rounded-xl border border-slate-800">
-        <i data-lucide="user" class="w-4 h-4 text-blue-400"></i>
-        <select id="user-role-select" onchange="switchUserRole()" class="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer">
-          <option value="ADMIN">👑 Admin / Backend</option>
-          <optgroup label="Managers (Strict Privacy)">
+      <div class="flex items-center gap-2 bg-slate-100 p-1.5 px-3 rounded-lg border border-slate-200">
+        <i data-lucide="user-check" class="w-4 h-4 text-blue-700"></i>
+        <span class="text-xs font-semibold text-slate-600">Active User:</span>
+        <select id="user-role-select" onchange="switchUserRole()" class="bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer shadow-sm">
+          <option value="ADMIN">👑 Admin / Backend (All Teams)</option>
+          <optgroup label="Managers (Private View)">
             <option value="SMITA JAGTAP">💼 Smita Jagtap (INH)</option>
             <option value="AMBUJ TRIPATHI">💼 Ambuj Tripathi (INH)</option>
             <option value="ADITI">💼 Aditi (INH)</option>
@@ -65,50 +65,50 @@
     </div>
   </header>
 
-  <!-- Manager Privacy Banner -->
+  <!-- Manager Isolation Notification Bar -->
   <div id="manager-privacy-banner" class="max-w-7xl mx-auto w-full px-6 pt-4 hidden">
-    <div class="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-300 text-xs flex items-center justify-between">
+    <div class="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
-        <span><strong>Manager Isolation Active:</strong> Aapko sirf <strong>Blank Pool</strong> aur <strong>Aapki Team Ka Data</strong> dikhega. Baki managers ka data hidden hai.</span>
+        <i data-lucide="shield-check" class="w-4 h-4 text-blue-700"></i>
+        <span><strong>Manager Isolation Active:</strong> Aapko sirf <strong>Blank (Unallocated) Pool</strong> aur <strong>Aapki Team Ka Data</strong> dikhega. Baki managers ka data completely hidden hai.</span>
       </div>
-      <span id="active-manager-badge" class="font-bold text-white uppercase text-[11px] px-2 py-0.5 rounded bg-blue-600/30 border border-blue-500/40">SMITA</span>
+      <span id="active-manager-badge" class="font-bold text-blue-800 uppercase text-xs px-2.5 py-0.5 rounded bg-blue-100 border border-blue-300">SMITA</span>
     </div>
   </div>
 
-  <!-- KPI Top Stats -->
-  <div class="max-w-7xl mx-auto w-full px-6 pt-4">
+  <!-- Standard KPI Cards Row -->
+  <div class="max-w-7xl mx-auto w-full px-6 pt-5">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="glass p-4 rounded-xl border-l-4 border-l-blue-500">
-        <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Unallocated Pool</p>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-blue-600">
+        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Unallocated Bank Pool</p>
         <div class="flex items-baseline justify-between mt-1">
-          <h2 id="stat-unalloc-count" class="text-xl font-extrabold text-white">0</h2>
-          <span id="stat-unalloc-amount" class="text-xs font-mono font-bold text-slate-400">₹0.00</span>
+          <h2 id="stat-unalloc-count" class="text-2xl font-bold text-slate-900">0</h2>
+          <span id="stat-unalloc-amount" class="text-xs font-mono font-bold text-slate-600">₹0.00</span>
         </div>
       </div>
 
-      <div class="glass p-4 rounded-xl border-l-4 border-l-emerald-500">
-        <p id="kpi-alloc-title" class="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">Verified / Claimed</p>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-600">
+        <p id="kpi-alloc-title" class="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold">Allocated / Verified</p>
         <div class="flex items-baseline justify-between mt-1">
-          <h2 id="stat-alloc-count" class="text-xl font-extrabold text-emerald-400">0</h2>
-          <span id="stat-alloc-amount" class="text-xs font-mono font-bold text-emerald-400">₹0.00</span>
+          <h2 id="stat-alloc-count" class="text-2xl font-bold text-emerald-700">0</h2>
+          <span id="stat-alloc-amount" class="text-xs font-mono font-bold text-emerald-700">₹0.00</span>
         </div>
       </div>
 
-      <div id="kpi-admin-total" class="glass p-4 rounded-xl border-l-4 border-l-purple-500">
-        <p class="text-[10px] uppercase tracking-wider text-purple-400 font-bold">Total Statement Amount</p>
+      <div id="kpi-admin-total" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-purple-600">
+        <p class="text-[11px] uppercase tracking-wider text-purple-700 font-semibold">Total Statement Amount</p>
         <div class="flex items-baseline justify-between mt-1">
-          <h2 id="stat-tot-count" class="text-xl font-extrabold text-white">0</h2>
-          <span id="stat-tot-amount" class="text-xs font-mono font-bold text-purple-300">₹0.00</span>
+          <h2 id="stat-tot-count" class="text-2xl font-bold text-slate-900">0</h2>
+          <span id="stat-tot-amount" class="text-xs font-mono font-bold text-purple-800">₹0.00</span>
         </div>
       </div>
 
-      <div class="glass p-4 rounded-xl border-l-4 border-l-indigo-500 flex items-center justify-between">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-slate-700 flex items-center justify-between">
         <div>
-          <p class="text-[10px] uppercase tracking-wider text-indigo-400 font-bold">Direct Export</p>
-          <p class="text-xs text-slate-300 font-semibold mt-1">Master Excel</p>
+          <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Direct Export</p>
+          <p class="text-xs text-slate-800 font-bold mt-0.5">Master File (.xlsx)</p>
         </div>
-        <button onclick="exportHandsoffExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5">
+        <button onclick="exportHandsoffExcel()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
           Handsoff (.xlsx)
         </button>
@@ -117,17 +117,17 @@
   </div>
 
   <!-- Navigation Tabs -->
-  <nav class="max-w-7xl mx-auto w-full px-6 pt-4">
-    <div class="flex space-x-2 p-1.5 bg-slate-900/80 rounded-2xl border border-slate-800 w-fit">
-      <button onclick="switchTab('workspace')" id="tab-workspace" class="tab-active px-5 py-2 rounded-xl font-semibold text-xs transition-all flex items-center gap-2">
-        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+  <nav class="max-w-7xl mx-auto w-full px-6 pt-5">
+    <div class="flex space-x-1.5 bg-slate-200/80 p-1.5 rounded-xl border border-slate-300 w-fit">
+      <button onclick="switchTab('workspace')" id="tab-workspace" class="tab-active px-4 py-2 rounded-lg font-semibold text-xs transition-all flex items-center gap-2">
+        <i data-lucide="table" class="w-3.5 h-3.5"></i>
         <span>Bank Statement & Verification</span>
       </button>
-      <button onclick="switchTab('claimed')" id="tab-claimed" class="px-5 py-2 rounded-xl font-semibold text-xs text-slate-400 hover:text-white transition-all flex items-center gap-2">
-        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+      <button onclick="switchTab('claimed')" id="tab-claimed" class="px-4 py-2 rounded-lg font-semibold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
+        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
         <span id="tab-claimed-label">My Verified Records (0)</span>
       </button>
-      <button onclick="switchTab('admin-upload')" id="tab-admin-upload" class="px-5 py-2 rounded-xl font-semibold text-xs text-slate-400 hover:text-white transition-all flex items-center gap-2">
+      <button onclick="switchTab('admin-upload')" id="tab-admin-upload" class="px-4 py-2 rounded-lg font-semibold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2">
         <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
         <span>Admin Statement Upload</span>
       </button>
@@ -135,72 +135,74 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto w-full p-6 flex-1 space-y-6">
+  <main class="max-w-7xl mx-auto w-full p-6 flex-1 space-y-5">
 
     <!-- TAB 1: WORKSPACE -->
     <div id="content-workspace" class="space-y-4">
-      <div class="glass p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Standard Filter Bar -->
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3 flex-1 min-w-[280px]">
           <div class="relative w-full">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-            <input type="text" id="tx-search-input" onkeyup="filterTransactions()" placeholder="Search by Amount (5000), UTR digits, Customer name, Narration keyword..." class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            <input type="text" id="tx-search-input" onkeyup="filterTransactions()" placeholder="Search by Amount (5000), UTR digits, Customer name, Narration keyword..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white transition-all">
           </div>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
-          <select id="tx-bank-filter" onchange="filterTransactions()" class="bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-200 focus:outline-none">
+          <select id="tx-bank-filter" onchange="filterTransactions()" class="bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs font-medium text-slate-700 focus:outline-none">
             <option value="">All Banks</option>
             <option value="HDFC">HDFC</option>
             <option value="ICICI">ICICI</option>
             <option value="Razorpay">Razorpay</option>
           </select>
 
-          <input type="number" id="tx-amount-filter" onkeyup="filterTransactions()" placeholder="Exact ₹ Amount" class="w-28 bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-emerald-400 font-mono font-bold placeholder-slate-500 focus:outline-none">
+          <input type="number" id="tx-amount-filter" onkeyup="filterTransactions()" placeholder="Exact ₹ Amount" class="w-28 bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs text-emerald-800 font-mono font-bold placeholder-slate-400 focus:outline-none focus:bg-white">
 
-          <select id="tx-status-filter" onchange="filterTransactions()" class="bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-200 focus:outline-none">
-            <option value="">All Visible</option>
+          <select id="tx-status-filter" onchange="filterTransactions()" class="bg-slate-50 border border-slate-300 px-3 py-2 rounded-lg text-xs font-medium text-slate-700 focus:outline-none">
+            <option value="">Status: All Visible</option>
             <option value="UNALLOCATED" selected>🟡 Unallocated Only</option>
             <option value="ALLOCATED">🟢 Allocated</option>
           </select>
 
-          <button onclick="openSmartFinderModal()" class="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all">
+          <button onclick="openSmartFinderModal()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
             <i data-lucide="sparkle" class="w-3.5 h-3.5"></i>
             <span>Smart Match Finder</span>
           </button>
 
-          <button onclick="loadTransactionsFromCloud()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all">
-            <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+          <button onclick="loadTransactionsFromCloud()" title="Refresh" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 transition-all">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
-      <!-- Bank Statement Table -->
-      <div class="glass rounded-2xl overflow-hidden shadow-xl border border-slate-800">
-        <div class="p-3.5 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
+      <!-- Standard Table Component -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <i data-lucide="receipt" class="w-4 h-4 text-blue-400"></i>
-            <h3 class="font-bold text-xs text-slate-200 uppercase tracking-wider">Bank Transactions Statement</h3>
-            <span id="tx-table-count" class="text-xs text-slate-400">(0 records)</span>
+            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-blue-700"></i>
+            <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Bank Transactions Statement</h3>
+            <span id="tx-table-count" class="text-xs font-semibold text-slate-500">(0 records)</span>
           </div>
-          <span class="text-[11px] text-slate-400 italic">Click <strong>"Update / Claim"</strong> to link customer details</span>
+          <span class="text-xs text-slate-500 font-medium">Click <strong>"+ Claim / Update"</strong> to link customer proof</span>
         </div>
 
-        <div class="overflow-x-auto max-h-[500px] custom-scrollbar">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] font-bold sticky top-0 border-b border-slate-800">
+        <div class="overflow-x-auto max-h-[520px] table-container">
+          <table class="w-full text-left text-xs text-slate-700 border-collapse">
+            <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-200">
               <tr>
-                <th class="p-3">Status</th>
-                <th class="p-3">Bank</th>
-                <th class="p-3">Ref No</th>
-                <th class="p-3">Date</th>
-                <th class="p-3 text-right">Amount (₹)</th>
-                <th class="p-3">Cheque / UTR</th>
-                <th class="p-3">Narration (Description)</th>
-                <th class="p-3">Assigned To</th>
+                <th class="p-3 border-r border-slate-200">Status</th>
+                <th class="p-3 border-r border-slate-200">Bank</th>
+                <th class="p-3 border-r border-slate-200">Ref No</th>
+                <th class="p-3 border-r border-slate-200">Date</th>
+                <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
+                <th class="p-3 border-r border-slate-200">Cheque / UTR</th>
+                <th class="p-3 border-r border-slate-200">Narration (Description)</th>
+                <th class="p-3 border-r border-slate-200">Assigned To</th>
                 <th class="p-3 text-center">Action</th>
               </tr>
             </thead>
-            <tbody id="tx-table-body" class="divide-y divide-slate-800/60">
+            <tbody id="tx-table-body" class="divide-y divide-slate-200 bg-white">
               <!-- Dynamically populated -->
             </tbody>
           </table>
@@ -210,65 +212,65 @@
 
     <!-- TAB 2: CLAIMED / VERIFIED -->
     <div id="content-claimed" class="space-y-4 hidden">
-      <div class="glass p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 id="claimed-view-title" class="font-bold text-white text-sm">Verified Payments</h3>
-          <p class="text-xs text-slate-400">Entries successfully linked with customer & caller details.</p>
+          <h3 id="claimed-view-title" class="font-bold text-slate-900 text-sm">Verified Payments</h3>
+          <p class="text-xs text-slate-500">Entries successfully linked with customer & caller details.</p>
         </div>
-        <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5">
+        <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
           Export Handsoff (.xlsx)
         </button>
       </div>
 
-      <div class="glass rounded-2xl overflow-hidden border border-slate-800">
-        <div class="overflow-x-auto max-h-[500px] custom-scrollbar">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] font-bold sticky top-0 border-b border-slate-800">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-[520px] table-container">
+          <table class="w-full text-left text-xs text-slate-700 border-collapse">
+            <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-200">
               <tr>
-                <th class="p-3">Ref No</th>
-                <th class="p-3">Customer ID / Name</th>
-                <th class="p-3">Portfolio</th>
-                <th class="p-3 text-right">Amount</th>
-                <th class="p-3">Caller Name</th>
-                <th class="p-3">Manager</th>
-                <th class="p-3">Bank</th>
-                <th class="p-3">Date</th>
+                <th class="p-3 border-r border-slate-200">Ref No</th>
+                <th class="p-3 border-r border-slate-200">Customer ID / Name</th>
+                <th class="p-3 border-r border-slate-200">Portfolio</th>
+                <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
+                <th class="p-3 border-r border-slate-200">Caller Name</th>
+                <th class="p-3 border-r border-slate-200">Manager</th>
+                <th class="p-3 border-r border-slate-200">Bank</th>
+                <th class="p-3 border-r border-slate-200">Date</th>
                 <th class="p-3 text-center">Unclaim</th>
               </tr>
             </thead>
-            <tbody id="claimed-table-body" class="divide-y divide-slate-800/60"></tbody>
+            <tbody id="claimed-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
           </table>
         </div>
       </div>
     </div>
 
     <!-- TAB 3: ADMIN UPLOAD STATEMENT -->
-    <div id="content-admin-upload" class="space-y-6 hidden">
-      <div class="glass p-6 rounded-2xl space-y-5 max-w-3xl mx-auto">
+    <div id="content-admin-upload" class="space-y-5 hidden">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5 max-w-2xl mx-auto">
         <div class="flex items-center gap-3">
-          <div class="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+          <div class="p-2.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-white text-base">Upload Next-Day Bank Statement</h3>
-            <p class="text-xs text-slate-400">Browser me Excel parse hokar direct Supabase Cloud me store ho jayegi.</p>
+            <h3 class="font-bold text-slate-900 text-sm">Upload Next-Day Bank Statement</h3>
+            <p class="text-xs text-slate-500">Browser me Excel parse hokar direct Supabase Cloud me store ho jayegi.</p>
           </div>
         </div>
 
-        <div class="border-2 border-dashed border-slate-700 hover:border-purple-500/60 rounded-2xl p-8 text-center cursor-pointer transition-colors bg-slate-950/40" onclick="document.getElementById('cloud-excel-file').click()">
+        <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-8 text-center cursor-pointer transition-colors bg-slate-50" onclick="document.getElementById('cloud-excel-file').click()">
           <input type="file" id="cloud-excel-file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload(event)">
-          <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-purple-400 mb-2"></i>
-          <p id="cloud-filename-label" class="text-xs font-semibold text-slate-200">Click to select Account Transaction Format.xlsx</p>
+          <i data-lucide="file-spreadsheet" class="w-10 h-10 mx-auto text-blue-600 mb-2"></i>
+          <p id="cloud-filename-label" class="text-xs font-semibold text-slate-800">Click to select Account Transaction Format.xlsx</p>
           <p class="text-[11px] text-slate-500 mt-1">Multi-sheet support: HDFC, ICICI, Razorpay</p>
         </div>
 
         <div class="flex items-center justify-between pt-2">
           <div class="flex items-center gap-2">
-            <label class="text-xs font-semibold text-slate-300">Statement Date:</label>
-            <input type="text" id="cloud-batch-date" value="21-10-2026" class="bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none">
+            <label class="text-xs font-semibold text-slate-700">Statement Date:</label>
+            <input type="text" id="cloud-batch-date" value="21-10-2026" class="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600">
           </div>
-          <button onclick="processAndSyncExcel()" id="btn-cloud-upload" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-500/20 flex items-center gap-2">
+          <button onclick="processAndSyncExcel()" id="btn-cloud-upload" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
             <i data-lucide="check" class="w-4 h-4"></i>
             Parse & Sync to Cloud
           </button>
@@ -279,49 +281,49 @@
   </main>
 
   <!-- CLAIM MODAL -->
-  <div id="claim-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass max-w-lg w-full rounded-2xl border border-slate-700 shadow-2xl p-6 space-y-4 bg-slate-900">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+  <div id="claim-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-lg w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2">
-          <i data-lucide="edit-3" class="w-5 h-5 text-indigo-400"></i>
-          <h3 class="font-bold text-sm text-white">Update Customer & Caller Details</h3>
+          <i data-lucide="edit-3" class="w-5 h-5 text-blue-700"></i>
+          <h3 class="font-bold text-sm text-slate-900">Update Customer & Caller Details</h3>
         </div>
-        <button onclick="closeClaimModal()" class="text-slate-400 hover:text-white p-1">
+        <button onclick="closeClaimModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
+      <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
         <div class="flex justify-between">
-          <span class="text-slate-400">Bank & Ref:</span>
-          <span id="modal-bank-ref" class="font-bold text-blue-300"></span>
+          <span class="text-slate-500 font-medium">Bank & Ref:</span>
+          <span id="modal-bank-ref" class="font-bold text-blue-800"></span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Amount:</span>
-          <span id="modal-amount" class="font-bold text-emerald-400 text-sm"></span>
+          <span class="text-slate-500 font-medium">Amount:</span>
+          <span id="modal-amount" class="font-bold text-emerald-700 text-sm"></span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">UTR / Cheque:</span>
-          <span id="modal-utr" class="font-mono text-amber-300"></span>
+          <span class="text-slate-500 font-medium">UTR / Cheque:</span>
+          <span id="modal-utr" class="font-mono text-amber-700 font-bold"></span>
         </div>
       </div>
 
       <div class="space-y-3">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-[11px] font-semibold text-slate-400 uppercase">Customer ID / Loan No *</label>
-            <input type="text" id="modal-cust-id" placeholder="e.g. 597362" class="w-full mt-1 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none focus:border-indigo-500">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase">Customer ID / Loan No *</label>
+            <input type="text" id="modal-cust-id" placeholder="e.g. 597362" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
           <div>
-            <label class="text-[11px] font-semibold text-slate-400 uppercase">Customer Name *</label>
-            <input type="text" id="modal-cust-name" placeholder="e.g. SARAVANAN KRISHNA" class="w-full mt-1 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none focus:border-indigo-500">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase">Customer Name *</label>
+            <input type="text" id="modal-cust-name" placeholder="e.g. SARAVANAN KRISHNA" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-[11px] font-semibold text-slate-400 uppercase">Portfolio *</label>
-            <select id="modal-portfolio" class="w-full mt-1 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none focus:border-indigo-500">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase">Portfolio *</label>
+            <select id="modal-portfolio" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600">
               <option value="CASHE">CASHE</option>
               <option value="SCB">SCB</option>
               <option value="CHOLA">CHOLA</option>
@@ -333,20 +335,20 @@
             </select>
           </div>
           <div>
-            <label class="text-[11px] font-semibold text-slate-400 uppercase">Caller / Officer Name *</label>
-            <input type="text" id="modal-caller" placeholder="e.g. SUHANA SHAIKH" class="w-full mt-1 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none focus:border-indigo-500">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase">Caller / Officer Name *</label>
+            <input type="text" id="modal-caller" placeholder="e.g. SUHANA SHAIKH" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
         </div>
 
         <div>
-          <label class="text-[11px] font-semibold text-slate-400 uppercase">Allocating Manager:</label>
-          <input type="text" id="modal-manager" readonly class="w-full mt-1 bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-purple-300 font-bold focus:outline-none">
+          <label class="text-[11px] font-semibold text-slate-600 uppercase">Allocating Manager:</label>
+          <input type="text" id="modal-manager" readonly class="w-full mt-1 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none">
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2 pt-2">
-        <button onclick="closeClaimModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
-        <button onclick="submitClaim()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/20 flex items-center gap-1.5">
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeClaimModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+        <button onclick="submitClaim()" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5">
           <i data-lucide="check" class="w-4 h-4"></i>
           Save & Link Entry
         </button>
@@ -355,91 +357,91 @@
   </div>
 
   <!-- SMART FINDER MODAL -->
-  <div id="smart-finder-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass max-w-2xl w-full rounded-2xl border border-amber-500/30 shadow-2xl p-6 space-y-4 bg-slate-900 max-h-[90vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+  <div id="smart-finder-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-2xl w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2.5">
-          <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+          <div class="p-2 bg-amber-50 text-amber-700 rounded-lg border border-amber-200">
             <i data-lucide="sparkle" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
               Smart Match Finder
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Fuzzy Search</span>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Fuzzy Match</span>
             </h3>
-            <p class="text-xs text-slate-400">Agar UTR galat ho, toh Amount + Customer Name se search karein.</p>
+            <p class="text-xs text-slate-500">Agar UTR galat ho, toh Amount + Customer Name se search karein.</p>
           </div>
         </div>
-        <button onclick="closeSmartFinderModal()" class="text-slate-400 hover:text-white p-1">
+        <button onclick="closeSmartFinderModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
         <div>
-          <label class="text-[11px] font-semibold text-slate-400 uppercase">1. Amount (₹) *</label>
-          <input type="number" step="0.01" id="smart-amount" placeholder="e.g. 1500" class="w-full mt-1 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-emerald-400 font-bold focus:outline-none focus:border-amber-500">
+          <label class="text-[11px] font-semibold text-slate-600 uppercase">1. Amount (₹) *</label>
+          <input type="number" step="0.01" id="smart-amount" placeholder="e.g. 1500" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-emerald-800 font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
         </div>
         <div>
-          <label class="text-[11px] font-semibold text-slate-400 uppercase">2. Customer Name</label>
-          <input type="text" id="smart-name" placeholder="e.g. Saravanan or Vetry" class="w-full mt-1 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500">
+          <label class="text-[11px] font-semibold text-slate-600 uppercase">2. Customer Name</label>
+          <input type="text" id="smart-name" placeholder="e.g. Saravanan or Vetry" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
         </div>
         <div>
-          <label class="text-[11px] font-semibold text-slate-400 uppercase">3. Partial UTR digits</label>
-          <input type="text" id="smart-utr" placeholder="e.g. last 4 digits (1809)" class="w-full mt-1 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500">
+          <label class="text-[11px] font-semibold text-slate-600 uppercase">3. Partial UTR digits</label>
+          <input type="text" id="smart-utr" placeholder="e.g. last 4 digits (1809)" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
         </div>
       </div>
 
       <div class="flex justify-end">
-        <button onclick="runSmartFinder()" class="px-5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5">
+        <button onclick="runSmartFinder()" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
           <i data-lucide="search" class="w-3.5 h-3.5"></i>
           Search Smart Matches
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1 min-h-[160px]" id="smart-results-container">
+      <div class="flex-1 overflow-y-auto table-container space-y-2 pr-1 min-h-[160px]" id="smart-results-container">
         <div class="p-8 text-center text-slate-500 italic text-xs">Enter Amount or Name above and click search.</div>
       </div>
     </div>
   </div>
 
   <!-- SUPABASE CONFIG MODAL -->
-  <div id="supabase-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass max-w-md w-full rounded-2xl border border-slate-700 p-6 space-y-4 bg-slate-900 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+  <div id="supabase-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-md w-full rounded-xl border border-slate-200 p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2">
-          <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="font-bold text-sm text-white">Supabase Cloud Connection</h3>
+          <i data-lucide="database" class="w-5 h-5 text-emerald-700"></i>
+          <h3 class="font-bold text-sm text-slate-900">Supabase Cloud Connection</h3>
         </div>
-        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white p-1">
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="font-semibold text-slate-300">Supabase Project URL</label>
-          <input type="text" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co" class="w-full mt-1 bg-slate-950 border border-slate-700 p-2 rounded-lg text-white font-mono focus:border-emerald-500 focus:outline-none">
+          <label class="font-semibold text-slate-700">Supabase Project URL</label>
+          <input type="text" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co" class="w-full mt-1 bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-mono focus:ring-1 focus:ring-blue-600 focus:outline-none">
         </div>
         <div>
-          <label class="font-semibold text-slate-300">Supabase Anon Public API Key</label>
-          <input type="text" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full mt-1 bg-slate-950 border border-slate-700 p-2 rounded-lg text-white font-mono focus:border-emerald-500 focus:outline-none">
+          <label class="font-semibold text-slate-700">Supabase Anon Public API Key</label>
+          <input type="text" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full mt-1 bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-mono focus:ring-1 focus:ring-blue-600 focus:outline-none">
         </div>
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          Yeh keys aapke browser ke <code>localStorage</code> me safe rahengi. Agar Supabase configure nahi hoga, toh tool offline sample memory mode me chalega.
+        <p class="text-[11px] text-slate-500 leading-relaxed">
+          Yeh keys aapke browser ke <code>localStorage</code> me safe rahengi.
         </p>
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
-        <button onclick="saveSupabaseConfig()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md">Save & Connect</button>
+        <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+        <button onclick="saveSupabaseConfig()" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm">Save & Connect</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 glass px-4 py-3 rounded-xl border border-slate-700 text-xs font-semibold flex items-center gap-2 shadow-2xl z-50">
-    <i id="toast-icon" data-lucide="info" class="w-4 h-4"></i>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-white px-4 py-3 rounded-lg border border-slate-300 text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800">
+    <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-blue-600"></i>
     <span id="toast-msg">Notification</span>
   </div>
 
@@ -452,7 +454,7 @@
     let activeClaimId = null;
     let supabaseClient = null;
 
-    // Default In-Memory Fallback Transactions if Supabase is not yet configured
+    // Default In-Memory Fallback Transactions
     let memoryTransactions = [
       {
         id: 1,
@@ -513,41 +515,44 @@
     function showToast(msg, type = 'info') {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
-      toast.className = `fixed bottom-6 right-6 transition-all duration-300 glass px-4 py-3 rounded-xl border text-xs font-semibold flex items-center gap-2 shadow-2xl z-50 ${
-        type === 'success' ? 'border-emerald-500/50 text-emerald-300 bg-emerald-950/90' :
-        type === 'error' ? 'border-rose-500/50 text-rose-300 bg-rose-950/90' :
-        'border-blue-500/50 text-blue-300 bg-slate-900/90'
+      toast.className = `fixed bottom-6 right-6 transition-all duration-300 bg-white px-4 py-3 rounded-lg border text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800 ${
+        type === 'success' ? 'border-emerald-500' :
+        type === 'error' ? 'border-rose-500' :
+        'border-blue-500'
       }`;
       toast.classList.remove('translate-y-20', 'opacity-0');
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3500);
     }
 
+    // Default Cloud Configuration (Pre-configured for Shaha Finlease)
+    const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
+
     // Supabase Setup
     function initSupabase() {
-      const url = localStorage.getItem('supabase_url');
-      const key = localStorage.getItem('supabase_key');
+      const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+      const key = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
       const indicator = document.getElementById('supabase-indicator');
       const text = document.getElementById('supabase-status-text');
 
       if (url && key && window.supabase) {
         try {
           supabaseClient = window.supabase.createClient(url, key);
-          indicator.className = 'w-2 h-2 rounded-full bg-emerald-400';
-          text.innerText = 'Supabase Connected';
-          text.className = 'text-emerald-400 font-semibold';
+          indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-600';
+          text.innerText = 'Cloud Storage: Connected';
         } catch (e) {
-          indicator.className = 'w-2 h-2 rounded-full bg-rose-400';
-          text.innerText = 'Supabase Error';
+          indicator.className = 'w-2.5 h-2.5 rounded-full bg-rose-600';
+          text.innerText = 'Cloud Storage: Error';
         }
       } else {
-        indicator.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        text.innerText = 'Supabase Offline (Local Mode)';
+        indicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+        text.innerText = 'Cloud Storage: Offline';
       }
     }
 
     function openConfigModal() {
-      document.getElementById('cfg-supabase-url').value = localStorage.getItem('supabase_url') || '';
-      document.getElementById('cfg-supabase-key').value = localStorage.getItem('supabase_key') || '';
+      document.getElementById('cfg-supabase-url').value = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+      document.getElementById('cfg-supabase-key').value = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
       document.getElementById('supabase-modal').classList.remove('hidden');
     }
 
@@ -583,7 +588,7 @@
         document.getElementById('active-manager-badge').innerText = currentManager;
         document.getElementById('kpi-admin-total').classList.add('hidden');
         document.getElementById('tab-admin-upload').classList.add('hidden');
-        document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Verified Records`;
+        document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Records`;
       }
       filterTransactions();
       lucide.createIcons();
@@ -595,8 +600,8 @@
         const content = document.getElementById(`content-${t}`);
         if (btn && content) {
           btn.className = t === tab ? 
-            'tab-active px-5 py-2 rounded-xl font-semibold text-xs transition-all flex items-center gap-2' : 
-            'px-5 py-2 rounded-xl font-semibold text-xs text-slate-400 hover:text-white transition-all flex items-center gap-2';
+            'tab-active px-4 py-2 rounded-lg font-semibold text-xs transition-all flex items-center gap-2' : 
+            'px-4 py-2 rounded-lg font-semibold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2';
           content.classList.toggle('hidden', t !== tab);
         }
       });
@@ -604,7 +609,7 @@
       lucide.createIcons();
     }
 
-    // Fetch transactions from Supabase or Local Memory
+    // Fetch transactions
     async function loadTransactionsFromCloud() {
       if (supabaseClient) {
         try {
@@ -626,7 +631,6 @@
       filterTransactions();
     }
 
-    // Filter transactions enforcing Strict Manager Isolation
     function filterTransactions() {
       const q = document.getElementById('tx-search-input').value.toLowerCase().trim();
       const statusFilter = document.getElementById('tx-status-filter').value;
@@ -638,7 +642,7 @@
         if (currentRole !== 'ADMIN') {
           if (t.status === 'ALLOCATED') {
             const m = (t.claimed_by_manager || '').toUpperCase().trim();
-            if (m !== currentManager.toUpperCase().trim()) return false; // HIDE OTHER MANAGERS
+            if (m !== currentManager.toUpperCase().trim()) return false;
           }
         }
 
@@ -697,40 +701,40 @@
       document.getElementById('tx-table-count').innerText = `(${txs.length} records)`;
 
       if (txs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-500 italic">No transactions found matching your criteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 italic">No transactions found matching your criteria.</td></tr>`;
         return;
       }
 
-      txs.forEach(t => {
+      txs.forEach((t, idx) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40 transition-colors';
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40 transition-colors' : 'bg-slate-50/60 hover:bg-blue-50/40 transition-colors';
 
         const isAlloc = t.status === 'ALLOCATED';
         const badge = isAlloc ? 
-          '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ALLOCATED</span>' :
-          '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">UNALLOCATED</span>';
+          '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ALLOCATED</span>' :
+          '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">UNALLOCATED</span>';
 
         const assigned = isAlloc ? 
-          `<div><span class="font-bold text-slate-200">${t.claimed_by_manager}</span><div class="text-[10px] text-slate-400">${t.caller_name || ''}</div></div>` :
-          `<span class="text-slate-500 italic text-[11px]">Unclaimed</span>`;
+          `<div><span class="font-bold text-slate-800">${t.claimed_by_manager}</span><div class="text-[11px] text-slate-500">${t.caller_name || ''}</div></div>` :
+          `<span class="text-slate-400 italic text-[11px]">Unclaimed</span>`;
 
         const action = isAlloc ?
           (currentRole === 'ADMIN' || (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim() ? 
-            `<button onclick="unclaimTx(${t.id})" class="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-rose-900/40 text-rose-400 rounded-lg border border-slate-700">Release</button>` :
-            `<span class="text-slate-600">-</span>`) :
-          `<button onclick='openClaimModal(${JSON.stringify(t).replace(/'/g, "\\'")})' class="px-3 py-1 text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow-sm shadow-indigo-500/20 flex items-center gap-1 mx-auto">
-            <i data-lucide="plus" class="w-3 h-3"></i> Claim / Update
+            `<button onclick="unclaimTx(${t.id})" class="px-2.5 py-1 text-xs bg-white hover:bg-rose-50 text-rose-700 font-semibold rounded border border-rose-300">Release</button>` :
+            `<span class="text-slate-400">-</span>`) :
+          `<button onclick='openClaimModal(${JSON.stringify(t).replace(/'/g, "\\'")})' class="px-3 py-1.5 text-xs bg-blue-700 hover:bg-blue-800 text-white font-bold rounded shadow-sm flex items-center gap-1 mx-auto">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Claim / Update
           </button>`;
 
         tr.innerHTML = `
-          <td class="p-3">${badge}</td>
-          <td class="p-3 font-bold text-slate-200">${t.bank_name}</td>
-          <td class="p-3 font-mono font-bold text-blue-300">${t.ref_no}</td>
-          <td class="p-3 text-slate-400 text-[11px]">${t.tx_date || ''}</td>
-          <td class="p-3 text-right font-mono font-bold text-emerald-400">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-          <td class="p-3 font-mono text-[11px] text-amber-300">${t.cheque_extracted || '-'}</td>
-          <td class="p-3 max-w-xs truncate text-[11px] text-slate-300" title="${t.narration || ''}">${t.narration || ''}</td>
-          <td class="p-3">${assigned}</td>
+          <td class="p-3 border-r border-slate-200">${badge}</td>
+          <td class="p-3 border-r border-slate-200 font-bold text-slate-800">${t.bank_name}</td>
+          <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
+          <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date || ''}</td>
+          <td class="p-3 border-r border-slate-200 text-right font-mono font-bold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800 font-semibold">${t.cheque_extracted || '-'}</td>
+          <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${t.narration || ''}">${t.narration || ''}</td>
+          <td class="p-3 border-r border-slate-200">${assigned}</td>
           <td class="p-3 text-center">${action}</td>
         `;
         tbody.appendChild(tr);
@@ -785,7 +789,6 @@
         tx.claimed_by_manager = mgr;
         tx.status = 'ALLOCATED';
 
-        // Sync to Supabase if connected
         if (supabaseClient) {
           try {
             await supabaseClient
@@ -855,28 +858,28 @@
         `All Verified Records (${alloc.length})` : `${currentManager}'s Records (${alloc.length})`;
 
       if (alloc.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-500 italic">No verified records found yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 italic">No verified records found yet.</td></tr>`;
         return;
       }
 
-      alloc.forEach(t => {
+      alloc.forEach((t, idx) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40';
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-slate-50/60 hover:bg-blue-50/40';
         tr.innerHTML = `
-          <td class="p-3 font-mono font-bold text-blue-300">${t.ref_no}</td>
-          <td class="p-3">
-            <div class="font-bold text-slate-200">${t.customer_name}</div>
-            <div class="text-[10px] text-slate-400">ID: ${t.customer_id}</div>
+          <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
+          <td class="p-3 border-r border-slate-200">
+            <div class="font-bold text-slate-800">${t.customer_name}</div>
+            <div class="text-[11px] text-slate-500">ID: ${t.customer_id}</div>
           </td>
-          <td class="p-3 font-bold text-purple-300">${t.portfolio}</td>
-          <td class="p-3 text-right font-mono font-bold text-emerald-400">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-          <td class="p-3 text-slate-200">${t.caller_name}</td>
-          <td class="p-3 text-slate-300 font-semibold">${t.claimed_by_manager}</td>
-          <td class="p-3 font-bold text-slate-200">${t.bank_name}</td>
-          <td class="p-3 text-slate-400 text-[11px]">${t.tx_date}</td>
+          <td class="p-3 border-r border-slate-200 font-bold text-purple-700">${t.portfolio}</td>
+          <td class="p-3 border-r border-slate-200 text-right font-mono font-bold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="p-3 border-r border-slate-200 text-slate-700">${t.caller_name}</td>
+          <td class="p-3 border-r border-slate-200 text-slate-800 font-semibold">${t.claimed_by_manager}</td>
+          <td class="p-3 border-r border-slate-200 font-bold text-slate-800">${t.bank_name}</td>
+          <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date}</td>
           <td class="p-3 text-center">
-            <button onclick="unclaimTx(${t.id})" class="p-1 text-rose-400 hover:bg-rose-500/20 rounded">
-              <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+            <button onclick="unclaimTx(${t.id})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded">
+              <i data-lucide="undo-2" class="w-4 h-4"></i>
             </button>
           </td>
         `;
@@ -952,26 +955,26 @@
       container.innerHTML = '';
 
       if (candidates.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-rose-400 bg-rose-950/20 border border-rose-500/20 rounded-xl text-xs">No matching bank transactions found. Check amount or name.</div>`;
+        container.innerHTML = `<div class="p-8 text-center text-rose-600 bg-rose-50 border border-rose-200 rounded-lg text-xs">No matching bank transactions found. Check amount or name.</div>`;
         return;
       }
 
       candidates.forEach(c => {
         const div = document.createElement('div');
-        div.className = 'p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500/40 transition-all flex flex-wrap items-center justify-between gap-3';
-        const reasonsHtml = c.reasons.map(r => `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">${r}</span>`).join(' ');
+        div.className = 'p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-amber-400 transition-all flex flex-wrap items-center justify-between gap-3';
+        const reasonsHtml = c.reasons.map(r => `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">${r}</span>`).join(' ');
 
         div.innerHTML = `
           <div class="space-y-1 flex-1 min-w-[240px]">
             <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-600/20 text-blue-300 border border-blue-500/30">${c.bank_name}</span>
-              <span class="font-mono text-xs font-bold text-blue-300">${c.ref_no}</span>
-              <span class="font-mono text-xs font-extrabold text-emerald-400">₹${Number(c.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">${c.bank_name}</span>
+              <span class="font-mono text-xs font-bold text-blue-800">${c.ref_no}</span>
+              <span class="font-mono text-xs font-extrabold text-slate-900">₹${Number(c.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
             </div>
-            <p class="text-[11px] text-slate-300 truncate">${c.narration}</p>
+            <p class="text-xs text-slate-700 truncate">${c.narration}</p>
             <div class="flex items-center gap-1.5 flex-wrap pt-0.5">${reasonsHtml}</div>
           </div>
-          <button onclick='pickSmartCandidate(${JSON.stringify(c).replace(/'/g, "\\'")})' class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs shadow-md">
+          <button onclick='pickSmartCandidate(${JSON.stringify(c).replace(/'/g, "\\'")})' class="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded text-xs shadow-sm">
             Claim This
           </button>
         `;
@@ -989,7 +992,7 @@
       selectedFile = e.target.files[0];
       if (selectedFile) {
         document.getElementById('cloud-filename-label').innerText = selectedFile.name;
-        document.getElementById('cloud-filename-label').className = 'text-xs font-bold text-purple-300';
+        document.getElementById('cloud-filename-label').className = 'text-xs font-bold text-blue-700';
       }
     }
 
@@ -1048,7 +1051,6 @@
           }
         });
 
-        // Add to local state & Supabase
         allTransactions.unshift(...newTransactions);
         if (supabaseClient) {
           try {
