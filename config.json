@@ -1,0 +1,64 @@
+{
+  "default_agency": "INH",
+  "agency_manager_mapping": {
+    "SMITA JAGTAP": "INH",
+    "SMITA": "INH",
+    "POONAM INDULKAR": "KP",
+    "POONAM": "KP",
+    "AMBUJ TRIPATHI": "INH",
+    "AMBUJ": "INH",
+    "ADITI": "INH",
+    "OMKAR": "INH",
+    "OMKAR SINGH": "INH",
+    "SHRAVANTI": "INH",
+    "SHWETA": "INH",
+    "SATISH SIR": "INH",
+    "KP": "KP"
+  },
+  "portfolio_mapping": {
+    "CASHE": {
+      "source": "CASHE 1 OCT 2022",
+      "product": "PL"
+    },
+    "SCB": {
+      "source": "CC",
+      "product": "CC"
+    },
+    "SCB_PL": {
+      "source": "PL",
+      "product": "PL"
+    },
+    "SCB_CC": {
+      "source": "CC",
+      "product": "CC"
+    },
+    "CHOLA": {
+      "source": "CHOLA_PL",
+      "product": "PL"
+    },
+    "CHOLA_PL": {
+      "source": "CHOLA_PL",
+      "product": "PL"
+    },
+    "CAPITALFLOAT": {
+      "source": "CAPITALFLOAT",
+      "product": "PL"
+    },
+    "AXIO": {
+      "source": "AXIO",
+      "product": "PL"
+    },
+    "DMI": {
+      "source": "DMI",
+      "product": "PL"
+    },
+    "PMC": {
+      "source": "PMC",
+      "product": "PL"
+    },
+    "UNITY_CC": {
+      "source": "UNITY_CC",
+      "product": "CC"
+    }
+  }
+}
