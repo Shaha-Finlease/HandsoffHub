@@ -2355,75 +2355,154 @@
     function handleExcelUpload(e) {
       selectedFile = e.target.files[0];
       if (selectedFile) {
-        document.getElementById('cloud-filename-label').innerText = selectedFile.name;
+        const sizeKb = Math.round(selectedFile.size / 1024);
+        document.getElementById('cloud-filename-label').innerText = `${selectedFile.name} (${sizeKb} KB)`;
         document.getElementById('cloud-filename-label').className = 'text-xs font-bold text-blue-700';
       }
     }
 
     async function processAndSyncExcel() {
       if (!selectedFile) {
-        showToast('Please select Bank Statement Excel file first.', 'error');
+        showToast('Please select Bank Statement Excel / CSV file first.', 'error');
         return;
+      }
+
+      const uploadBtn = document.getElementById('btn-cloud-upload');
+      if (uploadBtn) {
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Parsing & Uploading to Cloud...</span>';
+        lucide.createIcons();
       }
 
       const reader = new FileReader();
       reader.onload = async function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const newTransactions = [];
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const newTransactions = [];
+          const defaultBatchDate = document.getElementById('cloud-batch-date').value.trim() || '22-10-2026';
 
-        workbook.SheetNames.forEach(sheetName => {
-          const sLower = sheetName.toLowerCase();
-          if (sLower.includes('today') || sLower.includes('summary')) return;
+          function findHeaderCol(headers, keywords) {
+            for (const kw of keywords) {
+              const idx = headers.findIndex(h => h.includes(kw));
+              if (idx !== -1) return idx;
+            }
+            return -1;
+          }
 
-          const bank = sLower.includes('hdfc') ? 'HDFC' : (sLower.includes('icici') ? 'ICICI' : (sLower.includes('razor') ? 'Razorpay' : sheetName));
-          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-          if (!rows || rows.length < 2) return;
+          workbook.SheetNames.forEach(sheetName => {
+            const sLower = sheetName.toLowerCase();
+            if (sLower.includes('today') || sLower.includes('summary')) return;
 
-          const headers = rows[0].map(h => String(h || '').toLowerCase());
-          const refCol = headers.findIndex(h => h.includes('ref'));
-          const dateCol = headers.findIndex(h => h.includes('date') || h.includes('dt'));
-          const narrCol = headers.findIndex(h => h.includes('narration') || h.includes('remark') || h.includes('desc'));
-          const amtCol = headers.findIndex(h => h.includes('credit') || h.includes('amount'));
-          const chqCol = headers.findIndex(h => h.includes('cheque') || h.includes('chq') || h.includes('tran. id'));
+            const bank = sLower.includes('hdfc') ? 'HDFC' : (sLower.includes('icici') ? 'ICICI' : (sLower.includes('razor') ? 'Razorpay' : sheetName));
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+            if (!rows || rows.length < 2) return;
 
-          for (let i = 1; i < rows.length; i++) {
-            const r = rows[i];
-            if (!r || r.length === 0) continue;
-            const refVal = refCol !== -1 ? String(r[refCol] || '') : `TX-${Date.now()}-${i}`;
-            const amtVal = amtCol !== -1 ? parseFloat(r[amtCol]) : 0;
-            const narrVal = narrCol !== -1 ? String(r[narrCol] || '') : '';
-            if (!refVal && amtVal <= 0) continue;
-
-            let extractedChq = chqCol !== -1 ? String(r[chqCol] || '') : '';
-            if (!extractedChq || extractedChq === '0') {
-              const m12 = narrVal.match(/\b\d{12}\b/);
-              if (m12) extractedChq = m12[0];
+            // Search for header row in top 10 rows
+            let headerRowIdx = 0;
+            let headers = [];
+            for (let r = 0; r < Math.min(rows.length, 10); r++) {
+              const testHeaders = (rows[r] || []).map(h => String(h || '').toLowerCase().trim());
+              if (testHeaders.some(h => h.includes('ref') || h.includes('date') || h.includes('amount') || h.includes('credit') || h.includes('narration'))) {
+                headerRowIdx = r;
+                headers = testHeaders;
+                break;
+              }
             }
 
-            newTransactions.push({
-              id: Date.now() + i,
-              ref_no: refVal,
-              bank_name: bank,
-              tx_date: dateCol !== -1 ? String(r[dateCol] || '') : '21-10-2026',
-              amount: amtVal,
-              narration: narrVal,
-              cheque_extracted: extractedChq,
-              status: 'UNALLOCATED',
-              claimed_by_manager: null
-            });
+            if (headers.length === 0) headers = rows[0].map(h => String(h || '').toLowerCase().trim());
+
+            const refCol = findHeaderCol(headers, ['reference no', 'ref no', 'ref. no', 'ref', 'chq', 'cheque', 'tran. id']);
+            const dateCol = findHeaderCol(headers, ['transaction date', 'value date', 'date', 'dt']);
+            const narrCol = findHeaderCol(headers, ['transaction remarks', 'narration', 'description', 'remarks', 'remark', 'desc']);
+            const amtCol = findHeaderCol(headers, ['transaction amount', 'credit', 'amount', 'cr']);
+            const chqCol = findHeaderCol(headers, ['cheque. no', 'cheque/ref', 'settlement_utr', 'cheque', 'chq', 'tran. id', 'arn']);
+
+            for (let i = headerRowIdx + 1; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r || r.length === 0) continue;
+
+              const refVal = refCol !== -1 && r[refCol] ? String(r[refCol]).trim() : `TX-${bank}-${Date.now().toString().slice(-6)}-${i}`;
+              let amtVal = 0;
+              if (amtCol !== -1 && r[amtCol] !== undefined && r[amtCol] !== null) {
+                const cleanAmt = String(r[amtCol]).replace(/[^0-9.-]+/g, '');
+                amtVal = parseFloat(cleanAmt) || 0;
+              }
+              const narrVal = narrCol !== -1 && r[narrCol] ? String(r[narrCol]).trim() : '';
+
+              if (amtVal <= 0 && (!refVal || refVal.startsWith('TX-'))) continue;
+
+              let extractedChq = chqCol !== -1 && r[chqCol] ? String(r[chqCol]).trim() : '';
+              if (!extractedChq || extractedChq === '0' || extractedChq.toLowerCase() === 'nan') {
+                const m12 = narrVal.match(/\b\d{12}\b/);
+                if (m12) extractedChq = m12[0];
+                else {
+                  const mPay = narrVal.match(/pay_[A-Za-z0-9]+/);
+                  if (mPay) extractedChq = mPay[0];
+                }
+              }
+
+              let txDate = defaultBatchDate;
+              if (dateCol !== -1 && r[dateCol]) {
+                const dRaw = r[dateCol];
+                if (typeof dRaw === 'number') {
+                  const dObj = new Date((dRaw - 25569) * 86400 * 1000);
+                  txDate = dObj.toLocaleDateString('en-GB').replace(/\//g, '-');
+                } else {
+                  txDate = String(dRaw).trim().split(' ')[0];
+                }
+              }
+
+              newTransactions.push({
+                ref_no: refVal,
+                bank_name: bank,
+                tx_date: txDate,
+                amount: amtVal,
+                narration: narrVal,
+                cheque_extracted: (extractedChq && extractedChq.toLowerCase() !== 'nan') ? extractedChq : '',
+                status: 'UNALLOCATED',
+                claimed_by_manager: null
+              });
+            }
+          });
+
+          if (newTransactions.length === 0) {
+            showToast('No valid transactions found in file. Please verify format.', 'error');
+            if (uploadBtn) {
+              uploadBtn.disabled = false;
+              uploadBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Parse & Sync to Cloud DB</span>';
+              lucide.createIcons();
+            }
+            return;
           }
-        });
 
-        allTransactions.unshift(...newTransactions);
-        if (supabaseClient) {
-          try {
-            await supabaseClient.from('bank_transactions').insert(newTransactions);
-          } catch (e) {}
+          // Deduplicate against existing transactions in memory
+          const existingRefs = new Set(allTransactions.map(t => (t.ref_no || '').trim().toUpperCase()));
+          const toInsert = newTransactions.filter(t => !existingRefs.has((t.ref_no || '').trim().toUpperCase()));
+
+          if (supabaseClient && toInsert.length > 0) {
+            for (let c = 0; c < toInsert.length; c += 50) {
+              const chunk = toInsert.slice(c, c + 50);
+              const { error } = await supabaseClient.from('bank_transactions').insert(chunk);
+              if (error) console.error('Cloud insert error:', error);
+            }
+          }
+
+          // Reload fresh from cloud
+          await loadTransactionsFromCloud();
+
+          showToast(`Successfully uploaded & synced ${toInsert.length} new transactions to Cloud DB!`, 'success');
+          switchTab('workspace');
+        } catch (err) {
+          console.error('File parsing error:', err);
+          showToast('Error processing file: ' + err.message, 'error');
+        } finally {
+          if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Parse & Sync to Cloud DB</span>';
+            lucide.createIcons();
+          }
         }
-
-        showToast(`Parsed & Added ${newTransactions.length} bank transactions to Cloud!`, 'success');
-        switchTab('workspace');
       };
       reader.readAsArrayBuffer(selectedFile);
     }
