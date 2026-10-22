@@ -526,38 +526,88 @@
     </div>
 
     <!-- ---------------------------------------- -->
-    <!-- TAB 4: ADMIN BANK STATEMENT UPLOAD       -->
+    <!-- TAB 4: AUTHORIZED STATEMENT & GOOGLE SHEET SYNC -->
     <!-- ---------------------------------------- -->
-    <div id="content-admin-upload" class="space-y-4 hidden">
-      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5 max-w-2xl mx-auto">
+    <div id="content-admin-upload" class="space-y-6 max-w-3xl mx-auto hidden">
+      
+      <!-- Primary: Google Sheet Live Sync -->
+      <div class="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm space-y-5">
+        <div class="flex items-center justify-between border-b border-emerald-100 pb-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-extrabold text-slate-900 text-sm">Google Sheet Live Sync</h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">Authorized Uploader Only</span>
+              </div>
+              <p class="text-xs text-slate-500">Sync live statements directly from your private Google Sheet into Cloud DB with zero duplicates.</p>
+            </div>
+          </div>
+          <button onclick="openAutoSyncSetupModal()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span>Background Auto-Sync</span>
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Google Sheet URL / Link</label>
+            <div class="flex items-center gap-2">
+              <input type="text" id="cfg-gsheet-url" placeholder="https://docs.google.com/spreadsheets/d/your-sheet-id/edit" class="flex-1 bg-slate-50 border border-slate-300 p-2.5 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:bg-white">
+              <button onclick="openLiveGoogleSheet()" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold flex items-center gap-1 shrink-0" title="Open Google Sheet in new tab">
+                <i data-lucide="external-link" class="w-4 h-4 text-emerald-600"></i>
+                <span>Open Sheet</span>
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Make sure Google Sheet share permission is set to <strong>"Anyone with the link can view"</strong>.</p>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div class="text-[11px] text-slate-500">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 inline text-emerald-600 mr-1"></i>
+              <span>Managers cannot see this sheet. They only see unallocated transactions on the portal.</span>
+            </div>
+            <button onclick="syncFromGoogleSheet()" id="btn-gsheet-sync" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-2 active:scale-[0.98]">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              <span>Sync Live from Google Sheet Now</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary: Local Excel File Upload -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
-          <div class="p-2.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
-            <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+          <div class="p-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-extrabold text-slate-900 text-sm">Upload Next-Day Multi-Bank Statement</h3>
-            <p class="text-xs text-slate-500">Supports HDFC, ICICI, Razorpay sheets. Parsed client-side and saved to cloud.</p>
+            <h3 class="font-extrabold text-slate-900 text-sm">Upload Local Account Transaction File (.xlsx)</h3>
+            <p class="text-xs text-slate-500">Supports HDFC, ICICI, and Razorpay sheets directly from your computer.</p>
           </div>
         </div>
 
-        <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-8 text-center cursor-pointer transition-colors bg-slate-50" onclick="document.getElementById('cloud-excel-file').click()">
+        <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-50" onclick="document.getElementById('cloud-excel-file').click()">
           <input type="file" id="cloud-excel-file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload(event)">
-          <i data-lucide="file-spreadsheet" class="w-10 h-10 mx-auto text-blue-600 mb-2"></i>
+          <i data-lucide="file-spreadsheet" class="w-8 h-8 mx-auto text-blue-600 mb-1.5"></i>
           <p id="cloud-filename-label" class="text-xs font-bold text-slate-800">Click to select Account Transaction Format.xlsx</p>
-          <p class="text-[11px] text-slate-500 mt-1">Multi-sheet parsing with UTR regex extraction</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Multi-sheet parsing with auto-deduplication</p>
         </div>
 
-        <div class="flex items-center justify-between pt-2">
+        <div class="flex items-center justify-between pt-1">
           <div class="flex items-center gap-2">
-            <label class="text-xs font-bold text-slate-700">Statement Batch Date:</label>
+            <label class="text-xs font-bold text-slate-700">Batch Date:</label>
             <input type="text" id="cloud-batch-date" value="21-10-2026" class="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:border-blue-600">
           </div>
           <button onclick="processAndSyncExcel()" id="btn-cloud-upload" class="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
             <i data-lucide="check" class="w-4 h-4"></i>
-            Parse & Sync to Cloud DB
+            <span>Parse & Sync Local File</span>
           </button>
         </div>
       </div>
+
     </div>
 
   </main>
@@ -884,6 +934,13 @@
             <label class="block font-semibold text-slate-600 mb-1">Initial Password *</label>
             <input type="text" id="new-user-pin" placeholder="e.g. 123456" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-mono focus:ring-1 focus:ring-blue-600 focus:outline-none">
           </div>
+          <div class="sm:col-span-4 flex items-center gap-2 pt-1 bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-200">
+            <input type="checkbox" id="new-user-sheet-access" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+            <label for="new-user-sheet-access" class="text-xs font-bold text-emerald-900 cursor-pointer flex items-center gap-1.5">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Grant Google Sheet Upload & Sync Permission to this user</span>
+            </label>
+          </div>
         </div>
         <div class="flex justify-end gap-2 pt-1">
           <button onclick="toggleAddUserForm()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold">Cancel</button>
@@ -900,6 +957,7 @@
               <th class="p-3 border-r border-slate-200">Login ID</th>
               <th class="p-3 border-r border-slate-200">Agency</th>
               <th class="p-3 border-r border-slate-200">Password</th>
+              <th class="p-3 border-r border-slate-200 text-center">Google Sheet Access</th>
               <th class="p-3">Actions (Reset, Rename, Delete)</th>
             </tr>
           </thead>
@@ -955,6 +1013,66 @@
         <span class="text-slate-500 font-medium" id="detail-modal-count">0 headers detected</span>
         <button onclick="closeRowDetailModal()" class="px-5 py-2 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-sm">
           Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 12. MODAL: AUTOMATIC BACKGROUND SYNC CODE  -->
+  <!-- ========================================== -->
+  <div id="auto-sync-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-2xl w-full rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900">Zero-Click Google Sheet Auto-Sync Setup</h3>
+            <p class="text-[11px] text-slate-500">Run automatically every 5 minutes in background without opening the portal</p>
+          </div>
+        </div>
+        <button onclick="closeAutoSyncSetupModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 overflow-y-auto pr-1">
+        <p class="leading-relaxed">
+          Agar aap chahte hain ki Google Sheet me data paste karte hi portal par <strong>automatically bina kisi click ke</strong> sync ho jaye, toh Google Sheet me yeh 2-minute setup karein:
+        </p>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 font-sans">
+          <div class="font-bold text-slate-800">Setup Steps:</div>
+          <ol class="list-decimal list-inside space-y-1 text-slate-600">
+            <li>Apni Google Sheet open karein -> Upar menu me <strong>Extensions -> Apps Script</strong> par click karein.</li>
+            <li>Purana code delete karke neeche diya hua code paste karein.</li>
+            <li>Upar <strong>Save</strong> icon dabayein.</li>
+            <li>Left side me <strong>Triggers (Alarm Clock icon)</strong> par click karein -> <strong>Add Trigger</strong> dabayein:
+              <ul class="list-disc list-inside ml-4 mt-1 text-slate-500 font-mono text-[11px]">
+                <li>Function: <strong class="text-slate-700">autoSyncBankTransactions</strong></li>
+                <li>Event Source: <strong class="text-slate-700">Time-driven (Every 5 minutes ya On change)</strong></li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-slate-700">Apps Script Ready-Made Code:</span>
+            <button onclick="copyAutoSyncScript()" class="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded text-xs font-bold transition-all flex items-center gap-1">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span id="btn-copy-script-text">Copy Code</span>
+            </button>
+          </div>
+          <textarea id="auto-sync-script-box" readonly class="w-full bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-xl border border-slate-800 h-44 focus:outline-none select-all"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-100">
+        <button onclick="closeAutoSyncSetupModal()" class="px-5 py-2 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-sm">
+          Got it / Close
         </button>
       </div>
     </div>
@@ -1176,21 +1294,34 @@
         return;
       }
 
+      const hasSheetAccess = document.getElementById('new-user-sheet-access') ? document.getElementById('new-user-sheet-access').checked : false;
+
       USER_CREDENTIALS[rawUser] = {
         name: name,
         role: 'MANAGER',
         agency: agency,
         pin: pin,
-        username: rawUser
+        username: rawUser,
+        has_sheet_access: hasSheetAccess
       };
 
       await saveCredentialsToCloud();
       document.getElementById('new-user-name').value = '';
       document.getElementById('new-user-username').value = '';
       document.getElementById('new-user-pin').value = '';
+      if (document.getElementById('new-user-sheet-access')) document.getElementById('new-user-sheet-access').checked = false;
       toggleAddUserForm();
       renderUserManagerTable();
       showToast(`Profile created for ${name} & synced to Cloud!`, 'success');
+    }
+
+    async function toggleSheetAccess(userKey) {
+      if (!USER_CREDENTIALS[userKey]) return;
+      USER_CREDENTIALS[userKey].has_sheet_access = !USER_CREDENTIALS[userKey].has_sheet_access;
+      await saveCredentialsToCloud();
+      renderUserManagerTable();
+      const status = USER_CREDENTIALS[userKey].has_sheet_access ? 'Granted' : 'Revoked';
+      showToast(`Google Sheet access ${status} for ${USER_CREDENTIALS[userKey].name}!`, 'info');
     }
 
     async function renameUser(userKey) {
@@ -1269,6 +1400,12 @@
           `<span class="text-slate-300 text-[11px] font-medium italic">Protected</span>` :
           `<button onclick="deleteUser('${k}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-200 text-xs font-bold transition-all" title="Delete Profile">Delete</button>`;
 
+        const sheetAccessCell = isAdm ?
+          `<div class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">Master Access</span></div>` :
+          (u.has_sheet_access ?
+            `<div class="text-center"><button onclick="toggleSheetAccess('${k}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-xs font-bold transition-all inline-flex items-center gap-1" title="Click to Revoke Google Sheet Access"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Granted</button></div>` :
+            `<div class="text-center"><button onclick="toggleSheetAccess('${k}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-300 rounded text-xs font-semibold transition-all inline-flex items-center gap-1" title="Click to Grant Google Sheet Access"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> No Access</button></div>`);
+
         tr.innerHTML = `
           <td class="p-3 border-r border-slate-200">
             <div class="font-extrabold text-slate-900">${u.name}</div>
@@ -1278,6 +1415,9 @@
           <td class="p-3 border-r border-slate-200 font-mono font-semibold text-slate-700">
             <span id="pwd-display-${safeKey}">••••••••</span>
             <button onclick="toggleViewPassword('${k}')" class="ml-2 text-blue-600 hover:text-blue-800 text-[11px] font-bold">Show</button>
+          </td>
+          <td class="p-3 border-r border-slate-200">
+            ${sheetAccessCell}
           </td>
           <td class="p-3">
             <div class="flex items-center gap-2 flex-wrap">
@@ -1432,7 +1572,8 @@
         username: meta.username || matchedKey,
         name: meta.name,
         role: meta.role,
-        agency: meta.agency
+        agency: meta.agency,
+        has_sheet_access: meta.has_sheet_access === true
       };
 
       sessionStorage.setItem('shaha_portal_user', JSON.stringify(sessionObj));
@@ -1475,9 +1616,15 @@
       const activeAgencyTag = document.getElementById('active-agency-tag');
       const btnMgmt = document.getElementById('btn-manage-users');
 
+      const hasSheetAccess = currentRole === 'ADMIN' || user.has_sheet_access === true;
       if (tabAdminUpload) {
-        tabAdminUpload.classList.remove('hidden');
-        tabAdminUpload.style.display = 'flex';
+        if (hasSheetAccess) {
+          tabAdminUpload.classList.remove('hidden');
+          tabAdminUpload.style.display = 'flex';
+        } else {
+          tabAdminUpload.classList.add('hidden');
+          tabAdminUpload.style.setProperty('display', 'none', 'important');
+        }
       }
 
       if (currentRole === 'ADMIN') {
@@ -1492,6 +1639,11 @@
         activeAgencyTag.innerText = `AGENCY: ${currentAgency}`;
         kpiAdminTotal.classList.add('hidden');
         document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Records`;
+      }
+
+      const gsheetInput = document.getElementById('cfg-gsheet-url');
+      if (gsheetInput) {
+        gsheetInput.value = localStorage.getItem('shaha_master_gsheet_url') || '';
       }
 
       filterTransactions();
@@ -1569,6 +1721,11 @@
     // TAB NAVIGATION
     // ==========================================
     function switchTab(tab) {
+      const hasSheetAccess = currentRole === 'ADMIN' || (currentUser && currentUser.has_sheet_access === true);
+      if (!hasSheetAccess && tab === 'admin-upload') {
+        tab = 'dashboard';
+      }
+
       ['dashboard', 'workspace', 'claimed', 'admin-upload'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
@@ -1582,8 +1739,13 @@
 
       const tabAdmin = document.getElementById('tab-admin-upload');
       if (tabAdmin) {
-        tabAdmin.classList.remove('hidden');
-        tabAdmin.style.display = 'flex';
+        if (hasSheetAccess) {
+          tabAdmin.classList.remove('hidden');
+          tabAdmin.style.display = 'flex';
+        } else {
+          tabAdmin.classList.add('hidden');
+          tabAdmin.style.setProperty('display', 'none', 'important');
+        }
       }
 
       if (tab === 'dashboard') renderDashboardAnalytics();
@@ -2659,9 +2821,316 @@
       }
     }
 
+    function openAutoSyncSetupModal() {
+      const modal = document.getElementById('auto-sync-modal');
+      const box = document.getElementById('auto-sync-script-box');
+      if (box) {
+        box.value = `/**
+ * Google Apps Script for Shaha Finlease Handsoff Portal
+ * Automatically pushes new bank transactions to Supabase Cloud DB
+ */
+function autoSyncBankTransactions() {
+  var SUPABASE_URL = "${DEFAULT_SUPABASE_URL}/rest/v1/bank_transactions";
+  var SUPABASE_KEY = "${DEFAULT_SUPABASE_KEY}";
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = ss.getSheets();
+  var rowsToInsert = [];
+  
+  sheets.forEach(function(sheet) {
+    var name = sheet.getName().toLowerCase();
+    if (name.includes('today') || name.includes('summary')) return;
+    
+    var bank = name.includes('hdfc') ? 'HDFC' : (name.includes('icici') ? 'ICICI' : (name.includes('razor') ? 'Razorpay' : sheet.getName()));
+    var data = sheet.getDataRange().getValues();
+    if (!data || data.length < 2) return;
+    
+    var headers = data[0].map(function(h) { return String(h || '').trim(); });
+    
+    for (var r = 1; r < data.length; r++) {
+      var row = data[r];
+      var refVal = String(row[0] || '').trim();
+      var amtVal = 0;
+      for (var c = 0; c < row.length; c++) {
+        var hLow = (headers[c] || '').toLowerCase();
+        if (hLow.includes('credit') || hLow.includes('amount')) {
+          var clean = String(row[c]).replace(/[^0-9.-]+/g, '');
+          amtVal = parseFloat(clean) || 0;
+          break;
+        }
+      }
+      if (!refVal || amtVal <= 0) continue;
+      
+      var rawObj = {};
+      headers.forEach(function(h, idx) { rawObj[h] = row[idx]; });
+      
+      rowsToInsert.push({
+        ref_no: refVal,
+        bank_name: bank,
+        sheet_name: sheet.getName(),
+        amount: amtVal,
+        narration: String(row[2] || ''),
+        cheque_raw: JSON.stringify(rawObj),
+        status: 'UNALLOCATED'
+      });
+    }
+  });
+  
+  if (rowsToInsert.length > 0) {
+    var options = {
+      method: "post",
+      contentType: "application/json",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "resolution=ignore-duplicates"
+      },
+      payload: JSON.stringify(rowsToInsert),
+      muteHttpExceptions: true
+    };
+    UrlFetchApp.fetch(SUPABASE_URL, options);
+  }
+}`;
+      }
+      if (modal) modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeAutoSyncSetupModal() {
+      const modal = document.getElementById('auto-sync-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function copyAutoSyncScript() {
+      const box = document.getElementById('auto-sync-script-box');
+      if (box) {
+        box.select();
+        navigator.clipboard.writeText(box.value);
+        const btnText = document.getElementById('btn-copy-script-text');
+        if (btnText) {
+          btnText.innerText = 'Copied!';
+          setTimeout(() => btnText.innerText = 'Copy Code', 2000);
+        }
+        showToast('Auto-Sync Script copied to clipboard!', 'success');
+      }
+    }
+
+    function openLiveGoogleSheet() {
+      const input = document.getElementById('cfg-gsheet-url');
+      let sheetUrl = input ? input.value.trim() : '';
+      if (!sheetUrl) sheetUrl = localStorage.getItem('shaha_master_gsheet_url') || '';
+      if (!sheetUrl) {
+        showToast('Please enter Google Sheet URL first.', 'error');
+        return;
+      }
+      window.open(sheetUrl, '_blank');
+    }
+
+    async function syncFromGoogleSheet() {
+      const input = document.getElementById('cfg-gsheet-url');
+      let sheetUrl = input ? input.value.trim() : '';
+      if (!sheetUrl) sheetUrl = localStorage.getItem('shaha_master_gsheet_url') || '';
+      if (!sheetUrl) {
+        showToast('Please paste your Google Sheet link first.', 'error');
+        return;
+      }
+      localStorage.setItem('shaha_master_gsheet_url', sheetUrl);
+
+      const m = sheetUrl.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (!m) {
+        showToast('Invalid Google Sheet link. It must contain /d/your-sheet-id/', 'error');
+        return;
+      }
+      const sheetId = m[1];
+
+      const syncBtn = document.getElementById('btn-gsheet-sync');
+      if (syncBtn) {
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Connecting to Google Sheet...</span>';
+        lucide.createIcons();
+      }
+
+      try {
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(exportUrl)}`;
+
+        let res = await fetch(proxyUrl);
+        if (!res.ok) {
+          res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(exportUrl)}`);
+        }
+        if (!res.ok) {
+          throw new Error('Unable to connect to Google Sheet. Please ensure sharing is set to "Anyone with the link can view".');
+        }
+
+        const dataBuffer = await res.arrayBuffer();
+        const data = new Uint8Array(dataBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const count = await processWorkbookAndSync(workbook);
+        showToast(`Google Sheet Sync Complete! Added ${count} new unique transactions.`, 'success');
+        switchTab('workspace');
+      } catch (err) {
+        console.error('Google Sheet Sync Error:', err);
+        showToast(err.message || 'Error syncing from Google Sheet', 'error');
+      } finally {
+        if (syncBtn) {
+          syncBtn.disabled = false;
+          syncBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Sync Live from Google Sheet Now</span>';
+          lucide.createIcons();
+        }
+      }
+    }
+
+    async function processWorkbookAndSync(workbook, defaultDate) {
+      const newTransactions = [];
+      const defaultBatchDate = defaultDate || (document.getElementById('cloud-batch-date') ? document.getElementById('cloud-batch-date').value.trim() : '') || '22-10-2026';
+
+      function findRefCol(headers) {
+        const exactList = ['ref', 'reference no', 'reference no.', 'ref no', 'ref. no', 'tran. id', 'transaction id'];
+        for (const kw of exactList) {
+          const idx = headers.findIndex(h => h === kw);
+          if (idx !== -1) return idx;
+        }
+        for (const kw of ['ref no', 'ref. no', 'reference', 'ref']) {
+          const idx = headers.findIndex(h => h.includes(kw) && !h.includes('cheque') && !h.includes('chq') && !h.includes('utr'));
+          if (idx !== -1) return idx;
+        }
+        return headers.findIndex(h => h.includes('ref'));
+      }
+
+      function findHeaderCol(headers, keywords) {
+        for (const kw of keywords) {
+          const idx = headers.findIndex(h => h.includes(kw));
+          if (idx !== -1) return idx;
+        }
+        return -1;
+      }
+
+      workbook.SheetNames.forEach(sheetName => {
+        const sLower = sheetName.toLowerCase();
+        if (sLower.includes('today') || sLower.includes('summary')) return;
+
+        const bank = sLower.includes('hdfc') ? 'HDFC' : (sLower.includes('icici') ? 'ICICI' : (sLower.includes('razor') ? 'Razorpay' : sheetName));
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+        if (!rows || rows.length < 2) return;
+
+        let headerRowIdx = 0;
+        let headers = [];
+        for (let r = 0; r < Math.min(rows.length, 10); r++) {
+          const testHeaders = (rows[r] || []).map(h => String(h || '').toLowerCase().trim());
+          if (testHeaders.some(h => h.includes('ref') || h.includes('date') || h.includes('amount') || h.includes('credit') || h.includes('narration'))) {
+            headerRowIdx = r;
+            headers = testHeaders;
+            break;
+          }
+        }
+
+        if (headers.length === 0) headers = rows[0].map(h => String(h || '').toLowerCase().trim());
+
+        const refCol = findRefCol(headers);
+        const dateCol = findHeaderCol(headers, ['transaction date', 'value date', 'date', 'dt']);
+        const narrCol = findHeaderCol(headers, ['transaction remarks', 'narration', 'description', 'remarks', 'remark', 'desc']);
+        const amtCol = findHeaderCol(headers, ['transaction amount', 'credit', 'amount', 'cr']);
+        const chqCol = findHeaderCol(headers, ['cheque. no', 'cheque/ref', 'settlement_utr', 'cheque', 'chq', 'tran. id', 'arn']);
+
+        for (let i = headerRowIdx + 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || r.length === 0) continue;
+
+          const refVal = refCol !== -1 && r[refCol] ? String(r[refCol]).trim() : `TX-${bank}-${Date.now().toString().slice(-6)}-${i}`;
+          let amtVal = 0;
+          if (amtCol !== -1 && r[amtCol] !== undefined && r[amtCol] !== null) {
+            const cleanAmt = String(r[amtCol]).replace(/[^0-9.-]+/g, '');
+            amtVal = parseFloat(cleanAmt) || 0;
+          }
+          const narrVal = narrCol !== -1 && r[narrCol] ? String(r[narrCol]).trim() : '';
+
+          if (amtVal <= 0 && (!refVal || refVal.startsWith('TX-'))) continue;
+
+          let extractedChq = chqCol !== -1 && r[chqCol] ? String(r[chqCol]).trim() : '';
+          if (!extractedChq || extractedChq === '0' || extractedChq.toLowerCase() === 'nan') {
+            const m12 = narrVal.match(/\b\d{12}\b/);
+            if (m12) extractedChq = m12[0];
+            else {
+              const mPay = narrVal.match(/pay_[A-Za-z0-9]+/);
+              if (mPay) extractedChq = mPay[0];
+            }
+          }
+
+          let txDate = defaultBatchDate;
+          if (dateCol !== -1 && r[dateCol]) {
+            const dRaw = r[dateCol];
+            if (typeof dRaw === 'number') {
+              const dObj = new Date((dRaw - 25569) * 86400 * 1000);
+              txDate = dObj.toLocaleDateString('en-GB').replace(/\//g, '-');
+            } else {
+              txDate = String(dRaw).trim().split(' ')[0];
+            }
+          }
+
+          const rawRow = {};
+          const rawHeaders = rows[headerRowIdx] || [];
+          rawHeaders.forEach((origH, colIdx) => {
+            const cleanH = String(origH || '').trim();
+            if (cleanH && r[colIdx] !== undefined && r[colIdx] !== null) {
+              rawRow[cleanH] = r[colIdx];
+            }
+          });
+
+          newTransactions.push({
+            ref_no: refVal,
+            bank_name: bank,
+            sheet_name: sheetName,
+            tx_date: txDate,
+            amount: amtVal,
+            narration: narrVal,
+            cheque_extracted: (extractedChq && extractedChq.toLowerCase() !== 'nan') ? extractedChq : '',
+            cheque_raw: JSON.stringify(rawRow),
+            status: 'UNALLOCATED',
+            claimed_by_manager: null
+          });
+        }
+      });
+
+      if (newTransactions.length === 0) {
+        showToast('No valid transactions found in statement. Please verify sheet format.', 'error');
+        return 0;
+      }
+
+      // Strict Deduplication against both Cloud DB & batch duplicates
+      const existingRefs = new Set(allTransactions.map(t => (t.ref_no || '').trim().toUpperCase()));
+      const seenInBatch = new Set();
+      const toInsert = [];
+
+      for (const t of newTransactions) {
+        const key = (t.ref_no || '').trim().toUpperCase();
+        if (!key || existingRefs.has(key) || seenInBatch.has(key)) {
+          continue;
+        }
+        seenInBatch.add(key);
+        toInsert.push(t);
+      }
+
+      if (toInsert.length === 0) {
+        showToast('All transactions in this statement already exist in database. 0 duplicates added.', 'info');
+        return 0;
+      }
+
+      if (supabaseClient && toInsert.length > 0) {
+        for (let c = 0; c < toInsert.length; c += 50) {
+          const chunk = toInsert.slice(c, c + 50);
+          const { error } = await supabaseClient.from('bank_transactions').insert(chunk);
+          if (error) console.error('Cloud insert error:', error);
+        }
+      }
+
+      await loadTransactionsFromCloud();
+      return toInsert.length;
+    }
+
     async function processAndSyncExcel() {
       if (!selectedFile) {
-        showToast('Please select Bank Statement Excel / CSV file first.', 'error');
+        showToast('Please select Bank Statement Excel file first.', 'error');
         return;
       }
 
@@ -2677,153 +3146,18 @@
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          const newTransactions = [];
-          const defaultBatchDate = document.getElementById('cloud-batch-date').value.trim() || '22-10-2026';
-
-          function findRefCol(headers) {
-            // 1. Exact header name match priority
-            const exactList = ['ref', 'reference no', 'reference no.', 'ref no', 'ref. no', 'tran. id', 'transaction id'];
-            for (const kw of exactList) {
-              const idx = headers.findIndex(h => h === kw);
-              if (idx !== -1) return idx;
-            }
-            // 2. Contains match, but explicitly ignore cheque/chq/utr columns
-            for (const kw of ['ref no', 'ref. no', 'reference', 'ref']) {
-              const idx = headers.findIndex(h => h.includes(kw) && !h.includes('cheque') && !h.includes('chq') && !h.includes('utr'));
-              if (idx !== -1) return idx;
-            }
-            return headers.findIndex(h => h.includes('ref'));
+          const count = await processWorkbookAndSync(workbook);
+          if (count > 0) {
+            showToast(`Successfully uploaded & synced ${count} new transactions to Cloud DB!`, 'success');
+            switchTab('workspace');
           }
-
-          function findHeaderCol(headers, keywords) {
-            for (const kw of keywords) {
-              const idx = headers.findIndex(h => h.includes(kw));
-              if (idx !== -1) return idx;
-            }
-            return -1;
-          }
-
-          workbook.SheetNames.forEach(sheetName => {
-            const sLower = sheetName.toLowerCase();
-            if (sLower.includes('today') || sLower.includes('summary')) return;
-
-            const bank = sLower.includes('hdfc') ? 'HDFC' : (sLower.includes('icici') ? 'ICICI' : (sLower.includes('razor') ? 'Razorpay' : sheetName));
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-            if (!rows || rows.length < 2) return;
-
-            // Search for header row in top 10 rows
-            let headerRowIdx = 0;
-            let headers = [];
-            for (let r = 0; r < Math.min(rows.length, 10); r++) {
-              const testHeaders = (rows[r] || []).map(h => String(h || '').toLowerCase().trim());
-              if (testHeaders.some(h => h.includes('ref') || h.includes('date') || h.includes('amount') || h.includes('credit') || h.includes('narration'))) {
-                headerRowIdx = r;
-                headers = testHeaders;
-                break;
-              }
-            }
-
-            if (headers.length === 0) headers = rows[0].map(h => String(h || '').toLowerCase().trim());
-
-            const refCol = findRefCol(headers);
-            const dateCol = findHeaderCol(headers, ['transaction date', 'value date', 'date', 'dt']);
-            const narrCol = findHeaderCol(headers, ['transaction remarks', 'narration', 'description', 'remarks', 'remark', 'desc']);
-            const amtCol = findHeaderCol(headers, ['transaction amount', 'credit', 'amount', 'cr']);
-            const chqCol = findHeaderCol(headers, ['cheque. no', 'cheque/ref', 'settlement_utr', 'cheque', 'chq', 'tran. id', 'arn']);
-
-            for (let i = headerRowIdx + 1; i < rows.length; i++) {
-              const r = rows[i];
-              if (!r || r.length === 0) continue;
-
-              const refVal = refCol !== -1 && r[refCol] ? String(r[refCol]).trim() : `TX-${bank}-${Date.now().toString().slice(-6)}-${i}`;
-              let amtVal = 0;
-              if (amtCol !== -1 && r[amtCol] !== undefined && r[amtCol] !== null) {
-                const cleanAmt = String(r[amtCol]).replace(/[^0-9.-]+/g, '');
-                amtVal = parseFloat(cleanAmt) || 0;
-              }
-              const narrVal = narrCol !== -1 && r[narrCol] ? String(r[narrCol]).trim() : '';
-
-              if (amtVal <= 0 && (!refVal || refVal.startsWith('TX-'))) continue;
-
-              let extractedChq = chqCol !== -1 && r[chqCol] ? String(r[chqCol]).trim() : '';
-              if (!extractedChq || extractedChq === '0' || extractedChq.toLowerCase() === 'nan') {
-                const m12 = narrVal.match(/\b\d{12}\b/);
-                if (m12) extractedChq = m12[0];
-                else {
-                  const mPay = narrVal.match(/pay_[A-Za-z0-9]+/);
-                  if (mPay) extractedChq = mPay[0];
-                }
-              }
-
-              let txDate = defaultBatchDate;
-              if (dateCol !== -1 && r[dateCol]) {
-                const dRaw = r[dateCol];
-                if (typeof dRaw === 'number') {
-                  const dObj = new Date((dRaw - 25569) * 86400 * 1000);
-                  txDate = dObj.toLocaleDateString('en-GB').replace(/\//g, '-');
-                } else {
-                  txDate = String(dRaw).trim().split(' ')[0];
-                }
-              }
-
-              const rawRow = {};
-              const rawHeaders = rows[headerRowIdx] || [];
-              rawHeaders.forEach((origH, colIdx) => {
-                const cleanH = String(origH || '').trim();
-                if (cleanH && r[colIdx] !== undefined && r[colIdx] !== null) {
-                  rawRow[cleanH] = r[colIdx];
-                }
-              });
-
-              newTransactions.push({
-                ref_no: refVal,
-                bank_name: bank,
-                sheet_name: sheetName,
-                tx_date: txDate,
-                amount: amtVal,
-                narration: narrVal,
-                cheque_extracted: (extractedChq && extractedChq.toLowerCase() !== 'nan') ? extractedChq : '',
-                cheque_raw: JSON.stringify(rawRow),
-                status: 'UNALLOCATED',
-                claimed_by_manager: null
-              });
-            }
-          });
-
-          if (newTransactions.length === 0) {
-            showToast('No valid transactions found in file. Please verify format.', 'error');
-            if (uploadBtn) {
-              uploadBtn.disabled = false;
-              uploadBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Parse & Sync to Cloud DB</span>';
-              lucide.createIcons();
-            }
-            return;
-          }
-
-          // Deduplicate against existing transactions in memory
-          const existingRefs = new Set(allTransactions.map(t => (t.ref_no || '').trim().toUpperCase()));
-          const toInsert = newTransactions.filter(t => !existingRefs.has((t.ref_no || '').trim().toUpperCase()));
-
-          if (supabaseClient && toInsert.length > 0) {
-            for (let c = 0; c < toInsert.length; c += 50) {
-              const chunk = toInsert.slice(c, c + 50);
-              const { error } = await supabaseClient.from('bank_transactions').insert(chunk);
-              if (error) console.error('Cloud insert error:', error);
-            }
-          }
-
-          // Reload fresh from cloud
-          await loadTransactionsFromCloud();
-
-          showToast(`Successfully uploaded & synced ${toInsert.length} new transactions to Cloud DB!`, 'success');
-          switchTab('workspace');
         } catch (err) {
           console.error('File parsing error:', err);
           showToast('Error processing file: ' + err.message, 'error');
         } finally {
           if (uploadBtn) {
             uploadBtn.disabled = false;
-            uploadBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Parse & Sync to Cloud DB</span>';
+            uploadBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Parse & Sync Local File</span>';
             lucide.createIcons();
           }
         }
