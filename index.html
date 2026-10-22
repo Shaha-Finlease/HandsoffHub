@@ -972,18 +972,21 @@
     });
 
     async function syncCredentialsWithCloud() {
-      // 1. First load from local storage
+      // 1. Load from local browser storage
+      let localUsers = {};
       const saved = localStorage.getItem('shaha_custom_credentials_v3');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           if (parsed && typeof parsed === 'object') {
-            USER_CREDENTIALS = Object.assign({}, USER_CREDENTIALS, parsed);
+            localUsers = parsed;
           }
         } catch (e) {}
       }
 
-      // 2. Fetch latest synced profiles from Supabase Cloud DB
+      // 2. Fetch synced profiles from Supabase Cloud DB
+      let cloudUsers = {};
+      let cloudRecordId = null;
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
@@ -992,11 +995,10 @@
             .eq('ref_no', 'SYS_PORTAL_CREDENTIALS')
             .limit(1);
 
-          if (!error && data && data.length > 0 && data[0].narration) {
-            const cloudUsers = JSON.parse(data[0].narration);
-            if (cloudUsers && typeof cloudUsers === 'object') {
-              USER_CREDENTIALS = Object.assign({}, USER_CREDENTIALS, cloudUsers);
-              localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+          if (!error && data && data.length > 0) {
+            cloudRecordId = data[0].id;
+            if (data[0].narration) {
+              cloudUsers = JSON.parse(data[0].narration) || {};
             }
           }
         } catch (e) {
@@ -1004,9 +1006,28 @@
         }
       }
 
+      // 3. Bidirectional merge: combine default, local and cloud profiles
+      USER_CREDENTIALS = Object.assign({}, USER_CREDENTIALS, localUsers, cloudUsers);
+
       // Ensure primary Admin always exists
       if (!USER_CREDENTIALS['admin']) {
         USER_CREDENTIALS['admin'] = { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' };
+      }
+
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+
+      // 4. If local had extra profiles (e.g. Komal created locally) not yet in cloud, auto-push to cloud now!
+      const localKeys = Object.keys(localUsers);
+      const cloudKeys = Object.keys(cloudUsers);
+      const hasMissingOnCloud = localKeys.some(k => !cloudKeys.includes(k));
+
+      if (hasMissingOnCloud && supabaseClient && cloudRecordId) {
+        try {
+          await supabaseClient
+            .from('bank_transactions')
+            .update({ narration: JSON.stringify(USER_CREDENTIALS), updated_at: new Date().toISOString() })
+            .eq('id', cloudRecordId);
+        } catch (e) {}
       }
     }
 
