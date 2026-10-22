@@ -1269,37 +1269,49 @@
     }
 
     async function handleLoginSubmit() {
-      const usernameInput = document.getElementById('login-username-input').value.trim();
-      const passInput = document.getElementById('login-password-input').value.trim();
+      const uEl = document.getElementById('login-username-input');
+      const pEl = document.getElementById('login-password-input');
+      const usernameInput = uEl ? uEl.value.trim() : '';
+      const passInput = pEl ? pEl.value.trim() : '';
 
       if (!usernameInput || !passInput) {
         showToast('Please enter both username and password.', 'error');
         return;
       }
 
-      // Sync fresh credentials from Supabase Cloud DB across devices
-      await syncCredentialsWithCloud();
+      // Sync fresh credentials from Supabase Cloud DB with a safety timeout so it never blocks login
+      try {
+        await Promise.race([
+          syncCredentialsWithCloud(),
+          new Promise(resolve => setTimeout(resolve, 2000))
+        ]);
+      } catch (e) {
+        console.warn('Sync warning:', e);
+      }
 
       const cleanInput = usernameInput.toLowerCase();
       let matchedKey = null;
 
       for (const k in USER_CREDENTIALS) {
         const u = USER_CREDENTIALS[k];
-        const uName = (u.username || k).toLowerCase();
-        const fName = (u.name || '').toLowerCase();
-        if (cleanInput === uName || cleanInput === k.toLowerCase() || cleanInput === fName || cleanInput === fName.split(' ')[0]) {
+        const uName = (u.username || k).toLowerCase().trim();
+        const fName = (u.name || '').toLowerCase().trim();
+        if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName || cleanInput === fName.split(' ')[0]) {
           matchedKey = k;
           break;
         }
       }
 
       if (!matchedKey) {
-        showToast('Invalid username or password.', 'error');
+        showToast('Invalid username or password. Check credentials or login as admin.', 'error');
         return;
       }
 
       const meta = USER_CREDENTIALS[matchedKey];
-      if (passInput !== meta.pin && passInput.toLowerCase() !== meta.pin.toLowerCase()) {
+      const enteredPass = passInput.toLowerCase();
+      const storedPass = String(meta.pin || '').trim().toLowerCase();
+
+      if (enteredPass !== storedPass) {
         showToast('Invalid username or password.', 'error');
         return;
       }
@@ -1357,6 +1369,7 @@
         privBanner.classList.add('hidden');
         kpiAdminTotal.classList.remove('hidden');
         tabAdminUpload.classList.remove('hidden');
+        tabAdminUpload.style.display = 'flex';
         document.getElementById('tab-claimed-label').innerText = 'All Verified Records';
       } else {
         if (btnMgmt) btnMgmt.classList.add('hidden');
@@ -1365,6 +1378,7 @@
         activeAgencyTag.innerText = `AGENCY: ${currentAgency}`;
         kpiAdminTotal.classList.add('hidden');
         tabAdminUpload.classList.add('hidden');
+        tabAdminUpload.style.display = 'none';
         document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Records`;
       }
 
@@ -1443,6 +1457,10 @@
     // TAB NAVIGATION
     // ==========================================
     function switchTab(tab) {
+      if (currentRole !== 'ADMIN' && tab === 'admin-upload') {
+        tab = 'dashboard';
+      }
+
       ['dashboard', 'workspace', 'claimed', 'admin-upload'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
@@ -1453,6 +1471,19 @@
           content.classList.toggle('hidden', t !== tab);
         }
       });
+
+      // Strict Manager Privacy Rule: Ensure Admin Upload tab is strictly hidden for Managers
+      const tabAdmin = document.getElementById('tab-admin-upload');
+      if (tabAdmin) {
+        if (currentRole === 'ADMIN') {
+          tabAdmin.classList.remove('hidden');
+          tabAdmin.style.display = 'flex';
+        } else {
+          tabAdmin.classList.add('hidden');
+          tabAdmin.style.display = 'none';
+        }
+      }
+
       if (tab === 'dashboard') renderDashboardAnalytics();
       if (tab === 'claimed') renderClaimed();
       lucide.createIcons();
@@ -1462,16 +1493,27 @@
     // EXECUTIVE DASHBOARD ANALYTICS RENDERER
     // ==========================================
     function renderDashboardAnalytics() {
-      const totalCount = allTransactions.length;
-      const totalSum = allTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+      const isMgr = currentRole !== 'ADMIN';
+      const myMgr = (currentManager || '').toUpperCase().trim();
 
-      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED');
+      // Manager Privacy Filter: If logged in as Manager, only include this manager's claims
+      const alloc = allTransactions.filter(t => {
+        if (t.status !== 'ALLOCATED') return false;
+        if (isMgr) {
+          return (t.claimed_by_manager || '').toUpperCase().trim() === myMgr;
+        }
+        return true;
+      });
+
+      const unalloc = allTransactions.filter(t => t.status === 'UNALLOCATED');
       const allocCount = alloc.length;
       const allocSum = alloc.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
 
-      const unalloc = allTransactions.filter(t => t.status === 'UNALLOCATED');
       const unallocCount = unalloc.length;
       const unallocSum = unalloc.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+      const totalCount = isMgr ? allocCount : allTransactions.length;
+      const totalSum = isMgr ? allocSum : allTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
 
       const recPct = totalSum > 0 ? Math.round((allocSum / totalSum) * 100) : 0;
       const penPct = 100 - recPct;
@@ -1482,7 +1524,7 @@
       const recSumEl = document.getElementById('dash-reconciled-sum');
       if (recSumEl) recSumEl.innerText = `₹${allocSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
       const recCntEl = document.getElementById('dash-reconciled-count');
-      if (recCntEl) recCntEl.innerText = `${allocCount} claims`;
+      if (recCntEl) recCntEl.innerText = isMgr ? `${allocCount} of your claims` : `${allocCount} claims`;
       const pBar = document.getElementById('dash-progress-bar');
       if (pBar) pBar.style.width = `${recPct}%`;
 
@@ -1496,9 +1538,9 @@
       if (penBar) penBar.style.width = `${penPct}%`;
 
       const totSumEl = document.getElementById('dash-total-sum');
-      if (totSumEl) totSumEl.innerText = `₹${totalSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      if (totSumEl) totSumEl.innerText = isMgr ? `₹${allocSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}` : `₹${totalSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
       const totCntEl = document.getElementById('dash-total-count');
-      if (totCntEl) totCntEl.innerText = `${totalCount} total txns`;
+      if (totCntEl) totCntEl.innerText = isMgr ? `${allocCount} verified by you` : `${totalCount} total txns`;
 
       // 1. Bank Breakdown
       const bankStats = {};
@@ -1557,7 +1599,7 @@
         mgrList.innerHTML = '';
         const sortedMgrs = Object.keys(mgrStats).sort((a, b) => mgrStats[b].sum - mgrStats[a].sum);
         if (sortedMgrs.length === 0) {
-          mgrList.innerHTML = '<div class="text-xs text-slate-400 italic p-3 text-center">No manager verified claims yet.</div>';
+          mgrList.innerHTML = `<div class="text-xs text-slate-400 italic p-3 text-center">No verified claims yet${isMgr ? ' for ' + currentManager : ''}.</div>`;
         } else {
           sortedMgrs.forEach((m, idx) => {
             const st = mgrStats[m];
@@ -1616,7 +1658,7 @@
         recTbody.innerHTML = '';
         const recentAlloc = alloc.slice(0, 5);
         if (recentAlloc.length === 0) {
-          recTbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">No verified transactions yet.</td></tr>';
+          recTbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic font-medium">No verified claims yet${isMgr ? ' for ' + currentManager : ''}.</td></tr>`;
         } else {
           recentAlloc.forEach(t => {
             const tr = document.createElement('tr');
