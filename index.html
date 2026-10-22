@@ -444,29 +444,36 @@
 
       <!-- Bank Statement Table -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
+        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/80 flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <i data-lucide="table" class="w-4 h-4 text-slate-700"></i>
-            <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Bank Statement Transactions</h3>
+            <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Account Transaction Statements</h3>
             <span id="tx-table-count" class="text-xs font-semibold text-slate-500 font-mono-num">(0 records)</span>
           </div>
-          <span class="text-[11px] text-slate-500 font-medium">Click <strong>"Claim / Link"</strong> to allocate entry to customer</span>
+          <span class="text-[11px] text-slate-500 font-medium">Click <strong>"Claim / Link"</strong> to allocate entry | <i data-lucide="eye" class="w-3 h-3 inline text-slate-600"></i> to view all file headers</span>
+        </div>
+
+        <!-- Bank Sheet Selector Pills -->
+        <div class="flex items-center gap-2 px-4 py-2 bg-slate-100/70 border-b border-slate-200 overflow-x-auto text-xs">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1">Statement Sheet:</span>
+          <button type="button" onclick="setBankSheetView('')" id="btn-sheet-all" class="px-3 py-1 rounded-full text-xs font-bold transition-all bg-blue-700 text-white shadow-sm">
+            All Statements (Unified View)
+          </button>
+          <button type="button" onclick="setBankSheetView('HDFC')" id="btn-sheet-hdfc" class="px-3 py-1 rounded-full text-xs font-bold transition-all bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+            HDFC-1261 (8 Headers)
+          </button>
+          <button type="button" onclick="setBankSheetView('ICICI')" id="btn-sheet-icici" class="px-3 py-1 rounded-full text-xs font-bold transition-all bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+            ICICI-2307 (8 Headers)
+          </button>
+          <button type="button" onclick="setBankSheetView('Razorpay')" id="btn-sheet-razorpay" class="px-3 py-1 rounded-full text-xs font-bold transition-all bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+            Razorpay (30 Headers)
+          </button>
         </div>
 
         <div class="overflow-x-auto max-h-[540px] table-container">
-          <table class="w-full text-left text-xs text-slate-700 border-collapse">
-            <thead class="bg-slate-100/90 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-300 z-10 backdrop-blur-sm">
-              <tr>
-                <th class="p-3 border-r border-slate-200 text-center">Status</th>
-                <th class="p-3 border-r border-slate-200">Bank</th>
-                <th class="p-3 border-r border-slate-200">Ref No</th>
-                <th class="p-3 border-r border-slate-200">Date</th>
-                <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
-                <th class="p-3 border-r border-slate-200">Cheque / UTR</th>
-                <th class="p-3 border-r border-slate-200">Narration (Description)</th>
-                <th class="p-3 border-r border-slate-200">Assigned Manager</th>
-                <th class="p-3 text-center">Action</th>
-              </tr>
+          <table class="w-full text-left text-xs text-slate-700 border-collapse whitespace-nowrap">
+            <thead id="tx-table-head" class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold sticky top-0 border-b border-slate-300 z-10 backdrop-blur-sm">
+              <!-- Dynamically populated based on sheet selection -->
             </thead>
             <tbody id="tx-table-body" class="divide-y divide-slate-200 bg-white">
               <!-- Dynamically populated -->
@@ -907,6 +914,48 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- 11. MODAL: FULL FILE HEADERS & ROW DETAILS -->
+  <!-- ========================================== -->
+  <div id="row-detail-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-2xl w-full rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900" id="detail-modal-title">Account Transaction File Headers</h3>
+            <p class="text-[11px] text-slate-500" id="detail-modal-subtitle">All original columns and values parsed from statement</p>
+          </div>
+        </div>
+        <button onclick="closeRowDetailModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto max-h-[55vh] table-container border border-slate-200 rounded-xl">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 border-b border-slate-200">
+            <tr>
+              <th class="p-2.5 border-r border-slate-200 w-2/5">Column Header in File</th>
+              <th class="p-2.5">Value</th>
+            </tr>
+          </thead>
+          <tbody id="row-detail-tbody" class="divide-y divide-slate-100 font-mono text-[11px]">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+        <span class="text-slate-500 font-medium" id="detail-modal-count">0 headers detected</span>
+        <button onclick="closeRowDetailModal()" class="px-5 py-2 bg-slate-900 hover:bg-blue-900 text-white rounded-lg text-xs font-bold shadow-sm">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-white px-4 py-3 rounded-xl border border-slate-300 text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800">
     <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-blue-600"></i>
@@ -943,10 +992,12 @@
         id: 1,
         ref_no: 'H261102610001',
         bank_name: 'HDFC',
+        sheet_name: 'HDFC-1261',
         tx_date: '01-10-2026',
         amount: 38801.03,
         cheque_extracted: '001012354485',
         narration: '04071010001500-TPT-loan 02356864-VETRY SELVI RAMACHANDRAN',
+        cheque_raw: JSON.stringify({ 'Ref': 'H261102610001', 'Date': '01/10/2026 06:58:32', 'Narration': '04071010001500-TPT-loan 02356864-VETRY SELVI RAMACHANDRAN', 'Credit': '38801.03', 'Cheque/Ref. No.': '001012354485', 'Value Dt': '01/10/2026' }),
         status: 'UNALLOCATED',
         claimed_by_manager: null
       },
@@ -954,10 +1005,12 @@
         id: 2,
         ref_no: 'I307102610001',
         bank_name: 'ICICI',
+        sheet_name: 'ICICI-2307',
         tx_date: '01-10-2026',
         amount: 1500.0,
         cheque_extracted: '627425181809',
         narration: 'UPI/627425181809/Sent using Payt/XX7780@ptaxis/HSBC/PTM06EA800858474CAC8897EDCAD1C96D27',
+        cheque_raw: JSON.stringify({ 'Reference No.': 'I307102610001', 'Tran. Id': 'S70659603', 'Value Date': '01/Oct/2026', 'Transaction Date': '01/Oct/2026', 'Cheque. No./Ref. No.': '627425181809', 'Transaction Remarks': 'UPI/627425181809/Sent using Payt...', 'Transaction Amount(INR) CR': '1500' }),
         status: 'UNALLOCATED',
         claimed_by_manager: null
       },
@@ -965,10 +1018,12 @@
         id: 3,
         ref_no: 'R10260001',
         bank_name: 'Razorpay',
+        sheet_name: 'Razorpay',
         tx_date: '01-10-2026',
         amount: 5992.92,
         cheque_extracted: 'pay_TiWJYknJlBTVUq',
         narration: 'QRv2 Payment customer app checkout',
+        cheque_raw: JSON.stringify({ 'Ref': 'R10260001', 'Date': '2026-10-01 00:00:00', 'entity_id': 'pay_TiWJYknJlBTVUq', 'amount': '6000', 'credit': '5992.92', 'fee': '7.08', 'tax': '1.08', 'order_id': 'order_TiWIUMiGcyDMIx', 'order_receipt': '748722', 'method': 'upi', 'description': 'QRv2 Payment' }),
         status: 'UNALLOCATED',
         claimed_by_manager: null
       }
@@ -1716,7 +1771,10 @@
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50 transition-colors text-xs';
             tr.innerHTML = `
-              <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
+              <td class="p-3 border-r border-slate-200 font-mono">
+                <div class="font-bold text-blue-700">${t.ref_no}</div>
+                ${t.cheque_extracted ? `<div class="text-[10px] text-slate-500 font-normal">UTR: ${t.cheque_extracted}</div>` : ''}
+              </td>
               <td class="p-3 border-r border-slate-200">
                 <div class="font-bold text-slate-800">${t.customer_name || 'N/A'}</div>
                 <div class="text-[10px] text-slate-500 font-mono">ID: ${t.customer_id || '-'}</div>
@@ -1747,7 +1805,7 @@
             .neq('status', 'SYSTEM')
             .order('id', { ascending: false });
           if (!error && data && data.length > 0) {
-            allTransactions = data.filter(t => t.status !== 'SYSTEM' && t.ref_no !== 'SYS_PORTAL_CREDENTIALS');
+            allTransactions = data.filter(t => t.status !== 'SYSTEM' && !String(t.ref_no || '').startsWith('SYS_') && !String(t.ref_no || '').startsWith('TEST_'));
           } else {
             allTransactions = memoryTransactions.filter(t => t.status !== 'SYSTEM');
           }
@@ -1760,11 +1818,52 @@
       filterTransactions();
     }
 
+    function setBankSheetView(bank) {
+      const filterEl = document.getElementById('tx-bank-filter');
+      if (filterEl) filterEl.value = bank;
+      
+      const pills = [
+        { id: 'btn-sheet-all', val: '' },
+        { id: 'btn-sheet-hdfc', val: 'HDFC' },
+        { id: 'btn-sheet-icici', val: 'ICICI' },
+        { id: 'btn-sheet-razorpay', val: 'Razorpay' }
+      ];
+      pills.forEach(p => {
+        const el = document.getElementById(p.id);
+        if (el) {
+          if (p.val.toUpperCase() === (bank || '').toUpperCase()) {
+            el.className = 'px-3 py-1 rounded-full text-xs font-bold transition-all bg-blue-700 text-white shadow-sm';
+          } else {
+            el.className = 'px-3 py-1 rounded-full text-xs font-bold transition-all bg-white text-slate-700 border border-slate-300 hover:bg-slate-50';
+          }
+        }
+      });
+      filterTransactions();
+    }
+
     function filterTransactions() {
       const q = document.getElementById('tx-search-input').value.toLowerCase().trim();
       const statusFilter = document.getElementById('tx-status-filter').value;
       const bankFilter = document.getElementById('tx-bank-filter').value;
       const amtFilter = parseFloat(document.getElementById('tx-amount-filter').value) || null;
+
+      // Sync pills with dropdown
+      const pills = [
+        { id: 'btn-sheet-all', val: '' },
+        { id: 'btn-sheet-hdfc', val: 'HDFC' },
+        { id: 'btn-sheet-icici', val: 'ICICI' },
+        { id: 'btn-sheet-razorpay', val: 'Razorpay' }
+      ];
+      pills.forEach(p => {
+        const el = document.getElementById(p.id);
+        if (el) {
+          if (p.val.toUpperCase() === (bankFilter || '').toUpperCase()) {
+            el.className = 'px-3 py-1 rounded-full text-xs font-bold transition-all bg-blue-700 text-white shadow-sm';
+          } else {
+            el.className = 'px-3 py-1 rounded-full text-xs font-bold transition-all bg-white text-slate-700 border border-slate-300 hover:bg-slate-50';
+          }
+        }
+      });
 
       const visible = allTransactions.filter(t => {
         // Strict Manager Privacy Rule
@@ -1826,19 +1925,160 @@
       }
     }
 
+    function openRowDetailModal(id) {
+      const tx = allTransactions.find(t => t.id === id);
+      if (!tx) return;
+      let raw = {};
+      try {
+        raw = typeof tx.cheque_raw === 'string' ? JSON.parse(tx.cheque_raw || '{}') : (tx.cheque_raw || {});
+      } catch (e) {
+        raw = {};
+      }
+
+      document.getElementById('detail-modal-title').innerText = `${tx.bank_name || 'Bank'} Transaction Details: ${tx.ref_no}`;
+      document.getElementById('detail-modal-subtitle').innerText = `Sheet: ${tx.sheet_name || tx.bank_name} | Amount: ₹${Number(tx.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})} | Status: ${tx.status}`;
+
+      const tbody = document.getElementById('row-detail-tbody');
+      tbody.innerHTML = '';
+
+      const entries = Object.entries(raw);
+      if (entries.length === 0) {
+        const baseFields = {
+          'Bank': tx.bank_name,
+          'Reference No': tx.ref_no,
+          'Transaction Date': tx.tx_date,
+          'Amount (₹)': tx.amount,
+          'Cheque / UTR': tx.cheque_extracted,
+          'Narration': tx.narration,
+          'Status': tx.status,
+          'Assigned Manager': tx.claimed_by_manager || 'None',
+          'Customer ID': tx.customer_id || 'None',
+          'Customer Name': tx.customer_name || 'None',
+          'Portfolio': tx.portfolio || 'None',
+          'Caller Name': tx.caller_name || 'None'
+        };
+        Object.entries(baseFields).forEach(([k, v]) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50';
+          tr.innerHTML = `<td class="p-2.5 font-bold text-slate-700 border-r border-slate-200 bg-slate-50/50">${k}</td><td class="p-2.5 text-slate-800">${v || '-'}</td>`;
+          tbody.appendChild(tr);
+        });
+        document.getElementById('detail-modal-count').innerText = `${Object.keys(baseFields).length} headers displayed`;
+      } else {
+        entries.forEach(([k, v]) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50';
+          tr.innerHTML = `<td class="p-2.5 font-bold text-slate-700 border-r border-slate-200 bg-slate-50/50">${k}</td><td class="p-2.5 text-slate-900 break-all">${v !== null && v !== undefined && v !== '' ? v : '<span class="text-slate-300 italic">-</span>'}</td>`;
+          tbody.appendChild(tr);
+        });
+        document.getElementById('detail-modal-count').innerText = `${entries.length} file headers detected from statement`;
+      }
+
+      document.getElementById('row-detail-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeRowDetailModal() {
+      document.getElementById('row-detail-modal').classList.add('hidden');
+    }
+
     function renderTransactions(txs) {
+      const thead = document.getElementById('tx-table-head');
       const tbody = document.getElementById('tx-table-body');
       tbody.innerHTML = '';
       document.getElementById('tx-table-count').innerText = `(${txs.length} records)`;
 
+      const bankFilter = (document.getElementById('tx-bank-filter').value || '').toUpperCase();
+
+      // Render Dynamic Header Row Based on Bank Sheet
+      if (thead) {
+        if (bankFilter === 'HDFC') {
+          thead.innerHTML = `
+            <tr>
+              <th class="p-3 border-r border-slate-200 text-center">Status</th>
+              <th class="p-3 border-r border-slate-200">Ref</th>
+              <th class="p-3 border-r border-slate-200">Date</th>
+              <th class="p-3 border-r border-slate-200">Value Dt</th>
+              <th class="p-3 border-r border-slate-200 text-right">Credit (₹)</th>
+              <th class="p-3 border-r border-slate-200 text-right">Debit/Charges</th>
+              <th class="p-3 border-r border-slate-200">Cheque/Ref. No.</th>
+              <th class="p-3 border-r border-slate-200">Narration</th>
+              <th class="p-3 border-r border-slate-200">Remarks</th>
+              <th class="p-3 border-r border-slate-200">Manager</th>
+              <th class="p-3 text-center">Actions</th>
+            </tr>
+          `;
+        } else if (bankFilter === 'ICICI') {
+          thead.innerHTML = `
+            <tr>
+              <th class="p-3 border-r border-slate-200 text-center">Status</th>
+              <th class="p-3 border-r border-slate-200">Reference No.</th>
+              <th class="p-3 border-r border-slate-200">Tran. Id</th>
+              <th class="p-3 border-r border-slate-200">Transaction Date</th>
+              <th class="p-3 border-r border-slate-200">Value Date</th>
+              <th class="p-3 border-r border-slate-200 text-right">Transaction Amount(INR) CR</th>
+              <th class="p-3 border-r border-slate-200">Cheque. No./Ref. No.</th>
+              <th class="p-3 border-r border-slate-200">Transaction Remarks</th>
+              <th class="p-3 border-r border-slate-200">Manager</th>
+              <th class="p-3 text-center">Actions</th>
+            </tr>
+          `;
+        } else if (bankFilter === 'RAZORPAY') {
+          thead.innerHTML = `
+            <tr>
+              <th class="p-3 border-r border-slate-200 text-center">Status</th>
+              <th class="p-3 border-r border-slate-200">Ref</th>
+              <th class="p-3 border-r border-slate-200">Date</th>
+              <th class="p-3 border-r border-slate-200">entity_id</th>
+              <th class="p-3 border-r border-slate-200 text-right">Amount (₹)</th>
+              <th class="p-3 border-r border-slate-200 text-right">Credit (₹)</th>
+              <th class="p-3 border-r border-slate-200 text-right">Fee / Tax</th>
+              <th class="p-3 border-r border-slate-200">order_id</th>
+              <th class="p-3 border-r border-slate-200">order_receipt</th>
+              <th class="p-3 border-r border-slate-200">method</th>
+              <th class="p-3 border-r border-slate-200">description</th>
+              <th class="p-3 border-r border-slate-200">settlement_utr</th>
+              <th class="p-3 border-r border-slate-200">Manager</th>
+              <th class="p-3 text-center">Actions</th>
+            </tr>
+          `;
+        } else {
+          // Unified Comprehensive View across All Bank Formats (13 columns)
+          thead.innerHTML = `
+            <tr>
+              <th class="p-3 border-r border-slate-200 text-center">Status</th>
+              <th class="p-3 border-r border-slate-200">Bank / Sheet</th>
+              <th class="p-3 border-r border-slate-200">Ref No</th>
+              <th class="p-3 border-r border-slate-200">Tran ID / Entity ID</th>
+              <th class="p-3 border-r border-slate-200">Tx Date</th>
+              <th class="p-3 border-r border-slate-200">Value Date</th>
+              <th class="p-3 border-r border-slate-200 text-right">Credit Amount (₹)</th>
+              <th class="p-3 border-r border-slate-200 text-right">Debit / Charges</th>
+              <th class="p-3 border-r border-slate-200">Cheque / UTR</th>
+              <th class="p-3 border-r border-slate-200">Order ID / Receipt</th>
+              <th class="p-3 border-r border-slate-200">Narration / Description</th>
+              <th class="p-3 border-r border-slate-200">Manager</th>
+              <th class="p-3 text-center">Actions</th>
+            </tr>
+          `;
+        }
+      }
+
       if (txs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 italic">No bank transactions found matching criteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="14" class="p-8 text-center text-slate-400 italic">No bank transactions found matching criteria.</td></tr>`;
         return;
       }
 
       txs.forEach((t, idx) => {
         const tr = document.createElement('tr');
         tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/50 transition-colors' : 'bg-slate-50/70 hover:bg-blue-50/50 transition-colors';
+
+        let raw = {};
+        try {
+          raw = typeof t.cheque_raw === 'string' ? JSON.parse(t.cheque_raw || '{}') : (t.cheque_raw || {});
+        } catch (e) {
+          raw = {};
+        }
 
         const isAlloc = t.status === 'ALLOCATED';
         const badge = isAlloc ? 
@@ -1850,25 +2090,84 @@
           `<span class="text-slate-400 italic text-[11px]">Unclaimed</span>`;
 
         const canAction = currentRole === 'ADMIN' || (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim();
-        const action = isAlloc ?
+        const actionBtn = isAlloc ?
           (canAction ? 
             `<button onclick="unclaimTx(${t.id})" class="px-2.5 py-1 text-xs bg-white hover:bg-rose-50 text-rose-700 font-bold rounded border border-rose-300 shadow-sm transition-all">Release</button>` :
             `<span class="text-slate-400 text-xs">-</span>`) :
-          `<button onclick='openClaimModal(${JSON.stringify(t).replace(/'/g, "\\'")})' class="px-3 py-1.5 text-xs bg-blue-700 hover:bg-blue-800 text-white font-bold rounded shadow-sm flex items-center gap-1 mx-auto transition-all active:scale-[0.98]">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Claim / Link
+          `<button onclick='openClaimModal(${JSON.stringify(t).replace(/'/g, "\\'")})' class="px-3 py-1.5 text-xs bg-blue-700 hover:bg-blue-800 text-white font-bold rounded shadow-sm flex items-center gap-1 transition-all active:scale-[0.98]">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Claim
           </button>`;
 
-        tr.innerHTML = `
-          <td class="p-3 border-r border-slate-200 text-center">${badge}</td>
-          <td class="p-3 border-r border-slate-200 font-bold text-slate-900">${t.bank_name}</td>
-          <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
-          <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date || ''}</td>
-          <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-          <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800 font-semibold">${t.cheque_extracted || '-'}</td>
-          <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${t.narration || ''}">${t.narration || ''}</td>
-          <td class="p-3 border-r border-slate-200">${assigned}</td>
-          <td class="p-3 text-center">${action}</td>
-        `;
+        const viewDetailBtn = `<button onclick="openRowDetailModal(${t.id})" class="p-1.5 hover:bg-slate-100 rounded text-slate-500 hover:text-blue-700 border border-slate-200" title="View all statement headers for this row"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>`;
+
+        if (bankFilter === 'HDFC') {
+          tr.innerHTML = `
+            <td class="p-3 border-r border-slate-200 text-center">${badge}</td>
+            <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${raw['Ref'] || t.ref_no}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${raw['Date'] || t.tx_date || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${raw['Value Dt'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(raw['Credit'] || t.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num text-xs text-slate-500">${raw['Debit/Charges'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800 font-semibold">${raw['Cheque/Ref. No.'] || t.cheque_extracted || '-'}</td>
+            <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${raw['Narration'] || t.narration || ''}">${raw['Narration'] || t.narration || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-xs text-slate-500">${raw['Remarks'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200">${assigned}</td>
+            <td class="p-3 text-center"><div class="flex items-center justify-center gap-1.5">${actionBtn}${viewDetailBtn}</div></td>
+          `;
+        } else if (bankFilter === 'ICICI') {
+          tr.innerHTML = `
+            <td class="p-3 border-r border-slate-200 text-center">${badge}</td>
+            <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${raw['Reference No.'] || t.ref_no}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-slate-700">${raw['Tran. Id'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${raw['Transaction Date'] || t.tx_date || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${raw['Value Date'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(raw['Transaction Amount(INR) CR'] || t.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800 font-semibold">${raw['Cheque. No./Ref. No.'] || t.cheque_extracted || '-'}</td>
+            <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${raw['Transaction Remarks'] || t.narration || ''}">${raw['Transaction Remarks'] || t.narration || '-'}</td>
+            <td class="p-3 border-r border-slate-200">${assigned}</td>
+            <td class="p-3 text-center"><div class="flex items-center justify-center gap-1.5">${actionBtn}${viewDetailBtn}</div></td>
+          `;
+        } else if (bankFilter === 'RAZORPAY') {
+          tr.innerHTML = `
+            <td class="p-3 border-r border-slate-200 text-center">${badge}</td>
+            <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${raw['Ref'] || t.ref_no}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${raw['created_at'] || raw['Date'] || t.tx_date || '-'}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-slate-700">${raw['entity_id'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num text-xs text-slate-600">₹${Number(raw['amount'] || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(raw['credit'] || t.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num text-xs text-slate-500">${raw['fee'] ? '₹' + raw['fee'] : '-'} / ${raw['tax'] ? '₹' + raw['tax'] : '-'}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-[11px] text-slate-600">${raw['order_id'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-[11px] text-indigo-700 font-semibold">${raw['order_receipt'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 text-xs uppercase font-semibold text-slate-700">${raw['method'] || '-'}</td>
+            <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${raw['description'] || t.narration || ''}">${raw['description'] || t.narration || '-'}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800">${raw['settlement_utr'] || t.cheque_extracted || '-'}</td>
+            <td class="p-3 border-r border-slate-200">${assigned}</td>
+            <td class="p-3 text-center"><div class="flex items-center justify-center gap-1.5">${actionBtn}${viewDetailBtn}</div></td>
+          `;
+        } else {
+          // Unified View
+          const tranOrEntityId = raw['Tran. Id'] || raw['entity_id'] || '-';
+          const valDate = raw['Value Date'] || raw['Value Dt'] || '-';
+          const debitCharges = raw['Debit/Charges'] || raw['debit'] || '-';
+          const orderReceipt = raw['order_receipt'] || raw['order_id'] || '-';
+
+          tr.innerHTML = `
+            <td class="p-3 border-r border-slate-200 text-center">${badge}</td>
+            <td class="p-3 border-r border-slate-200 font-bold text-slate-900">${t.sheet_name || t.bank_name}</td>
+            <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-slate-600">${tranOrEntityId}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date || ''}</td>
+            <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${valDate}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+            <td class="p-3 border-r border-slate-200 text-right font-mono-num text-xs text-slate-500">${debitCharges}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-xs text-amber-800 font-semibold">${t.cheque_extracted || '-'}</td>
+            <td class="p-3 border-r border-slate-200 font-mono text-[11px] text-indigo-700 font-semibold">${orderReceipt}</td>
+            <td class="p-3 border-r border-slate-200 max-w-xs truncate text-xs text-slate-600" title="${t.narration || ''}">${t.narration || '-'}</td>
+            <td class="p-3 border-r border-slate-200">${assigned}</td>
+            <td class="p-3 text-center"><div class="flex items-center justify-center gap-1.5">${actionBtn}${viewDetailBtn}</div></td>
+          `;
+        }
+
         tbody.appendChild(tr);
       });
       lucide.createIcons();
@@ -2038,7 +2337,10 @@
         const tr = document.createElement('tr');
         tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/50' : 'bg-slate-50/70 hover:bg-blue-50/50';
         tr.innerHTML = `
-          <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${t.ref_no}</td>
+          <td class="p-3 border-r border-slate-200 font-mono">
+            <div class="font-bold text-blue-700">${t.ref_no}</div>
+            ${t.cheque_extracted ? `<div class="text-[10px] text-slate-500 font-normal">UTR: ${t.cheque_extracted}</div>` : ''}
+          </td>
           <td class="p-3 border-r border-slate-200">
             <div class="font-extrabold text-slate-900">${t.customer_name}</div>
             <div class="text-[10px] text-slate-500 font-mono">ID: ${t.customer_id}</div>
@@ -2382,6 +2684,21 @@
           const newTransactions = [];
           const defaultBatchDate = document.getElementById('cloud-batch-date').value.trim() || '22-10-2026';
 
+          function findRefCol(headers) {
+            // 1. Exact header name match priority
+            const exactList = ['ref', 'reference no', 'reference no.', 'ref no', 'ref. no', 'tran. id', 'transaction id'];
+            for (const kw of exactList) {
+              const idx = headers.findIndex(h => h === kw);
+              if (idx !== -1) return idx;
+            }
+            // 2. Contains match, but explicitly ignore cheque/chq/utr columns
+            for (const kw of ['ref no', 'ref. no', 'reference', 'ref']) {
+              const idx = headers.findIndex(h => h.includes(kw) && !h.includes('cheque') && !h.includes('chq') && !h.includes('utr'));
+              if (idx !== -1) return idx;
+            }
+            return headers.findIndex(h => h.includes('ref'));
+          }
+
           function findHeaderCol(headers, keywords) {
             for (const kw of keywords) {
               const idx = headers.findIndex(h => h.includes(kw));
@@ -2412,7 +2729,7 @@
 
             if (headers.length === 0) headers = rows[0].map(h => String(h || '').toLowerCase().trim());
 
-            const refCol = findHeaderCol(headers, ['reference no', 'ref no', 'ref. no', 'ref', 'chq', 'cheque', 'tran. id']);
+            const refCol = findRefCol(headers);
             const dateCol = findHeaderCol(headers, ['transaction date', 'value date', 'date', 'dt']);
             const narrCol = findHeaderCol(headers, ['transaction remarks', 'narration', 'description', 'remarks', 'remark', 'desc']);
             const amtCol = findHeaderCol(headers, ['transaction amount', 'credit', 'amount', 'cr']);
@@ -2453,13 +2770,24 @@
                 }
               }
 
+              const rawRow = {};
+              const rawHeaders = rows[headerRowIdx] || [];
+              rawHeaders.forEach((origH, colIdx) => {
+                const cleanH = String(origH || '').trim();
+                if (cleanH && r[colIdx] !== undefined && r[colIdx] !== null) {
+                  rawRow[cleanH] = r[colIdx];
+                }
+              });
+
               newTransactions.push({
                 ref_no: refVal,
                 bank_name: bank,
+                sheet_name: sheetName,
                 tx_date: txDate,
                 amount: amtVal,
                 narration: narrVal,
                 cheque_extracted: (extractedChq && extractedChq.toLowerCase() !== 'nan') ? extractedChq : '',
+                cheque_raw: JSON.stringify(rawRow),
                 status: 'UNALLOCATED',
                 claimed_by_manager: null
               });
