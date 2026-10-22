@@ -49,7 +49,7 @@
   <!-- MAIN AUTHENTICATED PORTAL APP              -->
   <!-- Hidden by default until login is confirmed -->
   <!-- ========================================== -->
-  <div id="portal-app" class="min-h-screen flex flex-col hidden">
+  <div id="portal-app" class="min-h-screen flex flex-col hidden" style="display: none !important;">
 
   <!-- ========================================== -->
   <!-- 1. CORPORATE EXECUTIVE TOP NAVBAR          -->
@@ -555,7 +555,7 @@
   <!-- ========================================== -->
   <!-- 6. CLEAN CORPORATE LOGIN SCREEN            -->
   <!-- ========================================== -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-100 z-[999] flex flex-col justify-between overflow-y-auto">
+  <div id="login-modal" class="fixed inset-0 bg-slate-100 z-[999] flex flex-col justify-between overflow-y-auto" style="display: flex;">
     
     <!-- Ambient Watermark Emblem in Background -->
     <div class="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0">
@@ -1165,23 +1165,29 @@
     // AUTHENTICATION & LOGIN LOGIC
     // ==========================================
     function checkAuthSession() {
-      const session = sessionStorage.getItem('shaha_portal_user');
+      // By user requirement: Always show login screen first when site is opened
+      sessionStorage.removeItem('shaha_portal_user');
+      currentUser = null;
+      
       const portal = document.getElementById('portal-app');
       const loginModal = document.getElementById('login-modal');
-      if (session) {
-        try {
-          const user = JSON.parse(session);
-          applyUserSession(user);
-          if (portal) portal.classList.remove('hidden');
-          if (loginModal) loginModal.classList.add('hidden');
-          loadTransactionsFromCloud();
-          switchTab('dashboard');
-          return;
-        } catch (e) {}
+      
+      if (portal) {
+        portal.classList.add('hidden');
+        portal.style.setProperty('display', 'none', 'important');
       }
-      // If not logged in, show login modal and hide portal completely
-      if (portal) portal.classList.add('hidden');
-      if (loginModal) loginModal.classList.remove('hidden');
+      if (loginModal) {
+        loginModal.classList.remove('hidden');
+        loginModal.style.setProperty('display', 'flex', 'important');
+      }
+      
+      const uInput = document.getElementById('login-username-input');
+      const pInput = document.getElementById('login-password-input');
+      if (uInput) {
+        uInput.value = '';
+        setTimeout(() => uInput.focus(), 150);
+      }
+      if (pInput) pInput.value = '';
     }
 
     function togglePasswordVisibility() {
@@ -1242,8 +1248,14 @@
       applyUserSession(sessionObj);
       const portal = document.getElementById('portal-app');
       const loginModal = document.getElementById('login-modal');
-      if (loginModal) loginModal.classList.add('hidden');
-      if (portal) portal.classList.remove('hidden');
+      if (loginModal) {
+        loginModal.classList.add('hidden');
+        loginModal.style.setProperty('display', 'none', 'important');
+      }
+      if (portal) {
+        portal.classList.remove('hidden');
+        portal.style.setProperty('display', 'flex', 'important');
+      }
       showToast(`Welcome back, ${meta.name}!`, 'success');
       loadTransactionsFromCloud();
       switchTab('dashboard');
@@ -1296,12 +1308,21 @@
       if (!confirm('Are you sure you want to sign out?')) return;
       sessionStorage.removeItem('shaha_portal_user');
       currentUser = null;
-      document.getElementById('login-username-input').value = '';
-      document.getElementById('login-password-input').value = '';
+      const uInput = document.getElementById('login-username-input');
+      const pInput = document.getElementById('login-password-input');
+      if (uInput) uInput.value = '';
+      if (pInput) pInput.value = '';
       const portal = document.getElementById('portal-app');
       const loginModal = document.getElementById('login-modal');
-      if (portal) portal.classList.add('hidden');
-      if (loginModal) loginModal.classList.remove('hidden');
+      if (portal) {
+        portal.classList.add('hidden');
+        portal.style.setProperty('display', 'none', 'important');
+      }
+      if (loginModal) {
+        loginModal.classList.remove('hidden');
+        loginModal.style.setProperty('display', 'flex', 'important');
+        if (uInput) setTimeout(() => uInput.focus(), 150);
+      }
       showToast('Signed out successfully.', 'info');
     }
 
