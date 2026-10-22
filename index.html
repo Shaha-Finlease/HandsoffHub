@@ -963,28 +963,91 @@
     ];
 
     // Lifecycle Init
-    window.addEventListener('DOMContentLoaded', () => {
-      loadSavedCredentials();
+    window.addEventListener('DOMContentLoaded', async () => {
+      initSupabase();
+      await syncCredentialsWithCloud();
       lucide.createIcons();
       startLiveClock();
-      initSupabase();
       checkAuthSession();
     });
 
-    function loadSavedCredentials() {
+    async function syncCredentialsWithCloud() {
+      // 1. First load from local storage
       const saved = localStorage.getItem('shaha_custom_credentials_v3');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           if (parsed && typeof parsed === 'object') {
-            USER_CREDENTIALS = parsed;
+            USER_CREDENTIALS = Object.assign({}, USER_CREDENTIALS, parsed);
           }
         } catch (e) {}
       }
+
+      // 2. Fetch latest synced profiles from Supabase Cloud DB
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('bank_transactions')
+            .select('*')
+            .eq('ref_no', 'SYS_PORTAL_CREDENTIALS')
+            .limit(1);
+
+          if (!error && data && data.length > 0 && data[0].narration) {
+            const cloudUsers = JSON.parse(data[0].narration);
+            if (cloudUsers && typeof cloudUsers === 'object') {
+              USER_CREDENTIALS = Object.assign({}, USER_CREDENTIALS, cloudUsers);
+              localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+            }
+          }
+        } catch (e) {
+          console.warn('Credentials cloud sync note:', e);
+        }
+      }
+
       // Ensure primary Admin always exists
       if (!USER_CREDENTIALS['admin']) {
         USER_CREDENTIALS['admin'] = { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' };
       }
+    }
+
+    async function saveCredentialsToCloud() {
+      // 1. Save locally
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+
+      // 2. Sync to Supabase Cloud DB for all devices
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('id')
+            .eq('ref_no', 'SYS_PORTAL_CREDENTIALS')
+            .limit(1);
+
+          if (data && data.length > 0) {
+            await supabaseClient
+              .from('bank_transactions')
+              .update({ narration: JSON.stringify(USER_CREDENTIALS), updated_at: new Date().toISOString() })
+              .eq('id', data[0].id);
+          } else {
+            await supabaseClient
+              .from('bank_transactions')
+              .insert([{
+                bank_name: 'SYSTEM',
+                ref_no: 'SYS_PORTAL_CREDENTIALS',
+                tx_date: '01-01-2026',
+                amount: 0,
+                narration: JSON.stringify(USER_CREDENTIALS),
+                status: 'SYSTEM'
+              }]);
+          }
+        } catch (e) {
+          console.error('Error saving credentials to Cloud DB:', e);
+        }
+      }
+    }
+
+    function loadSavedCredentials() {
+      syncCredentialsWithCloud();
     }
 
     // Admin User & Password Management Functions
@@ -1003,7 +1066,7 @@
       box.classList.toggle('hidden');
     }
 
-    function addNewUserProfile() {
+    async function addNewUserProfile() {
       const name = document.getElementById('new-user-name').value.trim();
       const rawUser = document.getElementById('new-user-username').value.trim().toLowerCase();
       const agency = document.getElementById('new-user-agency').value;
@@ -1013,6 +1076,8 @@
         showToast('Please fill Name, Username, and Password.', 'error');
         return;
       }
+
+      await syncCredentialsWithCloud();
 
       if (USER_CREDENTIALS[rawUser]) {
         showToast(`Username '${rawUser}' already exists!`, 'error');
@@ -1027,16 +1092,16 @@
         username: rawUser
       };
 
-      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      await saveCredentialsToCloud();
       document.getElementById('new-user-name').value = '';
       document.getElementById('new-user-username').value = '';
       document.getElementById('new-user-pin').value = '';
       toggleAddUserForm();
       renderUserManagerTable();
-      showToast(`Profile created for ${name}!`, 'success');
+      showToast(`Profile created for ${name} & synced to Cloud!`, 'success');
     }
 
-    function renameUser(userKey) {
+    async function renameUser(userKey) {
       const u = USER_CREDENTIALS[userKey];
       const newUsername = prompt(`Enter new Username / Login ID for ${u.name}:`, u.username || userKey);
       if (!newUsername) return;
@@ -1059,12 +1124,12 @@
         USER_CREDENTIALS[cleanNew] = u;
       }
 
-      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      await saveCredentialsToCloud();
       renderUserManagerTable();
       showToast(`Renamed to '${cleanNew}' successfully!`, 'success');
     }
 
-    function saveNewPassword(userKey) {
+    async function saveNewPassword(userKey) {
       const safeKey = userKey.replace(/[^a-zA-Z0-9]/g, '_');
       const input = document.getElementById(`new-pwd-${safeKey}`);
       const newPin = input.value.trim();
@@ -1073,13 +1138,13 @@
         return;
       }
       USER_CREDENTIALS[userKey].pin = newPin;
-      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      await saveCredentialsToCloud();
       input.value = '';
       renderUserManagerTable();
       showToast(`Password reset for ${USER_CREDENTIALS[userKey].name}!`, 'success');
     }
 
-    function deleteUser(userKey) {
+    async function deleteUser(userKey) {
       const u = USER_CREDENTIALS[userKey];
       if (u.role === 'ADMIN' || userKey === 'admin') {
         showToast('Primary Admin profile cannot be deleted.', 'error');
@@ -1088,7 +1153,7 @@
       if (!confirm(`Are you sure you want to delete profile for ${u.name} (${userKey})?`)) return;
 
       delete USER_CREDENTIALS[userKey];
-      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      await saveCredentialsToCloud();
       renderUserManagerTable();
       showToast(`Profile for ${u.name} deleted.`, 'info');
     }
@@ -1203,7 +1268,7 @@
       lucide.createIcons();
     }
 
-    function handleLoginSubmit() {
+    async function handleLoginSubmit() {
       const usernameInput = document.getElementById('login-username-input').value.trim();
       const passInput = document.getElementById('login-password-input').value.trim();
 
@@ -1211,6 +1276,9 @@
         showToast('Please enter both username and password.', 'error');
         return;
       }
+
+      // Sync fresh credentials from Supabase Cloud DB across devices
+      await syncCredentialsWithCloud();
 
       const cleanInput = usernameInput.toLowerCase();
       let matchedKey = null;
@@ -1582,17 +1650,18 @@
           const { data, error } = await supabaseClient
             .from('bank_transactions')
             .select('*')
+            .neq('status', 'SYSTEM')
             .order('id', { ascending: false });
           if (!error && data && data.length > 0) {
-            allTransactions = data;
+            allTransactions = data.filter(t => t.status !== 'SYSTEM' && t.ref_no !== 'SYS_PORTAL_CREDENTIALS');
           } else {
-            allTransactions = memoryTransactions;
+            allTransactions = memoryTransactions.filter(t => t.status !== 'SYSTEM');
           }
         } catch (e) {
-          allTransactions = memoryTransactions;
+          allTransactions = memoryTransactions.filter(t => t.status !== 'SYSTEM');
         }
       } else {
-        allTransactions = memoryTransactions;
+        allTransactions = memoryTransactions.filter(t => t.status !== 'SYSTEM');
       }
       filterTransactions();
     }
