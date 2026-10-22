@@ -119,7 +119,7 @@
         </div>
         <span>
           <strong class="text-blue-900">Manager Security Isolation Enforced:</strong> 
-          Aapko sirf <span class="font-bold text-amber-700">Unallocated Bank Pool</span> aur aapki team (<strong id="active-manager-badge" class="text-blue-700 font-bold uppercase"></strong>) ka data dikh raha hai. Doosre managers ki verified entries confidential hain.
+          Access is strictly authorized to the <span class="font-bold text-amber-700">Unallocated Bank Pool</span> and your verified team records (<strong id="active-manager-badge" class="text-blue-700 font-bold uppercase"></strong>). Other managers' verified collections remain shielded and confidential.
         </span>
       </div>
       <span id="active-agency-tag" class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-blue-100 text-blue-800 border border-blue-300 tracking-wider">AGENCY: INH</span>
@@ -676,6 +676,12 @@
           <span class="text-slate-500 font-medium">Cheque / UTR:</span>
           <span id="modal-utr" class="font-mono text-amber-700 font-bold"></span>
         </div>
+      </div>
+
+      <!-- In-Modal Validation Alert -->
+      <div id="modal-claim-error" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 shrink-0"></i>
+        <span id="modal-claim-error-text">Please complete all required fields correctly.</span>
       </div>
 
       <div class="space-y-3">
@@ -1316,11 +1322,11 @@
       const passInput = pEl ? pEl.value.trim() : '';
 
       if (!usernameInput || !passInput) {
-        showLoginError('Please enter both username and password.');
+        showLoginError('Please enter both Username and Password to continue.');
         return;
       }
 
-      if (btnLabel) btnLabel.innerText = 'Verifying...';
+      if (btnLabel) btnLabel.innerText = 'Verifying Credentials...';
 
       // Sync fresh credentials from Supabase Cloud DB with a safety timeout so it never blocks login
       try {
@@ -1346,7 +1352,7 @@
       }
 
       if (!matchedKey) {
-        showLoginError('Invalid username or password. Check credentials or sign in as admin.');
+        showLoginError('Invalid Username or Password. Please verify your credentials or contact Administrator.');
         return;
       }
 
@@ -1355,7 +1361,7 @@
       const storedPass = String(meta.pin || '').trim().toLowerCase();
 
       if (enteredPass !== storedPass) {
-        showLoginError('Invalid password. Please check and try again.');
+        showLoginError('Invalid Password. Please verify your password and try again.');
         return;
       }
 
@@ -1889,11 +1895,17 @@
       document.getElementById('modal-caller').value = '';
       document.getElementById('modal-manager').value = currentRole === 'ADMIN' ? 'ADMIN' : currentManager;
 
+      const errBox = document.getElementById('modal-claim-error');
+      if (errBox) errBox.classList.add('hidden');
+
       document.getElementById('claim-modal').classList.remove('hidden');
+      lucide.createIcons();
     }
 
     function closeClaimModal() {
       document.getElementById('claim-modal').classList.add('hidden');
+      const errBox = document.getElementById('modal-claim-error');
+      if (errBox) errBox.classList.add('hidden');
       activeClaimId = null;
     }
 
@@ -1903,11 +1915,39 @@
       const portfolio = document.getElementById('modal-portfolio').value;
       const caller = document.getElementById('modal-caller').value.trim();
       const mgr = document.getElementById('modal-manager').value.trim();
+      const errBox = document.getElementById('modal-claim-error');
+      const errText = document.getElementById('modal-claim-error-text');
 
-      if (!custId || !custName || !caller || !mgr) {
-        showToast('Please enter Customer ID, Name, and Caller Name.', 'error');
+      const showModalError = (msg) => {
+        if (errBox && errText) {
+          errText.innerText = msg;
+          errBox.classList.remove('hidden');
+        }
+        showToast(msg, 'error');
+        lucide.createIcons();
+      };
+
+      if (!custId) {
+        showModalError('Validation Error: Customer ID / Loan Account Number is required.');
         return;
       }
+
+      if (!custName || custName.length < 3) {
+        showModalError('Validation Error: Please enter a valid Customer Name (minimum 3 characters).');
+        return;
+      }
+
+      if (!caller || caller.length < 2) {
+        showModalError('Validation Error: Caller / Recovery Officer name is required.');
+        return;
+      }
+
+      if (!mgr) {
+        showModalError('Validation Error: Allocating manager assignment is required.');
+        return;
+      }
+
+      if (errBox) errBox.classList.add('hidden');
 
       const tx = allTransactions.find(t => t.id === activeClaimId);
       if (tx) {
