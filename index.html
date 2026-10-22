@@ -626,9 +626,15 @@
             </div>
           </div>
 
-          <button onclick="handleLoginSubmit()" class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
-            <span>Sign In</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          <!-- In-Card Error Alert -->
+          <div id="login-error-box" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 shrink-0"></i>
+            <span id="login-error-text">Invalid username or password.</span>
+          </div>
+
+          <button id="btn-login-submit" onclick="handleLoginSubmit()" class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
+            <span id="btn-login-label">Sign In</span>
+            <i id="btn-login-icon" data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </button>
         </div>
 
@@ -1292,13 +1298,29 @@
     async function handleLoginSubmit() {
       const uEl = document.getElementById('login-username-input');
       const pEl = document.getElementById('login-password-input');
+      const errBox = document.getElementById('login-error-box');
+      const errText = document.getElementById('login-error-text');
+      const btnLabel = document.getElementById('btn-login-label');
+
+      const showLoginError = (msg) => {
+        if (errBox && errText) {
+          errText.innerText = msg;
+          errBox.classList.remove('hidden');
+        }
+        showToast(msg, 'error');
+        if (btnLabel) btnLabel.innerText = 'Sign In';
+        lucide.createIcons();
+      };
+
       const usernameInput = uEl ? uEl.value.trim() : '';
       const passInput = pEl ? pEl.value.trim() : '';
 
       if (!usernameInput || !passInput) {
-        showToast('Please enter both username and password.', 'error');
+        showLoginError('Please enter both username and password.');
         return;
       }
+
+      if (btnLabel) btnLabel.innerText = 'Verifying...';
 
       // Sync fresh credentials from Supabase Cloud DB with a safety timeout so it never blocks login
       try {
@@ -1324,7 +1346,7 @@
       }
 
       if (!matchedKey) {
-        showToast('Invalid username or password. Check credentials or login as admin.', 'error');
+        showLoginError('Invalid username or password. Check credentials or sign in as admin.');
         return;
       }
 
@@ -1333,9 +1355,12 @@
       const storedPass = String(meta.pin || '').trim().toLowerCase();
 
       if (enteredPass !== storedPass) {
-        showToast('Invalid username or password.', 'error');
+        showLoginError('Invalid password. Please check and try again.');
         return;
       }
+
+      if (errBox) errBox.classList.add('hidden');
+      if (btnLabel) btnLabel.innerText = 'Sign In';
 
       const sessionObj = {
         key: matchedKey,
@@ -2430,7 +2455,7 @@
     function showToast(msg, type = 'info') {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
-      toast.className = `fixed bottom-6 right-6 transition-all duration-300 bg-white px-4 py-3 rounded-xl border text-xs font-semibold flex items-center gap-2 shadow-2xl z-50 text-slate-900 ${
+      toast.className = `fixed bottom-6 right-6 transition-all duration-300 bg-white px-4 py-3 rounded-xl border text-xs font-semibold flex items-center gap-2 shadow-2xl z-[10000] text-slate-900 ${
         type === 'success' ? 'border-emerald-500' :
         type === 'error' ? 'border-rose-500' :
         'border-blue-500'
