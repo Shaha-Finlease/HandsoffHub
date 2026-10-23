@@ -8,8 +8,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- SheetJS (Excel Parser & Builder) -->
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <!-- SheetJS (Excel Parser & Builder) with High-Availability CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    if (typeof XLSX === 'undefined') {
+      document.write('<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"><\/script>');
+    }
+  </script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -1893,11 +1898,15 @@
     // ==========================================
     function isManagerRecord(claimedBy) {
       if (currentRole === 'ADMIN') return true;
-      const m = (claimedBy || '').toUpperCase().trim();
-      const myKey = (currentManager || '').toUpperCase().trim();
-      const myName = (currentUser && currentUser.name ? currentUser.name : '').toUpperCase().trim();
-      const myUser = (currentUser && currentUser.username ? currentUser.username : '').toUpperCase().trim();
-      return (m === myKey || m === myName || m === myUser || (myKey && m.includes(myKey)) || (myName && m.includes(myName)));
+      if (!claimedBy) return false;
+      const m = String(claimedBy).toUpperCase().trim();
+      const myKey = String(currentManager || '').toUpperCase().trim();
+      const myName = String(currentUser && currentUser.name ? currentUser.name : '').toUpperCase().trim();
+      const myUser = String(currentUser && currentUser.username ? currentUser.username : '').toUpperCase().trim();
+      if (!myKey && !myName && !myUser) return true;
+      return (m === myKey || m === myName || m === myUser || 
+              (myKey && m.includes(myKey)) || (myName && m.includes(myName)) ||
+              (myKey && myKey.includes(m)) || (myName && myName.includes(m)));
     }
 
     // ==========================================
@@ -3358,15 +3367,59 @@ function autoSyncBankTransactions() {
     }
 
     // ==========================================
+    // CROSS-BROWSER EXCEL DOWNLOAD HELPER (CHROME & EDGE)
+    // ==========================================
+    function saveWorkbookFile(wb, filename) {
+      if (typeof XLSX === 'undefined') {
+        showToast('Excel library not loaded yet. Please wait a few seconds.', 'error');
+        return false;
+      }
+      try {
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        
+        // Edge / IE legacy support
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+          window.navigator.msSaveOrOpenBlob(blob, filename);
+          return true;
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 500);
+        return true;
+      } catch (err) {
+        console.warn('Direct Blob download failed, attempting XLSX.writeFile:', err);
+        try {
+          XLSX.writeFile(wb, filename);
+          return true;
+        } catch(e) {
+          console.error('All download methods failed:', e);
+          showToast('Browser blocked file download. Please check browser download permissions.', 'error');
+          return false;
+        }
+      }
+    }
+
+    // ==========================================
     // EXPORT PAID FILE EXCEL (OFFICIAL FORMAT)
     // ==========================================
     function exportPaidFileExcel() {
-      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
-
-      if (alloc.length === 0) {
-        showToast('No verified / paid records to export.', 'error');
+      if (typeof XLSX === 'undefined') {
+        showToast('Excel engine is still initializing. Please try again in 2 seconds.', 'error');
         return;
       }
+
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
 
       const rowsData = [
         [
@@ -3405,28 +3458,38 @@ function autoSyncBankTransactions() {
           t.narration || '',
           t.bank_name || '',
           t.caller_name || '',
-          t.claimed_by_manager || ''
+          t.claimed_by_manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager)
         ]);
       });
 
       const ws = XLSX.utils.aoa_to_sheet(rowsData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Paid File');
-      const filename = `Paid_File_Export_${currentRole === 'ADMIN' ? 'ALL' : currentManager}_${Date.now()}.xlsx`;
-      XLSX.writeFile(wb, filename);
-      showToast('Paid File Excel downloaded successfully!', 'success');
+
+      const mgrTag = currentRole === 'ADMIN' ? 'ALL' : (currentManager || (currentUser ? currentUser.username : 'MANAGER'));
+      const safeTag = mgrTag.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `Paid_File_Export_${safeTag}_${Date.now()}.xlsx`;
+
+      const success = saveWorkbookFile(wb, filename);
+      if (success) {
+        if (alloc.length === 0) {
+          showToast('Paid File template (.xlsx) downloaded (0 verified claims yet).', 'info');
+        } else {
+          showToast(`Paid File (${alloc.length} verified records) downloaded successfully!`, 'success');
+        }
+      }
     }
 
     // ==========================================
     // EXPORT HANDSOFF EXCEL WITH FORMULAS
     // ==========================================
     function exportHandsoffExcel() {
-      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
-
-      if (alloc.length === 0) {
-        showToast('No verified records to export.', 'error');
+      if (typeof XLSX === 'undefined') {
+        showToast('Excel engine is still initializing. Please try again in 2 seconds.', 'error');
         return;
       }
+
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
 
       const rowsData = [
         [
@@ -3471,8 +3534,15 @@ function autoSyncBankTransactions() {
       const ws = XLSX.utils.aoa_to_sheet(rowsData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Handsoff');
-      XLSX.writeFile(wb, `Handsoff_Export_${currentRole === 'ADMIN' ? 'ALL' : currentManager}_${Date.now()}.xlsx`);
-      showToast('Handsoff Excel file downloaded successfully!', 'success');
+
+      const mgrTag = currentRole === 'ADMIN' ? 'ALL' : (currentManager || (currentUser ? currentUser.username : 'MANAGER'));
+      const safeTag = mgrTag.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `Handsoff_Export_${safeTag}_${Date.now()}.xlsx`;
+
+      const success = saveWorkbookFile(wb, filename);
+      if (success) {
+        showToast('Handsoff Excel file downloaded successfully!', 'success');
+      }
     }
 
     function showToast(msg, type = 'info') {
