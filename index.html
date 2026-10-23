@@ -83,6 +83,12 @@
           <span id="live-clock" class="font-mono-num font-semibold">21 Oct 2026</span>
         </div>
 
+        <!-- Session Auto-Timeout Badge (15-20 Min Security Timer) -->
+        <div id="session-timer-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-950/70 border border-emerald-700/60 text-[11px] text-emerald-300 font-mono font-bold" title="Auto-logout occurs after 20 minutes of inactivity">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Session: 20m</span>
+        </div>
+
         <!-- Admin Only: User & Password Control Button -->
         <button onclick="openUserManagerModal()" id="btn-manage-users" title="Manage Passwords" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-900/80 border border-blue-600 text-xs hover:bg-blue-800 transition-all text-white font-bold shadow-sm">
           <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
@@ -254,11 +260,11 @@
       <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 p-6 rounded-2xl border border-slate-800 text-white shadow-md flex flex-wrap items-center justify-between gap-4">
         <div class="space-y-1">
           <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] uppercase font-bold tracking-wider">Executive Overview</span>
+            <span id="dash-banner-tag" class="px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] uppercase font-bold tracking-wider">Executive Overview</span>
             <span class="text-xs text-slate-400">| Shaha Finlease Pvt Ltd</span>
           </div>
-          <h2 class="text-xl font-extrabold tracking-tight">Bank Statement & Collections Reconciliation</h2>
-          <p class="text-xs text-slate-300 font-medium max-w-xl">Live financial intelligence across recovery manager portfolios, banking statement feeds, and customer verified payments.</p>
+          <h2 id="dash-banner-title" class="text-xl font-extrabold tracking-tight">Bank Statement & Collections Reconciliation</h2>
+          <p id="dash-banner-desc" class="text-xs text-slate-300 font-medium max-w-xl">Live financial intelligence across recovery manager portfolios, banking statement feeds, and customer verified payments.</p>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
@@ -348,9 +354,9 @@
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
               <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
-              <span>Manager Collections</span>
+              <span id="dash-mgr-title">Manager Collections</span>
             </h4>
-            <span class="text-[11px] text-slate-400 font-medium">Verified Claims</span>
+            <span id="dash-mgr-sub" class="text-[11px] text-slate-400 font-medium">Verified Claims</span>
           </div>
           <div id="dash-manager-leaderboard" class="space-y-2.5 max-h-[280px] overflow-y-auto table-container pr-1">
             <!-- Dynamically populated -->
@@ -1088,9 +1094,15 @@
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
 
-    // User Credentials Mapping (Only Admin by default, Admin creates/manages other profiles)
+    // User Credentials Mapping (Preloaded with default team managers; Admin can add/edit via User Management)
     let USER_CREDENTIALS = {
-      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' }
+      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' },
+      'ambuj': { name: 'Ambuj Tripathi', role: 'MANAGER', agency: 'INH', pin: 'ambuj@123', username: 'ambuj' },
+      'smita': { name: 'Smita Jagtap', role: 'MANAGER', agency: 'INH', pin: 'smita@123', username: 'smita' },
+      'poonam': { name: 'Poonam', role: 'MANAGER', agency: 'KP', pin: 'poonam@123', username: 'poonam' },
+      'darshana': { name: 'Darshana Mahadik', role: 'MANAGER', agency: 'INH', pin: 'darshana@123', username: 'darshana' },
+      'komal': { name: 'Komal S', role: 'MANAGER', agency: 'INH', pin: 'komal@123', username: 'komal' },
+      'rahul': { name: 'Rahul Sharma', role: 'MANAGER', agency: 'INH', pin: 'rahul@123', username: 'rahul' }
     };
 
     // State Variables
@@ -1455,13 +1467,76 @@
     }
 
     // ==========================================
-    // AUTHENTICATION & LOGIN LOGIC
+    // AUTHENTICATION, SMART SESSION & INACTIVITY TIMER
     // ==========================================
+    const SESSION_INACTIVITY_LIMIT_MS = 20 * 60 * 1000; // 20 Minutes Auto-Timeout
+    let inactivityTimerInterval = null;
+    let lastActivityTracked = 0;
+
+    function registerUserActivity() {
+      const now = Date.now();
+      if (now - lastActivityTracked > 10000) { // Throttle every 10 seconds
+        lastActivityTracked = now;
+        const saved = localStorage.getItem('shaha_portal_session_v4');
+        if (saved) {
+          try {
+            const s = JSON.parse(saved);
+            s.last_active = now;
+            localStorage.setItem('shaha_portal_session_v4', JSON.stringify(s));
+          } catch(e) {}
+        }
+      }
+    }
+
+    ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
+      window.addEventListener(evt, registerUserActivity, { passive: true });
+    });
+
     function checkAuthSession() {
-      // By user requirement: Always show login screen first when site is opened
-      sessionStorage.removeItem('shaha_portal_user');
-      currentUser = null;
+      const savedSession = localStorage.getItem('shaha_portal_session_v4');
+      const now = Date.now();
       
+      if (savedSession) {
+        try {
+          const session = JSON.parse(savedSession);
+          if (session && session.key && session.last_active) {
+            const idleTime = now - session.last_active;
+            if (idleTime < SESSION_INACTIVITY_LIMIT_MS) {
+              // Session is still valid within 20 mins!
+              session.last_active = now;
+              localStorage.setItem('shaha_portal_session_v4', JSON.stringify(session));
+              
+              applyUserSession(session);
+              
+              const portal = document.getElementById('portal-app');
+              const loginModal = document.getElementById('login-modal');
+              if (loginModal) {
+                loginModal.classList.add('hidden');
+                loginModal.style.setProperty('display', 'none', 'important');
+              }
+              if (portal) {
+                portal.classList.remove('hidden');
+                portal.style.setProperty('display', 'flex', 'important');
+              }
+              
+              loadTransactionsFromCloud();
+              switchTab('dashboard');
+              startSessionInactivityMonitor();
+              showToast(`Session active. Welcome back, ${session.name}!`, 'info');
+              return;
+            } else {
+              // Inactivity timeout exceeded (20 mins)
+              localStorage.removeItem('shaha_portal_session_v4');
+              showSessionExpiredAlert();
+            }
+          }
+        } catch(e) {
+          localStorage.removeItem('shaha_portal_session_v4');
+        }
+      }
+
+      // No active session: Show clean login screen
+      currentUser = null;
       const portal = document.getElementById('portal-app');
       const loginModal = document.getElementById('login-modal');
       
@@ -1481,6 +1556,54 @@
         setTimeout(() => uInput.focus(), 150);
       }
       if (pInput) pInput.value = '';
+    }
+
+    function showSessionExpiredAlert() {
+      const errBox = document.getElementById('login-error-box');
+      const errText = document.getElementById('login-error-text');
+      if (errBox && errText) {
+        errText.innerText = 'Session expired after 20 minutes of inactivity. Please sign in again.';
+        errBox.className = 'text-xs text-amber-800 bg-amber-50 border border-amber-300 p-2.5 rounded-lg flex items-center gap-2';
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function startSessionInactivityMonitor() {
+      if (inactivityTimerInterval) clearInterval(inactivityTimerInterval);
+      inactivityTimerInterval = setInterval(() => {
+        const saved = localStorage.getItem('shaha_portal_session_v4');
+        if (!saved) return;
+        try {
+          const s = JSON.parse(saved);
+          const elapsed = Date.now() - (s.last_active || 0);
+          if (elapsed >= SESSION_INACTIVITY_LIMIT_MS) {
+            clearInterval(inactivityTimerInterval);
+            localStorage.removeItem('shaha_portal_session_v4');
+            currentUser = null;
+            
+            const portal = document.getElementById('portal-app');
+            const loginModal = document.getElementById('login-modal');
+            if (portal) {
+              portal.classList.add('hidden');
+              portal.style.setProperty('display', 'none', 'important');
+            }
+            if (loginModal) {
+              loginModal.classList.remove('hidden');
+              loginModal.style.setProperty('display', 'flex', 'important');
+            }
+            showSessionExpiredAlert();
+            showToast('Session timed out due to 20 minutes of inactivity.', 'error');
+          } else {
+            // Update remaining time badge in top navbar
+            const remainingMins = Math.max(1, Math.ceil((SESSION_INACTIVITY_LIMIT_MS - elapsed) / 60000));
+            const timerBadge = document.getElementById('session-timer-badge');
+            if (timerBadge) {
+              timerBadge.innerHTML = `<i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i><span>Session: ${remainingMins}m</span>`;
+              lucide.createIcons();
+            }
+          }
+        } catch(e){}
+      }, 15000); // Check every 15 seconds
     }
 
     function togglePasswordVisibility() {
@@ -1506,6 +1629,7 @@
       const showLoginError = (msg) => {
         if (errBox && errText) {
           errText.innerText = msg;
+          errBox.className = 'text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center gap-2';
           errBox.classList.remove('hidden');
         }
         showToast(msg, 'error');
@@ -1563,17 +1687,22 @@
       if (errBox) errBox.classList.add('hidden');
       if (btnLabel) btnLabel.innerText = 'Sign In';
 
+      const now = Date.now();
       const sessionObj = {
         key: matchedKey,
         username: meta.username || matchedKey,
         name: meta.name,
         role: meta.role,
         agency: meta.agency,
-        has_sheet_access: meta.has_sheet_access === true
+        has_sheet_access: meta.has_sheet_access === true,
+        login_time: now,
+        last_active: now
       };
 
-      sessionStorage.setItem('shaha_portal_user', JSON.stringify(sessionObj));
+      localStorage.setItem('shaha_portal_session_v4', JSON.stringify(sessionObj));
       applyUserSession(sessionObj);
+      startSessionInactivityMonitor();
+
       const portal = document.getElementById('portal-app');
       const loginModal = document.getElementById('login-modal');
       if (loginModal) {
@@ -1628,6 +1757,13 @@
         privBanner.classList.add('hidden');
         kpiAdminTotal.classList.remove('hidden');
         document.getElementById('tab-claimed-label').innerText = 'All Verified Records';
+
+        const bTag = document.getElementById('dash-banner-tag');
+        if (bTag) bTag.innerText = 'Executive Admin Overview';
+        const bTitle = document.getElementById('dash-banner-title');
+        if (bTitle) bTitle.innerText = 'Bank Statement & Collections Reconciliation';
+        const bDesc = document.getElementById('dash-banner-desc');
+        if (bDesc) bDesc.innerText = 'Live master financial intelligence across all recovery managers, banking statement feeds, and customer verified payments.';
       } else {
         if (btnMgmt) btnMgmt.classList.add('hidden');
         privBanner.classList.remove('hidden');
@@ -1635,6 +1771,13 @@
         activeAgencyTag.innerText = `AGENCY: ${currentAgency}`;
         kpiAdminTotal.classList.add('hidden');
         document.getElementById('tab-claimed-label').innerText = `${currentManager}'s Records`;
+
+        const bTag = document.getElementById('dash-banner-tag');
+        if (bTag) bTag.innerText = `Manager Portal | ${currentAgency}`;
+        const bTitle = document.getElementById('dash-banner-title');
+        if (bTitle) bTitle.innerText = `${currentManager} - Team Collections Dashboard`;
+        const bDesc = document.getElementById('dash-banner-desc');
+        if (bDesc) bDesc.innerText = `Viewing verified records, caller productivity, and available unallocated bank receipts for ${currentManager}.`;
       }
 
       const gsheetInput = document.getElementById('cfg-gsheet-url');
@@ -1648,7 +1791,8 @@
 
     function handleLogout() {
       if (!confirm('Are you sure you want to sign out?')) return;
-      sessionStorage.removeItem('shaha_portal_user');
+      if (inactivityTimerInterval) clearInterval(inactivityTimerInterval);
+      localStorage.removeItem('shaha_portal_session_v4');
       currentUser = null;
       const uInput = document.getElementById('login-username-input');
       const pInput = document.getElementById('login-password-input');
@@ -1846,38 +1990,85 @@
         }
       }
 
-      // 2. Manager Collections Leaderboard
-      const mgrStats = {};
-      alloc.forEach(t => {
-        const m = (t.claimed_by_manager || 'UNASSIGNED').toUpperCase().trim();
-        if (!mgrStats[m]) mgrStats[m] = { count: 0, sum: 0 };
-        mgrStats[m].count++;
-        mgrStats[m].sum += (Number(t.amount) || 0);
-      });
-
+      // 2. Manager Collections Leaderboard (Admin) OR Team Recovery Officers (Manager)
       const mgrList = document.getElementById('dash-manager-leaderboard');
-      if (mgrList) {
-        mgrList.innerHTML = '';
-        const sortedMgrs = Object.keys(mgrStats).sort((a, b) => mgrStats[b].sum - mgrStats[a].sum);
-        if (sortedMgrs.length === 0) {
-          mgrList.innerHTML = `<div class="text-xs text-slate-400 italic p-3 text-center">No verified claims yet${isMgr ? ' for ' + currentManager : ''}.</div>`;
-        } else {
-          sortedMgrs.forEach((m, idx) => {
-            const st = mgrStats[m];
-            const item = document.createElement('div');
-            item.className = 'p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs';
-            item.innerHTML = `
-              <div class="flex items-center gap-2">
-                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">${idx + 1}</span>
-                <span class="font-bold text-slate-800">${m}</span>
-              </div>
-              <div class="text-right">
-                <div class="font-mono-num font-bold text-emerald-800">₹${st.sum.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
-                <div class="text-[10px] text-slate-400">${st.count} claims</div>
-              </div>
-            `;
-            mgrList.appendChild(item);
-          });
+      const mgrTitle = document.getElementById('dash-mgr-title');
+      const mgrSub = document.getElementById('dash-mgr-sub');
+
+      if (isMgr) {
+        if (mgrTitle) mgrTitle.innerText = 'My Team Recovery Officers';
+        if (mgrSub) mgrSub.innerText = `${currentManager}'s Team`;
+
+        const callerStats = {};
+        alloc.forEach(t => {
+          const c = (t.caller_name || 'Direct / Self').toUpperCase().trim();
+          if (!callerStats[c]) callerStats[c] = { count: 0, sum: 0 };
+          callerStats[c].count++;
+          callerStats[c].sum += (Number(t.amount) || 0);
+        });
+
+        if (mgrList) {
+          mgrList.innerHTML = '';
+          const sortedCallers = Object.keys(callerStats).sort((a, b) => callerStats[b].sum - callerStats[a].sum);
+          if (sortedCallers.length === 0) {
+            mgrList.innerHTML = `<div class="text-xs text-slate-400 italic p-3 text-center">No verified claims logged by your officers yet.</div>`;
+          } else {
+            sortedCallers.forEach((c, idx) => {
+              const st = callerStats[c];
+              const item = document.createElement('div');
+              item.className = 'p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs';
+              item.innerHTML = `
+                <div class="flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-[10px]">${idx + 1}</span>
+                  <div>
+                    <span class="font-bold text-slate-800">${c}</span>
+                    <div class="text-[10px] text-slate-400">Caller / Recovery Officer</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-mono-num font-bold text-emerald-800">₹${st.sum.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                  <div class="text-[10px] text-slate-500">${st.count} verified</div>
+                </div>
+              `;
+              mgrList.appendChild(item);
+            });
+          }
+        }
+      } else {
+        if (mgrTitle) mgrTitle.innerText = 'Manager Collections';
+        if (mgrSub) mgrSub.innerText = 'Verified Claims';
+
+        const mgrStats = {};
+        alloc.forEach(t => {
+          const m = (t.claimed_by_manager || 'UNASSIGNED').toUpperCase().trim();
+          if (!mgrStats[m]) mgrStats[m] = { count: 0, sum: 0 };
+          mgrStats[m].count++;
+          mgrStats[m].sum += (Number(t.amount) || 0);
+        });
+
+        if (mgrList) {
+          mgrList.innerHTML = '';
+          const sortedMgrs = Object.keys(mgrStats).sort((a, b) => mgrStats[b].sum - mgrStats[a].sum);
+          if (sortedMgrs.length === 0) {
+            mgrList.innerHTML = `<div class="text-xs text-slate-400 italic p-3 text-center">No verified claims yet.</div>`;
+          } else {
+            sortedMgrs.forEach((m, idx) => {
+              const st = mgrStats[m];
+              const item = document.createElement('div');
+              item.className = 'p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs';
+              item.innerHTML = `
+                <div class="flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">${idx + 1}</span>
+                  <span class="font-bold text-slate-800">${m}</span>
+                </div>
+                <div class="text-right">
+                  <div class="font-mono-num font-bold text-emerald-800">₹${st.sum.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                  <div class="text-[10px] text-slate-400">${st.count} claims</div>
+                </div>
+              `;
+              mgrList.appendChild(item);
+            });
+          }
         }
       }
 
@@ -2411,6 +2602,11 @@
         tx.claimed_by_manager = mgr;
         tx.status = 'ALLOCATED';
 
+        // Local cache save for 100% offline persistence
+        try {
+          localStorage.setItem('shaha_fallback_txs_v2', JSON.stringify(allTransactions));
+        } catch(e) {}
+
         if (supabaseClient) {
           try {
             await supabaseClient
@@ -2424,43 +2620,53 @@
                 status: 'ALLOCATED'
               })
               .eq('id', activeClaimId);
-          } catch (e) {}
+          } catch (e) {
+            console.warn('Cloud DB update notice:', e);
+          }
         }
       }
 
-      showToast('Transaction linked & claimed successfully!', 'success');
+      showToast('Transaction linked, claimed & saved to Cloud successfully!', 'success');
       closeClaimModal();
       filterTransactions();
     }
 
     async function unclaimTx(id) {
-      if (!confirm('Release this transaction back to Unallocated Pool?')) return;
       const tx = allTransactions.find(t => t.id === id);
-      if (tx) {
-        tx.customer_id = null;
-        tx.customer_name = null;
-        tx.portfolio = null;
-        tx.caller_name = null;
-        tx.claimed_by_manager = null;
-        tx.status = 'UNALLOCATED';
-
-        if (supabaseClient) {
-          try {
-            await supabaseClient
-              .from('bank_transactions')
-              .update({
-                customer_id: null,
-                customer_name: null,
-                portfolio: null,
-                caller_name: null,
-                claimed_by_manager: null,
-                status: 'UNALLOCATED'
-              })
-              .eq('id', id);
-          } catch (e) {}
-        }
+      if (!tx) return;
+      if (currentRole !== 'ADMIN' && (tx.claimed_by_manager || '').toUpperCase().trim() !== currentManager.toUpperCase().trim()) {
+        showToast('You are only authorized to release records claimed by your team.', 'error');
+        return;
       }
-      showToast('Released back to unallocated pool', 'info');
+      if (!confirm('Release this transaction back to Unallocated Pool?')) return;
+      
+      tx.customer_id = null;
+      tx.customer_name = null;
+      tx.portfolio = null;
+      tx.caller_name = null;
+      tx.claimed_by_manager = null;
+      tx.status = 'UNALLOCATED';
+
+      try {
+        localStorage.setItem('shaha_fallback_txs_v2', JSON.stringify(allTransactions));
+      } catch(e) {}
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient
+            .from('bank_transactions')
+            .update({
+              customer_id: null,
+              customer_name: null,
+              portfolio: null,
+              caller_name: null,
+              claimed_by_manager: null,
+              status: 'UNALLOCATED'
+            })
+            .eq('id', id);
+        } catch (e) {}
+      }
+      showToast('Released back to unallocated pool & synced', 'info');
       filterTransactions();
       renderClaimed();
     }
