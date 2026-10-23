@@ -1094,15 +1094,9 @@
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
 
-    // User Credentials Mapping (Preloaded with default team managers; Admin can add/edit via User Management)
+    // User Credentials Mapping (Only Admin by default; Admin creates all custom IDs via Manage Passwords)
     let USER_CREDENTIALS = {
-      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' },
-      'ambuj': { name: 'Ambuj Tripathi', role: 'MANAGER', agency: 'INH', pin: 'ambuj@123', username: 'ambuj' },
-      'smita': { name: 'Smita Jagtap', role: 'MANAGER', agency: 'INH', pin: 'smita@123', username: 'smita' },
-      'poonam': { name: 'Poonam', role: 'MANAGER', agency: 'KP', pin: 'poonam@123', username: 'poonam' },
-      'darshana': { name: 'Darshana Mahadik', role: 'MANAGER', agency: 'INH', pin: 'darshana@123', username: 'darshana' },
-      'komal': { name: 'Komal S', role: 'MANAGER', agency: 'INH', pin: 'komal@123', username: 'komal' },
-      'rahul': { name: 'Rahul Sharma', role: 'MANAGER', agency: 'INH', pin: 'rahul@123', username: 'rahul' }
+      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', agency: 'INH', pin: 'admin123', username: 'admin' }
     };
 
     // State Variables
@@ -1895,20 +1889,25 @@
     }
 
     // ==========================================
+    // MANAGER IDENTITY & RECORD MATCHING HELPER
+    // ==========================================
+    function isManagerRecord(claimedBy) {
+      if (currentRole === 'ADMIN') return true;
+      const m = (claimedBy || '').toUpperCase().trim();
+      const myKey = (currentManager || '').toUpperCase().trim();
+      const myName = (currentUser && currentUser.name ? currentUser.name : '').toUpperCase().trim();
+      const myUser = (currentUser && currentUser.username ? currentUser.username : '').toUpperCase().trim();
+      return (m === myKey || m === myName || m === myUser || (myKey && m.includes(myKey)) || (myName && m.includes(myName)));
+    }
+
+    // ==========================================
     // EXECUTIVE DASHBOARD ANALYTICS RENDERER
     // ==========================================
     function renderDashboardAnalytics() {
       const isMgr = currentRole !== 'ADMIN';
-      const myMgr = (currentManager || '').toUpperCase().trim();
 
       // Manager Privacy Filter: If logged in as Manager, only include this manager's claims
-      const alloc = allTransactions.filter(t => {
-        if (t.status !== 'ALLOCATED') return false;
-        if (isMgr) {
-          return (t.claimed_by_manager || '').toUpperCase().trim() === myMgr;
-        }
-        return true;
-      });
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
 
       const unalloc = allTransactions.filter(t => t.status === 'UNALLOCATED');
       const allocCount = alloc.length;
@@ -2213,10 +2212,7 @@
       const visible = allTransactions.filter(t => {
         // Strict Manager Privacy Rule
         if (currentRole !== 'ADMIN') {
-          if (t.status === 'ALLOCATED') {
-            const m = (t.claimed_by_manager || '').toUpperCase().trim();
-            if (m !== currentManager.toUpperCase().trim()) return false;
-          }
+          if (t.status === 'ALLOCATED' && !isManagerRecord(t.claimed_by_manager)) return false;
         }
 
         // Status filter
@@ -2261,7 +2257,7 @@
         document.getElementById('stat-tot-count').innerText = allTransactions.length;
         document.getElementById('stat-tot-amount').innerText = `₹${totalSum.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
       } else {
-        const myAlloc = allTransactions.filter(t => t.status === 'ALLOCATED' && (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim());
+        const myAlloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
         const mySum = myAlloc.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
         document.getElementById('kpi-alloc-title').innerText = 'My Verified Claims';
         document.getElementById('kpi-alloc-subtitle').innerText = `${currentManager}'s verified portfolio`;
@@ -2537,7 +2533,7 @@
       document.getElementById('modal-cust-name').value = autoCustName;
       document.getElementById('modal-cust-id').value = '';
       document.getElementById('modal-caller').value = '';
-      document.getElementById('modal-manager').value = currentRole === 'ADMIN' ? 'ADMIN' : currentManager;
+      document.getElementById('modal-manager').value = currentRole === 'ADMIN' ? 'ADMIN' : (currentUser && currentUser.name ? currentUser.name : currentManager);
 
       const errBox = document.getElementById('modal-claim-error');
       if (errBox) errBox.classList.add('hidden');
@@ -2677,13 +2673,7 @@
     function renderClaimed() {
       const tbody = document.getElementById('claimed-table-body');
       tbody.innerHTML = '';
-      const alloc = allTransactions.filter(t => {
-        if (t.status !== 'ALLOCATED') return false;
-        if (currentRole !== 'ADMIN') {
-          return (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim();
-        }
-        return true;
-      });
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
 
       document.getElementById('tab-claimed-label').innerText = currentRole === 'ADMIN' ? 
         `All Verified Records (${alloc.length})` : `${currentManager}'s Records (${alloc.length})`;
@@ -3371,13 +3361,7 @@ function autoSyncBankTransactions() {
     // EXPORT PAID FILE EXCEL (OFFICIAL FORMAT)
     // ==========================================
     function exportPaidFileExcel() {
-      const alloc = allTransactions.filter(t => {
-        if (t.status !== 'ALLOCATED') return false;
-        if (currentRole !== 'ADMIN') {
-          return (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim();
-        }
-        return true;
-      });
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
 
       if (alloc.length === 0) {
         showToast('No verified / paid records to export.', 'error');
@@ -3437,13 +3421,7 @@ function autoSyncBankTransactions() {
     // EXPORT HANDSOFF EXCEL WITH FORMULAS
     // ==========================================
     function exportHandsoffExcel() {
-      const alloc = allTransactions.filter(t => {
-        if (t.status !== 'ALLOCATED') return false;
-        if (currentRole !== 'ADMIN') {
-          return (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim();
-        }
-        return true;
-      });
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED' && isManagerRecord(t.claimed_by_manager));
 
       if (alloc.length === 0) {
         showToast('No verified records to export.', 'error');
