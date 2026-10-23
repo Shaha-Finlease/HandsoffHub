@@ -182,19 +182,19 @@
 
       <!-- Card 4: 1-Click Excel Handsoff Export -->
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all flex flex-col justify-between">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-blue-700"></div>
+        <div class="absolute top-0 left-0 right-0 h-1 bg-emerald-600"></div>
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Final Handsoff File</span>
-            <div class="text-xs font-extrabold text-slate-900 mt-0.5">With Official Formulas</div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Paid Reconciled File</span>
+            <div class="text-xs font-extrabold text-slate-900 mt-0.5">Verified Collections</div>
           </div>
-          <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+          <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
           </span>
         </div>
-        <button onclick="exportHandsoffExcel()" class="mt-3 w-full py-2 bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
+        <button onclick="exportPaidFileExcel()" class="mt-3 w-full py-2 bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          Export Handsoff (.xlsx)
+          Export Paid File (.xlsx)
         </button>
       </div>
 
@@ -266,13 +266,9 @@
             <i data-lucide="layers" class="w-3.5 h-3.5"></i>
             <span>Open Account Transactions</span>
           </button>
-          <button onclick="switchTab('admin-upload')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center gap-2">
-            <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
-            <span>Upload Statement (.xlsx)</span>
-          </button>
-          <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center gap-2">
+          <button onclick="exportPaidFileExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center gap-2">
             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Export Handsoff (.xlsx)</span>
+            <span>Export Paid File (.xlsx)</span>
           </button>
         </div>
       </div>
@@ -497,9 +493,9 @@
           <h3 id="claimed-view-title" class="font-extrabold text-slate-900 text-sm">Verified & Claimed Transactions</h3>
           <p class="text-xs text-slate-500">Records matched with Customer, Portfolio, Agency, and Caller details.</p>
         </div>
-        <button onclick="exportHandsoffExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-[0.98]">
+        <button onclick="exportPaidFileExcel()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-[0.98]">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          Export Handsoff (.xlsx)
+          Export Paid File (.xlsx)
         </button>
       </div>
 
@@ -3163,6 +3159,72 @@ function autoSyncBankTransactions() {
         }
       };
       reader.readAsArrayBuffer(selectedFile);
+    }
+
+    // ==========================================
+    // EXPORT PAID FILE EXCEL (OFFICIAL FORMAT)
+    // ==========================================
+    function exportPaidFileExcel() {
+      const alloc = allTransactions.filter(t => {
+        if (t.status !== 'ALLOCATED') return false;
+        if (currentRole !== 'ADMIN') {
+          return (t.claimed_by_manager || '').toUpperCase().trim() === currentManager.toUpperCase().trim();
+        }
+        return true;
+      });
+
+      if (alloc.length === 0) {
+        showToast('No verified / paid records to export.', 'error');
+        return;
+      }
+
+      const rowsData = [
+        [
+          'CUSTOMER ID ',
+          'CUSTOMER  NAME',
+          'PORTFOLIO',
+          'Date of Pay',
+          'Amount',
+          'MODE',
+          'TRANSACTION DESCRIPTION',
+          'BANK NAME',
+          'OFFICER NAME',
+          'MANAGER'
+        ]
+      ];
+
+      alloc.forEach(t => {
+        let mode = t.mode_of_pay;
+        if (!mode) {
+          const narr = (t.narration || '').toUpperCase();
+          if (narr.includes('UPI')) mode = 'UPI';
+          else if (narr.includes('NEFT')) mode = 'NEFT';
+          else if (narr.includes('RTGS')) mode = 'RTGS';
+          else if (narr.includes('IMPS')) mode = 'IMPS';
+          else if (narr.includes('CASH') || narr.includes('CDM')) mode = 'CASH';
+          else mode = 'ONLINE';
+        }
+
+        rowsData.push([
+          t.customer_id || '',
+          t.customer_name || '',
+          t.portfolio || 'CASHE',
+          t.tx_date || '01-10-2026',
+          Number(t.amount) || 0,
+          mode,
+          t.narration || '',
+          t.bank_name || '',
+          t.caller_name || '',
+          t.claimed_by_manager || ''
+        ]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(rowsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Paid File');
+      const filename = `Paid_File_Export_${currentRole === 'ADMIN' ? 'ALL' : currentManager}_${Date.now()}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      showToast('Paid File Excel downloaded successfully!', 'success');
     }
 
     // ==========================================
