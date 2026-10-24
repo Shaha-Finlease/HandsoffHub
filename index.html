@@ -814,8 +814,9 @@
             </select>
           </div>
           <div>
-            <label class="text-[11px] font-bold text-slate-600 uppercase">Allocating Manager:</label>
-            <input type="text" id="modal-manager" readonly class="w-full mt-1 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none">
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Allocating Manager *</label>
+            <input type="text" id="modal-manager" list="manager-options-list" placeholder="Select or type Manager" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+            <datalist id="manager-options-list"></datalist>
           </div>
         </div>
 
@@ -942,6 +943,18 @@
             <label class="text-[11px] font-bold text-slate-600 uppercase">UTR / Slip No (Optional)</label>
             <input type="text" id="pre-utr-note" placeholder="Optional UTR or Slip No" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
           </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 uppercase">Managing / Allocating Team *</label>
+          <input type="text" id="pre-manager" list="pre-manager-options" placeholder="Manager Name (e.g. KOMAL / TEJAS)" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <datalist id="pre-manager-options"></datalist>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 uppercase">Managing / Allocating Team *</label>
+          <input type="text" id="pre-manager" list="pre-manager-options" placeholder="Manager Name (e.g. KOMAL / TEJAS)" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <datalist id="pre-manager-options"></datalist>
         </div>
       </div>
 
@@ -2902,7 +2915,7 @@
         portfolio: portfolio,
         caller: caller,
         utr_note: utrNote,
-        manager: currentManager || (currentUser ? currentUser.name : 'MANAGER'),
+        manager: (document.getElementById('pre-manager') && document.getElementById('pre-manager').value.trim()) ? document.getElementById('pre-manager').value.trim() : (currentManager || (currentUser ? currentUser.name : 'MANAGER')),
         agency: currentAgency,
         status: 'PENDING',
         created_at: new Date().toISOString()
@@ -3040,6 +3053,10 @@
         setTimeout(() => nameEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
       }
       if (portEl) portEl.value = c.portfolio || 'CASHE';
+      if (c.manager) {
+        const mgrEl = document.getElementById('modal-manager');
+        if (mgrEl) mgrEl.value = c.manager;
+      }
 
       if (c.caller && c.caller.includes('%')) {
         const splits = parseSplitCallers(c.caller, getActiveModalTxAmount());
@@ -3291,7 +3308,32 @@
       document.getElementById('modal-cust-name').value = autoCustName;
       document.getElementById('modal-cust-id').value = '';
       document.getElementById('modal-caller').value = '';
-      document.getElementById('modal-manager').value = currentRole === 'ADMIN' ? 'ADMIN' : (currentUser && currentUser.name ? currentUser.name : currentManager);
+            const mgrInput = document.getElementById('modal-manager');
+      const mgrDatalist = document.getElementById('manager-options-list');
+      if (mgrDatalist) {
+        mgrDatalist.innerHTML = '';
+        const names = new Set();
+        names.add('ADMIN');
+        for (const k in USER_CREDENTIALS) {
+          if (USER_CREDENTIALS[k].name) names.add(USER_CREDENTIALS[k].name);
+          else if (k) names.add(k.toUpperCase());
+        }
+        names.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          mgrDatalist.appendChild(opt);
+        });
+      }
+
+      if (currentRole === 'ADMIN') {
+        mgrInput.removeAttribute('readonly');
+        mgrInput.className = 'w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-blue-600';
+        mgrInput.value = (t.claimed_by_manager && t.claimed_by_manager !== 'ADMIN') ? t.claimed_by_manager : (currentUser && currentUser.name && currentUser.name !== 'Admin / Ops Head' ? currentUser.name : 'ADMIN');
+      } else {
+        mgrInput.setAttribute('readonly', 'true');
+        mgrInput.className = 'w-full mt-1 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none';
+        mgrInput.value = (currentUser && currentUser.name) ? currentUser.name : currentManager;
+      }
 
       const errBox = document.getElementById('modal-claim-error');
       if (errBox) errBox.classList.add('hidden');
