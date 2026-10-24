@@ -43,6 +43,24 @@
       color: #ffffff; 
       box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.15), 0 2px 4px -2px rgba(15, 23, 42, 0.1); 
     }
+    /* Daily Collection Leaderboard MIS Strict Centering & Enhanced Font */
+    #leaderboard-capture-area table,
+    #leaderboard-capture-area table th,
+    #leaderboard-capture-area table td {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    #leaderboard-capture-area table th {
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      text-align: center !important;
+    }
+    #leaderboard-capture-area table td {
+      font-size: 13px !important;
+      text-align: center !important;
+      padding-top: 5px !important;
+      padding-bottom: 5px !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased bg-slate-100">
@@ -563,40 +581,36 @@
     <!-- TAB 4: DAILY COLLECTION LEADERBOARD MIS (ZERO-SCROLL FIT) -->
     <!-- ---------------------------------------- -->
     <div id="content-leaderboard" class="space-y-2 hidden">
-      <!-- Compact Integrated Header + Controls Banner -->
-      <div class="bg-[#174375] py-1.5 px-3 rounded-t-xl border-t border-x border-[#174375] shadow-md flex flex-wrap items-center justify-between gap-2">
+      <!-- Compact Integrated Top Control Bar -->
+      <div class="bg-slate-900 py-1.5 px-3 rounded-t-xl border-t border-x border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <i data-lucide="trophy" class="w-4 h-4 text-[#ffeb3b]"></i>
-          <h2 id="leaderboard-table-title" class="text-sm md:text-base font-black text-[#ffeb3b] tracking-wide uppercase">
-            Daily Collection Leaderboard Oct-26
-          </h2>
-          <span class="text-[10px] text-blue-200 hidden sm:inline">(Live Recovery Ranks)</span>
+          <div class="p-1 bg-amber-400/20 text-amber-300 rounded border border-amber-400/30">
+            <i data-lucide="trophy" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs font-black text-white uppercase tracking-wide">Daily Collection Leaderboard</span>
+          <div class="flex items-center bg-slate-800 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-white">
+            <span class="text-slate-400 font-medium mr-1">Period:</span>
+            <input type="text" id="leaderboard-period-input" value="Oct-26" onchange="updateLeaderboardTitle()" class="bg-transparent font-extrabold text-amber-400 w-14 text-center focus:outline-none">
+          </div>
         </div>
 
         <div class="flex items-center gap-1.5 flex-wrap">
-          <div class="flex items-center bg-blue-950/70 border border-blue-400/40 rounded px-2 py-0.5 text-[11px] text-white">
-            <span class="text-blue-200 font-semibold mr-1">Period:</span>
-            <input type="text" id="leaderboard-period-input" value="Oct-26" onchange="updateLeaderboardTitle()" class="bg-transparent font-extrabold text-amber-300 w-14 text-center focus:outline-none">
-          </div>
-          <button onclick="syncTodayCollectionsFromClaims()" title="Auto-calculate TODAY from verified claims" class="px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[11px] font-bold transition flex items-center gap-1 shadow-xs active:scale-95">
+          <button onclick="syncTodayCollectionsFromClaims()" title="Auto-calculate TODAY from verified claims" class="px-2 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded text-[11px] font-bold transition flex items-center gap-1 shadow-xs active:scale-95">
             <i data-lucide="zap" class="w-3 h-3 text-amber-300 fill-amber-300"></i>
             <span>Sync Today</span>
           </button>
-          <button onclick="openAddOfficerModal()" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
+          <button onclick="openAddOfficerModal()" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
             <i data-lucide="plus" class="w-3 h-3"></i>
             <span>Add Officer</span>
           </button>
-          <button onclick="exportLeaderboardExcel()" class="px-2 py-1 bg-white hover:bg-slate-100 text-slate-800 rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
-            <i data-lucide="download" class="w-3 h-3 text-emerald-700"></i>
-            <span>Export Excel</span>
+          <button onclick="exportLeaderboardExcel()" class="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="download" class="w-3 h-3"></i>
+            <span>Excel (.xlsx)</span>
           </button>
-          <button onclick="openWhatsAppModal()" class="px-2.5 py-1 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded text-[11px] font-black shadow-xs transition flex items-center gap-1.5 active:scale-95">
-            <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-white text-[#25D366]"></i>
-            <span>Share WhatsApp</span>
-          </button>
-          <button onclick="copyLeaderboardImageToClipboard()" title="Copy Table Image to clipboard for WhatsApp" class="px-2 py-1 bg-sky-500 hover:bg-sky-400 text-white rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
-            <i data-lucide="camera" class="w-3 h-3"></i>
-            <span>Copy Image</span>
+          <!-- Prominent Send Image on WhatsApp Button -->
+          <button onclick="captureAndSendWhatsAppImage()" class="px-3 py-1 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded text-[11px] font-black shadow-md transition flex items-center gap-1.5 active:scale-95 ring-2 ring-emerald-400/30">
+            <i data-lucide="camera" class="w-3.5 h-3.5 text-white"></i>
+            <span>Send Table Photo on WhatsApp</span>
           </button>
           <button onclick="saveLeaderboardToCloud(true)" class="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded text-[11px] font-extrabold shadow-xs transition flex items-center gap-1 active:scale-95">
             <i data-lucide="cloud" class="w-3 h-3"></i>
@@ -605,30 +619,302 @@
         </div>
       </div>
 
-      <!-- Zero-Scroll Compact Table Container -->
-      <div id="leaderboard-capture-area" class="bg-white rounded-b-xl border-x-2 border-b-2 border-[#174375] shadow-xl overflow-hidden">
+      <!-- Zero-Scroll Exact Capturable Leaderboard Card (Matches Attached Image 1:1) -->
+      <div id="leaderboard-capture-area" class="bg-white rounded-b-xl border-x-2 border-b-2 border-[#174375] shadow-2xl overflow-hidden">
+        <!-- Exact Dark Blue Header Banner with Yellow Title -->
+        <div class="bg-[#174375] py-2 px-4 text-center border-b border-blue-900">
+          <h2 id="leaderboard-table-title" class="text-base md:text-lg font-black text-[#ffeb3b] tracking-wider uppercase drop-shadow-xs">
+            Daily Collection Leaderboard Oct-26
+          </h2>
+        </div>
+
         <div class="overflow-x-auto table-container">
-          <table class="w-full text-[11px] border-collapse">
+          <table class="w-full text-xs sm:text-[13px] border-collapse">
             <thead>
-              <tr class="bg-[#1f4e78] text-white text-[10px] sm:text-[11px] font-extrabold uppercase tracking-tight">
-                <th class="py-1.5 px-1.5 text-center border border-[#174375] w-12">Sr. NO</th>
-                <th class="py-1.5 px-2.5 text-left border border-[#174375] min-w-[150px]">OFFICER'S NAME</th>
-                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">TARGET 100%</th>
-                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">AOY</th>
-                <th class="py-1.5 px-2 text-right border border-[#174375] w-20">TODAY</th>
-                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">TOTAL</th>
-                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">BALANCE</th>
-                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">PROJECTION</th>
-                <th class="py-1.5 px-1.5 text-center border border-[#174375] w-20">ACHIEVED%</th>
-                <th class="py-1.5 px-1.5 text-center border border-[#174375] w-14">RANK</th>
-                <th class="py-1.5 px-1 text-center border border-[#174375] w-10">EDIT</th>
+              <tr class="bg-[#1f4e78] text-white text-[11px] sm:text-xs font-black uppercase tracking-tight">
+                <th class="py-2 px-2 text-center border border-[#174375] w-14">Sr. NO</th>
+                <th class="py-2 px-3 text-center border border-[#174375] min-w-[170px]">OFFICER'S NAME</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-28">TARGET 100%</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-24">AOY</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-24">TODAY</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-28">TOTAL</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-28">BALANCE</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-28">PROJECTION</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-24">ACHIEVED%</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-16">RANK</th>
+                <th class="py-2 px-1 text-center border border-[#174375] w-12 mis-action-col">EDIT</th>
               </tr>
             </thead>
             <tbody id="leaderboard-tbody" class="divide-y divide-slate-300">
-              <!-- Compact rows rendered via JS -->
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">1</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">ROOPKALA V.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">302,500</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">568,656</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">568,656</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">-266,156</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">129,150</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #a9d18e; color: #0d3810; font-weight: 800;">188%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #70ad47; color: #ffffff;">1</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(0)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">2</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">NASIRUL M.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">290,400</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">447,911</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">447,911</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">-157,511</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">5,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #a9d18e; color: #0d3810; font-weight: 800;">154%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #85c256; color: #ffffff;">2</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(1)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">3</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">IRAMMA U.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">429,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">635,204</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">635,204</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">-206,204</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">55,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #a9d18e; color: #0d3810; font-weight: 800;">148%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #a9d18e; color: #1e3a1e;">3</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(2)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">4</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">SUHANI G.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">211,200</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">284,489</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">284,489</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">-73,289</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #a9d18e; color: #0d3810; font-weight: 800;">135%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #c5d92d; color: #2e3a1e;">4</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(3)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">5</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">RADHAKRISHNAN</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">248,600</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">152,099</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">152,099</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">96,501</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">184,567</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #d9e1f2; color: #1f3864; font-weight: 800;">61%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #d4c820; color: #3a3200;">5</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(4)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">6</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">DARSHANA M.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">330,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">172,866</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">15,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">187,866</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">142,134</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">85,477</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #d9e1f2; color: #1f3864; font-weight: 800;">57%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #e2b926; color: #3a2a00;">6</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(5)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">7</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">SASIKALA K.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">253,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">65,635</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">79,800</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">145,435</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">107,565</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #d9e1f2; color: #1f3864; font-weight: 800;">57%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #e2b926; color: #3a2a00;">6</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(6)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">8</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">DEVYANI V.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">308,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">73,706</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">41,200</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">114,906</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">193,094</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #fce4d6; color: #833c0c; font-weight: 800;">37%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #ed842e; color: #ffffff;">8</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(7)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">9</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">VIDYA C.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">443,300</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">131,703</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">9,091</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">140,794</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">302,506</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">321,677</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #fce4d6; color: #833c0c; font-weight: 800;">32%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #f06733; color: #ffffff;">9</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(8)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">10</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">SOURAV R.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">297,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">44,226</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">44,226</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">252,774</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #fff2cc; color: #7f6000; font-weight: 800;">15%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #eb4d3d; color: #ffffff;">10</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(9)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">11</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">ABDUL R.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">242,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">12,160</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">12,160</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">229,840</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #fff2cc; color: #7f6000; font-weight: 800;">5%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #e02424; color: #ffffff;">11</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(10)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">12</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">RUSHIKA J.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">330,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">330,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #ffffcc; color: #595959; font-weight: 800;">0%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #c00000; color: #ffffff;">12</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(11)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">13</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">PRANJAL R.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">308,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">308,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #ffffcc; color: #595959; font-weight: 800;">0%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #c00000; color: #ffffff;">12</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(12)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-[#f2f2f2] hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">14</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">NIKITA M.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">275,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">275,000</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #ffffcc; color: #595959; font-weight: 800;">0%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #c00000; color: #ffffff;">12</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(13)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr class="bg-white hover:bg-blue-50/40">
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">15</td>
+                <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">AMBUJ T.</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">0</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="background-color: #ffffcc; color: #595959; font-weight: 800;">0%</td>
+                <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="background-color: #c00000; color: #ffffff;">12</td>
+                <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+                  <button onclick="openEditOfficerModal(14)" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </td>
+              </tr>
             </tbody>
-            <tfoot id="leaderboard-tfoot" class="bg-[#1f4e78] text-white font-extrabold text-[11px]">
-              <!-- Compact Total Footer rendered via JS -->
+            <tfoot id="leaderboard-tfoot" class="bg-[#1f4e78] text-white font-black text-xs sm:text-[13px]">
+          <tr class="bg-[#1f4e78] text-white font-black text-xs sm:text-[13px]">
+            <td colspan="2" class="py-2 px-3 text-center border border-[#174375] uppercase tracking-wider text-xs sm:text-[13px]">TOTAL</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">4,268,000</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">2,588,655</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">145,091</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">2,733,746</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">1,534,254</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">780,871</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num text-xs sm:text-sm bg-[#2e6b9e] text-yellow-300 font-black">64%</td>
+            <td class="py-2 px-1 text-center border border-[#174375]"></td>
+            <td class="py-2 px-1 text-center border border-[#174375] mis-action-col"></td>
+          </tr>
             </tfoot>
           </table>
         </div>
@@ -1433,17 +1719,17 @@
       </div>
     </div>
   </div>
-  <!-- Modal: WhatsApp Sharing Center -->
-  <div id="whatsapp-share-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-xl w-full rounded-2xl border border-slate-200 shadow-2xl p-5 space-y-4 max-h-[92vh] flex flex-col">
+  <!-- Modal: WhatsApp Image Dispatch Center -->
+  <div id="whatsapp-share-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white max-w-2xl w-full rounded-2xl border border-slate-200 shadow-2xl p-5 space-y-4 max-h-[94vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-200">
-            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <i data-lucide="camera" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-extrabold text-sm text-slate-900">Share Daily Leaderboard on WhatsApp</h3>
-            <p class="text-xs text-slate-500 font-medium">Send formatted leaderboard text or copy table image directly into groups</p>
+            <h3 class="font-extrabold text-sm text-slate-900">Send MIS Table Photo on WhatsApp</h3>
+            <p class="text-xs text-slate-500 font-medium">Exact image generated & ready to send to Manager</p>
           </div>
         </div>
         <button onclick="closeWhatsAppModal()" class="text-slate-400 hover:text-slate-700 p-1">
@@ -1451,60 +1737,62 @@
         </button>
       </div>
 
-      <!-- Manager Direct WhatsApp Dispatch Box -->
-      <div class="bg-blue-50/80 p-3 rounded-xl border border-blue-200 space-y-2">
-        <div class="flex items-center justify-between text-xs font-bold text-blue-900">
+      <!-- Green Success Banner: Image Copied Status -->
+      <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">✓</div>
+          <div>
+            <span class="font-bold text-emerald-900">Table Photo Clipboard me COPY ho chuki hai!</span>
+            <p class="text-[11px] text-emerald-700 font-medium">WhatsApp kholkar chat me sirf <kbd class="px-1.5 py-0.5 bg-white border border-emerald-300 rounded font-bold text-slate-800">Ctrl + V</kbd> dabayein aur Send karein!</p>
+          </div>
+        </div>
+        <button onclick="copyLeaderboardImageToClipboard()" class="px-3 py-1.5 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg font-bold text-xs shadow-xs transition shrink-0 flex items-center gap-1 active:scale-95">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>Copy Again</span>
+        </button>
+      </div>
+
+      <!-- Manager Phone Number Dispatch Bar -->
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-700">
           <span class="flex items-center gap-1.5">
-            <i data-lucide="user-check" class="w-4 h-4 text-blue-700"></i>
-            <span>Send Directly to Manager's WhatsApp:</span>
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-700"></i>
+            <span>Send Directly to Manager's WhatsApp Chat:</span>
           </span>
-          <span class="text-[10px] text-blue-600 font-semibold">(Or leave blank for group)</span>
+          <span class="text-[10px] text-slate-500 font-normal">Optional (leave blank to open general WhatsApp)</span>
         </div>
         <div class="flex items-center gap-2">
           <div class="relative flex-1">
             <span class="absolute left-2.5 top-1.5 text-xs text-slate-500 font-bold">+91</span>
-            <input type="tel" id="whatsapp-manager-phone" placeholder="Enter Manager Mobile No (e.g. 9876543210)" class="w-full pl-10 pr-3 py-1.5 bg-white border border-blue-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <input type="tel" id="whatsapp-manager-phone" placeholder="Enter Manager Mobile No (e.g. 9876543210)" class="w-full pl-10 pr-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
-          <button onclick="sendToManagerWhatsApp()" class="px-3.5 py-1.5 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1.5 active:scale-95 transition whitespace-nowrap">
+          <button onclick="openWhatsAppChatAndPaste()" class="px-4 py-1.5 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1.5 active:scale-95 transition whitespace-nowrap">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
-            <span>Send to Manager</span>
+            <span>Open WhatsApp Chat</span>
           </button>
         </div>
       </div>
 
-      <!-- Quick Action Buttons -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="copyAndOpenWhatsAppForManager()" class="p-3 rounded-xl bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 text-center">
-          <i data-lucide="camera" class="w-4 h-4 text-amber-300"></i>
-          <span>📸 Copy Exact Photo & Open Chat</span>
-        </button>
-        <button onclick="sendDirectWhatsApp()" class="p-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 text-center">
-          <i data-lucide="message-square" class="w-4 h-4"></i>
-          <span>Send Full Text Report</span>
-        </button>
-      </div>
-
-      <!-- Text Preview Box -->
-      <div class="space-y-1.5 flex-1 min-h-0 flex flex-col">
+      <!-- Live Generated Image Preview Box -->
+      <div class="space-y-1 flex-1 min-h-0 flex flex-col">
         <div class="flex items-center justify-between text-xs">
-          <span class="font-bold text-slate-700">WhatsApp Formatted Message Preview:</span>
-          <div class="flex items-center gap-1.5">
-            <button onclick="copyWhatsAppText()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold text-[11px] border border-slate-300 flex items-center gap-1 shadow-xs transition">
-              <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-              <span>Copy Text</span>
-            </button>
-            <button onclick="downloadLeaderboardImage()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold text-[11px] border border-slate-300 flex items-center gap-1 shadow-xs transition">
-              <i data-lucide="download" class="w-3.5 h-3.5 text-blue-700"></i>
-              <span>Download Image</span>
-            </button>
-          </div>
+          <span class="font-bold text-slate-700">Exact Table Image Preview (Sent to Manager):</span>
+          <button onclick="downloadLeaderboardImage()" class="px-2.5 py-1 text-blue-700 hover:text-blue-900 hover:underline font-bold text-[11px] flex items-center gap-1">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Download PNG Image</span>
+          </button>
         </div>
-        <textarea id="whatsapp-preview-box" readonly class="w-full h-52 bg-slate-50 border border-slate-300 rounded-xl p-3 font-mono text-[11px] text-slate-800 leading-relaxed focus:outline-none select-all overflow-y-auto"></textarea>
+        <div class="border border-slate-300 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center p-2 max-h-56 overflow-y-auto">
+          <img id="whatsapp-image-preview" src="" alt="Leaderboard Preview" class="max-w-full rounded shadow-sm border border-slate-300 object-contain">
+        </div>
       </div>
 
-      <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-        <span>Tip: Press <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-bold text-slate-700">Ctrl + V</kbd> directly in WhatsApp chat to paste!</span>
-        <button onclick="closeWhatsAppModal()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Close</button>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+        <button onclick="openTextShareMode()" class="text-slate-500 hover:text-blue-700 text-xs font-medium hover:underline flex items-center gap-1">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span>Want text report instead?</span>
+        </button>
+        <button onclick="closeWhatsAppModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs shadow-sm">Done / Close</button>
       </div>
     </div>
   </div>
@@ -1584,6 +1872,7 @@
     // Lifecycle Init
     window.addEventListener('DOMContentLoaded', () => {
       initSupabase();
+      renderLeaderboardMIS();
       lucide.createIcons();
       startLiveClock();
       checkAuthSession();
@@ -2320,7 +2609,7 @@
       if (tab === 'dashboard') renderDashboardAnalytics();
       if (tab === 'workspace') filterTransactions();
       if (tab === 'claimed') renderClaimed();
-      if (tab === 'leaderboard') renderLeaderboardMIS();
+      if (tab === 'leaderboard') { try { syncTodayCollectionsFromClaims(); } catch(e){} renderLeaderboardMIS(); }
       lucide.createIcons();
     }
 
@@ -3670,7 +3959,7 @@
                 customer_id: custId,
                 customer_name: custName,
                 portfolio: portfolio,
-                caller_name: caller,
+                caller_name: finalCallerName,
                 claimed_by_manager: mgr,
                 status: 'ALLOCATED'
               })
@@ -3695,6 +3984,7 @@
       showToast('Transaction linked, claimed & saved to Cloud successfully!', 'success');
       closeClaimModal();
       filterTransactions();
+      try { syncTodayCollectionsFromClaims(); } catch(e){}
     }
 
     async function unclaimTx(id) {
@@ -4807,39 +5097,40 @@ function autoSyncBankTransactions() {
         const rankStyle = getRankBgColor(rank);
 
         tr.innerHTML = `
-          <td class="py-0.5 px-1.5 text-center border border-slate-300 font-bold bg-[#d9e1f2] text-slate-800">${idx + 1}</td>
-          <td class="py-0.5 px-2.5 text-left border border-slate-300 font-extrabold text-slate-900 bg-slate-100">${off.name}</td>
-          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${target.toLocaleString('en-IN')}</td>
-          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${aoy.toLocaleString('en-IN')}</td>
-          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${today.toLocaleString('en-IN')}</td>
-          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${total.toLocaleString('en-IN')}</td>
-          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold ${balance < 0 ? 'text-slate-900' : 'text-slate-900'}">${balance.toLocaleString('en-IN')}</td>
-          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${projection.toLocaleString('en-IN')}</td>
-          <td class="py-0.5 px-1.5 text-center border border-slate-300 font-mono-num" style="${achievedStyle}">${achieved}%</td>
-          <td class="py-0.5 px-1.5 text-center border border-slate-300 font-mono-num font-extrabold" style="${rankStyle}">${rank}</td>
-          <td class="py-0.5 px-1 text-center border border-slate-300">
-            <button onclick="openEditOfficerModal(${idx})" class="p-0.5 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
-              <i data-lucide="edit-2" class="w-3 h-3"></i>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
+          <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">${off.name}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${target.toLocaleString('en-IN')}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${aoy.toLocaleString('en-IN')}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${today.toLocaleString('en-IN')}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">${total.toLocaleString('en-IN')}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${balance.toLocaleString('en-IN')}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${projection.toLocaleString('en-IN')}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]" style="${achievedStyle}">${achieved}%</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13.5px]" style="${rankStyle}">${rank}</td>
+          <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
+            <button onclick="openEditOfficerModal(${idx})" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Total Row
+      // Total Row (Centered and Larger Font)
       const totalAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
       if (tfoot) {
         tfoot.innerHTML = `
-          <tr class="bg-[#1f4e78] text-white font-extrabold text-[11px]">
-            <td colspan="2" class="py-1 px-3 text-center border border-[#174375] uppercase tracking-wider text-[11px]">TOTAL</td>
-            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumTarget.toLocaleString('en-IN')}</td>
-            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumAoy.toLocaleString('en-IN')}</td>
-            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumToday.toLocaleString('en-IN')}</td>
-            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumTotal.toLocaleString('en-IN')}</td>
-            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumBalance.toLocaleString('en-IN')}</td>
-            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumProjection.toLocaleString('en-IN')}</td>
-            <td class="py-1 px-1.5 text-center border border-[#174375] font-mono-num text-xs bg-[#2e6b9e] text-yellow-300">${totalAchieved}%</td>
-            <td colspan="2" class="py-1 px-1 text-center border border-[#174375]"></td>
+          <tr class="bg-[#1f4e78] text-white font-black text-xs sm:text-[13px]">
+            <td colspan="2" class="py-2 px-3 text-center border border-[#174375] uppercase tracking-wider text-xs sm:text-[13px]">TOTAL</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">${sumTarget.toLocaleString('en-IN')}</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">${sumAoy.toLocaleString('en-IN')}</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">${sumToday.toLocaleString('en-IN')}</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">${sumTotal.toLocaleString('en-IN')}</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num">${sumProjection.toLocaleString('en-IN')}</td>
+            <td class="py-2 px-2 text-center border border-[#174375] font-mono-num text-xs sm:text-sm bg-[#2e6b9e] text-yellow-300 font-black">${totalAchieved}%</td>
+            <td class="py-2 px-1 text-center border border-[#174375]"></td>
+            <td class="py-2 px-1 text-center border border-[#174375] mis-action-col"></td>
           </tr>
         `;
       }
@@ -5113,6 +5404,131 @@ function autoSyncBankTransactions() {
     // ==========================================
     // WHATSAPP MIS SHARING ENGINE
     // ==========================================
+
+    // ==========================================
+    // EXACT TABLE IMAGE CAPTURE FOR WHATSAPP (BULLETPROOF NO-DRAG CLIPBOARD)
+    // ==========================================
+    let cachedLeaderboardBlob = null;
+    let cachedLeaderboardDataUrl = null;
+    let pendingBlobPromise = null;
+
+    async function generateLeaderboardBlob() {
+      if (pendingBlobPromise) return pendingBlobPromise;
+
+      pendingBlobPromise = (async () => {
+        try {
+          renderLeaderboardMIS();
+          const el = document.getElementById('leaderboard-capture-area');
+          if (!el || typeof html2canvas === 'undefined') return null;
+
+          const editCells = el.querySelectorAll('.mis-action-col');
+          editCells.forEach(c => c.style.display = 'none');
+
+          const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+          editCells.forEach(c => c.style.display = '');
+
+          cachedLeaderboardDataUrl = canvas.toDataURL('image/png');
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          cachedLeaderboardBlob = blob;
+          return blob;
+        } catch(e) {
+          const el = document.getElementById('leaderboard-capture-area');
+          if (el) el.querySelectorAll('.mis-action-col').forEach(c => c.style.display = '');
+          throw e;
+        } finally {
+          pendingBlobPromise = null;
+        }
+      })();
+
+      return pendingBlobPromise;
+    }
+
+    async function captureAndSendWhatsAppImage() {
+      // Ensure leaderboard is freshly populated
+      renderLeaderboardMIS();
+
+      // 1. Synchronously trigger ClipboardItem with Promise to guarantee Windows clipboard access
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          const item = new ClipboardItem({
+            'image/png': generateLeaderboardBlob()
+          });
+          navigator.clipboard.write([item]).then(() => {
+            showToast('Table Photo copied to Clipboard! Press Ctrl+V in WhatsApp.', 'success');
+          }).catch(err => {
+            console.warn('Async clipboard notice:', err);
+          });
+        } catch(e) {
+          console.warn('ClipboardItem notice:', e);
+        }
+      }
+
+      // Generate preview for modal
+      showToast('Rendering Table Photo...', 'info');
+      try {
+        const blob = await generateLeaderboardBlob();
+        const previewImg = document.getElementById('whatsapp-image-preview');
+        if (previewImg && cachedLeaderboardDataUrl) {
+          previewImg.src = cachedLeaderboardDataUrl;
+        }
+
+        const savedPhone = localStorage.getItem('shaha_saved_manager_whatsapp');
+        const phoneInput = document.getElementById('whatsapp-manager-phone');
+        if (phoneInput && savedPhone) phoneInput.value = savedPhone;
+
+        document.getElementById('whatsapp-share-modal').classList.remove('hidden');
+        lucide.createIcons();
+      } catch(e) {
+        showToast('Error rendering image: ' + e.message, 'error');
+      }
+    }
+
+    async function copyLeaderboardImageToClipboard() {
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          const item = new ClipboardItem({
+            'image/png': new Promise(async (resolve, reject) => {
+              try {
+                if (cachedLeaderboardBlob) {
+                  resolve(cachedLeaderboardBlob);
+                } else {
+                  const blob = await generateLeaderboardBlob();
+                  resolve(blob);
+                }
+              } catch(e) { reject(e); }
+            })
+          });
+          await navigator.clipboard.write([item]);
+          showToast('Image copied to clipboard! WhatsApp me Ctrl+V dabayein.', 'success');
+          return;
+        } catch(e) {
+          console.warn('Clipboard write error:', e);
+        }
+      }
+
+      showToast('Photo ready! Right-click image preview and choose "Copy Image".', 'info');
+    }
+
+    function openWhatsAppChatAndPaste() {
+      // Ensure image is in clipboard
+      copyLeaderboardImageToClipboard();
+
+      const phone = getCleanManagerPhone();
+      const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
+      const text = `Daily Collection Leaderboard MIS (${period})`;
+      const url = phone ? 
+        `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}` :
+        `https://web.whatsapp.com`;
+
+      window.open(url, '_blank');
+      showToast('WhatsApp khul raha hai! Chat me bas "Ctrl + V" (Paste) dabayein!', 'success');
+    }
+
+    function openTextShareMode() {
+      const text = generateWhatsAppText();
+      prompt('WhatsApp Text Report (Copy from below):', text);
+    }
+
     function generateWhatsAppText() {
       calculateLeaderboard();
       const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
@@ -5230,78 +5646,25 @@ function autoSyncBankTransactions() {
       sendToManagerWhatsApp();
     }
 
-    async function copyAndOpenWhatsAppForManager() {
-      // 1. Copy exact high-res photo to clipboard
-      await copyLeaderboardImageToClipboard();
 
-      // 2. Open WhatsApp chat directly with manager or general
-      const phone = getCleanManagerPhone();
-      const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
-      const greeting = `Sir/Madam, Please find the Daily Collection Leaderboard MIS (${period}) attached photo below:`;
-      const url = phone ? 
-        `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(greeting)}` :
-        `https://api.whatsapp.com/send?text=${encodeURIComponent(greeting)}`;
-
-      setTimeout(() => {
-        window.open(url, '_blank');
-        showToast('Table Photo copied! Just press Ctrl+V in the WhatsApp chat to send photo.', 'success');
-      }, 500);
-    }
 
     async function downloadLeaderboardImage() {
-      const el = document.getElementById('leaderboard-capture-area');
-      if (!el || typeof html2canvas === 'undefined') {
-        showToast('Image engine initializing. Please try again.', 'error');
-        return;
-      }
-      showToast('Generating high-resolution table image...', 'info');
       try {
-        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        showToast('Preparing image download...', 'info');
+        const blob = cachedLeaderboardBlob || await generateLeaderboardBlob();
+        if (!blob) return;
         const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
         const link = document.createElement('a');
-        link.download = `Daily_Collection_Leaderboard_${period}_${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.download = `Daily_Collection_Leaderboard_${period}.png`;
+        link.href = URL.createObjectURL(blob);
         link.click();
-        showToast('Leaderboard photo downloaded! Ready to attach on WhatsApp.', 'success');
-      } catch (e) {
-        showToast('Could not generate image: ' + e.message, 'error');
+        showToast('Leaderboard PNG downloaded successfully.', 'success');
+      } catch(e) {
+        showToast('Error downloading image: ' + e.message, 'error');
       }
     }
 
-    async function copyLeaderboardImageToClipboard() {
-      const el = document.getElementById('leaderboard-capture-area');
-      if (!el || typeof html2canvas === 'undefined') {
-        showToast('Image engine initializing. Please try again.', 'error');
-        return;
-      }
-      showToast('Capturing table image for clipboard...', 'info');
-      try {
-        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-        canvas.toBlob(async (blob) => {
-          if (!blob) {
-            downloadLeaderboardImage();
-            return;
-          }
-          if (navigator.clipboard && window.ClipboardItem) {
-            try {
-              await navigator.clipboard.write([
-                new ClipboardItem({ 'image/png': blob })
-              ]);
-              showToast('Image copied to clipboard! Just click WhatsApp chat & press Ctrl+V.', 'success');
-              return;
-            } catch(e) {}
-          }
-          // Fallback download if direct image clipboard not permitted in browser
-          const link = document.createElement('a');
-          link.download = `Daily_Leaderboard.png`;
-          link.href = URL.createObjectURL(blob);
-          link.click();
-          showToast('Image downloaded! Attach directly in WhatsApp.', 'success');
-        });
-      } catch (e) {
-        showToast('Error capturing image: ' + e.message, 'error');
-      }
-    }
+
 
   </script>
 </body>
