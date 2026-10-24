@@ -226,6 +226,10 @@
           <i data-lucide="check-square" class="w-3.5 h-3.5 text-emerald-600"></i>
           <span id="tab-claimed-label">My Verified Records (0)</span>
         </button>
+        <button onclick="switchTab('leaderboard')" id="tab-leaderboard" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
+          <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span>Daily Leaderboard MIS</span>
+        </button>
         <button onclick="switchTab('admin-upload')" id="tab-admin-upload" class="px-4 py-2 rounded-lg font-bold text-xs text-slate-700 hover:text-slate-900 transition-all flex items-center gap-2">
           <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-blue-600"></i>
           <span>Upload Account Transaction</span>
@@ -554,7 +558,86 @@
     </div>
 
     <!-- ---------------------------------------- -->
-    <!-- TAB 4: AUTHORIZED STATEMENT & GOOGLE SHEET SYNC -->
+    <!-- TAB 4: DAILY COLLECTION LEADERBOARD MIS  -->
+    <!-- ---------------------------------------- -->
+    <div id="content-leaderboard" class="space-y-4 hidden">
+      <!-- Action Toolbar -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-amber-50 text-amber-600 rounded-lg border border-amber-200">
+            <i data-lucide="trophy" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-sm">Daily Collection Leaderboard MIS</h3>
+            <p class="text-xs text-slate-500 font-medium">Real-time recovery officer ranking, targets, AOY, collections & achievement %</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1 text-xs">
+            <span class="text-slate-500 font-bold mr-1.5">Period:</span>
+            <input type="text" id="leaderboard-period-input" value="Oct-26" onchange="updateLeaderboardTitle()" class="bg-transparent font-extrabold text-blue-900 w-16 focus:outline-none">
+          </div>
+          <button onclick="syncTodayCollectionsFromClaims()" title="Auto calculate TODAY from verified claims" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 shadow-xs">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
+            <span>Auto-Sync Today Claims</span>
+          </button>
+          <button onclick="openAddOfficerModal()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>+ Add Officer</span>
+          </button>
+          <button onclick="exportLeaderboardExcel()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export Excel (.xlsx)</span>
+          </button>
+          <button onclick="saveLeaderboardToCloud(true)" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="cloud" class="w-3.5 h-3.5 text-blue-300"></i>
+            <span>Save MIS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Leaderboard Table Container (Styled to exact screenshot) -->
+      <div class="bg-white rounded-xl border-2 border-[#174375] shadow-xl overflow-hidden">
+        <!-- Main Blue Banner with Yellow Text -->
+        <div class="bg-[#174375] py-2.5 px-4 text-center border-b border-blue-900">
+          <h2 id="leaderboard-table-title" class="text-base md:text-lg font-black text-[#ffeb3b] tracking-wide uppercase drop-shadow-xs">
+            Daily Collection Leaderboard Oct-26
+          </h2>
+        </div>
+
+        <div class="overflow-x-auto table-container">
+          <table class="w-full text-xs border-collapse">
+            <!-- Header Row matching screenshot -->
+            <thead>
+              <tr class="bg-[#1f4e78] text-white text-[11px] font-extrabold uppercase tracking-tight">
+                <th class="py-2.5 px-2 text-center border border-[#174375] w-14">Sr. NO</th>
+                <th class="py-2.5 px-3 text-left border border-[#174375] min-w-[170px]">OFFICER'S NAME</th>
+                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">TARGET 100%</th>
+                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">AOY</th>
+                <th class="py-2.5 px-3 text-right border border-[#174375] w-24">TODAY</th>
+                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">TOTAL</th>
+                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">BALANCE</th>
+                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">PROJECTION</th>
+                <th class="py-2.5 px-2 text-center border border-[#174375] w-24">ACHIEVED%</th>
+                <th class="py-2.5 px-2 text-center border border-[#174375] w-16">RANK</th>
+                <th class="py-2.5 px-1.5 text-center border border-[#174375] w-14">EDIT</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody" class="divide-y divide-slate-300">
+              <!-- Dynamically rendered -->
+            </tbody>
+            <!-- Footer Summary Row matching screenshot -->
+            <tfoot id="leaderboard-tfoot" class="bg-[#1f4e78] text-white font-extrabold text-xs">
+              <!-- Rendered via JS -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------------------------------- -->
+    <!-- TAB 5: AUTHORIZED STATEMENT & GOOGLE SHEET SYNC -->
     <!-- ---------------------------------------- -->
     <div id="content-admin-upload" class="space-y-6 max-w-3xl mx-auto hidden">
       
@@ -1298,6 +1381,59 @@
     </div>
   </div>
 
+  <!-- Modal: Add / Edit Leaderboard Officer -->
+  <div id="officer-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-md w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user" class="w-5 h-5 text-blue-700"></i>
+          <h3 id="officer-modal-title" class="font-extrabold text-sm text-slate-900">Add Recovery Officer</h3>
+        </div>
+        <button onclick="closeOfficerModal()" class="text-slate-400 hover:text-slate-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="officer-edit-index" value="-1">
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 uppercase">Officer Name *</label>
+          <input type="text" id="officer-name-input" placeholder="e.g. ROOPKALA V." class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Target 100% (₹) *</label>
+            <input type="number" id="officer-target-input" placeholder="302500" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">AOY (As Of Yesterday ₹)</label>
+            <input type="number" id="officer-aoy-input" placeholder="568656" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Today (₹)</label>
+            <input type="number" id="officer-today-input" placeholder="0" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Projection (₹)</label>
+            <input type="number" id="officer-proj-input" placeholder="0" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+        <button id="officer-delete-btn" type="button" onclick="deleteOfficerFromModal()" class="px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded border border-rose-200 hidden">
+          Delete Officer
+        </button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button type="button" onclick="closeOfficerModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+          <button type="button" onclick="saveOfficerModal()" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-sm">Save Officer</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-white px-4 py-3 rounded-xl border border-slate-300 text-xs font-semibold flex items-center gap-2 shadow-xl z-50 text-slate-800">
     <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-blue-600"></i>
@@ -1382,6 +1518,7 @@
       setTimeout(async () => {
         try { await syncCredentialsWithCloud(); } catch(e){}
         try { await loadPreLoggedCases(); } catch(e){}
+        try { await loadLeaderboardFromCloud(); } catch(e){}
       }, 50);
     });
 
@@ -2084,7 +2221,7 @@
         tab = 'dashboard';
       }
 
-      ['dashboard', 'workspace', 'claimed', 'admin-upload'].forEach(t => {
+      ['dashboard', 'workspace', 'claimed', 'leaderboard', 'admin-upload'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (btn && content) {
@@ -2109,6 +2246,7 @@
       if (tab === 'dashboard') renderDashboardAnalytics();
       if (tab === 'workspace') filterTransactions();
       if (tab === 'claimed') renderClaimed();
+      if (tab === 'leaderboard') renderLeaderboardMIS();
       lucide.createIcons();
     }
 
@@ -4476,6 +4614,427 @@ function autoSyncBankTransactions() {
       toast.classList.remove('translate-y-20', 'opacity-0');
       setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3500);
     }
+
+    // ==========================================
+    // DAILY COLLECTION LEADERBOARD MIS ENGINE
+    // ==========================================
+    const DEFAULT_LEADERBOARD_OFFICERS = [
+      { name: "ROOPKALA V.", target: 302500, aoy: 568656, today: 0, projection: 129150 },
+      { name: "NASIRUL M.", target: 290400, aoy: 447911, today: 0, projection: 5000 },
+      { name: "IRAMMA U.", target: 429000, aoy: 635204, today: 0, projection: 55000 },
+      { name: "SUHANI G.", target: 211200, aoy: 284489, today: 0, projection: 0 },
+      { name: "RADHAKRISHNAN", target: 248600, aoy: 152099, today: 0, projection: 184567 },
+      { name: "SASIKALA K.", target: 253000, aoy: 65635, today: 79800, projection: 0 },
+      { name: "DARSHANA M.", target: 330000, aoy: 172866, today: 15000, projection: 85477 },
+      { name: "DEVYANI V.", target: 308000, aoy: 73706, today: 41200, projection: 0 },
+      { name: "VIDYA C.", target: 443300, aoy: 131703, today: 9091, projection: 321677 },
+      { name: "SOURAV R.", target: 297000, aoy: 44226, today: 0, projection: 0 },
+      { name: "ABDUL R.", target: 242000, aoy: 12160, today: 0, projection: 0 },
+      { name: "RUSHIKA J.", target: 330000, aoy: 0, today: 0, projection: 0 },
+      { name: "PRANJAL R.", target: 308000, aoy: 0, today: 0, projection: 0 },
+      { name: "NIKITA M.", target: 275000, aoy: 0, today: 0, projection: 0 },
+      { name: "AMBUJ T.", target: 0, aoy: 0, today: 0, projection: 0 }
+    ];
+
+    let leaderboardOfficers = JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD_OFFICERS));
+
+    function getRankBgColor(rank) {
+      switch (rank) {
+        case 1: return 'background-color: #70ad47; color: #ffffff;';
+        case 2: return 'background-color: #85c256; color: #ffffff;';
+        case 3: return 'background-color: #a9d18e; color: #1e3a1e;';
+        case 4: return 'background-color: #c5d92d; color: #2e3a1e;';
+        case 5: return 'background-color: #d4c820; color: #3a3200;';
+        case 6: return 'background-color: #e2b926; color: #3a2a00;';
+        case 7: return 'background-color: #e8a32a; color: #3a1e00;';
+        case 8: return 'background-color: #ed842e; color: #ffffff;';
+        case 9: return 'background-color: #f06733; color: #ffffff;';
+        case 10: return 'background-color: #eb4d3d; color: #ffffff;';
+        case 11: return 'background-color: #e02424; color: #ffffff;';
+        default: return 'background-color: #c00000; color: #ffffff;';
+      }
+    }
+
+    function getAchievedBgColor(pct) {
+      if (pct >= 100) return 'background-color: #a9d18e; color: #0d3810; font-weight: 800;';
+      if (pct >= 50) return 'background-color: #d9e1f2; color: #1f3864; font-weight: 800;';
+      if (pct >= 25) return 'background-color: #fce4d6; color: #833c0c; font-weight: 800;';
+      if (pct > 0) return 'background-color: #fff2cc; color: #7f6000; font-weight: 800;';
+      return 'background-color: #ffffcc; color: #595959; font-weight: 800;';
+    }
+
+    function calculateLeaderboard() {
+      leaderboardOfficers.forEach(off => {
+        const target = Number(off.target) || 0;
+        const aoy = Number(off.aoy) || 0;
+        const today = Number(off.today) || 0;
+        const total = aoy + today;
+        const balance = target - total;
+        const projection = Number(off.projection) || 0;
+        const achievedPct = target > 0 ? (total / target) * 100 : (total > 0 ? 100 : 0);
+
+        off.total = total;
+        off.balance = balance;
+        off.projection = projection;
+        off.achieved = Math.round(achievedPct);
+      });
+
+      leaderboardOfficers.sort((a, b) => {
+        if (b.achieved !== a.achieved) return b.achieved - a.achieved;
+        return b.total - a.total;
+      });
+
+      for (let i = 0; i < leaderboardOfficers.length; i++) {
+        if (i > 0 && leaderboardOfficers[i].achieved === leaderboardOfficers[i - 1].achieved) {
+          leaderboardOfficers[i].rank = leaderboardOfficers[i - 1].rank;
+        } else {
+          leaderboardOfficers[i].rank = i + 1;
+        }
+      }
+    }
+
+    function renderLeaderboardMIS() {
+      calculateLeaderboard();
+
+      const tbody = document.getElementById('leaderboard-tbody');
+      const tfoot = document.getElementById('leaderboard-tfoot');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      let sumTarget = 0;
+      let sumAoy = 0;
+      let sumToday = 0;
+      let sumTotal = 0;
+      let sumBalance = 0;
+      let sumProjection = 0;
+
+      leaderboardOfficers.forEach((off, idx) => {
+        const target = Number(off.target) || 0;
+        const aoy = Number(off.aoy) || 0;
+        const today = Number(off.today) || 0;
+        const total = off.total;
+        const balance = off.balance;
+        const projection = off.projection;
+        const achieved = off.achieved;
+        const rank = off.rank;
+
+        sumTarget += target;
+        sumAoy += aoy;
+        sumToday += today;
+        sumTotal += total;
+        sumBalance += balance;
+        sumProjection += projection;
+
+        const tr = document.createElement('tr');
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f2f2f2] hover:bg-blue-50/40';
+
+        const achievedStyle = getAchievedBgColor(achieved);
+        const rankStyle = getRankBgColor(rank);
+
+        tr.innerHTML = `
+          <td class="py-2 px-2 text-center border border-slate-300 font-bold bg-[#d9e1f2] text-slate-800">${idx + 1}</td>
+          <td class="py-2 px-3 text-left border border-slate-300 font-extrabold text-slate-900 bg-slate-100">${off.name}</td>
+          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${target.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${aoy.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${today.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${total.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold ${balance < 0 ? 'text-slate-900' : 'text-slate-900'}">${balance.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${projection.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-2 text-center border border-slate-300 font-mono-num" style="${achievedStyle}">${achieved}%</td>
+          <td class="py-2 px-2 text-center border border-slate-300 font-mono-num font-extrabold" style="${rankStyle}">${rank}</td>
+          <td class="py-2 px-1 text-center border border-slate-300">
+            <button onclick="openEditOfficerModal(${idx})" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Total Row
+      const totalAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr class="bg-[#1f4e78] text-white font-extrabold">
+            <td colspan="2" class="py-2.5 px-3 text-center border border-[#174375] uppercase tracking-wider text-xs">TOTAL</td>
+            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumTarget.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumAoy.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumToday.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumTotal.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumProjection.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-sm bg-[#2e6b9e] text-yellow-300">${totalAchieved}%</td>
+            <td colspan="2" class="py-2.5 px-2 text-center border border-[#174375]"></td>
+          </tr>
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    function updateLeaderboardTitle() {
+      const p = document.getElementById('leaderboard-period-input').value.trim() || 'Oct-26';
+      const el = document.getElementById('leaderboard-table-title');
+      if (el) el.innerText = `Daily Collection Leaderboard ${p}`;
+    }
+
+    function syncTodayCollectionsFromClaims() {
+      // Aggregate today's verified claims for each officer
+      const alloc = allTransactions.filter(t => t.status === 'ALLOCATED');
+      let matchedCount = 0;
+
+      leaderboardOfficers.forEach(off => {
+        const offName = off.name.toUpperCase().trim();
+        let todaySum = 0;
+
+        alloc.forEach(t => {
+          const splits = parseSplitCallers(t.caller_name, t.amount);
+          if (splits && splits.length > 0) {
+            splits.forEach(s => {
+              const cName = (s.caller || '').toUpperCase().trim();
+              if (cName && (offName.includes(cName) || cName.includes(offName) || offName.split(' ')[0] === cName.split(' ')[0])) {
+                todaySum += Number(s.amount) || 0;
+              }
+            });
+          } else {
+            const cName = (t.caller_name || '').toUpperCase().trim();
+            if (cName && (offName.includes(cName) || cName.includes(offName) || offName.split(' ')[0] === cName.split(' ')[0])) {
+              todaySum += Number(t.amount) || 0;
+            }
+          }
+        });
+
+        if (todaySum > 0) {
+          off.today = todaySum;
+          matchedCount++;
+        }
+      });
+
+      renderLeaderboardMIS();
+      saveLeaderboardToCloud(false);
+      showToast(`Synced live verified collections for ${matchedCount} officers!`, 'success');
+    }
+
+    function openAddOfficerModal() {
+      document.getElementById('officer-modal-title').innerText = 'Add Recovery Officer';
+      document.getElementById('officer-edit-index').value = '-1';
+      document.getElementById('officer-name-input').value = '';
+      document.getElementById('officer-target-input').value = '';
+      document.getElementById('officer-aoy-input').value = '0';
+      document.getElementById('officer-today-input').value = '0';
+      document.getElementById('officer-proj-input').value = '0';
+      document.getElementById('officer-delete-btn').classList.add('hidden');
+      document.getElementById('officer-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function openEditOfficerModal(idx) {
+      const off = leaderboardOfficers[idx];
+      if (!off) return;
+      document.getElementById('officer-modal-title').innerText = `Edit: ${off.name}`;
+      document.getElementById('officer-edit-index').value = String(idx);
+      document.getElementById('officer-name-input').value = off.name;
+      document.getElementById('officer-target-input').value = off.target;
+      document.getElementById('officer-aoy-input').value = off.aoy;
+      document.getElementById('officer-today-input').value = off.today;
+      document.getElementById('officer-proj-input').value = off.projection;
+      document.getElementById('officer-delete-btn').classList.remove('hidden');
+      document.getElementById('officer-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeOfficerModal() {
+      document.getElementById('officer-modal').classList.add('hidden');
+    }
+
+    function saveOfficerModal() {
+      const idx = parseInt(document.getElementById('officer-edit-index').value, 10);
+      const name = document.getElementById('officer-name-input').value.trim().toUpperCase();
+      const target = parseFloat(document.getElementById('officer-target-input').value) || 0;
+      const aoy = parseFloat(document.getElementById('officer-aoy-input').value) || 0;
+      const today = parseFloat(document.getElementById('officer-today-input').value) || 0;
+      const proj = parseFloat(document.getElementById('officer-proj-input').value) || 0;
+
+      if (!name) {
+        showToast('Please enter an Officer Name.', 'error');
+        return;
+      }
+
+      if (idx >= 0 && idx < leaderboardOfficers.length) {
+        leaderboardOfficers[idx].name = name;
+        leaderboardOfficers[idx].target = target;
+        leaderboardOfficers[idx].aoy = aoy;
+        leaderboardOfficers[idx].today = today;
+        leaderboardOfficers[idx].projection = proj;
+        showToast(`Updated officer: ${name}`, 'success');
+      } else {
+        leaderboardOfficers.push({
+          name: name,
+          target: target,
+          aoy: aoy,
+          today: today,
+          projection: proj
+        });
+        showToast(`Added new officer: ${name}`, 'success');
+      }
+
+      closeOfficerModal();
+      renderLeaderboardMIS();
+      saveLeaderboardToCloud(false);
+    }
+
+    function deleteOfficerFromModal() {
+      const idx = parseInt(document.getElementById('officer-edit-index').value, 10);
+      if (idx >= 0 && idx < leaderboardOfficers.length) {
+        const name = leaderboardOfficers[idx].name;
+        if (confirm(`Are you sure you want to delete ${name} from Leaderboard?`)) {
+          leaderboardOfficers.splice(idx, 1);
+          closeOfficerModal();
+          renderLeaderboardMIS();
+          saveLeaderboardToCloud(false);
+          showToast(`Deleted ${name} from Leaderboard.`, 'info');
+        }
+      }
+    }
+
+    async function loadLeaderboardFromCloud() {
+      const cached = localStorage.getItem('shaha_leaderboard_mis_v1');
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) leaderboardOfficers = parsed;
+        } catch(e) {}
+      }
+
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('narration')
+            .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+            .limit(1);
+          if (data && data.length > 0 && data[0].narration) {
+            const cloudData = JSON.parse(data[0].narration);
+            if (Array.isArray(cloudData) && cloudData.length > 0) {
+              leaderboardOfficers = cloudData;
+              localStorage.setItem('shaha_leaderboard_mis_v1', JSON.stringify(leaderboardOfficers));
+            }
+          }
+        } catch(e) {}
+      }
+      renderLeaderboardMIS();
+    }
+
+    async function saveLeaderboardToCloud(showNotif = false) {
+      localStorage.setItem('shaha_leaderboard_mis_v1', JSON.stringify(leaderboardOfficers));
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('id')
+            .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+            .limit(1);
+          if (data && data.length > 0) {
+            await supabaseClient
+              .from('bank_transactions')
+              .update({
+                narration: JSON.stringify(leaderboardOfficers),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', data[0].id);
+          } else {
+            await supabaseClient
+              .from('bank_transactions')
+              .insert([{
+                bank_name: 'SYSTEM',
+                ref_no: 'SYS_LEADERBOARD_MIS',
+                tx_date: '01-01-2026',
+                amount: 0,
+                narration: JSON.stringify(leaderboardOfficers),
+                status: 'SYSTEM'
+              }]);
+          }
+          if (showNotif) showToast('Daily Leaderboard MIS saved & synced to Cloud DB!', 'success');
+        } catch(e) {
+          if (showNotif) showToast('Saved locally.', 'info');
+        }
+      } else {
+        if (showNotif) showToast('Saved locally.', 'info');
+      }
+    }
+
+    function exportLeaderboardExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('Excel engine is still initializing. Please try again.', 'error');
+        return;
+      }
+
+      calculateLeaderboard();
+      const period = document.getElementById('leaderboard-period-input').value.trim() || 'Oct-26';
+
+      const rowsData = [
+        [`Daily Collection Leaderboard ${period}`],
+        [
+          'Sr. NO', "OFFICER'S NAME", 'TARGET 100%', 'AOY', 'TODAY',
+          'TOTAL', 'BALANCE', 'PROJECTION', 'ACHIEVED%', 'RANK'
+        ]
+      ];
+
+      let sumTarget = 0;
+      let sumAoy = 0;
+      let sumToday = 0;
+      let sumTotal = 0;
+      let sumBalance = 0;
+      let sumProjection = 0;
+
+      leaderboardOfficers.forEach((off, idx) => {
+        sumTarget += off.target;
+        sumAoy += off.aoy;
+        sumToday += off.today;
+        sumTotal += off.total;
+        sumBalance += off.balance;
+        sumProjection += off.projection;
+
+        rowsData.push([
+          idx + 1,
+          off.name,
+          off.target,
+          off.aoy,
+          off.today,
+          off.total,
+          off.balance,
+          off.projection,
+          `${off.achieved}%`,
+          off.rank
+        ]);
+      });
+
+      const totalAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+      rowsData.push([
+        'TOTAL',
+        '',
+        sumTarget,
+        sumAoy,
+        sumToday,
+        sumTotal,
+        sumBalance,
+        sumProjection,
+        `${totalAchieved}%`,
+        ''
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet(rowsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Leaderboard');
+
+      const filename = `Daily_Collection_Leaderboard_${period.replace(/[^a-zA-Z0-9_-]/g, '_')}_${Date.now()}.xlsx`;
+      const success = saveWorkbookFile(wb, filename);
+      if (success) {
+        showToast('Daily Leaderboard Excel file downloaded successfully!', 'success');
+      }
+    }
+
   </script>
 </body>
 </html>
