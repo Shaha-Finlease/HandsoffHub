@@ -8,13 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- SheetJS (Excel Parser & Builder) with High-Availability CDN -->
+  <!-- SheetJS (Excel Parser & Builder) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script>
-    if (typeof XLSX === 'undefined') {
-      document.write('<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"><\/script>');
-    }
-  </script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -1324,13 +1319,17 @@
     ];
 
     // Lifecycle Init
-    window.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('DOMContentLoaded', () => {
       initSupabase();
-      await syncCredentialsWithCloud();
-      await loadPreLoggedCases();
       lucide.createIcons();
       startLiveClock();
       checkAuthSession();
+
+      // Async cloud background sync without blocking UI
+      setTimeout(async () => {
+        try { await syncCredentialsWithCloud(); } catch(e){}
+        try { await loadPreLoggedCases(); } catch(e){}
+      }, 50);
     });
 
     async function syncCredentialsWithCloud() {
@@ -2413,14 +2412,14 @@
         if (statusFilter && t.status !== statusFilter) return false;
 
         // Bank filter
-        if (bankFilter && t.bank_name.toUpperCase() !== bankFilter.toUpperCase()) return false;
+        if (bankFilter && (t.bank_name || '').toUpperCase() !== bankFilter.toUpperCase()) return false;
 
         // Amount filter
         if (amtFilter !== null && Math.abs(Number(t.amount) - amtFilter) > 1.0) return false;
 
         // Search tokens
         if (q) {
-          const corpus = `${t.amount} ${t.ref_no} ${t.bank_name} ${t.narration} ${t.cheque_extracted || ''} ${t.customer_name || ''} ${t.customer_id || ''} ${t.caller_name || ''}`.toLowerCase();
+          const corpus = `${t.amount || ''} ${t.ref_no || ''} ${t.bank_name || ''} ${t.narration || ''} ${t.cheque_extracted || ''} ${t.customer_name || ''} ${t.customer_id || ''} ${t.caller_name || ''}`.toLowerCase();
           const tokens = q.split(' ').filter(x => x);
           if (!tokens.every(tok => corpus.includes(tok))) return false;
         }
