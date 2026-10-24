@@ -635,7 +635,7 @@
                 <th class="py-2 px-2 text-center border border-[#174375] w-14">Sr. NO</th>
                 <th class="py-2 px-3 text-center border border-[#174375] min-w-[170px]">OFFICER'S NAME</th>
                 <th class="py-2 px-2 text-center border border-[#174375] w-28">TARGET 100%</th>
-                <th class="py-2 px-2 text-center border border-[#174375] w-24">AOY</th>
+                <th class="py-2 px-2 text-center border border-[#174375] w-28">AOY / MTD</th>
                 <th class="py-2 px-2 text-center border border-[#174375] w-24">TODAY</th>
                 <th class="py-2 px-2 text-center border border-[#174375] w-28">TOTAL</th>
                 <th class="py-2 px-2 text-center border border-[#174375] w-28">BALANCE</th>
@@ -1529,6 +1529,13 @@
               <span>Grant Google Sheet Upload & Sync Permission to this user</span>
             </label>
           </div>
+          <div class="sm:col-span-4 flex items-center gap-2 pt-1 bg-blue-50/70 p-2.5 rounded-lg border border-blue-200">
+            <input type="checkbox" id="new-user-mis-access" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500">
+            <label for="new-user-mis-access" class="text-xs font-bold text-blue-900 cursor-pointer flex items-center gap-1.5">
+              <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
+              <span>Grant Daily Leaderboard MIS Access to this manager</span>
+            </label>
+          </div>
         </div>
         <div class="flex justify-end gap-2 pt-1">
           <button onclick="toggleAddUserForm()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold">Cancel</button>
@@ -1546,6 +1553,7 @@
               <th class="p-3 border-r border-slate-200">Agency</th>
               <th class="p-3 border-r border-slate-200">Password</th>
               <th class="p-3 border-r border-slate-200 text-center">Google Sheet Access</th>
+              <th class="p-3 border-r border-slate-200 text-center">MIS Access</th>
               <th class="p-3">Actions (Reset, Rename, Delete)</th>
             </tr>
           </thead>
@@ -2020,6 +2028,7 @@
       }
 
       const hasSheetAccess = document.getElementById('new-user-sheet-access') ? document.getElementById('new-user-sheet-access').checked : false;
+      const hasMisAccess = document.getElementById('new-user-mis-access') ? document.getElementById('new-user-mis-access').checked : false;
 
       USER_CREDENTIALS[rawUser] = {
         name: name,
@@ -2027,7 +2036,8 @@
         agency: agency,
         pin: pin,
         username: rawUser,
-        has_sheet_access: hasSheetAccess
+        has_sheet_access: hasSheetAccess,
+        has_mis_access: hasMisAccess
       };
 
       await saveCredentialsToCloud();
@@ -2047,6 +2057,26 @@
       renderUserManagerTable();
       const status = USER_CREDENTIALS[userKey].has_sheet_access ? 'Granted' : 'Revoked';
       showToast(`Google Sheet access ${status} for ${USER_CREDENTIALS[userKey].name}!`, 'info');
+    }
+
+    async function toggleMisAccess(userKey) {
+      if (!USER_CREDENTIALS[userKey]) return;
+      USER_CREDENTIALS[userKey].has_mis_access = !USER_CREDENTIALS[userKey].has_mis_access;
+      await saveCredentialsToCloud();
+      renderUserManagerTable();
+      const status = USER_CREDENTIALS[userKey].has_mis_access ? 'Granted' : 'Revoked';
+      showToast(`Daily Leaderboard MIS access ${status} for ${USER_CREDENTIALS[userKey].name}!`, 'info');
+      // Update session if editing current manager
+      if (currentUser && (currentUser.username === userKey || currentUser.key === userKey)) {
+        currentUser.has_mis_access = USER_CREDENTIALS[userKey].has_mis_access;
+        renderLeaderboardMIS();
+      }
+    }
+
+    function hasLeaderboardMISAccess() {
+      if (currentRole === 'ADMIN') return true;
+      if (currentUser && currentUser.has_mis_access === true) return true;
+      return false;
     }
 
     async function renameUser(userKey) {
@@ -2131,6 +2161,12 @@
             `<div class="text-center"><button onclick="toggleSheetAccess('${k}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-xs font-bold transition-all inline-flex items-center gap-1" title="Click to Revoke Google Sheet Access"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Granted</button></div>` :
             `<div class="text-center"><button onclick="toggleSheetAccess('${k}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-300 rounded text-xs font-semibold transition-all inline-flex items-center gap-1" title="Click to Grant Google Sheet Access"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> No Access</button></div>`);
 
+        const misAccessCell = isAdm ?
+          `<div class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">Master Access</span></div>` :
+          (u.has_mis_access ?
+            `<div class="text-center"><button onclick="toggleMisAccess('${k}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-xs font-bold transition-all inline-flex items-center gap-1" title="Click to Revoke MIS Access"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Granted</button></div>` :
+            `<div class="text-center"><button onclick="toggleMisAccess('${k}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-300 rounded text-xs font-semibold transition-all inline-flex items-center gap-1" title="Click to Grant MIS Access"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> No Access</button></div>`);
+
         tr.innerHTML = `
           <td class="p-3 border-r border-slate-200">
             <div class="font-extrabold text-slate-900">${u.name}</div>
@@ -2143,6 +2179,9 @@
           </td>
           <td class="p-3 border-r border-slate-200">
             ${sheetAccessCell}
+          </td>
+          <td class="p-3 border-r border-slate-200">
+            ${misAccessCell}
           </td>
           <td class="p-3">
             <div class="flex items-center gap-2 flex-wrap">
@@ -2412,6 +2451,7 @@
         role: meta.role,
         agency: meta.agency,
         has_sheet_access: meta.has_sheet_access === true,
+        has_mis_access: meta.has_mis_access === true,
         login_time: now,
         last_active: now
       };
@@ -5030,19 +5070,27 @@ function autoSyncBankTransactions() {
     function calculateLeaderboard() {
       leaderboardOfficers.forEach(off => {
         const target = Number(off.target) || 0;
-        const aoy = Number(off.aoy) || 0;
-        const today = Number(off.today) || 0;
-        const total = aoy + today;
-        const balance = target - total;
+        const aoy = Number(off.aoy) || 0;           // 1. AOY / MTD
+        const today = Number(off.today) || 0;       // 2. TODAY
+        const total = aoy + today;                   // 3. TOTAL = AOY + TODAY
+        const balance = target - total;              // 4. BALANCE = TARGET - TOTAL
         const projection = Number(off.projection) || 0;
-        const achievedPct = target > 0 ? (total / target) * 100 : (total > 0 ? 100 : 0);
+
+        // 5. ACHIEVED % = IFERROR(TOTAL / TARGET, 0)
+        let achievedPct = 0;
+        if (target > 0) {
+          achievedPct = Math.round((total / target) * 100);
+        } else if (total > 0) {
+          achievedPct = 100;
+        }
 
         off.total = total;
         off.balance = balance;
         off.projection = projection;
-        off.achieved = Math.round(achievedPct);
+        off.achieved = achievedPct;
       });
 
+      // 6. RANK: Rank Achieved % pe nikalna hai (Jiska achieved % zyada woh 1st, sorted descending)
       leaderboardOfficers.sort((a, b) => {
         if (b.achieved !== a.achieved) return b.achieved - a.achieved;
         return b.total - a.total;
@@ -5058,12 +5106,32 @@ function autoSyncBankTransactions() {
     }
 
     function renderLeaderboardMIS() {
-      calculateLeaderboard();
-
       const tbody = document.getElementById('leaderboard-tbody');
       const tfoot = document.getElementById('leaderboard-tfoot');
       if (!tbody) return;
 
+      // Access Gate: If manager doesn't have access, keep data completely blank
+      if (!hasLeaderboardMISAccess()) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="11" class="py-16 px-4 text-center bg-slate-50 text-slate-500 border border-slate-200">
+              <div class="flex flex-col items-center justify-center gap-2.5 max-w-md mx-auto">
+                <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 shadow-inner">
+                  <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h4 class="font-black text-slate-800 text-sm tracking-wide">MIS Data Blank (Access Restricted)</h4>
+                <p class="text-xs text-slate-500 font-medium">Jab tak Admin manager ko access nahi dega, tab tak Daily Leaderboard MIS ka data blank rahega.</p>
+                <span class="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-300 rounded text-[11px] font-bold">Contact Admin for Access</span>
+              </div>
+            </td>
+          </tr>
+        `;
+        if (tfoot) tfoot.innerHTML = '';
+        lucide.createIcons();
+        return;
+      }
+
+      calculateLeaderboard();
       tbody.innerHTML = '';
 
       let sumTarget = 0;
@@ -5144,41 +5212,72 @@ function autoSyncBankTransactions() {
       if (el) el.innerText = `Daily Collection Leaderboard ${p}`;
     }
 
+    function parseTxDateObj(dStr) {
+      if (!dStr) return null;
+      const s = String(dStr).trim().split(' ')[0];
+      const p = s.split(/[-/]/);
+      if (p.length === 3) {
+        if (p[0].length === 4) return { y: parseInt(p[0], 10), m: parseInt(p[1], 10), d: parseInt(p[2], 10) };
+        return { d: parseInt(p[0], 10), m: parseInt(p[1], 10), y: parseInt(p[2], 10) };
+      }
+      return null;
+    }
+
     function syncTodayCollectionsFromClaims() {
-      // Aggregate today's verified claims for each officer
+      if (!hasLeaderboardMISAccess()) return;
+
       const alloc = allTransactions.filter(t => t.status === 'ALLOCATED');
       let matchedCount = 0;
+
+      const now = new Date();
+      const curD = now.getDate();
+      const curM = now.getMonth() + 1;
+      const curY = now.getFullYear();
 
       leaderboardOfficers.forEach(off => {
         const offName = off.name.toUpperCase().trim();
         let todaySum = 0;
+        let mtdSum = 0;
 
         alloc.forEach(t => {
+          const dt = parseTxDateObj(t.tx_date);
+          const isTodayTx = dt ? (dt.d === curD && dt.m === curM && dt.y === curY) : true;
+          const isMtdTx = dt ? (dt.y === curY && dt.m === curM && dt.d < curD) : false;
+
           const splits = parseSplitCallers(t.caller_name, t.amount);
           if (splits && splits.length > 0) {
             splits.forEach(s => {
               const cName = (s.caller || '').toUpperCase().trim();
               if (cName && (offName.includes(cName) || cName.includes(offName) || offName.split(' ')[0] === cName.split(' ')[0])) {
-                todaySum += Number(s.amount) || 0;
+                const amt = Number(s.amount) || 0;
+                if (isTodayTx) todaySum += amt;
+                else if (isMtdTx) mtdSum += amt;
               }
             });
           } else {
             const cName = (t.caller_name || '').toUpperCase().trim();
             if (cName && (offName.includes(cName) || cName.includes(offName) || offName.split(' ')[0] === cName.split(' ')[0])) {
-              todaySum += Number(t.amount) || 0;
+              const amt = Number(t.amount) || 0;
+              if (isTodayTx) todaySum += amt;
+              else if (isMtdTx) mtdSum += amt;
             }
           }
         });
 
-        if (todaySum > 0) {
+        if (todaySum > 0 || mtdSum > 0) {
           off.today = todaySum;
+          if (mtdSum > 0) {
+            off.aoy = (off.baseAoy || off.aoy || 0) + mtdSum;
+          }
           matchedCount++;
         }
       });
 
       renderLeaderboardMIS();
       saveLeaderboardToCloud(false);
-      showToast(`Synced live verified collections for ${matchedCount} officers!`, 'success');
+      if (matchedCount > 0) {
+        showToast(`Synced live verified collections for ${matchedCount} officers!`, 'success');
+      }
     }
 
     function openAddOfficerModal() {
@@ -5330,6 +5429,10 @@ function autoSyncBankTransactions() {
     }
 
     function exportLeaderboardExcel() {
+      if (!hasLeaderboardMISAccess()) {
+        showToast('Access Denied: MIS permission is not granted for your profile.', 'error');
+        return;
+      }
       if (typeof XLSX === 'undefined') {
         showToast('Excel engine is still initializing. Please try again.', 'error');
         return;
@@ -5444,6 +5547,10 @@ function autoSyncBankTransactions() {
     }
 
     async function captureAndSendWhatsAppImage() {
+      if (!hasLeaderboardMISAccess()) {
+        showToast('Access Denied: MIS permission is not granted for your profile.', 'error');
+        return;
+      }
       // Ensure leaderboard is freshly populated
       renderLeaderboardMIS();
 
