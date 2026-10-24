@@ -238,6 +238,10 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <button onclick="openPreCaseModal()" class="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all active:scale-95">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5 text-amber-300"></i>
+          <span>+ Pre-Add Paid Case</span>
+        </button>
         <button onclick="openSmartFinderModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
           <i data-lucide="search" class="w-3.5 h-3.5"></i>
           <span>Fuzzy UTR / Name Finder</span>
@@ -423,6 +427,28 @@
     <!-- ---------------------------------------- -->
     <div id="content-workspace" class="space-y-4 hidden">
       
+      <!-- Pre-Added Cases Notification Banner -->
+      <div id="pre-cases-banner" class="p-3 bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white border border-blue-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <div class="p-1.5 bg-blue-700 text-white rounded-lg shadow-sm">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-blue-950">Pre-Added Paid Cases: </span>
+            <span id="pre-cases-status-text" class="text-slate-700 font-medium">0 cases logged before bank statement.</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openPreCaseModal()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-bold text-xs shadow-sm flex items-center gap-1 active:scale-95 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Pre-Add Case
+          </button>
+          <button onclick="openPreCasesListModal()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-blue-800 border border-blue-300 rounded-lg font-bold text-xs shadow-sm transition flex items-center gap-1">
+            <i data-lucide="list-checks" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>View Pre-Added List (<span id="pre-cases-count-pill" class="font-extrabold text-blue-700 font-mono">0</span>)</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Filter Toolbar -->
       <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
         
@@ -752,6 +778,20 @@
         <span id="modal-claim-error-text">Please complete all required fields correctly.</span>
       </div>
 
+      <!-- Quick Auto-Fill from Pre-Added Customers Dropdown -->
+      <div id="pre-customer-dropdown-box" class="p-2.5 rounded-lg bg-blue-50/90 border border-blue-200 space-y-1">
+        <div class="flex items-center justify-between text-[11px] font-bold text-blue-900">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
+            <span>Select Pre-Added Customer to Auto-Fill:</span>
+          </span>
+          <span id="pre-customer-count-badge" class="text-[10px] text-blue-700 font-semibold"></span>
+        </div>
+        <select id="modal-pre-customer-select" onchange="handlePreCustomerSelection()" class="w-full bg-white border border-blue-300 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+          <option value="">-- Or choose pre-added customer to auto-fill --</option>
+        </select>
+      </div>
+
       <div class="space-y-3">
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -796,6 +836,131 @@
           <i data-lucide="check" class="w-4 h-4"></i>
           Save & Link Entry
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 7B. MODAL: PRE-ADD DAILY PAID CASE         -->
+  <!-- ========================================== -->
+  <div id="pre-case-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-lg w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+            <i data-lucide="user-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900">Pre-Add Today's Paid Customer</h3>
+            <p class="text-[11px] text-slate-500 font-medium">Log caller collection details. Bank entry will auto-attach next day.</p>
+          </div>
+        </div>
+        <button onclick="closePreCaseModal()" class="text-slate-400 hover:text-slate-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- In-Modal Alert -->
+      <div id="modal-pre-case-error" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 shrink-0"></i>
+        <span id="modal-pre-case-error-text">Please fill required fields.</span>
+      </div>
+
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Customer ID / Loan No *</label>
+            <input type="text" id="pre-cust-id" placeholder="e.g. 597362" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 font-medium">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Customer Name *</label>
+            <input type="text" id="pre-cust-name" placeholder="e.g. SARAVANAN KRISHNA" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600 font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Paid Amount (₹) *</label>
+            <input type="number" step="0.01" id="pre-amount" placeholder="e.g. 8000" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-emerald-800 font-mono font-bold focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Portfolio *</label>
+            <select id="pre-portfolio" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600">
+              <option value="CASHE">CASHE</option>
+              <option value="SCB">SCB</option>
+              <option value="CHOLA">CHOLA</option>
+              <option value="CAPITALFLOAT">CAPITALFLOAT</option>
+              <option value="AXIO">AXIO</option>
+              <option value="DMI">DMI</option>
+              <option value="PMC">PMC</option>
+              <option value="UNITY_CC">UNITY_CC</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Caller / Officer Name *</label>
+            <input type="text" id="pre-caller" placeholder="e.g. SUHANA SHAIKH" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase">UTR / Slip No (Optional)</label>
+            <input type="text" id="pre-utr-note" placeholder="Optional UTR or Slip No" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closePreCaseModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+        <button onclick="submitPreCase()" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          Save Pre-Paid Case
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 7C. MODAL: VIEW ALL PRE-ADDED CASES        -->
+  <!-- ========================================== -->
+  <div id="pre-cases-list-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-3xl w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+            <i data-lucide="list-checks" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900">My Pre-Added Paid Customers</h3>
+            <p class="text-xs text-slate-500 font-medium">Cases logged before bank statement. Auto-links when bank entry arrives.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openPreCaseModal()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Case
+          </button>
+          <button onclick="closePreCasesListModal()" class="text-slate-400 hover:text-slate-700 p-1">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto table-container">
+        <table class="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+          <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+            <tr>
+              <th class="p-2.5 border-r border-slate-200">Loan ID</th>
+              <th class="p-2.5 border-r border-slate-200">Customer Name</th>
+              <th class="p-2.5 border-r border-slate-200 text-right">Amount (₹)</th>
+              <th class="p-2.5 border-r border-slate-200">Caller</th>
+              <th class="p-2.5 border-r border-slate-200 text-center">Status</th>
+              <th class="p-2.5 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="pre-cases-table-body" class="divide-y divide-slate-200 font-medium">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -1162,6 +1327,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       initSupabase();
       await syncCredentialsWithCloud();
+      await loadPreLoggedCases();
       lucide.createIcons();
       startLiveClock();
       checkAuthSession();
@@ -1785,6 +1951,7 @@
       }
 
       filterTransactions();
+      updatePreCasesBanner();
       lucide.createIcons();
     }
 
@@ -2524,6 +2691,296 @@
     }
 
     // ==========================================
+    // PRE-ADDED PAID CASES ENGINE (DAY 1 -> DAY 2)
+    // ==========================================
+    let preLoggedCases = [];
+
+    async function loadPreLoggedCases() {
+      let localCases = [];
+      const saved = localStorage.getItem('shaha_pre_logged_cases_v2');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) localCases = parsed;
+        } catch (e) {}
+      }
+
+      let cloudCases = [];
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('bank_transactions')
+            .select('*')
+            .eq('ref_no', 'SYS_PRE_LOGGED_CASES')
+            .limit(1);
+
+          if (!error && data && data.length > 0 && data[0].narration) {
+            const parsed = JSON.parse(data[0].narration);
+            if (Array.isArray(parsed)) cloudCases = parsed;
+          }
+        } catch (e) {}
+      }
+
+      const caseMap = new Map();
+      localCases.forEach(c => caseMap.set(c.id, c));
+      cloudCases.forEach(c => caseMap.set(c.id, c));
+      preLoggedCases = Array.from(caseMap.values());
+
+      try {
+        localStorage.setItem('shaha_pre_logged_cases_v2', JSON.stringify(preLoggedCases));
+      } catch (e) {}
+
+      updatePreCasesBanner();
+    }
+
+    async function savePreLoggedCases() {
+      try {
+        localStorage.setItem('shaha_pre_logged_cases_v2', JSON.stringify(preLoggedCases));
+      } catch (e) {}
+
+      updatePreCasesBanner();
+
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('id')
+            .eq('ref_no', 'SYS_PRE_LOGGED_CASES')
+            .limit(1);
+
+          if (data && data.length > 0) {
+            await supabaseClient
+              .from('bank_transactions')
+              .update({
+                narration: JSON.stringify(preLoggedCases),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', data[0].id);
+          } else {
+            await supabaseClient
+              .from('bank_transactions')
+              .insert([{
+                bank_name: 'SYSTEM',
+                ref_no: 'SYS_PRE_LOGGED_CASES',
+                tx_date: '01-01-2026',
+                amount: 0,
+                narration: JSON.stringify(preLoggedCases),
+                status: 'SYSTEM'
+              }]);
+          }
+        } catch (e) {
+          console.warn('Pre-logged cases cloud sync note:', e);
+        }
+      }
+    }
+
+    function updatePreCasesBanner() {
+      const myPending = preLoggedCases.filter(c => c.status === 'PENDING' && isManagerRecord(c.manager));
+      const textEl = document.getElementById('pre-cases-status-text');
+      const pillEl = document.getElementById('pre-cases-count-pill');
+      if (textEl) {
+        textEl.innerText = `${myPending.length} cases logged before bank statement (ready for 1-click link).`;
+      }
+      if (pillEl) {
+        pillEl.innerText = myPending.length;
+      }
+    }
+
+    function openPreCaseModal() {
+      document.getElementById('pre-cust-id').value = '';
+      document.getElementById('pre-cust-name').value = '';
+      document.getElementById('pre-amount').value = '';
+      document.getElementById('pre-caller').value = '';
+      document.getElementById('pre-utr-note').value = '';
+      document.getElementById('pre-portfolio').value = 'CASHE';
+
+      const errBox = document.getElementById('modal-pre-case-error');
+      if (errBox) errBox.classList.add('hidden');
+
+      document.getElementById('pre-case-modal').classList.remove('hidden');
+      lucide.createIcons();
+      setTimeout(() => document.getElementById('pre-cust-id').focus(), 150);
+    }
+
+    function closePreCaseModal() {
+      document.getElementById('pre-case-modal').classList.add('hidden');
+    }
+
+    async function submitPreCase() {
+      const custId = document.getElementById('pre-cust-id').value.trim();
+      const custName = document.getElementById('pre-cust-name').value.trim();
+      const amount = parseFloat(document.getElementById('pre-amount').value);
+      const portfolio = document.getElementById('pre-portfolio').value;
+      const caller = document.getElementById('pre-caller').value.trim();
+      const utrNote = document.getElementById('pre-utr-note').value.trim();
+      const errBox = document.getElementById('modal-pre-case-error');
+      const errText = document.getElementById('modal-pre-case-error-text');
+
+      if (!custId || !custName || isNaN(amount) || amount <= 0 || !caller) {
+        if (errBox && errText) {
+          errText.innerText = 'Please fill Loan No, Customer Name, Valid Amount and Caller Name.';
+          errBox.classList.remove('hidden');
+        }
+        showToast('Please complete required fields.', 'error');
+        return;
+      }
+
+      if (errBox) errBox.classList.add('hidden');
+
+      const newCase = {
+        id: 'PRE_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        cust_id: custId,
+        cust_name: custName,
+        amount: amount,
+        portfolio: portfolio,
+        caller: caller,
+        utr_note: utrNote,
+        manager: currentManager || (currentUser ? currentUser.name : 'MANAGER'),
+        agency: currentAgency,
+        status: 'PENDING',
+        created_at: new Date().toISOString()
+      };
+
+      preLoggedCases.unshift(newCase);
+      await savePreLoggedCases();
+      closePreCaseModal();
+      showToast(`Pre-Added ${custName} (₹${amount})! Will auto-link when bank entry arrives.`, 'success');
+      renderPreCasesList();
+    }
+
+    function openPreCasesListModal() {
+      renderPreCasesList();
+      document.getElementById('pre-cases-list-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closePreCasesListModal() {
+      document.getElementById('pre-cases-list-modal').classList.add('hidden');
+    }
+
+    function renderPreCasesList() {
+      const tbody = document.getElementById('pre-cases-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const myCases = preLoggedCases.filter(c => isManagerRecord(c.manager));
+
+      if (myCases.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">No pre-added customer cases logged yet. Click "+ Add Case" to add one.</td></tr>';
+        return;
+      }
+
+      myCases.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+        const isLinked = c.status === 'LINKED';
+        const badge = isLinked ?
+          `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">✅ Linked (${c.linked_ref || 'Bank'})</span>` :
+          `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">⏳ Waiting for Statement</span>`;
+
+        const deleteBtn = isLinked ?
+          `<span class="text-slate-300 text-xs italic">Attached</span>` :
+          `<button onclick="deletePreCase('${c.id}')" class="px-2 py-0.5 text-rose-600 hover:bg-rose-50 rounded border border-rose-200 text-xs font-semibold" title="Remove entry">Remove</button>`;
+
+        tr.innerHTML = `
+          <td class="p-2.5 border-r border-slate-200 font-mono font-bold text-blue-700">${c.cust_id}</td>
+          <td class="p-2.5 border-r border-slate-200 font-bold text-slate-900">${c.cust_name}</td>
+          <td class="p-2.5 border-r border-slate-200 text-right font-mono font-bold text-slate-900">₹${Number(c.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="p-2.5 border-r border-slate-200">${c.caller}</td>
+          <td class="p-2.5 border-r border-slate-200 text-center">${badge}</td>
+          <td class="p-2.5 text-center">${deleteBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    async function deletePreCase(caseId) {
+      if (!confirm('Remove this pre-added customer entry?')) return;
+      preLoggedCases = preLoggedCases.filter(c => c.id !== caseId);
+      await savePreLoggedCases();
+      renderPreCasesList();
+      showToast('Pre-added customer removed.', 'info');
+    }
+
+    function updatePreCustomerDropdown(txAmount, tx) {
+      const select = document.getElementById('modal-pre-customer-select');
+      const badge = document.getElementById('pre-customer-count-badge');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">-- Choose pre-added customer to auto-fill --</option>';
+
+      // Filter pending pre-cases for current manager
+      const myPending = preLoggedCases.filter(c => c.status === 'PENDING' && isManagerRecord(c.manager));
+      if (badge) badge.innerText = `${myPending.length} pre-added`;
+
+      let bestMatch = null;
+      const txAmtNum = Number(txAmount) || 0;
+      const txUtr = (tx && tx.cheque_extracted ? String(tx.cheque_extracted).toUpperCase().trim() : '');
+
+      myPending.forEach(c => {
+        const isAmtMatch = Math.abs(Number(c.amount) - txAmtNum) < 0.01;
+        const isUtrMatch = txUtr && c.utr_note && String(c.utr_note).toUpperCase().includes(txUtr);
+        
+        let label = `${c.cust_name} (₹${Number(c.amount).toLocaleString('en-IN')}) | Loan: ${c.cust_id} | Caller: ${c.caller}`;
+        if (isUtrMatch) label += ' ★ UTR MATCH';
+        else if (isAmtMatch) label += ' ★ AMOUNT MATCH';
+
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.innerText = label;
+
+        if (isUtrMatch) {
+          bestMatch = c;
+          opt.selected = true;
+        } else if (isAmtMatch && !bestMatch) {
+          bestMatch = c;
+          opt.selected = true;
+        }
+
+        select.appendChild(opt);
+      });
+
+      // If an exact match was detected, auto-fill the form fields immediately!
+      if (bestMatch) {
+        applyPreCustomerValues(bestMatch);
+      }
+    }
+
+    function handlePreCustomerSelection() {
+      const select = document.getElementById('modal-pre-customer-select');
+      if (!select || !select.value) return;
+      const c = preLoggedCases.find(item => item.id == select.value);
+      if (c) {
+        applyPreCustomerValues(c);
+      }
+    }
+
+    function applyPreCustomerValues(c) {
+      const idEl = document.getElementById('modal-cust-id');
+      const nameEl = document.getElementById('modal-cust-name');
+      const portEl = document.getElementById('modal-portfolio');
+      const callerEl = document.getElementById('modal-caller');
+
+      if (idEl) {
+        idEl.value = c.cust_id || '';
+        idEl.classList.add('bg-emerald-50', 'border-emerald-400');
+        setTimeout(() => idEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
+      }
+      if (nameEl) {
+        nameEl.value = c.cust_name || '';
+        nameEl.classList.add('bg-emerald-50', 'border-emerald-400');
+        setTimeout(() => nameEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
+      }
+      if (portEl) portEl.value = c.portfolio || 'CASHE';
+      if (callerEl) {
+        callerEl.value = c.caller || '';
+        callerEl.classList.add('bg-emerald-50', 'border-emerald-400');
+        setTimeout(() => callerEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
+      }
+    }
+
+    // ==========================================
     // MANUAL CLAIM MODAL
     // ==========================================
     function openClaimModal(t) {
@@ -2546,6 +3003,9 @@
 
       const errBox = document.getElementById('modal-claim-error');
       if (errBox) errBox.classList.add('hidden');
+
+      // Populate pre-added customer dropdown and trigger smart auto-fill!
+      updatePreCustomerDropdown(t.amount, t);
 
       document.getElementById('claim-modal').classList.remove('hidden');
       lucide.createIcons();
@@ -2629,6 +3089,17 @@
             console.warn('Cloud DB update notice:', e);
           }
         }
+
+        // Mark pre-logged case as LINKED
+        const selPre = document.getElementById('modal-pre-customer-select');
+        if (selPre && selPre.value) {
+          const matchedPre = preLoggedCases.find(c => c.id == selPre.value);
+          if (matchedPre) {
+            matchedPre.status = 'LINKED';
+            matchedPre.linked_ref = tx.ref_no;
+            savePreLoggedCases();
+          }
+        }
       }
 
       showToast('Transaction linked, claimed & saved to Cloud successfully!', 'success');
@@ -2645,12 +3116,21 @@
       }
       if (!confirm('Release this transaction back to Unallocated Pool?')) return;
       
+      const prevRef = tx.ref_no;
       tx.customer_id = null;
       tx.customer_name = null;
       tx.portfolio = null;
       tx.caller_name = null;
       tx.claimed_by_manager = null;
       tx.status = 'UNALLOCATED';
+
+      // If a pre-case was linked to this ref, restore it back to PENDING
+      const linkedPre = preLoggedCases.find(c => c.linked_ref === prevRef);
+      if (linkedPre) {
+        linkedPre.status = 'PENDING';
+        delete linkedPre.linked_ref;
+        savePreLoggedCases();
+      }
 
       try {
         localStorage.setItem('shaha_fallback_txs_v2', JSON.stringify(allTransactions));
