@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- HTML2Canvas for WhatsApp Image Sharing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
     
@@ -558,78 +560,75 @@
     </div>
 
     <!-- ---------------------------------------- -->
-    <!-- TAB 4: DAILY COLLECTION LEADERBOARD MIS  -->
+    <!-- TAB 4: DAILY COLLECTION LEADERBOARD MIS (ZERO-SCROLL FIT) -->
     <!-- ---------------------------------------- -->
-    <div id="content-leaderboard" class="space-y-4 hidden">
-      <!-- Action Toolbar -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <div class="p-2 bg-amber-50 text-amber-600 rounded-lg border border-amber-200">
-            <i data-lucide="trophy" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-extrabold text-slate-900 text-sm">Daily Collection Leaderboard MIS</h3>
-            <p class="text-xs text-slate-500 font-medium">Real-time recovery officer ranking, targets, AOY, collections & achievement %</p>
-          </div>
+    <div id="content-leaderboard" class="space-y-2 hidden">
+      <!-- Compact Integrated Header + Controls Banner -->
+      <div class="bg-[#174375] py-1.5 px-3 rounded-t-xl border-t border-x border-[#174375] shadow-md flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="trophy" class="w-4 h-4 text-[#ffeb3b]"></i>
+          <h2 id="leaderboard-table-title" class="text-sm md:text-base font-black text-[#ffeb3b] tracking-wide uppercase">
+            Daily Collection Leaderboard Oct-26
+          </h2>
+          <span class="text-[10px] text-blue-200 hidden sm:inline">(Live Recovery Ranks)</span>
         </div>
 
-        <div class="flex items-center gap-2 flex-wrap">
-          <div class="flex items-center bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1 text-xs">
-            <span class="text-slate-500 font-bold mr-1.5">Period:</span>
-            <input type="text" id="leaderboard-period-input" value="Oct-26" onchange="updateLeaderboardTitle()" class="bg-transparent font-extrabold text-blue-900 w-16 focus:outline-none">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <div class="flex items-center bg-blue-950/70 border border-blue-400/40 rounded px-2 py-0.5 text-[11px] text-white">
+            <span class="text-blue-200 font-semibold mr-1">Period:</span>
+            <input type="text" id="leaderboard-period-input" value="Oct-26" onchange="updateLeaderboardTitle()" class="bg-transparent font-extrabold text-amber-300 w-14 text-center focus:outline-none">
           </div>
-          <button onclick="syncTodayCollectionsFromClaims()" title="Auto calculate TODAY from verified claims" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 shadow-xs">
-            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
-            <span>Auto-Sync Today Claims</span>
+          <button onclick="syncTodayCollectionsFromClaims()" title="Auto-calculate TODAY from verified claims" class="px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[11px] font-bold transition flex items-center gap-1 shadow-xs active:scale-95">
+            <i data-lucide="zap" class="w-3 h-3 text-amber-300 fill-amber-300"></i>
+            <span>Sync Today</span>
           </button>
-          <button onclick="openAddOfficerModal()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
-            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-            <span>+ Add Officer</span>
+          <button onclick="openAddOfficerModal()" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="plus" class="w-3 h-3"></i>
+            <span>Add Officer</span>
           </button>
-          <button onclick="exportLeaderboardExcel()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Export Excel (.xlsx)</span>
+          <button onclick="exportLeaderboardExcel()" class="px-2 py-1 bg-white hover:bg-slate-100 text-slate-800 rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="download" class="w-3 h-3 text-emerald-700"></i>
+            <span>Export Excel</span>
           </button>
-          <button onclick="saveLeaderboardToCloud(true)" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
-            <i data-lucide="cloud" class="w-3.5 h-3.5 text-blue-300"></i>
+          <button onclick="openWhatsAppModal()" class="px-2.5 py-1 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded text-[11px] font-black shadow-xs transition flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-white text-[#25D366]"></i>
+            <span>Share WhatsApp</span>
+          </button>
+          <button onclick="copyLeaderboardImageToClipboard()" title="Copy Table Image to clipboard for WhatsApp" class="px-2 py-1 bg-sky-500 hover:bg-sky-400 text-white rounded text-[11px] font-bold shadow-xs transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="camera" class="w-3 h-3"></i>
+            <span>Copy Image</span>
+          </button>
+          <button onclick="saveLeaderboardToCloud(true)" class="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded text-[11px] font-extrabold shadow-xs transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="cloud" class="w-3 h-3"></i>
             <span>Save MIS</span>
           </button>
         </div>
       </div>
 
-      <!-- Leaderboard Table Container (Styled to exact screenshot) -->
-      <div class="bg-white rounded-xl border-2 border-[#174375] shadow-xl overflow-hidden">
-        <!-- Main Blue Banner with Yellow Text -->
-        <div class="bg-[#174375] py-2.5 px-4 text-center border-b border-blue-900">
-          <h2 id="leaderboard-table-title" class="text-base md:text-lg font-black text-[#ffeb3b] tracking-wide uppercase drop-shadow-xs">
-            Daily Collection Leaderboard Oct-26
-          </h2>
-        </div>
-
+      <!-- Zero-Scroll Compact Table Container -->
+      <div id="leaderboard-capture-area" class="bg-white rounded-b-xl border-x-2 border-b-2 border-[#174375] shadow-xl overflow-hidden">
         <div class="overflow-x-auto table-container">
-          <table class="w-full text-xs border-collapse">
-            <!-- Header Row matching screenshot -->
+          <table class="w-full text-[11px] border-collapse">
             <thead>
-              <tr class="bg-[#1f4e78] text-white text-[11px] font-extrabold uppercase tracking-tight">
-                <th class="py-2.5 px-2 text-center border border-[#174375] w-14">Sr. NO</th>
-                <th class="py-2.5 px-3 text-left border border-[#174375] min-w-[170px]">OFFICER'S NAME</th>
-                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">TARGET 100%</th>
-                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">AOY</th>
-                <th class="py-2.5 px-3 text-right border border-[#174375] w-24">TODAY</th>
-                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">TOTAL</th>
-                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">BALANCE</th>
-                <th class="py-2.5 px-3 text-right border border-[#174375] w-28">PROJECTION</th>
-                <th class="py-2.5 px-2 text-center border border-[#174375] w-24">ACHIEVED%</th>
-                <th class="py-2.5 px-2 text-center border border-[#174375] w-16">RANK</th>
-                <th class="py-2.5 px-1.5 text-center border border-[#174375] w-14">EDIT</th>
+              <tr class="bg-[#1f4e78] text-white text-[10px] sm:text-[11px] font-extrabold uppercase tracking-tight">
+                <th class="py-1.5 px-1.5 text-center border border-[#174375] w-12">Sr. NO</th>
+                <th class="py-1.5 px-2.5 text-left border border-[#174375] min-w-[150px]">OFFICER'S NAME</th>
+                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">TARGET 100%</th>
+                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">AOY</th>
+                <th class="py-1.5 px-2 text-right border border-[#174375] w-20">TODAY</th>
+                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">TOTAL</th>
+                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">BALANCE</th>
+                <th class="py-1.5 px-2 text-right border border-[#174375] w-24">PROJECTION</th>
+                <th class="py-1.5 px-1.5 text-center border border-[#174375] w-20">ACHIEVED%</th>
+                <th class="py-1.5 px-1.5 text-center border border-[#174375] w-14">RANK</th>
+                <th class="py-1.5 px-1 text-center border border-[#174375] w-10">EDIT</th>
               </tr>
             </thead>
             <tbody id="leaderboard-tbody" class="divide-y divide-slate-300">
-              <!-- Dynamically rendered -->
+              <!-- Compact rows rendered via JS -->
             </tbody>
-            <!-- Footer Summary Row matching screenshot -->
-            <tfoot id="leaderboard-tfoot" class="bg-[#1f4e78] text-white font-extrabold text-xs">
-              <!-- Rendered via JS -->
+            <tfoot id="leaderboard-tfoot" class="bg-[#1f4e78] text-white font-extrabold text-[11px]">
+              <!-- Compact Total Footer rendered via JS -->
             </tfoot>
           </table>
         </div>
@@ -1431,6 +1430,81 @@
           <button type="button" onclick="closeOfficerModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
           <button type="button" onclick="saveOfficerModal()" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-sm">Save Officer</button>
         </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal: WhatsApp Sharing Center -->
+  <div id="whatsapp-share-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-xl w-full rounded-2xl border border-slate-200 shadow-2xl p-5 space-y-4 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-200">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900">Share Daily Leaderboard on WhatsApp</h3>
+            <p class="text-xs text-slate-500 font-medium">Send formatted leaderboard text or copy table image directly into groups</p>
+          </div>
+        </div>
+        <button onclick="closeWhatsAppModal()" class="text-slate-400 hover:text-slate-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Manager Direct WhatsApp Dispatch Box -->
+      <div class="bg-blue-50/80 p-3 rounded-xl border border-blue-200 space-y-2">
+        <div class="flex items-center justify-between text-xs font-bold text-blue-900">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-4 h-4 text-blue-700"></i>
+            <span>Send Directly to Manager's WhatsApp:</span>
+          </span>
+          <span class="text-[10px] text-blue-600 font-semibold">(Or leave blank for group)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1">
+            <span class="absolute left-2.5 top-1.5 text-xs text-slate-500 font-bold">+91</span>
+            <input type="tel" id="whatsapp-manager-phone" placeholder="Enter Manager Mobile No (e.g. 9876543210)" class="w-full pl-10 pr-3 py-1.5 bg-white border border-blue-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600">
+          </div>
+          <button onclick="sendToManagerWhatsApp()" class="px-3.5 py-1.5 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1.5 active:scale-95 transition whitespace-nowrap">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Send to Manager</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="copyAndOpenWhatsAppForManager()" class="p-3 rounded-xl bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 text-center">
+          <i data-lucide="camera" class="w-4 h-4 text-amber-300"></i>
+          <span>📸 Copy Exact Photo & Open Chat</span>
+        </button>
+        <button onclick="sendDirectWhatsApp()" class="p-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 text-center">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
+          <span>Send Full Text Report</span>
+        </button>
+      </div>
+
+      <!-- Text Preview Box -->
+      <div class="space-y-1.5 flex-1 min-h-0 flex flex-col">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-slate-700">WhatsApp Formatted Message Preview:</span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="copyWhatsAppText()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold text-[11px] border border-slate-300 flex items-center gap-1 shadow-xs transition">
+              <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+              <span>Copy Text</span>
+            </button>
+            <button onclick="downloadLeaderboardImage()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold text-[11px] border border-slate-300 flex items-center gap-1 shadow-xs transition">
+              <i data-lucide="download" class="w-3.5 h-3.5 text-blue-700"></i>
+              <span>Download Image</span>
+            </button>
+          </div>
+        </div>
+        <textarea id="whatsapp-preview-box" readonly class="w-full h-52 bg-slate-50 border border-slate-300 rounded-xl p-3 font-mono text-[11px] text-slate-800 leading-relaxed focus:outline-none select-all overflow-y-auto"></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+        <span>Tip: Press <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-bold text-slate-700">Ctrl + V</kbd> directly in WhatsApp chat to paste!</span>
+        <button onclick="closeWhatsAppModal()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Close</button>
       </div>
     </div>
   </div>
@@ -4733,19 +4807,19 @@ function autoSyncBankTransactions() {
         const rankStyle = getRankBgColor(rank);
 
         tr.innerHTML = `
-          <td class="py-2 px-2 text-center border border-slate-300 font-bold bg-[#d9e1f2] text-slate-800">${idx + 1}</td>
-          <td class="py-2 px-3 text-left border border-slate-300 font-extrabold text-slate-900 bg-slate-100">${off.name}</td>
-          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${target.toLocaleString('en-IN')}</td>
-          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${aoy.toLocaleString('en-IN')}</td>
-          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${today.toLocaleString('en-IN')}</td>
-          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${total.toLocaleString('en-IN')}</td>
-          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold ${balance < 0 ? 'text-slate-900' : 'text-slate-900'}">${balance.toLocaleString('en-IN')}</td>
-          <td class="py-2 px-3 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${projection.toLocaleString('en-IN')}</td>
-          <td class="py-2 px-2 text-center border border-slate-300 font-mono-num" style="${achievedStyle}">${achieved}%</td>
-          <td class="py-2 px-2 text-center border border-slate-300 font-mono-num font-extrabold" style="${rankStyle}">${rank}</td>
-          <td class="py-2 px-1 text-center border border-slate-300">
-            <button onclick="openEditOfficerModal(${idx})" class="p-1 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
-              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+          <td class="py-0.5 px-1.5 text-center border border-slate-300 font-bold bg-[#d9e1f2] text-slate-800">${idx + 1}</td>
+          <td class="py-0.5 px-2.5 text-left border border-slate-300 font-extrabold text-slate-900 bg-slate-100">${off.name}</td>
+          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${target.toLocaleString('en-IN')}</td>
+          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${aoy.toLocaleString('en-IN')}</td>
+          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${today.toLocaleString('en-IN')}</td>
+          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${total.toLocaleString('en-IN')}</td>
+          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold ${balance < 0 ? 'text-slate-900' : 'text-slate-900'}">${balance.toLocaleString('en-IN')}</td>
+          <td class="py-0.5 px-2 text-right border border-slate-300 font-mono-num font-bold text-slate-900">${projection.toLocaleString('en-IN')}</td>
+          <td class="py-0.5 px-1.5 text-center border border-slate-300 font-mono-num" style="${achievedStyle}">${achieved}%</td>
+          <td class="py-0.5 px-1.5 text-center border border-slate-300 font-mono-num font-extrabold" style="${rankStyle}">${rank}</td>
+          <td class="py-0.5 px-1 text-center border border-slate-300">
+            <button onclick="openEditOfficerModal(${idx})" class="p-0.5 text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded" title="Edit Values">
+              <i data-lucide="edit-2" class="w-3 h-3"></i>
             </button>
           </td>
         `;
@@ -4756,16 +4830,16 @@ function autoSyncBankTransactions() {
       const totalAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
       if (tfoot) {
         tfoot.innerHTML = `
-          <tr class="bg-[#1f4e78] text-white font-extrabold">
-            <td colspan="2" class="py-2.5 px-3 text-center border border-[#174375] uppercase tracking-wider text-xs">TOTAL</td>
-            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumTarget.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumAoy.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumToday.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumTotal.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumBalance.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-right border border-[#174375] font-mono-num">${sumProjection.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-sm bg-[#2e6b9e] text-yellow-300">${totalAchieved}%</td>
-            <td colspan="2" class="py-2.5 px-2 text-center border border-[#174375]"></td>
+          <tr class="bg-[#1f4e78] text-white font-extrabold text-[11px]">
+            <td colspan="2" class="py-1 px-3 text-center border border-[#174375] uppercase tracking-wider text-[11px]">TOTAL</td>
+            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumTarget.toLocaleString('en-IN')}</td>
+            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumAoy.toLocaleString('en-IN')}</td>
+            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumToday.toLocaleString('en-IN')}</td>
+            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumTotal.toLocaleString('en-IN')}</td>
+            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-1 px-2 text-right border border-[#174375] font-mono-num">${sumProjection.toLocaleString('en-IN')}</td>
+            <td class="py-1 px-1.5 text-center border border-[#174375] font-mono-num text-xs bg-[#2e6b9e] text-yellow-300">${totalAchieved}%</td>
+            <td colspan="2" class="py-1 px-1 text-center border border-[#174375]"></td>
           </tr>
         `;
       }
@@ -5032,6 +5106,200 @@ function autoSyncBankTransactions() {
       const success = saveWorkbookFile(wb, filename);
       if (success) {
         showToast('Daily Leaderboard Excel file downloaded successfully!', 'success');
+      }
+    }
+
+
+    // ==========================================
+    // WHATSAPP MIS SHARING ENGINE
+    // ==========================================
+    function generateWhatsAppText() {
+      calculateLeaderboard();
+      const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
+      const now = new Date();
+      const todayStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+      let sumTarget = 0;
+      let sumAoy = 0;
+      let sumToday = 0;
+      let sumTotal = 0;
+      let sumBalance = 0;
+      let sumProjection = 0;
+
+      leaderboardOfficers.forEach(off => {
+        sumTarget += off.target;
+        sumAoy += off.aoy;
+        sumToday += off.today;
+        sumTotal += off.total;
+        sumBalance += off.balance;
+        sumProjection += off.projection;
+      });
+
+      const totalAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+
+      let msg = `🏆 *DAILY COLLECTION LEADERBOARD ${period.toUpperCase()}* 🏆\n`;
+      msg += `🏢 *Shaha Finlease Pvt Ltd*\n`;
+      msg += `📅 *Date:* ${todayStr}\n`;
+      msg += `─────────────────────────\n\n`;
+
+      leaderboardOfficers.forEach((off) => {
+        let badge = `#${off.rank}`;
+        if (off.rank === 1) badge = `🥇 *#1*`;
+        else if (off.rank === 2) badge = `🥈 *#2*`;
+        else if (off.rank === 3) badge = `🥉 *#3*`;
+
+        const todayTxt = off.today > 0 ? ` | ⚡ *Today: ₹${off.today.toLocaleString('en-IN')}*` : '';
+        msg += `${badge} *${off.name}*\n`;
+        msg += `   🎯 Tgt: ₹${off.target.toLocaleString('en-IN')} | 💰 Tot: ₹${off.total.toLocaleString('en-IN')}${todayTxt}\n`;
+        msg += `   📊 Achieved: *${off.achieved}%* | 📈 Proj: ₹${off.projection.toLocaleString('en-IN')}\n\n`;
+      });
+
+      msg += `═════════════════════════\n`;
+      msg += `📊 *OVERALL TEAM SUMMARY:*\n`;
+      msg += `🎯 *Total Target:* ₹${sumTarget.toLocaleString('en-IN')}\n`;
+      msg += `💰 *Total Collection:* ₹${sumTotal.toLocaleString('en-IN')}\n`;
+      msg += `⚡ *Today's Collection:* ₹${sumToday.toLocaleString('en-IN')}\n`;
+      msg += `⏳ *Balance Remaining:* ₹${sumBalance.toLocaleString('en-IN')}\n`;
+      msg += `📈 *Total Projection:* ₹${sumProjection.toLocaleString('en-IN')}\n`;
+      msg += `🏆 *OVERALL TEAM ACHIEVEMENT: ${totalAchieved}%*\n`;
+      msg += `═════════════════════════\n`;
+      msg += `_Generated via Handsoff Hub Reconciliation Portal_`;
+
+      return msg;
+    }
+
+    function openWhatsAppModal() {
+      const text = generateWhatsAppText();
+      const ta = document.getElementById('whatsapp-preview-box');
+      if (ta) ta.value = text;
+      
+      const savedPhone = localStorage.getItem('shaha_saved_manager_whatsapp');
+      const phoneInput = document.getElementById('whatsapp-manager-phone');
+      if (phoneInput && savedPhone) phoneInput.value = savedPhone;
+
+      document.getElementById('whatsapp-share-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeWhatsAppModal() {
+      document.getElementById('whatsapp-share-modal').classList.add('hidden');
+    }
+
+    function copyWhatsAppText() {
+      const text = generateWhatsAppText();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('WhatsApp report copied! Press Ctrl+V in WhatsApp chat.', 'success');
+        }).catch(() => fallbackCopyText());
+      } else {
+        fallbackCopyText();
+      }
+    }
+
+    function fallbackCopyText() {
+      const ta = document.getElementById('whatsapp-preview-box');
+      if (ta) {
+        ta.select();
+        document.execCommand('copy');
+        showToast('Copied to clipboard!', 'success');
+      }
+    }
+
+    function getCleanManagerPhone() {
+      const input = document.getElementById('whatsapp-manager-phone');
+      if (!input) return '';
+      let num = input.value.replace(/[^0-9]/g, '');
+      if (num.length === 10) num = '91' + num;
+      if (num.length > 0) {
+        localStorage.setItem('shaha_saved_manager_whatsapp', input.value.trim());
+      }
+      return num;
+    }
+
+    function sendToManagerWhatsApp() {
+      const phone = getCleanManagerPhone();
+      const text = generateWhatsAppText();
+      const url = phone ? 
+        `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}` :
+        `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+      showToast(phone ? 'Opening Manager chat on WhatsApp...' : 'Opening WhatsApp...', 'info');
+    }
+
+    function sendDirectWhatsApp() {
+      sendToManagerWhatsApp();
+    }
+
+    async function copyAndOpenWhatsAppForManager() {
+      // 1. Copy exact high-res photo to clipboard
+      await copyLeaderboardImageToClipboard();
+
+      // 2. Open WhatsApp chat directly with manager or general
+      const phone = getCleanManagerPhone();
+      const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
+      const greeting = `Sir/Madam, Please find the Daily Collection Leaderboard MIS (${period}) attached photo below:`;
+      const url = phone ? 
+        `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(greeting)}` :
+        `https://api.whatsapp.com/send?text=${encodeURIComponent(greeting)}`;
+
+      setTimeout(() => {
+        window.open(url, '_blank');
+        showToast('Table Photo copied! Just press Ctrl+V in the WhatsApp chat to send photo.', 'success');
+      }, 500);
+    }
+
+    async function downloadLeaderboardImage() {
+      const el = document.getElementById('leaderboard-capture-area');
+      if (!el || typeof html2canvas === 'undefined') {
+        showToast('Image engine initializing. Please try again.', 'error');
+        return;
+      }
+      showToast('Generating high-resolution table image...', 'info');
+      try {
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const period = document.getElementById('leaderboard-period-input') ? document.getElementById('leaderboard-period-input').value.trim() : 'Oct-26';
+        const link = document.createElement('a');
+        link.download = `Daily_Collection_Leaderboard_${period}_${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('Leaderboard photo downloaded! Ready to attach on WhatsApp.', 'success');
+      } catch (e) {
+        showToast('Could not generate image: ' + e.message, 'error');
+      }
+    }
+
+    async function copyLeaderboardImageToClipboard() {
+      const el = document.getElementById('leaderboard-capture-area');
+      if (!el || typeof html2canvas === 'undefined') {
+        showToast('Image engine initializing. Please try again.', 'error');
+        return;
+      }
+      showToast('Capturing table image for clipboard...', 'info');
+      try {
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            downloadLeaderboardImage();
+            return;
+          }
+          if (navigator.clipboard && window.ClipboardItem) {
+            try {
+              await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+              ]);
+              showToast('Image copied to clipboard! Just click WhatsApp chat & press Ctrl+V.', 'success');
+              return;
+            } catch(e) {}
+          }
+          // Fallback download if direct image clipboard not permitted in browser
+          const link = document.createElement('a');
+          link.download = `Daily_Leaderboard.png`;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          showToast('Image downloaded! Attach directly in WhatsApp.', 'success');
+        });
+      } catch (e) {
+        showToast('Error capturing image: ' + e.message, 'error');
       }
     }
 
