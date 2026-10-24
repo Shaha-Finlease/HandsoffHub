@@ -2122,10 +2122,19 @@
       const totCntEl = document.getElementById('dash-total-count');
       if (totCntEl) totCntEl.innerText = isMgr ? `${allocCount} verified by you` : `${totalCount} total txns`;
 
-      // 1. Bank Breakdown
+      // 1. Bank Breakdown (Normalized for official banks: HDFC, ICICI, Razorpay)
       const bankStats = {};
       allTransactions.forEach(t => {
-        const b = (t.bank_name || 'OTHER').toUpperCase();
+        let b = (t.bank_name || '').toUpperCase().trim();
+        // Normalize bank names: map any Handsoff or mislabeled sheet to the real bank
+        if (!b || b === 'OTHER' || b.includes('HANDSOFF')) {
+          const sheet = (t.sheet_name || '').toUpperCase();
+          const ref = (t.ref_no || '').toUpperCase();
+          if (sheet.includes('HDFC') || ref.startsWith('H')) b = 'HDFC';
+          else if (sheet.includes('ICICI') || ref.startsWith('I')) b = 'ICICI';
+          else if (sheet.includes('RAZOR') || ref.startsWith('R')) b = 'RAZORPAY';
+          else return; // Skip unknown non-bank entries
+        }
         if (!bankStats[b]) bankStats[b] = { count: 0, sum: 0, allocCount: 0, allocSum: 0 };
         bankStats[b].count++;
         bankStats[b].sum += (Number(t.amount) || 0);
@@ -2325,7 +2334,16 @@
             .neq('status', 'SYSTEM')
             .order('id', { ascending: false });
           if (!error && data && data.length > 0) {
-            allTransactions = data.filter(t => t.status !== 'SYSTEM' && !String(t.ref_no || '').startsWith('SYS_') && !String(t.ref_no || '').startsWith('TEST_'));
+            allTransactions = data.filter(t => t.status !== 'SYSTEM' && !String(t.ref_no || '').startsWith('SYS_') && !String(t.ref_no || '').startsWith('TEST_')).map(t => {
+              if (String(t.bank_name || '').toUpperCase().includes('HANDSOFF') || !t.bank_name) {
+                const sheet = (t.sheet_name || '').toUpperCase();
+                const ref = (t.ref_no || '').toUpperCase();
+                if (sheet.includes('HDFC') || ref.startsWith('H')) t.bank_name = 'HDFC';
+                else if (sheet.includes('ICICI') || ref.startsWith('I')) t.bank_name = 'ICICI';
+                else if (sheet.includes('RAZOR') || ref.startsWith('R')) t.bank_name = 'Razorpay';
+              }
+              return t;
+            });
           } else {
             allTransactions = memoryTransactions.filter(t => t.status !== 'SYSTEM');
           }
