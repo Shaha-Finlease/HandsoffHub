@@ -741,7 +741,7 @@
   <!-- 7. MODALS: MANUAL CLAIM & LINK             -->
   <!-- ========================================== -->
   <div id="claim-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-lg w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4">
+    <div class="bg-white max-w-lg w-full rounded-xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2">
           <i data-lucide="edit-3" class="w-5 h-5 text-blue-700"></i>
@@ -814,14 +814,54 @@
             </select>
           </div>
           <div>
-            <label class="text-[11px] font-bold text-slate-600 uppercase">Caller / Officer Name *</label>
-            <input type="text" id="modal-caller" placeholder="e.g. SUHANA SHAIKH" class="w-full mt-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+            <label class="text-[11px] font-bold text-slate-600 uppercase">Allocating Manager:</label>
+            <input type="text" id="modal-manager" readonly class="w-full mt-1 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none">
           </div>
         </div>
 
-        <div>
-          <label class="text-[11px] font-bold text-slate-600 uppercase">Allocating Manager:</label>
-          <input type="text" id="modal-manager" readonly class="w-full mt-1 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-800 font-bold focus:outline-none">
+        <!-- Caller Assignment with Dynamic Percentage Split Option -->
+        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/70 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-bold text-slate-700 uppercase flex items-center gap-1.5">
+              <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Caller / Recovery Officer *</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-blue-700 hover:text-blue-900 select-none bg-blue-100/70 hover:bg-blue-200/70 px-2 py-0.5 rounded-md border border-blue-300 transition-colors">
+              <input type="checkbox" id="modal-split-toggle" onchange="toggleCallerSplit()" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+              <span>Split Account (%)</span>
+            </label>
+          </div>
+
+          <!-- Single Caller Mode -->
+          <div id="single-caller-container">
+            <input type="text" id="modal-caller" placeholder="e.g. SUHANA SHAIKH" class="w-full bg-white border border-slate-300 px-3 py-1.5 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+          </div>
+
+          <!-- Multi-Caller Split Mode -->
+          <div id="split-caller-container" class="hidden space-y-2 pt-1">
+            <div class="flex items-center justify-between text-[11px] text-slate-600">
+              <span class="font-medium">Assign caller names & percentage share (%):</span>
+              <button type="button" onclick="equalizeSplitPcts()" class="text-blue-700 hover:text-blue-900 font-bold text-[11px] hover:underline flex items-center gap-1">
+                <span>⚖️ Equal Split (50-50 / etc)</span>
+              </button>
+            </div>
+
+            <!-- List of Dynamic Caller Rows -->
+            <div id="split-callers-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              <!-- Rendered via JS -->
+            </div>
+
+            <div class="flex items-center justify-between pt-1 border-t border-slate-200">
+              <button type="button" onclick="addSplitCallerRow()" class="px-2.5 py-1 text-xs font-bold text-blue-700 bg-white hover:bg-blue-50 border border-blue-300 rounded-md flex items-center gap-1 shadow-sm transition-all active:scale-95">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>+ Add Caller</span>
+              </button>
+
+              <div id="split-total-status" class="text-xs font-bold font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Total: 100% (₹0.00)
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2184,10 +2224,20 @@
 
         const callerStats = {};
         alloc.forEach(t => {
-          const c = (t.caller_name || 'Direct / Self').toUpperCase().trim();
-          if (!callerStats[c]) callerStats[c] = { count: 0, sum: 0 };
-          callerStats[c].count++;
-          callerStats[c].sum += (Number(t.amount) || 0);
+          const splits = parseSplitCallers(t.caller_name, t.amount);
+          if (splits && splits.length > 0) {
+            splits.forEach(s => {
+              const c = (s.caller || 'Direct / Self').toUpperCase().trim();
+              if (!callerStats[c]) callerStats[c] = { count: 0, sum: 0 };
+              callerStats[c].count++;
+              callerStats[c].sum += (Number(s.amount) || 0);
+            });
+          } else {
+            const c = (t.caller_name || 'Direct / Self').toUpperCase().trim();
+            if (!callerStats[c]) callerStats[c] = { count: 0, sum: 0 };
+            callerStats[c].count++;
+            callerStats[c].sum += (Number(t.amount) || 0);
+          }
         });
 
         if (mgrList) {
@@ -2990,11 +3040,236 @@
         setTimeout(() => nameEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
       }
       if (portEl) portEl.value = c.portfolio || 'CASHE';
-      if (callerEl) {
-        callerEl.value = c.caller || '';
-        callerEl.classList.add('bg-emerald-50', 'border-emerald-400');
-        setTimeout(() => callerEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
+
+      if (c.caller && c.caller.includes('%')) {
+        const splits = parseSplitCallers(c.caller, getActiveModalTxAmount());
+        if (splits && splits.length >= 2) {
+          splitCallersData = splits.map((s, idx) => ({ id: idx + 1, caller: s.caller, pct: s.pct }));
+          toggleCallerSplit(true);
+        }
+      } else {
+        if (callerEl) {
+          callerEl.value = c.caller || '';
+          callerEl.classList.add('bg-emerald-50', 'border-emerald-400');
+          setTimeout(() => callerEl.classList.remove('bg-emerald-50', 'border-emerald-400'), 1500);
+        }
+        toggleCallerSplit(false);
       }
+    }
+
+    // ==========================================
+    // CALLER SPLIT MANAGEMENT (MULTI-CALLER %)
+    // ==========================================
+    let splitCallersData = [];
+
+    function parseSplitCallers(callerStr, totalAmount) {
+      if (!callerStr || typeof callerStr !== 'string') return null;
+      if (!callerStr.includes('%') || !callerStr.includes('(')) return null;
+
+      const totalAmtNum = Number(totalAmount) || 0;
+      const parts = callerStr.split('/').map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) return null;
+
+      const splits = [];
+      let totalPct = 0;
+      for (const part of parts) {
+        const match = part.match(/^(.+?)\s*\(\s*([\d\.]+)\s*%\s*\)$/);
+        if (match) {
+          const name = match[1].trim();
+          const pct = parseFloat(match[2]);
+          splits.push({ caller: name, pct: pct });
+          totalPct += pct;
+        }
+      }
+
+      if (splits.length === 0) return null;
+
+      let allocatedTotal = 0;
+      splits.forEach((s, idx) => {
+        if (idx === splits.length - 1) {
+          s.amount = Math.round((totalAmtNum - allocatedTotal) * 100) / 100;
+        } else {
+          s.amount = Math.round((totalAmtNum * (s.pct / 100)) * 100) / 100;
+          allocatedTotal += s.amount;
+        }
+      });
+
+      return splits;
+    }
+
+    function toggleCallerSplit(forceState) {
+      const toggle = document.getElementById('modal-split-toggle');
+      if (!toggle) return;
+      if (typeof forceState === 'boolean') toggle.checked = forceState;
+
+      const singleBox = document.getElementById('single-caller-container');
+      const splitBox = document.getElementById('split-caller-container');
+
+      if (toggle.checked) {
+        if (singleBox) singleBox.classList.add('hidden');
+        if (splitBox) splitBox.classList.remove('hidden');
+
+        if (!splitCallersData || splitCallersData.length < 2) {
+          const existingName = document.getElementById('modal-caller') ? document.getElementById('modal-caller').value.trim() : '';
+          splitCallersData = [
+            { id: 1, caller: existingName || '', pct: 50 },
+            { id: 2, caller: '', pct: 50 }
+          ];
+        }
+        renderSplitCallerRows();
+      } else {
+        if (singleBox) singleBox.classList.remove('hidden');
+        if (splitBox) splitBox.classList.add('hidden');
+        if (splitCallersData && splitCallersData[0] && splitCallersData[0].caller) {
+          const cInput = document.getElementById('modal-caller');
+          if (cInput && !cInput.value) cInput.value = splitCallersData[0].caller;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function getActiveModalTxAmount() {
+      if (!activeClaimId) return 0;
+      const tx = allTransactions.find(t => t.id === activeClaimId);
+      return tx ? Number(tx.amount) || 0 : 0;
+    }
+
+    function renderSplitCallerRows() {
+      const listEl = document.getElementById('split-callers-list');
+      const statusEl = document.getElementById('split-total-status');
+      if (!listEl) return;
+
+      listEl.innerHTML = '';
+      const totalAmt = getActiveModalTxAmount();
+      let totalPct = 0;
+
+      splitCallersData.forEach((item, index) => {
+        const pctNum = parseFloat(item.pct) || 0;
+        totalPct += pctNum;
+        const rowAmt = Math.round((totalAmt * (pctNum / 100)) * 100) / 100;
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-xs';
+        row.innerHTML = `
+          <div class="flex-1">
+            <input type="text" 
+                   value="${item.caller ? item.caller.replace(/"/g, '&quot;') : ''}" 
+                   oninput="handleSplitCallerChange(${index}, 'caller', this.value)" 
+                   placeholder="Caller ${index + 1} Name" 
+                   class="w-full bg-slate-50 border border-slate-200 px-2.5 py-1 rounded text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 font-medium">
+          </div>
+          <div class="w-20 flex items-center gap-1">
+            <input type="number" 
+                   step="any" 
+                   min="0" 
+                   max="100" 
+                   value="${item.pct !== undefined ? item.pct : 0}" 
+                   oninput="handleSplitCallerChange(${index}, 'pct', this.value)" 
+                   placeholder="%" 
+                   class="w-full text-center bg-slate-50 border border-slate-200 px-1.5 py-1 rounded text-xs font-mono font-bold text-blue-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600">
+            <span class="text-xs font-bold text-slate-500">%</span>
+          </div>
+          <div class="w-24 text-right">
+            <span class="text-[11px] font-mono font-bold text-emerald-700">₹${rowAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+          </div>
+          <div class="w-6 text-center">
+            ${splitCallersData.length > 2 ? `
+              <button type="button" onclick="removeSplitCallerRow(${index})" class="text-slate-400 hover:text-rose-600 p-1" title="Remove Caller">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            ` : `<span class="inline-block w-3.5"></span>`}
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+
+      const roundedTotalPct = Math.round(totalPct * 100) / 100;
+      if (statusEl) {
+        if (Math.abs(roundedTotalPct - 100) < 0.05) {
+          statusEl.className = 'text-xs font-bold font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300';
+          statusEl.innerText = `✓ Total: ${roundedTotalPct}% (₹${totalAmt.toLocaleString('en-IN', {minimumFractionDigits: 2})})`;
+        } else {
+          const diff = Math.round((100 - roundedTotalPct) * 100) / 100;
+          statusEl.className = 'text-xs font-bold font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300';
+          statusEl.innerText = `⚠️ Total: ${roundedTotalPct}% (${diff > 0 ? diff + '% left' : Math.abs(diff) + '% over'})`;
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function handleSplitCallerChange(index, field, value) {
+      if (!splitCallersData[index]) return;
+      if (field === 'pct') {
+        splitCallersData[index].pct = parseFloat(value) || 0;
+        updateSplitStatusAndAmounts();
+      } else {
+        splitCallersData[index].caller = value;
+      }
+    }
+
+    function updateSplitStatusAndAmounts() {
+      const listEl = document.getElementById('split-callers-list');
+      const statusEl = document.getElementById('split-total-status');
+      if (!listEl) return;
+
+      const totalAmt = getActiveModalTxAmount();
+      let totalPct = 0;
+
+      const rows = listEl.children;
+      splitCallersData.forEach((item, index) => {
+        const pctNum = parseFloat(item.pct) || 0;
+        totalPct += pctNum;
+        const rowAmt = Math.round((totalAmt * (pctNum / 100)) * 100) / 100;
+        if (rows[index]) {
+          const amtSpan = rows[index].querySelector('span.text-\[11px\]');
+          if (amtSpan) {
+            amtSpan.innerText = `₹${rowAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+          }
+        }
+      });
+
+      const roundedTotalPct = Math.round(totalPct * 100) / 100;
+      if (statusEl) {
+        if (Math.abs(roundedTotalPct - 100) < 0.05) {
+          statusEl.className = 'text-xs font-bold font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300';
+          statusEl.innerText = `✓ Total: ${roundedTotalPct}% (₹${totalAmt.toLocaleString('en-IN', {minimumFractionDigits: 2})})`;
+        } else {
+          const diff = Math.round((100 - roundedTotalPct) * 100) / 100;
+          statusEl.className = 'text-xs font-bold font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300';
+          statusEl.innerText = `⚠️ Total: ${roundedTotalPct}% (${diff > 0 ? diff + '% left' : Math.abs(diff) + '% over'})`;
+        }
+      }
+    }
+
+    function addSplitCallerRow() {
+      splitCallersData.push({ id: Date.now(), caller: '', pct: 0 });
+      renderSplitCallerRows();
+    }
+
+    function removeSplitCallerRow(index) {
+      if (splitCallersData.length <= 2) {
+        showToast('At least 2 callers are required for split.', 'warning');
+        return;
+      }
+      splitCallersData.splice(index, 1);
+      renderSplitCallerRows();
+    }
+
+    function equalizeSplitPcts() {
+      const count = splitCallersData.length;
+      if (count === 0) return;
+      const basePct = Math.floor((100 / count) * 100) / 100;
+      let sum = 0;
+      splitCallersData.forEach((item, idx) => {
+        if (idx === count - 1) {
+          item.pct = Math.round((100 - sum) * 100) / 100;
+        } else {
+          item.pct = basePct;
+          sum += basePct;
+        }
+      });
+      renderSplitCallerRows();
     }
 
     // ==========================================
@@ -3021,6 +3296,16 @@
       const errBox = document.getElementById('modal-claim-error');
       if (errBox) errBox.classList.add('hidden');
 
+      // Check if existing transaction or caller name already has split
+      const existingSplits = parseSplitCallers(t.caller_name, t.amount);
+      if (existingSplits && existingSplits.length >= 2) {
+        splitCallersData = existingSplits.map((s, idx) => ({ id: idx + 1, caller: s.caller, pct: s.pct }));
+        toggleCallerSplit(true);
+      } else {
+        splitCallersData = [];
+        toggleCallerSplit(false);
+      }
+
       // Populate pre-added customer dropdown and trigger smart auto-fill!
       updatePreCustomerDropdown(t.amount, t);
 
@@ -3039,7 +3324,6 @@
       const custId = document.getElementById('modal-cust-id').value.trim();
       const custName = document.getElementById('modal-cust-name').value.trim();
       const portfolio = document.getElementById('modal-portfolio').value;
-      const caller = document.getElementById('modal-caller').value.trim();
       const mgr = document.getElementById('modal-manager').value.trim();
       const errBox = document.getElementById('modal-claim-error');
       const errText = document.getElementById('modal-claim-error-text');
@@ -3063,9 +3347,44 @@
         return;
       }
 
-      if (!caller || caller.length < 2) {
-        showModalError('Validation Error: Caller / Recovery Officer name is required.');
-        return;
+      let finalCallerName = '';
+      const isSplitActive = document.getElementById('modal-split-toggle') && document.getElementById('modal-split-toggle').checked;
+
+      if (isSplitActive) {
+        if (!splitCallersData || splitCallersData.length < 2) {
+          showModalError('Validation Error: Please configure at least 2 callers for split allocation.');
+          return;
+        }
+
+        let totalPct = 0;
+        for (let i = 0; i < splitCallersData.length; i++) {
+          const item = splitCallersData[i];
+          const cName = (item.caller || '').trim();
+          if (!cName || cName.length < 2) {
+            showModalError(`Validation Error: Please enter a valid name for Caller #${i + 1}.`);
+            return;
+          }
+          const pct = parseFloat(item.pct);
+          if (isNaN(pct) || pct <= 0) {
+            showModalError(`Validation Error: Percentage for caller "${cName}" must be greater than 0%.`);
+            return;
+          }
+          totalPct += pct;
+        }
+
+        const roundedPct = Math.round(totalPct * 100) / 100;
+        if (Math.abs(roundedPct - 100) > 0.05) {
+          showModalError(`Validation Error: Total percentage must equal exactly 100%. Currently it is ${roundedPct}%.`);
+          return;
+        }
+
+        finalCallerName = splitCallersData.map(c => `${c.caller.trim()} (${c.pct}%)`).join(' / ');
+      } else {
+        finalCallerName = document.getElementById('modal-caller').value.trim();
+        if (!finalCallerName || finalCallerName.length < 2) {
+          showModalError('Validation Error: Caller / Recovery Officer name is required.');
+          return;
+        }
       }
 
       if (!mgr) {
@@ -3080,7 +3399,7 @@
         tx.customer_id = custId;
         tx.customer_name = custName;
         tx.portfolio = portfolio;
-        tx.caller_name = caller;
+        tx.caller_name = finalCallerName;
         tx.claimed_by_manager = mgr;
         tx.status = 'ALLOCATED';
 
@@ -3203,7 +3522,20 @@
           </td>
           <td class="p-3 border-r border-slate-200 font-extrabold text-indigo-700">${t.portfolio}</td>
           <td class="p-3 border-r border-slate-200 text-right font-mono-num font-extrabold text-slate-900">₹${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-          <td class="p-3 border-r border-slate-200 text-slate-700">${t.caller_name}</td>
+          <td class="p-3 border-r border-slate-200">
+            ${(() => {
+              const splits = parseSplitCallers(t.caller_name, t.amount);
+              if (splits && splits.length > 0) {
+                return `<div class="space-y-1">` + splits.map(s => `
+                  <div class="flex items-center justify-between gap-1.5 text-xs">
+                    <span class="font-bold text-slate-800">${s.caller}</span>
+                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-mono font-bold text-[10px]">${s.pct}% (₹${Number(s.amount).toLocaleString('en-IN')})</span>
+                  </div>
+                `).join('') + `</div>`;
+              }
+              return `<span class="text-slate-700 font-medium">${t.caller_name || '-'}</span>`;
+            })()}
+          </td>
           <td class="p-3 border-r border-slate-200 text-slate-900 font-bold">${t.claimed_by_manager}</td>
           <td class="p-3 border-r border-slate-200 font-bold text-slate-800">${t.bank_name}</td>
           <td class="p-3 border-r border-slate-200 text-slate-600 text-xs">${t.tx_date}</td>
@@ -3945,18 +4277,36 @@ function autoSyncBankTransactions() {
           else mode = 'ONLINE';
         }
 
-        rowsData.push([
-          t.customer_id || '',
-          t.customer_name || '',
-          t.portfolio || 'CASHE',
-          t.tx_date || '01-10-2026',
-          Number(t.amount) || 0,
-          mode,
-          t.narration || '',
-          t.bank_name || '',
-          t.caller_name || '',
-          t.claimed_by_manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager)
-        ]);
+        const splits = parseSplitCallers(t.caller_name, t.amount);
+        if (splits && splits.length > 0) {
+          splits.forEach(s => {
+            rowsData.push([
+              t.customer_id || '',
+              t.customer_name || '',
+              t.portfolio || 'CASHE',
+              t.tx_date || '01-10-2026',
+              Number(s.amount) || 0,
+              mode,
+              `${t.narration || ''} [Split ${s.pct}%]`,
+              t.bank_name || '',
+              s.caller,
+              t.claimed_by_manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager)
+            ]);
+          });
+        } else {
+          rowsData.push([
+            t.customer_id || '',
+            t.customer_name || '',
+            t.portfolio || 'CASHE',
+            t.tx_date || '01-10-2026',
+            Number(t.amount) || 0,
+            mode,
+            t.narration || '',
+            t.bank_name || '',
+            t.caller_name || '',
+            t.claimed_by_manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager)
+          ]);
+        }
       });
 
       const ws = XLSX.utils.aoa_to_sheet(rowsData);
@@ -3997,35 +4347,66 @@ function autoSyncBankTransactions() {
         ]
       ];
 
-      alloc.forEach((t, idx) => {
-        const rowNum = idx + 2;
+      let currRow = 2;
+      alloc.forEach((t) => {
         const port = t.portfolio || 'CASHE';
         const source = port === 'CASHE' ? 'CASHE 1 OCT 2022' : 'CC';
         const prod = port === 'CASHE' ? 'PL' : 'CC';
-        const agency = (t.claimed_by_manager || '').toUpperCase().includes('POONAM') || (t.caller_name || '').toUpperCase().includes('KP') ? 'KP' : 'INH';
+        const splits = parseSplitCallers(t.caller_name, t.amount);
 
-        rowsData.push([
-          port,
-          source,
-          prod,
-          t.customer_id || '',
-          t.customer_id || '',
-          t.customer_name || '',
-          t.mode_of_pay || 'UPI',
-          t.tx_date || '21-10-2026',
-          t.ref_no || '',
-          Number(t.amount) || 0,
-          t.cheque_extracted || '',
-          t.narration || '',
-          '21-10-2026',
-          agency,
-          t.caller_name || '',
-          t.claimed_by_manager || '',
-          t.bank_name || '',
-          `=TEXT(H${rowNum},"DDDDDD")`,
-          `=N${rowNum}&O${rowNum}`,
-          ''
-        ]);
+        if (splits && splits.length > 0) {
+          splits.forEach(s => {
+            const agency = (t.claimed_by_manager || '').toUpperCase().includes('POONAM') || (s.caller || '').toUpperCase().includes('KP') ? 'KP' : 'INH';
+            rowsData.push([
+              port,
+              source,
+              prod,
+              t.customer_id || '',
+              t.customer_id || '',
+              t.customer_name || '',
+              t.mode_of_pay || 'UPI',
+              t.tx_date || '21-10-2026',
+              t.ref_no || '',
+              Number(s.amount) || 0,
+              t.cheque_extracted || '',
+              `${t.narration || ''} [Split ${s.pct}%]`,
+              '21-10-2026',
+              agency,
+              s.caller,
+              t.claimed_by_manager || '',
+              t.bank_name || '',
+              `=TEXT(H${currRow},"DDDDDD")`,
+              `=N${currRow}&O${currRow}`,
+              ''
+            ]);
+            currRow++;
+          });
+        } else {
+          const agency = (t.claimed_by_manager || '').toUpperCase().includes('POONAM') || (t.caller_name || '').toUpperCase().includes('KP') ? 'KP' : 'INH';
+          rowsData.push([
+            port,
+            source,
+            prod,
+            t.customer_id || '',
+            t.customer_id || '',
+            t.customer_name || '',
+            t.mode_of_pay || 'UPI',
+            t.tx_date || '21-10-2026',
+            t.ref_no || '',
+            Number(t.amount) || 0,
+            t.cheque_extracted || '',
+            t.narration || '',
+            '21-10-2026',
+            agency,
+            t.caller_name || '',
+            t.claimed_by_manager || '',
+            t.bank_name || '',
+            `=TEXT(H${currRow},"DDDDDD")`,
+            `=N${currRow}&O${currRow}`,
+            ''
+          ]);
+          currRow++;
+        }
       });
 
       const ws = XLSX.utils.aoa_to_sheet(rowsData);
