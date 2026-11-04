@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Shaha Finlease Pvt Ltd - PAID DATA & Live Collection Portal</title>
+  <title>Shaha Finlease Pvt Ltd - Live Collection Executive Portal</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -146,17 +146,18 @@
             <span id="supabase-status-text" class="hidden sm:inline font-medium">Cloud DB</span>
           </button>
 
-          <!-- User Authentication Pill -->
-          <div id="auth-user-bar" class="flex items-center gap-2 bg-slate-800/90 pl-2.5 pr-1.5 py-1 rounded-lg border border-slate-700">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold">
+          <!-- User Authentication Pill & Proper Logout Button -->
+          <div id="auth-user-bar" class="flex items-center gap-3 bg-slate-800/90 pl-3 pr-2 py-1.5 rounded-xl border border-slate-700/80 shadow-xs">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-700 flex items-center justify-center text-white text-xs font-black shadow-inner">
               <span id="nav-user-avatar">A</span>
             </div>
-            <div class="text-left pr-1">
-              <div id="nav-user-name" class="text-xs font-bold text-white leading-tight">User</div>
-              <div id="nav-user-role" class="text-[10px] text-amber-400 font-semibold leading-tight">Role</div>
+            <div class="text-left pr-1 leading-tight">
+              <div id="nav-user-name" class="text-xs font-black text-white">User</div>
+              <div id="nav-user-role" class="text-[10px] text-amber-400 font-bold">Role</div>
             </div>
-            <button onclick="handleLogout()" title="Sign Out" class="p-1 rounded hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 transition-all">
+            <button onclick="openLogoutConfirmModal()" title="Sign Out" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer">
               <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+              <span>Logout</span>
             </button>
           </div>
 
@@ -190,6 +191,24 @@
           <button onclick="switchTab('paid-file')" id="tab-paid-file" class="tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
             <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
             <span>3. PAID DATA</span>
+          </button>
+
+          <!-- Admin Only: View 4: Branch Wise Collection Button -->
+          <button onclick="switchTab('branch-collection')" id="tab-branch-collection" class="admin-only-filter hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
+            <i data-lucide="building-2" class="w-4 h-4 text-amber-400"></i>
+            <span>4. Branch Collection</span>
+          </button>
+
+          <!-- Admin Only: View 5: Manager Wise Collection Button -->
+          <button onclick="switchTab('manager-collection')" id="tab-manager-collection" class="admin-only-filter hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
+            <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
+            <span>5. Manager Collection</span>
+          </button>
+
+          <!-- Refresh Live Data Button -->
+          <button onclick="handleAppRefresh()" id="btn-nav-refresh" title="Refresh Live Data from Server" class="px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-cyan-500/50 shadow-sm transition-all active:scale-95 cursor-pointer">
+            <i id="icon-nav-refresh" data-lucide="refresh-cw" class="w-4 h-4 text-cyan-400"></i>
+            <span>Refresh</span>
           </button>
 
           <!-- Admin Only: Permissions & Approvals Button -->
@@ -540,7 +559,7 @@
       <div id="content-mis-report" class="hidden space-y-4">
         <!-- Integrated Top Control Bar -->
         <div class="bg-slate-900 py-2 px-4 rounded-t-xl border-t border-x border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
             <div class="p-1.5 bg-amber-400/20 text-amber-300 rounded border border-amber-400/30">
               <i data-lucide="trophy" class="w-4 h-4"></i>
             </div>
@@ -550,6 +569,16 @@
                 <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i> Date:
               </span>
               <input type="text" id="leaderboard-period-input" value="28-Oct-2026" onchange="updateLeaderboardTitle()" oninput="updateLeaderboardTitle()" title="Leaderboard Active Date (After 12:00 AM midnight, automatically rolls over to next date)" class="bg-transparent font-extrabold text-amber-400 w-28 text-center focus:outline-none focus:ring-1 focus:ring-amber-400 rounded">
+            </div>
+
+            <!-- Manager Filter Dropdown (Admin & Managers) -->
+            <div id="mis-mgr-filter-wrap" class="admin-only-filter flex items-center bg-slate-800 border border-slate-700 rounded px-2.5 py-1 text-xs text-white">
+              <span class="text-slate-400 font-semibold mr-1.5 flex items-center gap-1">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-400"></i> Manager:
+              </span>
+              <select id="mis-filter-manager" onchange="renderLeaderboardMIS()" class="bg-slate-800 text-amber-300 font-extrabold text-xs border-none focus:outline-none cursor-pointer">
+                <option value="" class="bg-slate-900 text-white">All Managers</option>
+              </select>
             </div>
           </div>
 
@@ -587,6 +616,7 @@
               <thead>
                 <tr class="bg-[#1f4e78] text-white text-[11px] sm:text-xs font-black uppercase tracking-tight">
                   <th class="py-2 px-2 text-center border border-[#174375] w-14">Sr. NO</th>
+                  <th class="py-2 px-3 text-center border border-[#174375] min-w-[140px] mis-mgr-col">MANAGER</th>
                   <th class="py-2 px-3 text-center border border-[#174375] min-w-[170px]">OFFICER'S NAME</th>
                   <th class="py-2 px-2 text-center border border-[#174375] w-28">TARGET 100%</th>
                   <th class="py-2 px-2 text-center border border-[#174375] w-28">AOY / MTD</th>
@@ -719,6 +749,237 @@
       <!-- ======================================== -->
       <!-- TAB 3: ADMIN PERMISSIONS CONSOLE         -->
       <!-- ======================================== -->
+            <!-- ============================================================== -->
+      <!-- VIEW 4: BRANCH WISE COLLECTION SUMMARY (ADMIN ONLY)            -->
+      <!-- ============================================================== -->
+      <div id="content-branch-collection" class="space-y-4 hidden">
+        <!-- Integrated Top Control Bar -->
+        <div class="bg-slate-900 py-3 px-5 rounded-2xl border border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-gradient-to-tr from-amber-500 to-amber-600 text-white rounded-xl shadow-md">
+              <i data-lucide="building-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                <span>Branch Wise Live Collection Summary</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider">Admin Exclusive</span>
+              </h2>
+              <p class="text-xs text-slate-400 font-medium">Aggregated targets, live collections, balance & achievement % grouped by branch.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+              <span class="text-slate-400 font-semibold mr-1.5 flex items-center gap-1">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i> Date:
+              </span>
+              <span id="branch-summary-date" class="font-extrabold text-amber-400">29-Oct-2026</span>
+            </div>
+
+            <button onclick="exportBranchCollectionExcel()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5 active:scale-95">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export Excel</span>
+            </button>
+            <button onclick="captureBranchTableImage()" class="px-3 py-1.5 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded-lg text-xs font-black shadow-sm transition flex items-center gap-1.5 active:scale-95">
+              <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+              <span>WhatsApp Photo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Branch Table Card -->
+        <div id="branch-capture-area" class="bg-white rounded-2xl border-2 border-[#174375] shadow-xl overflow-hidden">
+          <div class="bg-[#174375] py-2.5 px-4 text-center border-b border-blue-900 flex items-center justify-between">
+            <span class="text-xs font-bold text-blue-200">SHAHA FINLEASE PVT LTD</span>
+            <h2 id="branch-table-title" class="text-sm md:text-base font-black text-[#ffeb3b] tracking-wider uppercase drop-shadow-xs">
+              Branch Wise Collection Summary - 29-Oct-2026
+            </h2>
+            <span class="text-xs font-bold text-blue-200">LIVE REPORT</span>
+          </div>
+
+          <div class="overflow-x-auto table-container">
+            <table class="w-full text-xs sm:text-[13px] border-collapse">
+              <thead>
+                <tr class="bg-[#1f4e78] text-white text-[11px] sm:text-xs font-black uppercase tracking-tight">
+                  <th class="py-2.5 px-2 text-center border border-[#174375] w-14">Sr. NO</th>
+                  <th class="py-2.5 px-4 text-left border border-[#174375] min-w-[170px]">BRANCH</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">TARGET</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">AOY / MTD</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">TODAY</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">TOTAL</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">BALANCE</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-24">%</th>
+                </tr>
+              </thead>
+              <tbody id="branch-collection-tbody" class="divide-y divide-slate-300">
+                <!-- Dynamically Rendered -->
+              </tbody>
+              <tfoot id="branch-collection-tfoot" class="border-t-2 border-[#174375] text-xs sm:text-[13px] font-black">
+                <!-- Dynamically Rendered -->
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+            <!-- ============================================================== -->
+      <!-- VIEW 5: MANAGER WISE COLLECTION SUMMARY (ADMIN ONLY)           -->
+      <!-- ============================================================== -->
+      <div id="content-manager-collection" class="space-y-4 hidden">
+        <!-- Integrated Top Control Bar -->
+        <div class="bg-slate-900 py-3 px-5 rounded-2xl border border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 text-white rounded-xl shadow-md">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                <span>Manager Wise Live Collection Summary</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-cyan-400 text-slate-950 uppercase tracking-wider">Slide Drilldown</span>
+              </h2>
+              <p class="text-xs text-slate-400 font-medium">Click on any manager row or "View Callers" to slide open the caller recovery breakdown.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+              <span class="text-slate-400 font-semibold mr-1.5 flex items-center gap-1">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i> Date:
+              </span>
+              <span id="mgr-summary-date" class="font-extrabold text-amber-400">29-Oct-2026</span>
+            </div>
+
+            <button onclick="exportManagerCollectionExcel()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5 active:scale-95">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export Excel</span>
+            </button>
+            <button onclick="captureManagerTableImage()" class="px-3 py-1.5 bg-[#25D366] hover:bg-[#1faa4b] text-white rounded-lg text-xs font-black shadow-sm transition flex items-center gap-1.5 active:scale-95">
+              <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+              <span>WhatsApp Photo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Manager Table Card -->
+        <div id="mgr-capture-area" class="bg-white rounded-2xl border-2 border-[#174375] shadow-xl overflow-hidden">
+          <div class="bg-[#174375] py-2.5 px-4 text-center border-b border-blue-900 flex items-center justify-between">
+            <span class="text-xs font-bold text-blue-200">SHAHA FINLEASE PVT LTD</span>
+            <h2 id="mgr-table-title" class="text-sm md:text-base font-black text-[#ffeb3b] tracking-wider uppercase drop-shadow-xs">
+              Manager Wise Collection Summary - 29-Oct-2026
+            </h2>
+            <span class="text-xs font-bold text-blue-200">LIVE REPORT</span>
+          </div>
+
+          <div class="overflow-x-auto table-container">
+            <table class="w-full text-xs sm:text-[13px] border-collapse">
+              <thead>
+                <tr class="bg-[#1f4e78] text-white text-[11px] sm:text-xs font-black uppercase tracking-tight">
+                  <th class="py-2.5 px-2 text-center border border-[#174375] w-12">Sr. NO</th>
+                  <th class="py-2.5 px-4 text-left border border-[#174375] min-w-[160px]">MANAGER</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">BRANCH</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">TARGET</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">AOY / MTD</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">TODAY</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">TOTAL</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-28">BALANCE</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-24">%</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-24">CALLERS</th>
+                  <th class="py-2.5 px-3 text-center border border-[#174375] w-36 mis-action-col">DRILLDOWN SLIDE</th>
+                </tr>
+              </thead>
+              <tbody id="manager-collection-tbody" class="divide-y divide-slate-300">
+                <!-- Dynamically Rendered -->
+              </tbody>
+              <tfoot id="manager-collection-tfoot" class="border-t-2 border-[#174375] text-xs sm:text-[13px] font-black">
+                <!-- Dynamically Rendered -->
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SLIDE DRAWER: MANAGER CALLER DRILLDOWN                         -->
+      <!-- ============================================================== -->
+      <div id="manager-slide-drawer-backdrop" onclick="closeManagerSlideDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity opacity-0 pointer-events-none duration-300"></div>
+
+      <div id="manager-slide-drawer" class="fixed top-0 right-0 h-full w-full max-w-2xl bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-slate-200">
+        <!-- Drawer Header -->
+        <div class="bg-gradient-to-r from-[#174375] to-blue-900 text-white p-5 flex items-center justify-between border-b border-blue-950 shadow-md">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-amber-300 font-black">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 id="drawer-manager-name" class="font-extrabold text-base text-white tracking-wide">Manager Name</h3>
+                <span id="drawer-manager-branch" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider">BRANCH</span>
+              </div>
+              <p class="text-xs text-blue-200 font-medium mt-0.5">Team Callers & Live Recovery Performance</p>
+            </div>
+          </div>
+          <button onclick="closeManagerSlideDrawer()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer" title="Close Slide">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Drawer Quick KPIs Bar -->
+        <div class="bg-slate-50 border-b border-slate-200 p-4 grid grid-cols-4 gap-2 text-center text-xs">
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Callers</span>
+            <span id="drawer-kpi-count" class="font-extrabold text-sm text-slate-900">0</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Target</span>
+            <span id="drawer-kpi-target" class="font-extrabold text-sm text-slate-900">₹0</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Today</span>
+            <span id="drawer-kpi-today" class="font-extrabold text-sm text-emerald-700">₹0</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Achieved</span>
+            <span id="drawer-kpi-achieved" class="font-extrabold text-sm text-blue-700">0%</span>
+          </div>
+        </div>
+
+        <!-- Drawer Table Container -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+          <div class="flex items-center justify-between text-xs text-slate-500 font-bold px-1">
+            <span>CALLER DETAILS BREAKDOWN</span>
+            <span id="drawer-caller-total-label">0 Callers Found</span>
+          </div>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-xs">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="bg-[#1f4e78] text-white text-[11px] font-black uppercase">
+                <tr>
+                  <th class="p-2 text-center border-r border-[#174375] w-10">#</th>
+                  <th class="p-2 text-left border-r border-[#174375]">Caller Name</th>
+                  <th class="p-2 text-center border-r border-[#174375]">Target</th>
+                  <th class="p-2 text-center border-r border-[#174375]">Today</th>
+                  <th class="p-2 text-center border-r border-[#174375]">Total</th>
+                  <th class="p-2 text-center border-r border-[#174375]">Balance</th>
+                  <th class="p-2 text-center border-r border-[#174375]">Achieved</th>
+                  <th class="p-2 text-center">Rank</th>
+                </tr>
+              </thead>
+              <tbody id="drawer-callers-tbody" class="divide-y divide-slate-200 bg-white">
+                <!-- Dynamically Rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="bg-slate-100 border-t border-slate-200 p-3.5 flex items-center justify-between">
+          <span class="text-xs text-slate-500 font-medium">Click backdrop or Close button to return.</span>
+          <button onclick="closeManagerSlideDrawer()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition shadow-xs">
+            Close Slide
+          </button>
+        </div>
+      </div>
+
       <div id="content-admin-permissions" class="space-y-5 hidden">
         <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 p-6 rounded-2xl border border-slate-800 text-white shadow-md flex flex-wrap items-center justify-between gap-4">
           <div class="space-y-1">
@@ -766,6 +1027,7 @@
               <select id="new-user-agency" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold focus:bg-white focus:ring-1 focus:ring-blue-600 focus:outline-none">
                 <option value="BANGALORE">BANGALORE</option>
                 <option value="JOGESHWARI">JOGESHWARI</option>
+                <option value="SAROJ">SAROJ</option>
                 <option value="WORLI">WORLI</option>
                 <option value="AGENCY">AGENCY</option>
               </select>
@@ -961,53 +1223,109 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL: LOGIN DIALOG                        -->
+  <!-- MODAL: LOGIN DIALOG (EXECUTIVE ENTERPRISE) -->
   <!-- ========================================== -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-100 z-[999] flex flex-col justify-between p-4 sm:p-8">
+  <div id="login-modal" class="fixed inset-0 bg-slate-950 z-[999] flex flex-col justify-between p-4 sm:p-8 overflow-y-auto selection:bg-blue-500 selection:text-white" style="background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 50%, #020617 100%);">
+    <!-- Top Branding Header -->
     <div class="w-full max-w-5xl mx-auto flex items-center justify-between pt-2">
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-amber-500 p-0.5 shadow-md flex items-center justify-center">
-          <div class="w-full h-full bg-slate-900 rounded-[9px] flex items-center justify-center">
-            <i data-lucide="file-check-2" class="w-4 h-4 text-amber-400"></i>
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 p-0.5 shadow-lg flex items-center justify-center">
+          <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5 text-amber-400"></i>
           </div>
         </div>
         <div>
-          <span class="text-sm font-extrabold tracking-tight text-slate-900">SHAHA FINLEASE PVT LTD</span>
-          <p class="text-[10px] text-slate-500 font-medium">PAID DATA & Live Collection Portal</p>
+          <span class="text-sm sm:text-base font-black tracking-wider text-white">SHAHA FINLEASE PVT LTD</span>
+          <p class="text-[11px] text-slate-400 font-semibold tracking-wide">Live Collection Executive Portal</p>
         </div>
       </div>
-
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/80 text-[11px] font-semibold text-emerald-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Secure Gateway</span>
+      </div>
     </div>
 
-    <div class="w-full max-w-sm mx-auto my-auto bg-white border border-slate-200 rounded-2xl shadow-xl p-6 sm:p-8 space-y-5">
-      <div class="text-center space-y-1">
-        <h3 class="font-extrabold text-lg text-slate-900">Sign In to Continue</h3>
-        <p class="text-xs text-slate-500 font-medium">Access PAID DATA & Live Collection</p>
+    <!-- Center Login Card -->
+    <div class="w-full max-w-md mx-auto my-auto bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl p-7 sm:p-9 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner">
+          <i data-lucide="lock" class="w-6 h-6"></i>
+        </div>
+        <h3 class="font-extrabold text-xl text-white tracking-tight">Portal Authentication</h3>
+        <p class="text-xs text-slate-400 font-medium">Enter your credentials to access your isolated workspace</p>
       </div>
 
-      <div id="login-error-box" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center gap-2">
-        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
-        <span id="login-error-text">Invalid credentials.</span>
+      <!-- Error Alert Box -->
+      <div id="login-error-box" class="hidden text-xs text-rose-300 bg-rose-950/60 border border-rose-800/80 p-3 rounded-xl flex items-center gap-2.5 shadow-sm">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+        <span id="login-error-text" class="font-medium">Invalid credentials.</span>
       </div>
 
       <form onsubmit="event.preventDefault(); handleLoginSubmit();" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Username / Login ID</label>
-          <input type="text" id="login-username-input" autocomplete="username" placeholder="Enter Username / Login ID" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 transition" required>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Username / Login ID</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+            <input type="text" id="login-username-input" autocomplete="username" placeholder="Enter Username / Login ID" class="w-full bg-slate-800/90 border border-slate-700 text-white rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-semibold focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder:text-slate-500" required>
+          </div>
         </div>
+
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-          <input type="password" id="login-password-input" autocomplete="current-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono font-bold focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 transition" required>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold text-slate-300">Password</label>
+            <button type="button" onclick="togglePasswordVisibility('login-password-input', 'icon-toggle-pass')" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold transition flex items-center gap-1 cursor-pointer">
+              <i id="icon-toggle-pass" data-lucide="eye" class="w-3.5 h-3.5"></i>
+              <span id="text-toggle-pass">Show</span>
+            </button>
+          </div>
+          <div class="relative">
+            <i data-lucide="key-round" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+            <input type="password" id="login-password-input" autocomplete="current-password" placeholder="••••••••" class="w-full bg-slate-800/90 border border-slate-700 text-white rounded-xl pl-10 pr-10 py-2.5 text-xs font-mono font-bold focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder:text-slate-500" required>
+          </div>
         </div>
-        <button type="submit" id="btn-login-submit" class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
+
+        <div class="flex items-center justify-between pt-1 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-300 select-none">
+            <input type="checkbox" id="login-remember-me" checked class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 w-3.5 h-3.5">
+            <span>Keep me signed in</span>
+          </label>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="w-full py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
           <i data-lucide="log-in" class="w-4 h-4"></i>
-          <span id="btn-login-label">Sign In</span>
+          <span id="btn-login-label">Sign In to Portal</span>
         </button>
       </form>
     </div>
 
-    <div class="text-center text-[11px] text-slate-400 py-2">
-      Shaha Finlease Pvt Ltd &bull; Confidential Internal Operations System
+    <!-- Bottom Footer -->
+    <div class="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2 py-2">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-slate-400"></i>
+        <span>256-Bit SSL Encrypted &bull; ISO 27001 Security Standard</span>
+      </div>
+      <div>
+        Shaha Finlease Pvt Ltd &bull; Confidential Operations
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CONFIRM LOGOUT                      -->
+  <!-- ========================================== -->
+  <div id="logout-confirm-modal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 max-w-sm w-full rounded-2xl shadow-2xl p-6 space-y-4 text-center">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+        <i data-lucide="log-out" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h4 class="font-extrabold text-base text-white">Confirm Sign Out</h4>
+        <p class="text-xs text-slate-400 mt-1">Are you sure you want to log out? All your changes have been autosaved to the server.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button type="button" onclick="closeLogoutConfirmModal()" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer">Cancel</button>
+        <button type="button" onclick="confirmLogoutAction()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition cursor-pointer">Sign Out</button>
+      </div>
     </div>
   </div>
 
@@ -1026,6 +1344,11 @@
       <input type="hidden" id="officer-edit-idx" value="-1">
 
       <div class="space-y-3 text-xs">
+        <div id="officer-manager-field-wrap" class="admin-only-filter">
+          <label class="block font-semibold text-slate-700 mb-1">Assigned Manager *</label>
+          <select id="officer-input-manager" class="w-full font-bold bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:bg-white focus:ring-1 focus:ring-blue-600 focus:outline-none">
+          </select>
+        </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Caller / Officer Name *</label>
           <input type="text" id="officer-input-name" placeholder="e.g. PRIYA SHETTY" class="w-full uppercase font-bold bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:bg-white focus:ring-1 focus:ring-blue-600 focus:outline-none">
@@ -1218,37 +1541,8 @@
     let supabaseClient = null;
     let inactivityTimerInterval = null;
 
-    // --- Paid File Records Storage ---
-    let paidFileRecords = [
-      {
-        id: 1,
-        cust_id: "02356864",
-        cust_name: "VETRY SELVI RAMACHANDRAN",
-        portfolio: "CASHe",
-        pay_date: "28-10-2026",
-        amount: 38801.03,
-        mode: "NEFT",
-        narr: "04071010001500-TPT-loan 02356864",
-        bank: "HDFC",
-        officer: "DARSHANA",
-        manager: "Komal S",
-        splits: null
-      },
-      {
-        id: 2,
-        cust_id: "98230112",
-        cust_name: "AJAY SHARMA",
-        portfolio: "CHOLA",
-        pay_date: "28-10-2026",
-        amount: 15000,
-        mode: "UPI",
-        narr: "UPI/627425181809/Paid",
-        bank: "ICICI",
-        officer: "ROOPKALA",
-        manager: "Ambuj Tripathi",
-        splits: null
-      }
-    ];
+    // --- Paid File Records Storage (100% Fresh Clean Slate - 0 Records) ---
+    let paidFileRecords = [];
 
     // --- Recovery Officers Template Generator (100% Fresh Blank Slate - 0 Callers) ---
     function createFreshLeaderboardOfficers() {
@@ -1256,15 +1550,51 @@
     }
     let leaderboardOfficers = createFreshLeaderboardOfficers();
 
+    // Caller protection: Do NOT auto-purge callers entered by managers/admin
+    function isLegacyDummyCallerList(list) {
+      return false;
+    }
+
+    // Auto-clean any legacy dummy callers from browser localStorage
+    function purgeLegacyDummyLeaderboardData() {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('shaha_leaderboard_mis')) {
+            const val = localStorage.getItem(k);
+            if (val) {
+              try {
+                const parsed = JSON.parse(val);
+                if (isLegacyDummyCallerList(parsed)) {
+                  localStorage.setItem(k, '[]');
+                }
+              } catch(e) {}
+            }
+          }
+        }
+        // Also purge any legacy dummy paid records
+        const localPaid = localStorage.getItem('shaha_paid_file_records_v1');
+        if (localPaid) {
+          try {
+            const parsed = JSON.parse(localPaid);
+            if (Array.isArray(parsed) && parsed.some(r => r.cust_id === '02356864' || (r.officer && r.officer.includes('DARSHANA')))) {
+              localStorage.removeItem('shaha_paid_file_records_v1');
+            }
+          } catch(e) {}
+        }
+      } catch(e) {}
+    }
+
     // ==========================================
     // INITIALIZATION & DOM READY
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
+      purgeLegacyDummyLeaderboardData();
       initSupabase();
       initLiveClock();
       initLiveDate();
       await syncCredentialsWithCloud();
-      checkAuthSession();
+      await checkAuthSession();
       populateOfficerDropdowns();
       lucide.createIcons();
     });
@@ -1326,10 +1656,12 @@
       const sp2 = document.getElementById('split-caller-2');
       const filtOff = document.getElementById('paid-filter-officer');
       const filtMgr = document.getElementById('paid-filter-manager');
+      const misFiltMgr = document.getElementById('mis-filter-manager');
+      const offMgrInput = document.getElementById('officer-input-manager');
 
       const hasOfficers = leaderboardOfficers && leaderboardOfficers.length > 0;
       const offOptions = hasOfficers
-        ? leaderboardOfficers.map(o => `<option value="${o.name}">${o.name}</option>`).join('')
+        ? leaderboardOfficers.map(o => `<option value="${o.name}">${o.name}${o.manager ? ' (' + o.manager + ')' : ''}</option>`).join('')
         : '<option value="">-- No callers added yet (Click + Add Caller) --</option>';
 
       if (sel) sel.innerHTML = offOptions;
@@ -1344,14 +1676,35 @@
           : '<option value="">All Recovery Officers (0 Callers)</option>';
       }
 
+      // Collect all managers
+      const mgrs = new Set();
+      for (const k in USER_CREDENTIALS) {
+        if (USER_CREDENTIALS[k].name) mgrs.add(USER_CREDENTIALS[k].name);
+      }
+      // Also collect any managers from existing callers
+      if (leaderboardOfficers) {
+        leaderboardOfficers.forEach(o => { if (o.manager) mgrs.add(o.manager); });
+      }
+
+      let mgrHtml = '<option value="">All Managers</option>';
+      mgrs.forEach(m => { mgrHtml += `<option value="${m}">${m}</option>`; });
+
       if (filtMgr) {
-        const mgrs = new Set();
-        for (const k in USER_CREDENTIALS) {
-          if (USER_CREDENTIALS[k].name) mgrs.add(USER_CREDENTIALS[k].name);
-        }
-        let mgrHtml = '<option value="">All Managers</option>';
-        mgrs.forEach(m => { mgrHtml += `<option value="${m}">${m}</option>`; });
+        const cur = filtMgr.value;
         filtMgr.innerHTML = mgrHtml;
+        if (cur) filtMgr.value = cur;
+      }
+      if (misFiltMgr) {
+        const cur = misFiltMgr.value;
+        misFiltMgr.innerHTML = mgrHtml;
+        if (cur) misFiltMgr.value = cur;
+      }
+      if (offMgrInput) {
+        const cur = offMgrInput.value;
+        let opts = '';
+        mgrs.forEach(m => { opts += `<option value="${m}">${m}</option>`; });
+        offMgrInput.innerHTML = opts;
+        if (cur) offMgrInput.value = cur;
       }
     }
 
@@ -1494,32 +1847,150 @@
       }
     }
 
-    // --- Cloud Sync for Paid File Records ---
-    async function loadPaidFileFromCloud() {
+    // --- Instant Live Server Refresh ---
+    async function handleAppRefresh() {
+      const btn = document.getElementById('btn-nav-refresh');
+      const icon = document.getElementById('icon-nav-refresh');
+      if (icon) icon.classList.add('animate-spin');
+      if (btn) btn.disabled = true;
+
       try {
-        const local = localStorage.getItem('shaha_paid_file_records_v1');
-        if (local) {
-          const parsed = JSON.parse(local);
-          if (Array.isArray(parsed) && parsed.length > 0) paidFileRecords = parsed;
-        }
-      } catch (e) {}
+        showToast('Refreshing live data from server...', 'info');
+        await Promise.all([
+          syncCredentialsWithCloud(),
+          loadPaidFileFromCloud(),
+          loadLeaderboardFromCloud()
+        ]);
 
-      if (supabaseClient) {
+        renderPaidFileTable();
+        renderLeaderboardMIS();
+        if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+        updateTopKpis();
+        populateOfficerDropdowns();
+
+        showToast('All live data refreshed successfully!', 'success');
+      } catch(e) {
+        showToast('Data refreshed.', 'info');
+      } finally {
+        setTimeout(() => {
+          if (icon) icon.classList.remove('animate-spin');
+          if (btn) btn.disabled = false;
+        }, 500);
+      }
+    }
+
+    // --- Storage Key Helper for Paid File (Strict Per-Manager Data Privacy & Isolation) ---
+    function getPaidFileStorageKeys() {
+      const isAdm = currentRole === 'ADMIN';
+      const myMgrName = (currentUser ? (currentUser.username || currentUser.key || currentUser.name) : (currentManager || 'admin')).toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const cloudRef = isAdm ? 'SYS_PAID_FILE_RECORDS' : `SYS_PAID_RECORDS_${myMgrName}`;
+      const localKey = isAdm ? 'shaha_paid_file_records_admin' : `shaha_paid_file_records_${myMgrName}`;
+      return { isAdm, myMgrName, cloudRef, localKey };
+    }
+
+    // --- Cloud Sync for Paid File Records (Per-Manager Isolated Storage) ---
+    async function loadPaidFileFromCloud() {
+      const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
+      let loaded = false;
+
+      if (!isAdm) {
+        // NON-ADMIN MANAGER: STRICT PRIVACY ISOLATION
+        // Only load this manager's private records from local and cloud!
         try {
-          const { data, error } = await supabaseClient
-            .from('bank_transactions')
-            .select('*')
-            .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
-            .limit(1);
-
-          if (!error && data && data.length > 0 && data[0].narration) {
-            const cloudRecords = JSON.parse(data[0].narration);
-            if (Array.isArray(cloudRecords) && cloudRecords.length > 0) {
-              paidFileRecords = cloudRecords;
-              localStorage.setItem('shaha_paid_file_records_v1', JSON.stringify(cloudRecords));
+          const local = localStorage.getItem(localKey);
+          if (local !== null && local !== undefined) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed)) {
+              paidFileRecords = parsed;
+              loaded = true;
             }
           }
-        } catch (e) {}
+        } catch(e) {}
+
+        if (supabaseClient) {
+          try {
+            const { data, error } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .eq('ref_no', cloudRef)
+              .limit(1);
+
+            if (!error && data && data.length > 0 && data[0].narration) {
+              const cloudRecords = JSON.parse(data[0].narration);
+              if (Array.isArray(cloudRecords)) {
+                paidFileRecords = cloudRecords;
+                localStorage.setItem(localKey, JSON.stringify(cloudRecords));
+                loaded = true;
+              }
+            }
+          } catch(e) {}
+        }
+
+        if (!loaded) {
+          paidFileRecords = [];
+          localStorage.setItem(localKey, '[]');
+        }
+      } else {
+        // SUPER ADMIN: Load all partitions across all managers + master
+        try {
+          const local = localStorage.getItem(localKey);
+          if (local) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed)) paidFileRecords = parsed;
+          }
+        } catch(e) {}
+
+        if (supabaseClient) {
+          try {
+            const { data, error } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .like('ref_no', 'SYS_PAID_RECORDS_%');
+
+            let allRecs = [];
+            const seenIds = new Set();
+
+            if (!error && data && data.length > 0) {
+              data.forEach(row => {
+                try {
+                  const list = JSON.parse(row.narration);
+                  if (Array.isArray(list)) {
+                    list.forEach(r => {
+                      if (!seenIds.has(r.id)) {
+                        seenIds.add(r.id);
+                        allRecs.push(r);
+                      }
+                    });
+                  }
+                } catch(e) {}
+              });
+            }
+
+            // Also check legacy/direct master SYS_PAID_FILE_RECORDS
+            const { data: masterData } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+              .limit(1);
+
+            if (masterData && masterData.length > 0 && masterData[0].narration) {
+              try {
+                const mList = JSON.parse(masterData[0].narration);
+                if (Array.isArray(mList)) {
+                  mList.forEach(r => {
+                    if (!seenIds.has(r.id)) {
+                      seenIds.add(r.id);
+                      allRecs.push(r);
+                    }
+                  });
+                }
+              } catch(e) {}
+            }
+
+            paidFileRecords = allRecs;
+            localStorage.setItem(localKey, JSON.stringify(allRecs));
+          } catch(e) {}
+        }
       }
 
       renderPaidFileTable();
@@ -1528,38 +1999,95 @@
     }
 
     async function savePaidFileToCloud(notify = false) {
-      localStorage.setItem('shaha_paid_file_records_v1', JSON.stringify(paidFileRecords));
-      if (supabaseClient) {
-        try {
-          const { data } = await supabaseClient
-            .from('bank_transactions')
-            .select('id')
-            .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
-            .limit(1);
+      const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
 
-          if (data && data.length > 0) {
-            await supabaseClient
+      if (!isAdm) {
+        // NON-ADMIN MANAGER: Strictly save only own records to dedicated cloud key
+        localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+        if (supabaseClient) {
+          try {
+            const { data } = await supabaseClient
               .from('bank_transactions')
-              .update({ narration: JSON.stringify(paidFileRecords), updated_at: new Date().toISOString() })
-              .eq('id', data[0].id);
-          } else {
-            await supabaseClient
-              .from('bank_transactions')
-              .insert([{
-                bank_name: 'SYSTEM',
-                ref_no: 'SYS_PAID_FILE_RECORDS',
-                tx_date: '01-01-2026',
-                amount: paidFileRecords.length,
-                narration: JSON.stringify(paidFileRecords),
-                status: 'SYSTEM'
-              }]);
+              .select('id')
+              .eq('ref_no', cloudRef)
+              .limit(1);
+
+            if (data && data.length > 0) {
+              await supabaseClient
+                .from('bank_transactions')
+                .update({ narration: JSON.stringify(paidFileRecords), updated_at: new Date().toISOString() })
+                .eq('id', data[0].id);
+            } else {
+              await supabaseClient
+                .from('bank_transactions')
+                .insert([{
+                  bank_name: 'SYSTEM',
+                  ref_no: cloudRef,
+                  tx_date: '01-01-2026',
+                  amount: paidFileRecords.length,
+                  narration: JSON.stringify(paidFileRecords),
+                  status: 'SYSTEM'
+                }]);
+            }
+            if (notify) showToast('PAID DATA saved to Cloud server!', 'success');
+          } catch (e) {
+            if (notify) showToast('Saved locally', 'info');
           }
-          if (notify) showToast('PAID DATA records synced to Cloud!', 'success');
-        } catch (e) {
-          if (notify) showToast('Saved locally (Cloud offline)', 'info');
+        } else {
+          if (notify) showToast('Saved locally', 'info');
         }
       } else {
-        if (notify) showToast('Saved locally', 'info');
+        // SUPER ADMIN: Group records by manager and sync each manager's cloud partition
+        localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+        if (supabaseClient) {
+          try {
+            const byManager = {};
+            paidFileRecords.forEach(r => {
+              const mgrKey = (r.manager || 'admin').toLowerCase().replace(/[^a-z0-9]/g, '_');
+              if (!byManager[mgrKey]) byManager[mgrKey] = [];
+              byManager[mgrKey].push(r);
+            });
+
+            // Master copy
+            const { data: admRow } = await supabaseClient
+              .from('bank_transactions')
+              .select('id')
+              .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+              .limit(1);
+            if (admRow && admRow.length > 0) {
+              await supabaseClient
+                .from('bank_transactions')
+                .update({ narration: JSON.stringify(paidFileRecords), updated_at: new Date().toISOString() })
+                .eq('id', admRow[0].id);
+            } else {
+              await supabaseClient
+                .from('bank_transactions')
+                .insert([{
+                  bank_name: 'SYSTEM',
+                  ref_no: 'SYS_PAID_FILE_RECORDS',
+                  tx_date: '01-01-2026',
+                  amount: paidFileRecords.length,
+                  narration: JSON.stringify(paidFileRecords),
+                  status: 'SYSTEM'
+                }]);
+            }
+
+            // Sync per-manager partitions
+            for (const mgrKey in byManager) {
+              const ref = `SYS_PAID_RECORDS_${mgrKey}`;
+              const list = byManager[mgrKey];
+              const { data: mRow } = await supabaseClient.from('bank_transactions').select('id').eq('ref_no', ref).limit(1);
+              if (mRow && mRow.length > 0) {
+                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(list), updated_at: new Date().toISOString() }).eq('id', mRow[0].id);
+              } else {
+                await supabaseClient.from('bank_transactions').insert([{ bank_name: 'SYSTEM', ref_no: ref, tx_date: '01-01-2026', amount: list.length, narration: JSON.stringify(list), status: 'SYSTEM' }]);
+              }
+            }
+            if (notify) showToast('All PAID DATA partitions synchronized across managers!', 'success');
+          } catch(e) {
+            if (notify) showToast('Saved locally', 'info');
+          }
+        }
       }
     }
 
@@ -1576,44 +2104,146 @@
       const { isAdm, myMgrName, cloudRef, localKey } = getLeaderboardStorageKeys();
       let loaded = false;
 
-      try {
-        const local = localStorage.getItem(localKey);
-        if (local) {
-          const parsed = JSON.parse(local);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            leaderboardOfficers = parsed;
-            loaded = true;
-          }
-        }
-      } catch (e) {}
-
-      if (supabaseClient) {
+      if (!isAdm) {
+        // NON-ADMIN MANAGER: Load strictly own partition
         try {
-          const { data, error } = await supabaseClient
-            .from('bank_transactions')
-            .select('*')
-            .eq('ref_no', cloudRef)
-            .limit(1);
-
-          if (!error && data && data.length > 0 && data[0].narration) {
-            const cloudList = JSON.parse(data[0].narration);
-            if (Array.isArray(cloudList) && cloudList.length > 0) {
-              leaderboardOfficers = cloudList;
-              localStorage.setItem(localKey, JSON.stringify(cloudList));
+          const local = localStorage.getItem(localKey);
+          if (local !== null && local !== undefined) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed)) {
+              leaderboardOfficers = parsed;
               loaded = true;
             }
           }
         } catch (e) {}
-      }
 
-      // If manager has never saved custom MIS: strictly 100% fresh clean slate with all 0s
-      if (!loaded) {
-        leaderboardOfficers = createFreshLeaderboardOfficers();
-        localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+        if (supabaseClient) {
+          try {
+            const { data, error } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .eq('ref_no', cloudRef)
+              .limit(1);
+
+            if (!error && data && data.length > 0 && data[0].narration) {
+              let cloudList = JSON.parse(data[0].narration);
+              if (Array.isArray(cloudList)) {
+                const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+                cloudList.forEach(o => { if (!o.manager) o.manager = myDisplayName; });
+                leaderboardOfficers = cloudList;
+                localStorage.setItem(localKey, JSON.stringify(cloudList));
+                loaded = true;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (!loaded) {
+          leaderboardOfficers = createFreshLeaderboardOfficers();
+          localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+          if (supabaseClient) {
+            try {
+              await supabaseClient
+                .from('bank_transactions')
+                .insert([{
+                  bank_name: 'SYSTEM',
+                  ref_no: cloudRef,
+                  tx_date: '01-01-2026',
+                  amount: 0,
+                  narration: JSON.stringify(leaderboardOfficers),
+                  status: 'SYSTEM'
+                }]);
+            } catch(e) {}
+          }
+        }
+      } else {
+        // SUPER ADMIN: Load ALL manager partitions + master copy
+        try {
+          const local = localStorage.getItem(localKey);
+          if (local !== null && local !== undefined) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              leaderboardOfficers = parsed;
+              loaded = true;
+            }
+          }
+        } catch(e) {}
+
+        if (supabaseClient) {
+          try {
+            const { data, error } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .ilike('ref_no', 'SYS_LEADERBOARD_MIS_%');
+
+            let allOfficers = [];
+            const seenOfficerKeys = new Set();
+
+            if (!error && data && data.length > 0) {
+              data.forEach(row => {
+                try {
+                  const list = JSON.parse(row.narration);
+                  if (Array.isArray(list)) {
+                    let rowMgr = '';
+                    const mMatch = (row.ref_no || '').match(/^SYS_LEADERBOARD_MIS_(.+)$/i);
+                    if (mMatch) {
+                      const mk = mMatch[1].toLowerCase();
+                      if (USER_CREDENTIALS[mk]) rowMgr = USER_CREDENTIALS[mk].name;
+                      else rowMgr = mk.toUpperCase();
+                    }
+                    list.forEach(o => {
+                      if (!o.manager && rowMgr) o.manager = rowMgr;
+                      const uniqueKey = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
+                      if (!seenOfficerKeys.has(uniqueKey)) {
+                        seenOfficerKeys.add(uniqueKey);
+                        allOfficers.push(o);
+                      }
+                    });
+                  }
+                } catch(e) {}
+              });
+            }
+
+            // Also check master SYS_LEADERBOARD_MIS if any
+            const { data: mData } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+              .limit(1);
+
+            if (mData && mData.length > 0 && mData[0].narration) {
+              try {
+                const mList = JSON.parse(mData[0].narration);
+                if (Array.isArray(mList)) {
+                  mList.forEach(o => {
+                    const uniqueKey = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
+                    if (!seenOfficerKeys.has(uniqueKey)) {
+                      seenOfficerKeys.add(uniqueKey);
+                      allOfficers.push(o);
+                    }
+                  });
+                }
+              } catch(e) {}
+            }
+
+            if (allOfficers.length > 0) {
+              leaderboardOfficers = allOfficers;
+              localStorage.setItem(localKey, JSON.stringify(allOfficers));
+              loaded = true;
+            }
+          } catch(e) {}
+        }
+
+        if (!loaded && leaderboardOfficers.length === 0) {
+          leaderboardOfficers = [];
+        }
       }
 
       populateOfficerDropdowns();
       syncLiveCollectionFromPaidFile(false);
+      renderLeaderboardMIS();
+      if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      updateTopKpis();
     }
 
     function updateAutosaveStatus(state = 'saved') {
@@ -1708,7 +2338,7 @@
         }
       }
 
-      ['dashboard', 'mis-report', 'paid-file', 'admin-permissions'].forEach(t => {
+      ['dashboard', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (btn) {
@@ -1734,6 +2364,8 @@
       if (tabId === 'dashboard') renderTop3Dashboard();
       if (tabId === 'mis-report') renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
       if (tabId === 'paid-file') renderPaidFileTable();
+      if (tabId === 'branch-collection') renderBranchWiseCollection();
+      if (tabId === 'manager-collection') renderManagerWiseCollection();
       if (tabId === 'admin-permissions') {
         if (currentRole === 'ADMIN') {
           syncCredentialsWithCloud().then(() => renderUserManagerTable());
@@ -1966,7 +2598,7 @@
 
     // AUTHENTICATION & SESSION INACTIVITY
     // ==========================================
-    function checkAuthSession() {
+    async function checkAuthSession() {
       const savedSession = localStorage.getItem('shaha_portal_session_v4');
       const now = Date.now();
       
@@ -1980,9 +2612,11 @@
               applyUserSession(session);
               showPortal();
               startSessionInactivityMonitor();
-              syncCredentialsWithCloud();
-              loadPaidFileFromCloud();
-              loadLeaderboardFromCloud();
+              await syncCredentialsWithCloud();
+              leaderboardOfficers = [];
+              renderLeaderboardMIS();
+              await loadPaidFileFromCloud();
+              await loadLeaderboardFromCloud();
               return;
             } else {
               localStorage.removeItem('shaha_portal_session_v4');
@@ -2150,8 +2784,15 @@
       startSessionInactivityMonitor();
       showPortal();
       showToast(`Welcome back, ${meta.name}!`, 'success');
-      loadPaidFileFromCloud();
-      loadLeaderboardFromCloud();
+      leaderboardOfficers = [];
+      renderLeaderboardMIS();
+      await loadPaidFileFromCloud();
+      await loadLeaderboardFromCloud();
+      if (sessionObj.role === 'ADMIN') {
+        switchTab('paid-file');
+      } else {
+        switchTab('dashboard');
+      }
     }
 
     function applyUserSession(user) {
@@ -2173,15 +2814,28 @@
       const adminSec = document.getElementById('content-admin-permissions');
 
       if (currentRole === 'ADMIN') {
-        // ADMIN: Sees Permissions & Approvals & Paid File & Dashboard, NO LIVE MIS REPORT TAB
+        // ADMIN: Full Access to Dashboard, MIS Report, Paid File & Admin Permissions
+        const tabMgrCol = document.getElementById('tab-manager-collection');
+        if (tabMgrCol) {
+          tabMgrCol.classList.remove('hidden');
+          tabMgrCol.style.removeProperty('display');
+          tabMgrCol.style.setProperty('display', 'flex', 'important');
+        }
+        const tabBranch = document.getElementById('tab-branch-collection');
+        if (tabBranch) {
+          tabBranch.classList.remove('hidden');
+          tabBranch.style.removeProperty('display');
+          tabBranch.style.setProperty('display', 'flex', 'important');
+        }
         if (tabAdminPerm) {
           tabAdminPerm.classList.remove('hidden');
           tabAdminPerm.style.removeProperty('display');
           tabAdminPerm.style.setProperty('display', 'flex', 'important');
         }
         if (tabMis) {
-          tabMis.classList.add('hidden');
-          tabMis.style.setProperty('display', 'none', 'important');
+          tabMis.classList.remove('hidden');
+          tabMis.style.removeProperty('display');
+          tabMis.style.setProperty('display', 'flex', 'important');
         }
         if (btnDb) {
           btnDb.classList.remove('hidden');
@@ -2194,6 +2848,16 @@
         switchTab('paid-file');
       } else {
         // MANAGER: STRICT ISOLATION - NO ADMIN PERMISSIONS, NO DB CONFIG
+        const tabMgrCol = document.getElementById('tab-manager-collection');
+        if (tabMgrCol) {
+          tabMgrCol.classList.add('hidden');
+          tabMgrCol.style.setProperty('display', 'none', 'important');
+        }
+        const tabBranch = document.getElementById('tab-branch-collection');
+        if (tabBranch) {
+          tabBranch.classList.add('hidden');
+          tabBranch.style.setProperty('display', 'none', 'important');
+        }
         if (tabAdminPerm) {
           tabAdminPerm.classList.add('hidden');
           tabAdminPerm.style.setProperty('display', 'none', 'important');
@@ -2246,20 +2910,60 @@
       lucide.createIcons();
     }
 
-    function handleLogout() {
-      if (!confirm('Are you sure you want to sign out?')) return;
+    function openLogoutConfirmModal() {
+      const modal = document.getElementById('logout-confirm-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    function closeLogoutConfirmModal() {
+      const modal = document.getElementById('logout-confirm-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function confirmLogoutAction() {
+      closeLogoutConfirmModal();
       handleLogoutSilent();
       showToast('Signed out successfully.', 'info');
+    }
+
+    function handleLogout() {
+      openLogoutConfirmModal();
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      const label = document.getElementById('text-toggle-pass');
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        if (label) label.innerText = 'Hide';
+        if (icon) icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        inp.type = 'password';
+        if (label) label.innerText = 'Show';
+        if (icon) icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
     }
 
     function handleLogoutSilent() {
       if (inactivityTimerInterval) clearInterval(inactivityTimerInterval);
       localStorage.removeItem('shaha_portal_session_v4');
       currentUser = null;
+      currentRole = 'MANAGER';
+      currentManager = '';
+      leaderboardOfficers = [];
+      paidFileRecords = [];
       const u = document.getElementById('login-username-input');
       const p = document.getElementById('login-password-input');
       if (u) u.value = '';
       if (p) p.value = '';
+      renderLeaderboardMIS();
+      renderPaidFileTable();
       showLogin();
     }
 
@@ -2435,6 +3139,46 @@
 
       const managerName = currentUser ? (currentUser.name || currentUser.username) : (currentManager || 'Manager');
 
+      // Auto-register caller in Live MIS if not already present
+      if (!isSplit && officer) {
+        const offExists = leaderboardOfficers.some(o => isOfficerMatch(o, officer));
+        if (!offExists) {
+          leaderboardOfficers.push({
+            name: officer.toUpperCase().trim(),
+            aliases: officer.toUpperCase().trim(),
+            target: 0,
+            baseline_aoy: 0,
+            aoy: 0,
+            today: 0,
+            total: 0,
+            balance: 0,
+            projection: 0,
+            achieved: 0,
+            rank: leaderboardOfficers.length + 1
+          });
+          populateOfficerDropdowns();
+        }
+      } else if (isSplit && splits) {
+        splits.forEach(s => {
+          if (s.officer && !leaderboardOfficers.some(o => isOfficerMatch(o, s.officer))) {
+            leaderboardOfficers.push({
+              name: s.officer.toUpperCase().trim(),
+              aliases: s.officer.toUpperCase().trim(),
+              target: 0,
+              baseline_aoy: 0,
+              aoy: 0,
+              today: 0,
+              total: 0,
+              balance: 0,
+              projection: 0,
+              achieved: 0,
+              rank: leaderboardOfficers.length + 1
+            });
+          }
+        });
+        populateOfficerDropdowns();
+      }
+
       if (editIdStr) {
         const editId = parseInt(editIdStr, 10);
         const idx = paidFileRecords.findIndex(r => r.id === editId);
@@ -2477,6 +3221,7 @@
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
       await savePaidFileToCloud();
+      await saveLeaderboardToCloud();
     }
 
     async function deletePaidCase() {
@@ -2932,7 +3677,7 @@
       if (leaderboardOfficers.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="py-12 px-4 text-center text-slate-400 bg-slate-50">
+            <td colspan="12" class="py-12 px-4 text-center text-slate-400 bg-slate-50">
               <div class="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
                 <i data-lucide="users" class="w-8 h-8 text-slate-300"></i>
                 <span class="font-bold text-slate-600">No Recovery Callers Added Yet</span>
@@ -2944,7 +3689,7 @@
         if (tfoot) {
           tfoot.innerHTML = `
             <tr class="bg-[#174375] text-white">
-              <td colspan="2" class="py-2.5 px-3 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
+              <td colspan="3" class="py-2.5 px-3 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
               <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">0</td>
               <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">0</td>
               <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">0</td>
@@ -2988,6 +3733,7 @@
 
         tr.innerHTML = `
           <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
+          <td class="py-1.5 px-3 text-center border border-slate-300 font-extrabold text-[#174375] bg-blue-50/70 text-xs sm:text-[13px] uppercase tracking-wide mis-mgr-col">${off.manager || currentManager || "SMITA JAGTAP"}</td>
           <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">${off.name}</td>
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${target.toLocaleString('en-IN')}</td>
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${aoy.toLocaleString('en-IN')}</td>
@@ -3010,7 +3756,7 @@
         let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
         tfoot.innerHTML = `
           <tr class="bg-[#174375] text-white">
-            <td colspan="2" class="py-2.5 px-3 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
+            <td colspan="3" class="py-2.5 px-3 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTarget.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
@@ -3038,6 +3784,25 @@
       document.getElementById('officer-input-aoy').value = '0';
       document.getElementById('officer-input-today').value = '0';
       document.getElementById('officer-input-proj').value = '0';
+
+      const mgrWrap = document.getElementById('officer-manager-field-wrap');
+      if (mgrWrap) {
+        if (currentRole === 'ADMIN') {
+          mgrWrap.classList.remove('hidden');
+          mgrWrap.style.removeProperty('display');
+        } else {
+          mgrWrap.classList.add('hidden');
+          mgrWrap.style.setProperty('display', 'none', 'important');
+        }
+      }
+
+      const offMgrInput = document.getElementById('officer-input-manager');
+      if (offMgrInput) {
+        populateOfficerDropdowns();
+        offMgrInput.value = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        offMgrInput.disabled = (currentRole !== 'ADMIN');
+      }
+
       document.getElementById('btn-delete-officer').classList.add('hidden');
       document.getElementById('officer-modal').classList.remove('hidden');
     }
@@ -3052,6 +3817,25 @@
       document.getElementById('officer-input-aoy').value = off.baseline_aoy || 0;
       document.getElementById('officer-input-today').value = off.today || 0;
       document.getElementById('officer-input-proj').value = off.projection || 0;
+
+      const mgrWrap = document.getElementById('officer-manager-field-wrap');
+      if (mgrWrap) {
+        if (currentRole === 'ADMIN') {
+          mgrWrap.classList.remove('hidden');
+          mgrWrap.style.removeProperty('display');
+        } else {
+          mgrWrap.classList.add('hidden');
+          mgrWrap.style.setProperty('display', 'none', 'important');
+        }
+      }
+
+      const offMgrInput = document.getElementById('officer-input-manager');
+      if (offMgrInput) {
+        populateOfficerDropdowns();
+        offMgrInput.value = off.manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        offMgrInput.disabled = (currentRole !== 'ADMIN');
+      }
+
       document.getElementById('btn-delete-officer').classList.remove('hidden');
       document.getElementById('officer-modal').classList.remove('hidden');
     }
@@ -3066,6 +3850,13 @@
       const target = parseFloat(document.getElementById('officer-input-target').value) || 0;
       const baseAoy = parseFloat(document.getElementById('officer-input-aoy').value) || 0;
       const proj = parseFloat(document.getElementById('officer-input-proj').value) || 0;
+      let chosenMgr = '';
+      if (currentRole === 'ADMIN' && document.getElementById('officer-input-manager')) {
+        chosenMgr = document.getElementById('officer-input-manager').value;
+      }
+      if (!chosenMgr) {
+        chosenMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+      }
 
       if (!name) {
         showToast('Please enter Caller Name.', 'error');
@@ -3077,6 +3868,7 @@
         leaderboardOfficers[idx].target = target;
         leaderboardOfficers[idx].baseline_aoy = baseAoy;
         leaderboardOfficers[idx].projection = proj;
+        if (chosenMgr) leaderboardOfficers[idx].manager = chosenMgr;
         showToast(`Updated caller ${name}`, 'success');
       } else {
         leaderboardOfficers.push({
@@ -3090,7 +3882,8 @@
           total: baseAoy,
           balance: target - baseAoy,
           achieved: 0,
-          rank: leaderboardOfficers.length + 1
+          rank: leaderboardOfficers.length + 1,
+          manager: chosenMgr || (currentUser ? currentUser.name : 'SMITA JAGTAP')
         });
         showToast(`Added new caller ${name}`, 'success');
       }
@@ -3098,7 +3891,7 @@
       closeOfficerModal();
       populateOfficerDropdowns();
       syncLiveCollectionFromPaidFile(false);
-      await saveLeaderboardToCloud();
+      await saveLeaderboardToCloud(true);
     }
 
     async function deleteOfficerFromModal() {
@@ -3188,7 +3981,7 @@
         []
       ];
 
-      const headers = ['Sr. NO', "OFFICER'S NAME", 'TARGET 100%', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', 'PROJECTION', 'ACHIEVED%', 'RANK'];
+      const headers = ['Sr. NO', 'MANAGER', "OFFICER'S NAME", 'TARGET 100%', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', 'PROJECTION', 'ACHIEVED%', 'RANK'];
       rows.push(headers);
 
       let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0, sumProjection = 0;
@@ -3203,6 +3996,7 @@
 
         rows.push([
           idx + 1,
+          off.manager || currentManager || '-',
           off.name,
           off.target,
           off.aoy,
@@ -3321,23 +4115,25 @@
         has_mis_access: hasMisAccess
       };
 
-      // Explicitly initialize dedicated 100% fresh clean slate MIS for the new manager
-      const cleanMgrKey = rawUser.replace(/[^a-z0-9]/g, '_');
+      // Explicitly initialize dedicated 100% fresh clean slate MIS & PAID DATA for the new manager
+      const cleanMgrKey = rawUser.toLowerCase().replace(/[^a-z0-9]/g, '_');
       const freshMis = createFreshLeaderboardOfficers();
       localStorage.setItem(`shaha_leaderboard_mis_v2_${cleanMgrKey}`, JSON.stringify(freshMis));
+      localStorage.setItem(`shaha_paid_file_records_${cleanMgrKey}`, '[]');
       if (supabaseClient) {
         try {
-          const { data } = await supabaseClient
+          // Initialize MIS
+          const { data: misRow } = await supabaseClient
             .from('bank_transactions')
             .select('id')
             .eq('ref_no', `SYS_LEADERBOARD_MIS_${cleanMgrKey}`)
             .limit(1);
 
-          if (data && data.length > 0) {
+          if (misRow && misRow.length > 0) {
             await supabaseClient
               .from('bank_transactions')
               .update({ narration: JSON.stringify(freshMis), updated_at: new Date().toISOString() })
-              .eq('id', data[0].id);
+              .eq('id', misRow[0].id);
           } else {
             await supabaseClient
               .from('bank_transactions')
@@ -3347,6 +4143,31 @@
                 tx_date: '01-01-2026',
                 amount: 0,
                 narration: JSON.stringify(freshMis),
+                status: 'SYSTEM'
+              }]);
+          }
+
+          // Initialize Private Paid Data Partition
+          const { data: paidRow } = await supabaseClient
+            .from('bank_transactions')
+            .select('id')
+            .eq('ref_no', `SYS_PAID_RECORDS_${cleanMgrKey}`)
+            .limit(1);
+
+          if (paidRow && paidRow.length > 0) {
+            await supabaseClient
+              .from('bank_transactions')
+              .update({ narration: '[]', updated_at: new Date().toISOString() })
+              .eq('id', paidRow[0].id);
+          } else {
+            await supabaseClient
+              .from('bank_transactions')
+              .insert([{
+                bank_name: 'SYSTEM',
+                ref_no: `SYS_PAID_RECORDS_${cleanMgrKey}`,
+                tx_date: '01-01-2026',
+                amount: 0,
+                narration: '[]',
                 status: 'SYSTEM'
               }]);
           }
@@ -3483,6 +4304,11 @@
 
       u.name = newName.trim();
       u.username = cleanNew;
+      const newBranch = prompt(`Enter Branch for ${u.name} (e.g. SAROJ, JOGESHWARI, BANGALORE, WORLI):`, u.branch || u.agency || 'JOGESHWARI');
+      if (newBranch && newBranch.trim()) {
+        u.branch = newBranch.trim().toUpperCase();
+        u.agency = u.branch;
+      }
 
       if (cleanNew !== userKey) {
         delete USER_CREDENTIALS[userKey];
@@ -3588,6 +4414,563 @@
         setTimeout(() => toast.remove(), 300);
       }, 4000);
     }
+
+    // ==========================================
+    // BRANCH WISE COLLECTION LOGIC (ADMIN ONLY)
+    // ==========================================
+    function getBranchForManager(managerIdentifier) {
+      if (!managerIdentifier) return 'JOGESHWARI';
+      const clean = String(managerIdentifier).toLowerCase().trim();
+      for (const k in USER_CREDENTIALS) {
+        const u = USER_CREDENTIALS[k];
+        const uName = (u.name || '').toLowerCase().trim();
+        const uUser = (u.username || k).toLowerCase().trim();
+        if (clean === uName || clean === uUser || clean.includes(uName) || uName.includes(clean)) {
+          return (u.branch || u.agency || 'JOGESHWARI').toUpperCase().trim();
+        }
+      }
+      return 'JOGESHWARI';
+    }
+
+    function renderBranchWiseCollection() {
+      const tbody = document.getElementById('branch-collection-tbody');
+      const tfoot = document.getElementById('branch-collection-tfoot');
+      const dateEl = document.getElementById('branch-summary-date');
+      const titleEl = document.getElementById('branch-table-title');
+      if (!tbody) return;
+
+      calculateLeaderboard();
+
+      const periodInput = document.getElementById('leaderboard-period-input');
+      const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
+      if (dateEl) dateEl.innerText = todayDateStr;
+      if (titleEl) titleEl.innerText = `Branch Wise Collection Summary - ${todayDateStr}`;
+
+      const standardBranches = ['JOGESHWARI', 'BANGALORE', 'SAROJ', 'WORLI'];
+      const branchData = {};
+
+      standardBranches.forEach(b => {
+        branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+      });
+
+      for (const k in USER_CREDENTIALS) {
+        const b = (USER_CREDENTIALS[k].branch || USER_CREDENTIALS[k].agency || '').toUpperCase().trim();
+        if (b && !branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+      }
+
+      leaderboardOfficers.forEach(off => {
+        const b = getBranchForManager(off.manager);
+        if (!branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+        const t = Number(off.target) || 0;
+        const a = Number(off.aoy) || 0;
+        const td = Number(off.today) || 0;
+        const tot = Number(off.total) || (a + td);
+
+        branchData[b].target += t;
+        branchData[b].aoy += a;
+        branchData[b].today += td;
+        branchData[b].total += tot;
+        branchData[b].count += 1;
+      });
+
+      const branchesList = Object.values(branchData);
+      branchesList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.branch.localeCompare(b.branch));
+
+      tbody.innerHTML = '';
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
+
+      branchesList.forEach((bItem, idx) => {
+        const target = bItem.target;
+        const aoy = bItem.aoy;
+        const today = bItem.today;
+        const total = aoy + today;
+        const balance = target - total;
+        let achievedPct = 0;
+        if (target > 0) {
+          achievedPct = Math.round((total / target) * 100);
+        } else if (total > 0) {
+          achievedPct = 100;
+        }
+
+        sumTarget += target;
+        sumAoy += aoy;
+        sumToday += today;
+        sumTotal += total;
+        sumBalance += balance;
+
+        const tr = document.createElement('tr');
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f2f2f2] hover:bg-blue-50/40';
+
+        const achievedStyle = getAchievedBgColor(achievedPct);
+
+        tr.innerHTML = `
+          <td class="py-2 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
+          <td class="py-2 px-4 text-left border border-slate-300 font-extrabold text-[#174375] bg-blue-50/60 text-xs sm:text-[13px] uppercase tracking-wide">
+            <div class="flex items-center gap-2">
+              <i data-lucide="building" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>
+              <span>${bItem.branch}</span>
+            </div>
+          </td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${target.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${aoy.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-bold text-emerald-700 text-xs sm:text-[13px]">${today.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">${total.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-bold text-rose-700 text-xs sm:text-[13px]">${balance.toLocaleString('en-IN')}</td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]" style="${achievedStyle}">${achievedPct}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const overallAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
+
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr class="bg-[#174375] text-white">
+            <td colspan="2" class="py-2.5 px-4 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTarget.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${overallAchieved}%</td>
+          </tr>
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    function exportBranchCollectionExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('SheetJS library is loading, please try again.', 'error');
+        return;
+      }
+      const periodInput = document.getElementById('leaderboard-period-input');
+      const period = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
+
+      const headers = ['Sr. NO', 'BRANCH', 'TARGET', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%'];
+      const rows = [headers];
+
+      const tbody = document.getElementById('branch-collection-tbody');
+      if (!tbody) return;
+      const trs = tbody.querySelectorAll('tr');
+
+      trs.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 8) {
+          rows.push([
+            tds[0].innerText.trim(),
+            tds[1].innerText.trim(),
+            tds[2].innerText.trim().replace(/,/g, ''),
+            tds[3].innerText.trim().replace(/,/g, ''),
+            tds[4].innerText.trim().replace(/,/g, ''),
+            tds[5].innerText.trim().replace(/,/g, ''),
+            tds[6].innerText.trim().replace(/,/g, ''),
+            tds[7].innerText.trim()
+          ]);
+        }
+      });
+
+      const tfoot = document.getElementById('branch-collection-tfoot');
+      if (tfoot) {
+        const ftds = tfoot.querySelectorAll('td');
+        if (ftds.length >= 7) {
+          rows.push([
+            'TOTAL',
+            '',
+            ftds[1].innerText.trim().replace(/,/g, ''),
+            ftds[2].innerText.trim().replace(/,/g, ''),
+            ftds[3].innerText.trim().replace(/,/g, ''),
+            ftds[4].innerText.trim().replace(/,/g, ''),
+            ftds[5].innerText.trim().replace(/,/g, ''),
+            ftds[6].innerText.trim()
+          ]);
+        }
+      }
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Branch Wise Collection');
+      const filename = `Branch_Wise_Collection_${period.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      showToast(`Exported ${filename}`, 'success');
+    }
+
+    async function captureBranchTableImage() {
+      const card = document.getElementById('branch-capture-area');
+      if (!card) return;
+      showToast('Generating snapshot of Branch Wise Collection...', 'info');
+      try {
+        const canvas = await html2canvas(card, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const preview = document.getElementById('whatsapp-preview-img');
+        if (preview) preview.src = imgData;
+        window.currentWhatsAppImageBlob = imgData;
+        const modal = document.getElementById('whatsapp-share-modal');
+        if (modal) modal.classList.remove('hidden');
+        showToast('Branch summary snapshot ready to send!', 'success');
+      } catch(e) {
+        showToast('Failed to capture snapshot.', 'error');
+      }
+    }
+
+
+    // ==========================================
+    // MANAGER WISE COLLECTION & SLIDE DRILLDOWN
+    // ==========================================
+    function isOfficerUnderManager(officer, managerName) {
+      if (!officer || !managerName) return false;
+      const offMgr = String(officer.manager || '').toLowerCase().trim();
+      const targetMgr = String(managerName).toLowerCase().trim();
+      if (!offMgr) return false;
+      if (offMgr === targetMgr) return true;
+      const clean = s => s.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+      const c1 = clean(offMgr);
+      const c2 = clean(targetMgr);
+      return c1 === c2 || c1.includes(c2) || c2.includes(c1);
+    }
+
+    function renderManagerWiseCollection() {
+      const tbody = document.getElementById('manager-collection-tbody');
+      const tfoot = document.getElementById('manager-collection-tfoot');
+      const dateEl = document.getElementById('mgr-summary-date');
+      const titleEl = document.getElementById('mgr-table-title');
+      if (!tbody) return;
+
+      calculateLeaderboard();
+
+      const periodInput = document.getElementById('leaderboard-period-input');
+      const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
+      if (dateEl) dateEl.innerText = todayDateStr;
+      if (titleEl) titleEl.innerText = `Manager Wise Collection Summary - ${todayDateStr}`;
+
+      const managersMap = {};
+
+      // 1. Populate from USER_CREDENTIALS
+      for (const k in USER_CREDENTIALS) {
+        const u = USER_CREDENTIALS[k];
+        if (u.role === 'ADMIN') continue;
+        const mName = u.name || k;
+        const branch = (u.branch || u.agency || 'JOGESHWARI').toUpperCase();
+        managersMap[k] = {
+          key: k,
+          name: mName,
+          branch: branch,
+          target: 0,
+          aoy: 0,
+          today: 0,
+          total: 0,
+          balance: 0,
+          callers: []
+        };
+      }
+
+      // Also ensure any manager named in leaderboardOfficers exists
+      leaderboardOfficers.forEach(off => {
+        const offMgr = off.manager || 'GENERAL';
+        let foundKey = null;
+        for (const mk in managersMap) {
+          if (isOfficerUnderManager(off, managersMap[mk].name)) {
+            foundKey = mk;
+            break;
+          }
+        }
+        if (!foundKey) {
+          const safeKey = offMgr.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          managersMap[safeKey] = {
+            key: safeKey,
+            name: offMgr,
+            branch: getBranchForManager(offMgr),
+            target: 0,
+            aoy: 0,
+            today: 0,
+            total: 0,
+            balance: 0,
+            callers: []
+          };
+          foundKey = safeKey;
+        }
+
+        const t = Number(off.target) || 0;
+        const a = Number(off.aoy) || 0;
+        const td = Number(off.today) || 0;
+        const tot = Number(off.total) || (a + td);
+
+        managersMap[foundKey].target += t;
+        managersMap[foundKey].aoy += a;
+        managersMap[foundKey].today += td;
+        managersMap[foundKey].total += tot;
+        managersMap[foundKey].callers.push(off);
+      });
+
+      const mgrList = Object.values(managersMap);
+      mgrList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.name.localeCompare(b.name));
+
+      tbody.innerHTML = '';
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
+
+      mgrList.forEach((mItem, idx) => {
+        const target = mItem.target;
+        const aoy = mItem.aoy;
+        const today = mItem.today;
+        const total = aoy + today;
+        const balance = target - total;
+        let achievedPct = 0;
+        if (target > 0) {
+          achievedPct = Math.round((total / target) * 100);
+        } else if (total > 0) {
+          achievedPct = 100;
+        }
+
+        sumTarget += target;
+        sumAoy += aoy;
+        sumToday += today;
+        sumTotal += total;
+        sumBalance += balance;
+        sumCallers += mItem.callers.length;
+
+        const tr = document.createElement('tr');
+        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-cyan-50/50 cursor-pointer transition' : 'bg-[#f8fafc] hover:bg-cyan-50/50 cursor-pointer transition';
+        tr.onclick = (e) => {
+          // If clicked anywhere on row, open slide
+          openManagerSlideDrawer(mItem.key);
+        };
+
+        const achievedStyle = getAchievedBgColor(achievedPct);
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
+          <td class="py-2.5 px-4 text-left border border-slate-300 font-black text-blue-900 bg-blue-50/60 text-xs sm:text-[13px] uppercase">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-blue-700 text-white flex items-center justify-center font-black text-[10px] shadow-xs">${mItem.name.charAt(0)}</span>
+              <span>${mItem.name}</span>
+            </div>
+          </td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-bold text-slate-700 text-xs sm:text-[13px] uppercase">
+            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-800 border border-slate-200">${mItem.branch}</span>
+          </td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${target.toLocaleString('en-IN')}</td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${aoy.toLocaleString('en-IN')}</td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-bold text-emerald-700 text-xs sm:text-[13px]">${today.toLocaleString('en-IN')}</td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">${total.toLocaleString('en-IN')}</td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-bold text-rose-700 text-xs sm:text-[13px]">${balance.toLocaleString('en-IN')}</td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]" style="${achievedStyle}">${achievedPct}%</td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 font-bold text-blue-800 text-xs sm:text-[13px]">
+            <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-black shadow-2xs">${mItem.callers.length} Callers</span>
+          </td>
+          <td class="py-2.5 px-3 text-center border border-slate-300 mis-action-col">
+            <button onclick="event.stopPropagation(); openManagerSlideDrawer('${mItem.key}');" class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold shadow-xs transition flex items-center justify-center gap-1.5 mx-auto active:scale-95 cursor-pointer">
+              <i data-lucide="panel-right-open" class="w-3.5 h-3.5"></i>
+              <span>Slide Callers &gt;</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const overallAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
+
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr class="bg-[#174375] text-white">
+            <td colspan="3" class="py-2.5 px-4 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTarget.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${overallAchieved}%</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumCallers} Callers</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] mis-action-col"></td>
+          </tr>
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    function openManagerSlideDrawer(mgrKey) {
+      const drawer = document.getElementById('manager-slide-drawer');
+      const backdrop = document.getElementById('manager-slide-drawer-backdrop');
+      if (!drawer || !backdrop) return;
+
+      const meta = USER_CREDENTIALS[mgrKey] || {};
+      let mgrName = meta.name || mgrKey;
+      let branch = (meta.branch || meta.agency || getBranchForManager(mgrName)).toUpperCase();
+
+      // Check if mgrKey is a direct name
+      for (const k in USER_CREDENTIALS) {
+        if (USER_CREDENTIALS[k].name === mgrKey) {
+          mgrName = USER_CREDENTIALS[k].name;
+          branch = (USER_CREDENTIALS[k].branch || USER_CREDENTIALS[k].agency || 'JOGESHWARI').toUpperCase();
+          break;
+        }
+      }
+
+      document.getElementById('drawer-manager-name').innerText = mgrName;
+      document.getElementById('drawer-manager-branch').innerText = branch;
+
+      const callers = leaderboardOfficers.filter(o => isOfficerUnderManager(o, mgrName));
+
+      let sumTarget = 0, sumToday = 0, sumTotal = 0;
+      callers.forEach(c => {
+        sumTarget += Number(c.target) || 0;
+        sumToday += Number(c.today) || 0;
+        sumTotal += Number(c.total) || 0;
+      });
+
+      const achieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
+
+      document.getElementById('drawer-kpi-count').innerText = callers.length;
+      document.getElementById('drawer-kpi-target').innerText = '₹' + sumTarget.toLocaleString('en-IN');
+      document.getElementById('drawer-kpi-today').innerText = '₹' + sumToday.toLocaleString('en-IN');
+      document.getElementById('drawer-kpi-achieved').innerText = achieved + '%';
+      document.getElementById('drawer-caller-total-label').innerText = `${callers.length} Callers under ${mgrName}`;
+
+      const tbody = document.getElementById('drawer-callers-tbody');
+      tbody.innerHTML = '';
+
+      if (callers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-8 text-center text-slate-400 bg-slate-50">
+              <div class="flex flex-col items-center justify-center gap-1.5">
+                <i data-lucide="users" class="w-6 h-6 text-slate-300"></i>
+                <span class="font-bold text-slate-600">No Callers Assigned Yet</span>
+                <p class="text-[11px] text-slate-400">Add recovery callers under ${mgrName} from MIS Report or Admin.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else {
+        callers.forEach((c, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f8fafc] hover:bg-blue-50/40';
+          const achievedStyle = getAchievedBgColor(c.achieved);
+          const rankStyle = getRankBgColor(c.rank);
+
+          tr.innerHTML = `
+            <td class="p-2 text-center border-r border-slate-200 font-bold bg-[#d9e1f2] text-slate-800">${idx + 1}</td>
+            <td class="p-2 border-r border-slate-200 font-extrabold text-slate-900 bg-slate-50">${c.name}</td>
+            <td class="p-2 text-center border-r border-slate-200 font-mono-num font-bold">${Number(c.target).toLocaleString('en-IN')}</td>
+            <td class="p-2 text-center border-r border-slate-200 font-mono-num font-bold text-emerald-700">${Number(c.today).toLocaleString('en-IN')}</td>
+            <td class="p-2 text-center border-r border-slate-200 font-mono-num font-black text-slate-900">${Number(c.total).toLocaleString('en-IN')}</td>
+            <td class="p-2 text-center border-r border-slate-200 font-mono-num font-bold text-rose-700">${Number(c.balance).toLocaleString('en-IN')}</td>
+            <td class="p-2 text-center border-r border-slate-200 font-mono-num" style="${achievedStyle}">${c.achieved}%</td>
+            <td class="p-2 text-center font-mono-num font-black" style="${rankStyle}">${c.rank}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      lucide.createIcons();
+
+      backdrop.classList.remove('pointer-events-none', 'opacity-0');
+      backdrop.classList.add('opacity-100');
+      drawer.classList.remove('translate-x-full');
+      drawer.classList.add('translate-x-0');
+    }
+
+    function closeManagerSlideDrawer() {
+      const drawer = document.getElementById('manager-slide-drawer');
+      const backdrop = document.getElementById('manager-slide-drawer-backdrop');
+      if (!drawer || !backdrop) return;
+      drawer.classList.remove('translate-x-0');
+      drawer.classList.add('translate-x-full');
+      backdrop.classList.remove('opacity-100');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function exportManagerCollectionExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('SheetJS library is loading, please try again.', 'error');
+        return;
+      }
+      const periodInput = document.getElementById('leaderboard-period-input');
+      const period = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
+
+      const headers = ['Sr. NO', 'MANAGER', 'BRANCH', 'TARGET', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%', 'CALLERS'];
+      const rows = [headers];
+
+      const tbody = document.getElementById('manager-collection-tbody');
+      if (!tbody) return;
+      const trs = tbody.querySelectorAll('tr');
+
+      trs.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 10) {
+          rows.push([
+            tds[0].innerText.trim(),
+            tds[1].innerText.trim(),
+            tds[2].innerText.trim(),
+            tds[3].innerText.trim().replace(/,/g, ''),
+            tds[4].innerText.trim().replace(/,/g, ''),
+            tds[5].innerText.trim().replace(/,/g, ''),
+            tds[6].innerText.trim().replace(/,/g, ''),
+            tds[7].innerText.trim().replace(/,/g, ''),
+            tds[8].innerText.trim(),
+            tds[9].innerText.trim()
+          ]);
+        }
+      });
+
+      const tfoot = document.getElementById('manager-collection-tfoot');
+      if (tfoot) {
+        const ftds = tfoot.querySelectorAll('td');
+        if (ftds.length >= 8) {
+          rows.push([
+            'TOTAL',
+            '',
+            '',
+            ftds[1].innerText.trim().replace(/,/g, ''),
+            ftds[2].innerText.trim().replace(/,/g, ''),
+            ftds[3].innerText.trim().replace(/,/g, ''),
+            ftds[4].innerText.trim().replace(/,/g, ''),
+            ftds[5].innerText.trim().replace(/,/g, ''),
+            ftds[6].innerText.trim(),
+            ftds[7].innerText.trim()
+          ]);
+        }
+      }
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Manager Wise Collection');
+      const filename = `Manager_Wise_Collection_${period.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      showToast(`Exported ${filename}`, 'success');
+    }
+
+    async function captureManagerTableImage() {
+      const card = document.getElementById('mgr-capture-area');
+      if (!card) return;
+      showToast('Generating snapshot of Manager Wise Collection...', 'info');
+      try {
+        const canvas = await html2canvas(card, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const preview = document.getElementById('whatsapp-preview-img');
+        if (preview) preview.src = imgData;
+        window.currentWhatsAppImageBlob = imgData;
+        const modal = document.getElementById('whatsapp-share-modal');
+        if (modal) modal.classList.remove('hidden');
+        showToast('Manager summary snapshot ready to send!', 'success');
+      } catch(e) {
+        showToast('Failed to capture snapshot.', 'error');
+      }
+    }
+
   </script>
   <!-- ============================================================== -->
   <!-- MODAL: ALL CALLERS ACHIEVEMENT LEADERBOARD (% ACHIEVED)        -->
