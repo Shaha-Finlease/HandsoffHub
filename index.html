@@ -67,6 +67,75 @@
     }
   
     /* Distinct Top Navigation Buttons */
+    .portal-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e9d5ff;
+      color: #0f172a;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+    .portal-nav {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e9d5ff;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+    .portal-title {
+      color: #3b0764 !important;
+    }
+    .portal-sub {
+      color: #ea580c !important;
+    }
+    .header-pill {
+      background: #faf5ff !important;
+      border: 1px solid #e9d5ff !important;
+      color: #581c87 !important;
+    }
+    .header-pill-icon {
+      color: #7c3aed !important;
+    }
+    .header-theme-btn {
+      background: #fff7ed !important;
+      border: 1px solid #fed7aa !important;
+      color: #c2410c !important;
+    }
+    .header-theme-btn:hover {
+      background: #ffedd5 !important;
+      border-color: #fb923c !important;
+    }
+    .header-user-pill {
+      background: #faf5ff !important;
+      border: 1px solid #e9d5ff !important;
+    }
+    .header-user-name {
+      color: #3b0764 !important;
+    }
+    .header-user-role {
+      color: #ea580c !important;
+    }
+    .header-logout-btn {
+      background: #fff1f2 !important;
+      border: 1px solid #fecdd3 !important;
+      color: #e11d48 !important;
+    }
+    .header-logout-btn:hover {
+      background: #e11d48 !important;
+      color: #ffffff !important;
+    }
+    .btn-nav-refresh-theme {
+      background: #fff7ed !important;
+      border: 1px solid #fed7aa !important;
+      color: #c2410c !important;
+    }
+    .btn-nav-refresh-theme:hover {
+      background: #ffedd5 !important;
+      border-color: #fb923c !important;
+      color: #9a3412 !important;
+    }
+    .btn-nav-refresh-theme i {
+      color: #ea580c !important;
+    }
+
+    /* Tab Buttons - Purple, Orange & White Theme */
     .tab-btn {
       cursor: pointer;
       font-weight: 700;
@@ -79,29 +148,99 @@
       user-select: none;
     }
     .tab-btn-active {
-      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%) !important;
+      background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%) !important;
       color: #ffffff !important;
-      border: 1px solid #93c5fd !important;
-      box-shadow: 0 4px 14px -1px rgba(37, 99, 235, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid #fed7aa !important;
+      box-shadow: 0 4px 14px -1px rgba(234, 88, 12, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
       transform: translateY(-1px);
     }
     .tab-btn-inactive {
-      background: #1e293b !important;
-      color: #cbd5e1 !important;
-      border: 1px solid #334155 !important;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+      background: #ffffff !important;
+      color: #581c87 !important;
+      border: 1px solid #e9d5ff !important;
+      box-shadow: 0 1px 3px rgba(88, 28, 135, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
     }
     .tab-btn-inactive:hover {
-      background: #334155 !important;
-      color: #ffffff !important;
-      border-color: #64748b !important;
+      background: #faf5ff !important;
+      color: #3b0764 !important;
+      border-color: #c084fc !important;
       transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35) !important;
+      box-shadow: 0 4px 8px rgba(107, 33, 168, 0.12) !important;
     }
     .tab-btn:active {
       transform: translateY(0px) scale(0.97);
     }
 
+    /* ROYAL PURPLE MODE OVERRIDES */
+    body.theme-purple .portal-header {
+      background: linear-gradient(135deg, #2e1065 0%, #4c1d95 60%, #3b0764 100%) !important;
+      border-bottom: 1px solid #581c87 !important;
+      color: #ffffff !important;
+    }
+    body.theme-purple .portal-nav {
+      background: linear-gradient(135deg, #1e0938 0%, #2e1065 100%) !important;
+      border-bottom: 1px solid #3b0764 !important;
+    }
+    body.theme-purple .portal-title {
+      color: #ffffff !important;
+    }
+    body.theme-purple .portal-sub {
+      color: #fdba74 !important;
+    }
+    body.theme-purple .header-pill {
+      background: rgba(88, 28, 135, 0.6) !important;
+      border: 1px solid #7c3aed !important;
+      color: #f3e8ff !important;
+    }
+    body.theme-purple .header-pill-icon {
+      color: #c084fc !important;
+    }
+    body.theme-purple .header-theme-btn {
+      background: rgba(234, 88, 12, 0.2) !important;
+      border: 1px solid #fb923c !important;
+      color: #fed7aa !important;
+    }
+    body.theme-purple .header-theme-btn:hover {
+      background: rgba(234, 88, 12, 0.35) !important;
+    }
+    body.theme-purple .header-user-pill {
+      background: rgba(88, 28, 135, 0.7) !important;
+      border: 1px solid #7c3aed !important;
+    }
+    body.theme-purple .header-user-name {
+      color: #ffffff !important;
+    }
+    body.theme-purple .header-user-role {
+      color: #fb923c !important;
+    }
+    body.theme-purple .header-logout-btn {
+      background: rgba(244, 63, 94, 0.2) !important;
+      border: 1px solid rgba(244, 63, 94, 0.4) !important;
+      color: #fda4af !important;
+    }
+    body.theme-purple .tab-btn-inactive {
+      background: rgba(88, 28, 135, 0.45) !important;
+      color: #e9d5ff !important;
+      border: 1px solid #6b21a8 !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25) !important;
+    }
+    body.theme-purple .tab-btn-inactive:hover {
+      background: #581c87 !important;
+      color: #ffffff !important;
+      border-color: #a855f7 !important;
+    }
+    body.theme-purple .btn-nav-refresh-theme {
+      background: rgba(88, 28, 135, 0.6) !important;
+      border: 1px solid #7c3aed !important;
+      color: #fed7aa !important;
+    }
+    body.theme-purple .btn-nav-refresh-theme:hover {
+      background: #581c87 !important;
+      border-color: #ea580c !important;
+    }
+    body.theme-purple .btn-nav-refresh-theme i {
+      color: #fb923c !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased bg-slate-100">
@@ -114,48 +253,48 @@
     <!-- ========================================== -->
     <!-- 1. CORPORATE EXECUTIVE TOP NAVBAR          -->
     <!-- ========================================== -->
-    <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 px-6 py-2.5 shadow-md">
+    <header class="portal-header sticky top-0 z-40 px-6 py-2.5 shadow-sm">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
         
         <!-- Logo & Company Branding -->
         <div class="flex items-center space-x-3.5">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 via-indigo-600 to-amber-500 p-0.5 shadow-md flex items-center justify-center">
-            <div class="w-full h-full bg-slate-900 rounded-[7px] flex items-center justify-center">
-              <i data-lucide="file-check-2" class="w-5 h-5 text-amber-400"></i>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-orange-500 p-0.5 shadow-md flex items-center justify-center">
+            <div class="w-full h-full bg-white rounded-[9px] flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-5 h-5 text-orange-600"></i>
             </div>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-base font-extrabold tracking-tight text-white">SHAHA FINLEASE PVT LTD</span>
+              <span class="portal-title text-base font-black tracking-tight">SHAHA FINLEASE PVT LTD</span>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium">Debt Recovery Operations</p>
+            <p class="portal-sub text-[11px] font-bold tracking-wide">Debt Recovery Operations</p>
           </div>
         </div>
 
         <!-- Header Controls -->
         <div class="flex items-center gap-3 flex-wrap">
-          <!-- Live Clock --><!-- Live Clock -->
-          <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
-            <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+          <!-- Live Clock -->
+          <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg header-pill text-xs font-semibold shadow-2xs">
+            <i data-lucide="clock" class="w-3.5 h-3.5 header-pill-icon"></i>
             <span id="live-clock" class="font-mono-num font-semibold">--</span>
           </div>
 
           <!-- Supabase DB Status Badge -->
-          <button onclick="openSupabaseModal()" id="btn-supabase-config" title="Cloud DB Settings" class="hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-xs hover:bg-slate-700 transition-all text-slate-300">
+          <button onclick="openSupabaseModal()" id="btn-supabase-config" title="Cloud DB Settings" class="hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 hover:bg-emerald-100 transition-all shadow-2xs">
             <span id="supabase-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
-            <span id="supabase-status-text" class="hidden sm:inline font-medium">Cloud DB</span>
+            <span id="supabase-status-text" class="hidden sm:inline font-bold">Cloud DB</span>
           </button>
 
           <!-- User Authentication Pill & Proper Logout Button -->
-          <div id="auth-user-bar" class="flex items-center gap-3 bg-slate-800/90 pl-3 pr-2 py-1.5 rounded-xl border border-slate-700/80 shadow-xs">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-700 flex items-center justify-center text-white text-xs font-black shadow-inner">
+          <div id="auth-user-bar" class="flex items-center gap-3 header-user-pill pl-3 pr-2 py-1.5 rounded-xl shadow-2xs">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-700 via-indigo-600 to-orange-500 flex items-center justify-center text-white text-xs font-black shadow-inner">
               <span id="nav-user-avatar">A</span>
             </div>
             <div class="text-left pr-1 leading-tight">
-              <div id="nav-user-name" class="text-xs font-black text-white">User</div>
-              <div id="nav-user-role" class="text-[10px] text-amber-400 font-bold">Role</div>
+              <div id="nav-user-name" class="header-user-name text-xs font-black">User</div>
+              <div id="nav-user-role" class="header-user-role text-[10px] font-bold">Role</div>
             </div>
-            <button onclick="openLogoutConfirmModal()" title="Sign Out" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer">
+            <button onclick="openLogoutConfirmModal()" title="Sign Out" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg header-logout-btn text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer">
               <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
               <span>Logout</span>
             </button>
@@ -167,58 +306,56 @@
     </header>
 
     <!-- ============================================================== -->
-    <!-- PRIMARY NAVIGATION VIEWS BAR (NICHE GIVEN TABS)                 -->
-    <!-- 1. Dashboard | 2. MIS Report | 3. Paid File            -->
+    <!-- PRIMARY NAVIGATION VIEWS BAR (PURPLE, ORANGE & WHITE THEME)    -->
     <!-- ============================================================== -->
-    <nav class="bg-slate-900 border-b border-slate-800 shadow-md sticky top-0 z-30 px-6 py-2.5">
+    <nav class="portal-nav shadow-xs sticky top-0 z-30 px-6 py-2.5">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-        <!-- 3 Core Navigation Views as distinct Buttons -->
+        <!-- Core Navigation Views as distinct Buttons -->
         <div class="flex items-center gap-3 flex-wrap">
           
           <!-- View 1: Dashboard (Top 3) Button -->
           <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn tab-btn-active px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
-            <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-300"></i>
-            <span>1. Dashboard</span>
+            <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-200"></i>
+            <span>Dashboard</span>
           </button>
 
           <!-- View 2: MIS Report Button -->
           <button onclick="switchTab('mis-report')" id="tab-mis-report" class="tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
-            <i data-lucide="trophy" class="w-4 h-4 text-blue-400"></i>
-            <span>2. MIS Report</span>
+            <i data-lucide="trophy" class="w-4 h-4 text-purple-600"></i>
+            <span>MIS Report</span>
           </button>
 
           <!-- View 3: Paid File Data Button -->
           <button onclick="switchTab('paid-file')" id="tab-paid-file" class="tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
-            <span>3. PAID DATA</span>
+            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-orange-600"></i>
+            <span>PAID DATA</span>
           </button>
 
           <!-- Admin Only: View 4: Branch Wise Collection Button -->
-          <button onclick="switchTab('branch-collection')" id="tab-branch-collection" class="admin-only-filter hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
-            <i data-lucide="building-2" class="w-4 h-4 text-amber-400"></i>
-            <span>4. Branch Collection</span>
+          <button onclick="switchTab('branch-collection')" id="tab-branch-collection" class="hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
+            <i data-lucide="building-2" class="w-4 h-4 text-amber-600"></i>
+            <span>Branch Collection</span>
           </button>
 
           <!-- Admin Only: View 5: Manager Wise Collection Button -->
-          <button onclick="switchTab('manager-collection')" id="tab-manager-collection" class="admin-only-filter hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
-            <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
-            <span>5. Manager Collection</span>
+          <button onclick="switchTab('manager-collection')" id="tab-manager-collection" class="hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
+            <i data-lucide="users" class="w-4 h-4 text-indigo-600"></i>
+            <span>Manager Collection</span>
           </button>
 
           <!-- Refresh Live Data Button -->
-          <button onclick="handleAppRefresh()" id="btn-nav-refresh" title="Refresh Live Data from Server" class="px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-cyan-500/50 shadow-sm transition-all active:scale-95 cursor-pointer">
-            <i id="icon-nav-refresh" data-lucide="refresh-cw" class="w-4 h-4 text-cyan-400"></i>
+          <button onclick="handleAppRefresh()" id="btn-nav-refresh" title="Refresh Live Data from Server" class="btn-nav-refresh-theme px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer">
+            <i id="icon-nav-refresh" data-lucide="refresh-cw" class="w-4 h-4"></i>
             <span>Refresh</span>
           </button>
 
           <!-- Admin Only: Permissions & Approvals Button -->
           <button onclick="switchTab('admin-permissions')" id="tab-admin-permissions" class="hidden tab-btn tab-btn-inactive px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-all">
-            <i data-lucide="shield-check" class="w-4 h-4 text-purple-400"></i>
+            <i data-lucide="shield-check" class="w-4 h-4 text-purple-600"></i>
             <span>Permissions & Approvals</span>
           </button>
 
         </div>
-
 
       </div>
     </nav>
@@ -1011,12 +1148,21 @@
             <div class="p-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
               <i data-lucide="plus-circle" class="w-4 h-4 text-blue-600"></i>
             </div>
-            <span>Create New Manager Profile</span>
+            <span>Create User / Manager Profile</span>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
             <div>
               <label class="block font-semibold text-slate-600 mb-1">Full Name *</label>
               <input type="text" id="new-user-name" placeholder="Enter Full Name" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium focus:bg-white focus:ring-1 focus:ring-blue-600 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">System Role *</label>
+              <select id="new-user-role" onchange="handleNewUserRoleChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-purple-900 focus:bg-white focus:ring-1 focus:ring-purple-600 focus:outline-none">
+                <option value="MANAGER">Manager (Dashboard, MIS, Paid Data)</option>
+                <option value="BACKEND">Backend Team (Dashboard, Paid, Collections)</option>
+                <option value="MANAGEMENT">Senior Management (Dashboard, Collections)</option>
+                <option value="ADMIN">Administrator (Total Full Access)</option>
+              </select>
             </div>
             <div>
               <label class="block font-semibold text-slate-600 mb-1">Username / Login ID *</label>
@@ -1029,6 +1175,7 @@
                 <option value="JOGESHWARI">JOGESHWARI</option>
                 <option value="SAROJ">SAROJ</option>
                 <option value="WORLI">WORLI</option>
+                <option value="ALL">ALL BRANCHES</option>
                 <option value="AGENCY">AGENCY</option>
               </select>
             </div>
@@ -1036,17 +1183,17 @@
               <label class="block font-semibold text-slate-600 mb-1">Initial Password *</label>
               <input type="text" id="new-user-pin" placeholder="Enter Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono focus:bg-white focus:ring-1 focus:ring-blue-600 focus:outline-none">
             </div>
-            <div class="sm:col-span-4 flex items-center gap-2 pt-1 bg-blue-50/70 p-3 rounded-lg border border-blue-200">
+            <div id="new-user-mis-box" class="sm:col-span-5 flex items-center gap-2 pt-1 bg-blue-50/70 p-3 rounded-lg border border-blue-200">
               <input type="checkbox" id="new-user-mis-access" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" checked>
-              <label for="new-user-mis-access" class="text-xs font-bold text-blue-900 cursor-pointer flex items-center gap-1.5">
+              <label for="new-user-mis-access" id="new-user-mis-label" class="text-xs font-bold text-blue-900 cursor-pointer flex items-center gap-1.5">
                 <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
-                <span>Grant Daily Leaderboard MIS Access Permission to this manager</span>
+                <span>Grant Daily Leaderboard MIS Access Permission (Recovery Manager with Assigned Callers)</span>
               </label>
             </div>
           </div>
           <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
             <button onclick="toggleAddUserForm()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold transition">Cancel</button>
-            <button onclick="addNewUserProfile()" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition">Save Manager Profile</button>
+            <button onclick="addNewUserProfile()" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm transition">Save User Profile</button>
           </div>
         </div>
 
@@ -1064,11 +1211,12 @@
             <table class="w-full text-left text-xs text-slate-700 border-collapse">
               <thead class="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold border-b border-slate-200">
                 <tr>
-                  <th class="p-3 border-r border-slate-200">User / Manager</th>
+                  <th class="p-3 border-r border-slate-200">User / Profile</th>
+                  <th class="p-3 border-r border-slate-200">System Role & Access</th>
                   <th class="p-3 border-r border-slate-200">Login ID</th>
                   <th class="p-3 border-r border-slate-200">Branch</th>
                   <th class="p-3 border-r border-slate-200">Password</th>
-                  <th class="p-3 border-r border-slate-200 text-center">Daily Leaderboard MIS Permission</th>
+                  <th class="p-3 border-r border-slate-200 text-center">Daily MIS Permission</th>
                   <th class="p-3">Actions (Reset, Rename, Delete)</th>
                 </tr>
               </thead>
@@ -1225,73 +1373,73 @@
   <!-- ========================================== -->
   <!-- MODAL: LOGIN DIALOG (EXECUTIVE ENTERPRISE) -->
   <!-- ========================================== -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-950 z-[999] flex flex-col justify-between p-4 sm:p-8 overflow-y-auto selection:bg-blue-500 selection:text-white" style="background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 50%, #020617 100%);">
+  <div id="login-modal" class="fixed inset-0 bg-white z-[999] flex flex-col justify-between p-4 sm:p-8 overflow-y-auto selection:bg-blue-600 selection:text-white" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);">
     <!-- Top Branding Header -->
     <div class="w-full max-w-5xl mx-auto flex items-center justify-between pt-2">
       <div class="flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 p-0.5 shadow-lg flex items-center justify-center">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 p-0.5 shadow-md flex items-center justify-center">
           <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
             <i data-lucide="shield-check" class="w-5 h-5 text-amber-400"></i>
           </div>
         </div>
         <div>
-          <span class="text-sm sm:text-base font-black tracking-wider text-white">SHAHA FINLEASE PVT LTD</span>
-          <p class="text-[11px] text-slate-400 font-semibold tracking-wide">Live Collection Executive Portal</p>
+          <span class="text-sm sm:text-base font-black tracking-wider text-slate-900">SHAHA FINLEASE PVT LTD</span>
+          <p class="text-[11px] text-slate-500 font-semibold tracking-wide">Live Collection Executive Portal</p>
         </div>
       </div>
-      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/80 text-[11px] font-semibold text-emerald-400">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-700 shadow-2xs">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         <span>Secure Gateway</span>
       </div>
     </div>
 
     <!-- Center Login Card -->
-    <div class="w-full max-w-md mx-auto my-auto bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl p-7 sm:p-9 space-y-6">
+    <div class="w-full max-w-md mx-auto my-auto bg-white border border-slate-200/90 rounded-3xl shadow-xl shadow-slate-200/60 p-7 sm:p-9 space-y-6">
       <div class="text-center space-y-2">
-        <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
           <i data-lucide="lock" class="w-6 h-6"></i>
         </div>
-        <h3 class="font-extrabold text-xl text-white tracking-tight">Portal Authentication</h3>
-        <p class="text-xs text-slate-400 font-medium">Enter your credentials to access your isolated workspace</p>
+        <h3 class="font-extrabold text-xl text-slate-900 tracking-tight">Portal Authentication</h3>
+        <p class="text-xs text-slate-500 font-medium">Enter your credentials to access your isolated workspace</p>
       </div>
 
       <!-- Error Alert Box -->
-      <div id="login-error-box" class="hidden text-xs text-rose-300 bg-rose-950/60 border border-rose-800/80 p-3 rounded-xl flex items-center gap-2.5 shadow-sm">
-        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+      <div id="login-error-box" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-3 rounded-xl flex items-center gap-2.5 shadow-2xs">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
         <span id="login-error-text" class="font-medium">Invalid credentials.</span>
       </div>
 
       <form onsubmit="event.preventDefault(); handleLoginSubmit();" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Username / Login ID</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Username / Login ID</label>
           <div class="relative">
             <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
-            <input type="text" id="login-username-input" autocomplete="username" placeholder="Enter Username / Login ID" class="w-full bg-slate-800/90 border border-slate-700 text-white rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-semibold focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder:text-slate-500" required>
+            <input type="text" id="login-username-input" autocomplete="username" placeholder="Enter Username / Login ID" class="w-full bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 text-slate-900 rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition placeholder:text-slate-400 shadow-2xs" required>
           </div>
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-xs font-bold text-slate-300">Password</label>
-            <button type="button" onclick="togglePasswordVisibility('login-password-input', 'icon-toggle-pass')" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold transition flex items-center gap-1 cursor-pointer">
+            <label class="block text-xs font-bold text-slate-700">Password</label>
+            <button type="button" onclick="togglePasswordVisibility('login-password-input', 'icon-toggle-pass')" class="text-[11px] text-blue-600 hover:text-blue-700 font-bold transition flex items-center gap-1 cursor-pointer">
               <i id="icon-toggle-pass" data-lucide="eye" class="w-3.5 h-3.5"></i>
               <span id="text-toggle-pass">Show</span>
             </button>
           </div>
           <div class="relative">
             <i data-lucide="key-round" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
-            <input type="password" id="login-password-input" autocomplete="current-password" placeholder="••••••••" class="w-full bg-slate-800/90 border border-slate-700 text-white rounded-xl pl-10 pr-10 py-2.5 text-xs font-mono font-bold focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder:text-slate-500" required>
+            <input type="password" id="login-password-input" autocomplete="current-password" placeholder="••••••••" class="w-full bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-300 text-slate-900 rounded-xl pl-10 pr-10 py-2.5 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition placeholder:text-slate-400 shadow-2xs" required>
           </div>
         </div>
 
         <div class="flex items-center justify-between pt-1 text-xs">
-          <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-300 select-none">
-            <input type="checkbox" id="login-remember-me" checked class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 w-3.5 h-3.5">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-600 hover:text-slate-800 select-none font-medium">
+            <input type="checkbox" id="login-remember-me" checked class="rounded bg-white border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
             <span>Keep me signed in</span>
           </label>
         </div>
 
-        <button type="submit" id="btn-login-submit" class="w-full py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
+        <button type="submit" id="btn-login-submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
           <i data-lucide="log-in" class="w-4 h-4"></i>
           <span id="btn-login-label">Sign In to Portal</span>
         </button>
@@ -1299,7 +1447,7 @@
     </div>
 
     <!-- Bottom Footer -->
-    <div class="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2 py-2">
+    <div class="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2 py-2 font-medium">
       <div class="flex items-center gap-2">
         <i data-lucide="shield" class="w-3.5 h-3.5 text-slate-400"></i>
         <span>256-Bit SSL Encrypted &bull; ISO 27001 Security Standard</span>
@@ -1313,18 +1461,18 @@
   <!-- ========================================== -->
   <!-- MODAL: CONFIRM LOGOUT                      -->
   <!-- ========================================== -->
-  <div id="logout-confirm-modal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 max-w-sm w-full rounded-2xl shadow-2xl p-6 space-y-4 text-center">
-      <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+  <div id="logout-confirm-modal" class="fixed inset-0 bg-slate-900/25 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200/90 max-w-sm w-full rounded-3xl shadow-2xl shadow-slate-300/60 p-7 space-y-5 text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-inner">
         <i data-lucide="log-out" class="w-6 h-6"></i>
       </div>
       <div>
-        <h4 class="font-extrabold text-base text-white">Confirm Sign Out</h4>
-        <p class="text-xs text-slate-400 mt-1">Are you sure you want to log out? All your changes have been autosaved to the server.</p>
+        <h4 class="font-extrabold text-lg text-slate-900 tracking-tight">Confirm Sign Out</h4>
+        <p class="text-xs text-slate-500 font-medium leading-relaxed mt-1.5">Are you sure you want to log out? All your changes have been autosaved to the server.</p>
       </div>
       <div class="grid grid-cols-2 gap-3 pt-2">
-        <button type="button" onclick="closeLogoutConfirmModal()" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer">Cancel</button>
-        <button type="button" onclick="confirmLogoutAction()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition cursor-pointer">Sign Out</button>
+        <button type="button" onclick="closeLogoutConfirmModal()" class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200/80 transition cursor-pointer">Cancel</button>
+        <button type="button" onclick="confirmLogoutAction()" class="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/25 transition cursor-pointer">Sign Out</button>
       </div>
     </div>
   </div>
@@ -1519,10 +1667,26 @@
 
     // --- User Credentials (Admin & Managers) ---
     const DEFAULT_INITIAL_CREDENTIALS = {
-      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'admin123', username: 'admin' },
-      'smita': { name: 'Smita Jagtap', role: 'MANAGER', branch: 'WORLI', agency: 'WORLI', pin: 'smita123', username: 'smita', has_mis_access: true },
-      'ambuj': { name: 'Ambuj Tripathi', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'ambuj123', username: 'ambuj', has_mis_access: true },
-      'komals': { name: 'Komal S', role: 'MANAGER', branch: 'BANGALORE', agency: 'BANGALORE', pin: '123456', username: 'komals', has_mis_access: true }
+      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'ALL', agency: 'HEAD OFFICE', pin: 'admin123', username: 'admin' },
+      'management': { name: 'Senior Management', role: 'MANAGEMENT', branch: 'ALL', agency: 'HQ', pin: 'mgmt123', username: 'management' },
+      'backend': { name: 'Backend Operations Team', role: 'BACKEND', branch: 'ALL', agency: 'OPS', pin: 'back123', username: 'backend' },
+      'shaha': { name: 'Senior Management', role: 'MANAGEMENT', branch: 'ALL', agency: 'ALL', pin: '123', username: 'shaha' },
+      'ambuj': { name: 'AMBUJ TRIPATHI', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'AMBUJ@123', username: 'AMBUJ', has_mis_access: true },
+      'shravanthi': { name: 'SHRAVANTHI P', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'SHRAVANTHI@123', username: 'SHRAVANTHI', has_mis_access: true },
+      'shweta': { name: 'SHWETA SINGH', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'SHWETA@123', username: 'SHWETA', has_mis_access: true },
+      'omkar': { name: 'OMKAR SINGH', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'OMKAR@123', username: 'OMKAR', has_mis_access: true },
+      'aditi': { name: 'ADITI GAWADE', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'ADITI@123', username: 'ADITI', has_mis_access: true },
+      'poonam': { name: 'POONAM I', role: 'MANAGER', branch: 'AGENCY', agency: 'AGENCY', pin: 'POONAM@123', username: 'POONAM', has_mis_access: true },
+      'smita': { name: 'SMITA JAGTAP', role: 'MANAGER', branch: 'WORLI', agency: 'WORLI', pin: 'SMITA@123', username: 'SMITA', has_mis_access: true },
+      'customerservice': { name: 'CUSTOMER SERVICE', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'CS@123', username: 'CUSTOMERSERVICE', has_mis_access: true }
+    };
+
+    // Role-Based Access Control (RBAC) Permissions Matrix
+    const ROLE_PERMISSIONS = {
+      'ADMIN': ['dashboard', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'],
+      'MANAGEMENT': ['dashboard', 'branch-collection', 'manager-collection'],
+      'BACKEND': ['dashboard', 'paid-file', 'branch-collection', 'manager-collection'],
+      'MANAGER': ['dashboard', 'mis-report', 'paid-file']
     };
     let USER_CREDENTIALS = JSON.parse(JSON.stringify(DEFAULT_INITIAL_CREDENTIALS));
     let deletedUserKeys = new Set();
@@ -1548,6 +1712,84 @@
         JSON.parse(delPaidSaved).forEach(id => deletedPaidRecordIds.add(String(id)));
       }
     } catch(e) {}
+
+    function isUserDeleted(nameOrKey) {
+      if (!nameOrKey) return false;
+      const raw = String(nameOrKey).toLowerCase().trim();
+      if (!raw) return false;
+      if (deletedUserKeys.has(raw)) return true;
+
+      const clean = raw.replace(/[^a-z0-9]/g, '');
+      const cleanUnderscore = raw.replace(/[^a-z0-9]/g, '_');
+
+      for (const d of deletedUserKeys) {
+        const dRaw = String(d).toLowerCase().trim();
+        if (!dRaw) continue;
+        if (raw === dRaw) return true;
+        const dClean = dRaw.replace(/[^a-z0-9]/g, '');
+        const dUnder = dRaw.replace(/[^a-z0-9]/g, '_');
+        if (clean === dClean || cleanUnderscore === dUnder) return true;
+      }
+      return false;
+    }
+
+    function isOfficerTombstoned(o) {
+      if (!o) return true;
+      if (o.manager && isUserDeleted(o.manager)) return true;
+      const k1 = `${(o.manager || '').toUpperCase().trim()}_${(o.name || '').toUpperCase().trim()}`;
+      return deletedOfficerKeys.has(k1);
+    }
+
+    function isRecordTombstoned(r) {
+      if (!r) return true;
+      if (r.id && deletedPaidRecordIds.has(String(r.id))) return true;
+      if (r.manager && isUserDeleted(r.manager)) return true;
+      if (r.caller_name && isOfficerTombstoned({ name: r.caller_name, manager: r.manager })) return true;
+      return false;
+    }
+
+    async function syncDeletedTombstonesWithCloud() {
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('narration')
+            .eq('ref_no', 'SYS_DELETED_TOMBSTONES')
+            .limit(1);
+
+          if (data && data.length > 0 && data[0].narration) {
+            const cloudTombstones = JSON.parse(data[0].narration);
+            if (cloudTombstones.officers && Array.isArray(cloudTombstones.officers)) {
+              cloudTombstones.officers.forEach(k => deletedOfficerKeys.add(k));
+            }
+            if (cloudTombstones.paidRecords && Array.isArray(cloudTombstones.paidRecords)) {
+              cloudTombstones.paidRecords.forEach(id => deletedPaidRecordIds.add(String(id)));
+            }
+            localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+            localStorage.setItem('shaha_deleted_paid_record_ids_v1', JSON.stringify(Array.from(deletedPaidRecordIds)));
+          }
+        } catch(e) {}
+      }
+    }
+
+    async function saveDeletedTombstonesToCloud() {
+      localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+      localStorage.setItem('shaha_deleted_paid_record_ids_v1', JSON.stringify(Array.from(deletedPaidRecordIds)));
+      if (supabaseClient) {
+        try {
+          const payload = {
+            officers: Array.from(deletedOfficerKeys),
+            paidRecords: Array.from(deletedPaidRecordIds)
+          };
+          const { data } = await supabaseClient.from('bank_transactions').select('id').eq('ref_no', 'SYS_DELETED_TOMBSTONES').limit(1);
+          if (data && data.length > 0) {
+            await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(payload), updated_at: new Date().toISOString() }).eq('id', data[0].id);
+          } else {
+            await supabaseClient.from('bank_transactions').insert([{ bank_name: 'SYSTEM', ref_no: 'SYS_DELETED_TOMBSTONES', tx_date: '01-01-2026', amount: 0, narration: JSON.stringify(payload), status: 'SYSTEM' }]);
+          }
+        } catch(e) {}
+      }
+    }
 
     // --- State Variables ---
     let currentUser = null;
@@ -1628,6 +1870,14 @@
       if (periodInput) periodInput.value = dateStr;
       const paidDateInp = document.getElementById('paid-input-date');
       if (paidDateInp) paidDateInp.value = dateStr;
+      const branchDateEl = document.getElementById('branch-summary-date');
+      if (branchDateEl) branchDateEl.innerText = dateStr;
+      const branchTitleEl = document.getElementById('branch-table-title');
+      if (branchTitleEl) branchTitleEl.innerText = 'Branch Wise Collection Summary - ' + dateStr;
+      const mgrDateEl = document.getElementById('mgr-summary-date');
+      if (mgrDateEl) mgrDateEl.innerText = dateStr;
+      const mgrTitleEl = document.getElementById('mgr-table-title');
+      if (mgrTitleEl) mgrTitleEl.innerText = 'Manager Wise Collection Summary - ' + dateStr;
       updateLeaderboardTitle();
     }
 
@@ -1676,9 +1926,10 @@
       const misFiltMgr = document.getElementById('mis-filter-manager');
       const offMgrInput = document.getElementById('officer-input-manager');
 
-      const hasOfficers = leaderboardOfficers && leaderboardOfficers.length > 0;
+      const validOfficers = (leaderboardOfficers || []).filter(o => !isOfficerTombstoned(o) && !isUserDeleted(o.manager));
+      const hasOfficers = validOfficers.length > 0;
       const offOptions = hasOfficers
-        ? leaderboardOfficers.map(o => `<option value="${o.name}">${o.name}${o.manager ? ' (' + o.manager + ')' : ''}</option>`).join('')
+        ? validOfficers.map(o => `<option value="${o.name}">${o.name}${o.manager ? ' (' + o.manager + ')' : ''}</option>`).join('')
         : '<option value="">-- No callers added yet (Click + Add Caller) --</option>';
 
       if (sel) sel.innerHTML = offOptions;
@@ -1693,14 +1944,27 @@
           : '<option value="">All Recovery Officers (0 Callers)</option>';
       }
 
-      // Collect all managers
+      // Collect all managers (strictly role === 'MANAGER')
       const mgrs = new Set();
       for (const k in USER_CREDENTIALS) {
-        if (USER_CREDENTIALS[k].name) mgrs.add(USER_CREDENTIALS[k].name);
+        if (isUserDeleted(k)) continue;
+        const u = USER_CREDENTIALS[k];
+        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r === 'MANAGER' && u.name) {
+          mgrs.add(u.name);
+        }
       }
-      // Also collect any managers from existing callers
-      if (leaderboardOfficers) {
-        leaderboardOfficers.forEach(o => { if (o.manager) mgrs.add(o.manager); });
+      // Also collect any managers from existing callers (excluding non-managers & deleted managers)
+      if (validOfficers) {
+        validOfficers.forEach(o => {
+          if (o.manager && !isUserDeleted(o.manager)) {
+            const mLower = o.manager.toLowerCase().trim();
+            if (!mLower.includes('admin') && !mLower.includes('management') && !mLower.includes('backend')) {
+              mgrs.add(o.manager);
+            }
+          }
+        });
       }
 
       let mgrHtml = '<option value="">All Managers</option>';
@@ -1728,6 +1992,165 @@
     // ==========================================
     // SUPABASE CLOUD SYNC
     // ==========================================
+    let realtimeChannel = null;
+    let lastKnownServerTime = 0;
+    let isRemoteSyncInProgress = false;
+    let portalSyncBroadcast = null;
+
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        portalSyncBroadcast = new BroadcastChannel('shaha_portal_instant_sync');
+        portalSyncBroadcast.onmessage = async (ev) => {
+          if (ev && ev.data && ev.data.ref_no) {
+            await handleServerRemoteChange(ev.data.ref_no, true);
+          }
+        };
+      }
+    } catch(e) {}
+
+    function notifyOtherSystemsLocal(refNo) {
+      if (portalSyncBroadcast) {
+        try {
+          portalSyncBroadcast.postMessage({ ref_no: refNo, timestamp: Date.now() });
+        } catch(e) {}
+      }
+    }
+
+    function initRealtimeSync() {
+      if (!supabaseClient) return;
+      if (realtimeChannel) {
+        try { supabaseClient.removeChannel(realtimeChannel); } catch(e) {}
+      }
+
+      try {
+        realtimeChannel = supabaseClient
+          .channel('shaha_realtime_all_systems')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'bank_transactions' },
+            async (payload) => {
+              const refNo = (payload && payload.new) ? payload.new.ref_no : null;
+              await handleServerRemoteChange(refNo);
+            }
+          )
+          .subscribe((status) => {
+            const syncText = document.getElementById('supabase-status-text');
+            const syncDot = document.getElementById('supabase-indicator');
+            if (status === 'SUBSCRIBED') {
+              if (syncText) syncText.innerText = 'Live Sync: Active';
+              if (syncDot) syncDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm animate-pulse';
+            }
+          });
+      } catch (e) {
+        console.warn('Realtime channel notice:', e);
+      }
+    }
+
+    let heartbeatTimer = null;
+    function startServerHeartbeat() {
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+      heartbeatTimer = setInterval(async () => {
+        await checkServerForUpdates();
+      }, 3000); // 3-second rapid background heartbeat
+    }
+
+    async function checkServerForUpdates() {
+      if (!supabaseClient || isRemoteSyncInProgress) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('bank_transactions')
+          .select('ref_no, updated_at')
+          .in('ref_no', [
+            'SYS_LEADERBOARD_MIS',
+            'SYS_PAID_FILE_RECORDS',
+            'SYS_PORTAL_CREDENTIALS',
+            'SYS_DELETED_USER_KEYS',
+            'SYS_DELETED_TOMBSTONES'
+          ]);
+
+        if (!error && data && data.length > 0) {
+          let hasNewer = false;
+          let changedRef = null;
+          for (const row of data) {
+            if (row.updated_at) {
+              const t = new Date(row.updated_at).getTime();
+              if (t > (lastKnownServerTime || 0)) {
+                if (lastKnownServerTime > 0) {
+                  hasNewer = true;
+                  changedRef = row.ref_no;
+                }
+                lastKnownServerTime = Math.max(lastKnownServerTime, t);
+              }
+            }
+          }
+          if (hasNewer) {
+            await handleServerRemoteChange(changedRef);
+          }
+        }
+      } catch(e) {}
+    }
+
+    async function handleServerRemoteChange(refNo = null, fromBroadcast = false) {
+      if (isRemoteSyncInProgress) return;
+      const offModal = document.getElementById('officer-modal');
+      const paidModal = document.getElementById('paid-modal');
+      const qeModal = document.getElementById('quick-edit-modal');
+      if ((offModal && !offModal.classList.contains('hidden')) ||
+          (paidModal && !paidModal.classList.contains('hidden')) ||
+          (qeModal && !qeModal.classList.contains('hidden'))) {
+        return; // Avoid interrupting typing
+      }
+
+      isRemoteSyncInProgress = true;
+      try {
+        if (!refNo || refNo.includes('CREDENTIALS') || refNo.includes('DELETED')) {
+          await syncDeletedTombstonesWithCloud();
+          await syncCredentialsWithCloud();
+        }
+
+        await Promise.all([
+          loadPaidFileFromCloud(),
+          loadLeaderboardFromCloud()
+        ]);
+
+        syncLiveCollectionFromPaidFile(false);
+        calculateLeaderboard();
+
+        if (typeof renderLeaderboardMIS === 'function') renderLeaderboardMIS();
+        if (typeof renderPaidFileTable === 'function') renderPaidFileTable();
+        if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+        if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+        if (typeof updateTopKpis === 'function') updateTopKpis();
+        if (typeof populateOfficerDropdowns === 'function') populateOfficerDropdowns();
+        if (currentRole === 'ADMIN' && typeof renderUserManagerTable === 'function') renderUserManagerTable();
+
+        const indicator = document.getElementById('supabase-indicator');
+        if (indicator) {
+          indicator.classList.add('scale-150', 'bg-emerald-400');
+          setTimeout(() => {
+            indicator.classList.remove('scale-150', 'bg-emerald-400');
+            indicator.classList.add('bg-emerald-500');
+          }, 400);
+        }
+      } catch (e) {
+        console.warn('Realtime remote refresh error:', e);
+      } finally {
+        isRemoteSyncInProgress = false;
+      }
+    }
+
+    // Window focus & tab visibility listener for instant refresh
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          handleServerRemoteChange(null);
+        }
+      });
+      window.addEventListener('focus', () => {
+        handleServerRemoteChange(null);
+      });
+    }
+
     function initSupabase() {
       const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
       const key = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
@@ -1737,8 +2160,10 @@
       if (url && key && window.supabase) {
         try {
           supabaseClient = window.supabase.createClient(url, key);
-          if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm';
-          if (text) text.innerText = 'Cloud DB: Active';
+          if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm animate-pulse';
+          if (text) text.innerText = 'Live Sync: Active';
+          initRealtimeSync();
+          startServerHeartbeat();
         } catch (e) {
           if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
           if (text) text.innerText = 'Cloud DB: Error';
@@ -1783,8 +2208,13 @@
 
       localStorage.setItem('shaha_deleted_user_keys_v1', JSON.stringify(Array.from(deletedUserKeys)));
 
-      // Merge: Default initial seeds + local custom users + cloud users
-      USER_CREDENTIALS = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, localUsers, cloudUsers);
+      // Cloud is primary source of truth, fallback to local and seeds
+      if (cloudUsers && Object.keys(cloudUsers).length > 0) {
+        USER_CREDENTIALS = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, cloudUsers);
+        localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(cloudUsers));
+      } else {
+        USER_CREDENTIALS = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, localUsers);
+      }
 
       // PERMANENT PURGE: Strip any user that was explicitly deleted
       for (const delKey of deletedUserKeys) {
@@ -1792,7 +2222,13 @@
       }
 
       if (!USER_CREDENTIALS['admin']) {
-        USER_CREDENTIALS['admin'] = { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'admin123', username: 'admin' };
+        USER_CREDENTIALS['admin'] = { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'ALL', agency: 'HEAD OFFICE', pin: 'admin123', username: 'admin' };
+      }
+      if (!USER_CREDENTIALS['management']) {
+        USER_CREDENTIALS['management'] = { name: 'Senior Management', role: 'MANAGEMENT', branch: 'ALL', agency: 'HQ', pin: 'mgmt123', username: 'management' };
+      }
+      if (!USER_CREDENTIALS['backend']) {
+        USER_CREDENTIALS['backend'] = { name: 'Backend Operations Team', role: 'BACKEND', branch: 'ALL', agency: 'OPS', pin: 'back123', username: 'backend' };
       }
       localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
       populateOfficerDropdowns();
@@ -1874,7 +2310,8 @@
       try {
         showToast('Refreshing all live data, collections & tables...', 'info');
 
-        // 1. Sync credentials, paid files & leaderboard from Cloud & Local
+        // 1. Sync cloud tombstones (deleted items), credentials, paid files & leaderboard
+        await syncDeletedTombstonesWithCloud();
         await Promise.all([
           syncCredentialsWithCloud(),
           loadPaidFileFromCloud(),
@@ -1892,11 +2329,10 @@
         if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
         updateTopKpis();
 
-        // 4. Refresh Admin-Exclusive Views if Admin
-        if (currentRole === 'ADMIN') {
+        // 4. Refresh Branch & Manager Collection Views if authorized
+        if (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND') {
           if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
           if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
-          if (typeof renderUserManagerTable === 'function') renderUserManagerTable();
 
           // Live re-render Manager Slide Drawer if currently open
           const drawer = document.getElementById('manager-slide-drawer');
@@ -1904,6 +2340,9 @@
           if (drawer && !drawer.classList.contains('translate-x-full') && drawerMgrName && drawerMgrName.innerText) {
             openManagerSlideDrawer(drawerMgrName.innerText);
           }
+        }
+        if (currentRole === 'ADMIN') {
+          if (typeof renderUserManagerTable === 'function') renderUserManagerTable();
         }
 
         // 5. Update Lucide Icons
@@ -1940,10 +2379,10 @@
     }
 
     function getPaidFileStorageKeys() {
-      const isAdm = currentRole === 'ADMIN';
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
       const myMgrName = isAdm ? 'admin' : getManagerStorageKey(currentUser ? (currentUser.username || currentUser.name || currentUser.key) : currentManager);
-      const cloudRef = isAdm ? 'SYS_PAID_FILE_RECORDS' : `SYS_PAID_RECORDS_${myMgrName}`;
-      const localKey = isAdm ? 'shaha_paid_file_records_admin' : `shaha_paid_file_records_${myMgrName}`;
+      const cloudRef = isAdm ? 'SYS_PAID_FILE_RECORDS' : ('SYS_PAID_RECORDS_' + myMgrName);
+      const localKey = isAdm ? 'shaha_paid_file_records_admin' : ('shaha_paid_file_records_' + myMgrName);
       return { isAdm, myMgrName, cloudRef, localKey };
     }
 
@@ -1960,7 +2399,7 @@
           if (local !== null && local !== undefined) {
             const parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
-              paidFileRecords = parsed;
+              paidFileRecords = parsed.filter(r => !deletedPaidRecordIds.has(String(r.id)));
               loaded = true;
             }
           }
@@ -1977,8 +2416,8 @@
             if (!error && data && data.length > 0 && data[0].narration) {
               const cloudRecords = JSON.parse(data[0].narration);
               if (Array.isArray(cloudRecords)) {
-                paidFileRecords = cloudRecords;
-                localStorage.setItem(localKey, JSON.stringify(cloudRecords));
+                paidFileRecords = cloudRecords.filter(r => !deletedPaidRecordIds.has(String(r.id)));
+                localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
                 loaded = true;
               }
             }
@@ -2004,7 +2443,12 @@
             if (k && k.startsWith('shaha_paid_file_records_') && k !== localKey) {
               try {
                 const subParsed = JSON.parse(localStorage.getItem(k));
-                if (Array.isArray(subParsed)) subParsed.forEach(r => { if (!seenLocalIds.has(r.id)) { seenLocalIds.add(r.id); allLocal.push(r); } });
+                if (Array.isArray(subParsed)) subParsed.forEach(r => {
+                  if (!deletedPaidRecordIds.has(String(r.id)) && !seenLocalIds.has(r.id)) {
+                    seenLocalIds.add(r.id);
+                    allLocal.push(r);
+                  }
+                });
               } catch(e) {}
             }
           }
@@ -2070,6 +2514,9 @@
     }
 
     async function savePaidFileToCloud(notify = false) {
+      if (currentRole === 'MANAGEMENT') {
+        return; // Senior Management is strictly a collection viewer
+      }
       const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
 
       if (!isAdm) {
@@ -2100,6 +2547,41 @@
                   status: 'SYSTEM'
                 }]);
             }
+            // Non-admin manager: Also update master copy SYS_PAID_FILE_RECORDS in Supabase
+            try {
+              const { data: mRow } = await supabaseClient
+                .from('bank_transactions')
+                .select('id, narration')
+                .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+                .limit(1);
+
+              let masterPaidList = [];
+              if (mRow && mRow.length > 0 && mRow[0].narration) {
+                try { masterPaidList = JSON.parse(mRow[0].narration) || []; } catch(e) {}
+              }
+              const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+              masterPaidList = masterPaidList.filter(r => !isRecordOwnedByManager(r, myMgr));
+              masterPaidList.push(...paidFileRecords);
+
+              if (mRow && mRow.length > 0) {
+                await supabaseClient
+                  .from('bank_transactions')
+                  .update({ narration: JSON.stringify(masterPaidList), updated_at: new Date().toISOString() })
+                  .eq('id', mRow[0].id);
+              } else {
+                await supabaseClient
+                  .from('bank_transactions')
+                  .insert([{
+                    bank_name: 'SYSTEM',
+                    ref_no: 'SYS_PAID_FILE_RECORDS',
+                    tx_date: '01-01-2026',
+                    amount: masterPaidList.length,
+                    narration: JSON.stringify(masterPaidList),
+                    status: 'SYSTEM'
+                  }]);
+              }
+            } catch(e) {}
+
             if (notify) showToast('PAID DATA saved to Cloud server!', 'success');
           } catch (e) {
             if (notify) showToast('Saved locally', 'info');
@@ -2107,6 +2589,12 @@
         } else {
           if (notify) showToast('Saved locally', 'info');
         }
+        syncLiveCollectionFromPaidFile(false);
+        if (typeof renderPaidFileTable === 'function') renderPaidFileTable();
+        if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+        if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+        if (typeof updateTopKpis === 'function') updateTopKpis();
+        notifyOtherSystemsLocal(cloudRef);
       } else {
         // SUPER ADMIN: Group records by manager and sync each manager's cloud partition
         localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
@@ -2160,13 +2648,19 @@
           }
         }
       }
+      syncLiveCollectionFromPaidFile(false);
+      if (typeof renderPaidFileTable === 'function') renderPaidFileTable();
+      if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+      if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+      if (typeof updateTopKpis === 'function') updateTopKpis();
+      notifyOtherSystemsLocal(cloudRef);
     }
 
     function getLeaderboardStorageKeys() {
-      const isAdm = currentRole === 'ADMIN';
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
       const myMgrName = isAdm ? 'admin' : getManagerStorageKey(currentUser ? (currentUser.username || currentUser.name || currentUser.key) : currentManager);
-      const cloudRef = isAdm ? 'SYS_LEADERBOARD_MIS' : `SYS_LEADERBOARD_MIS_${myMgrName}`;
-      const localKey = isAdm ? 'shaha_leaderboard_mis_v2' : `shaha_leaderboard_mis_v2_${myMgrName}`;
+      const cloudRef = isAdm ? 'SYS_LEADERBOARD_MIS' : ('SYS_LEADERBOARD_MIS_' + myMgrName);
+      const localKey = isAdm ? 'shaha_leaderboard_mis_v2' : ('shaha_leaderboard_mis_v2_' + myMgrName);
       return { isAdm, myMgrName, cloudRef, localKey };
     }
 
@@ -2180,10 +2674,13 @@
         try {
           const local = localStorage.getItem(localKey);
           if (local !== null && local !== undefined) {
-            const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              leaderboardOfficers = parsed;
-              loaded = true;
+            let parsed = JSON.parse(local);
+            if (Array.isArray(parsed)) {
+              parsed = parsed.filter(o => !isOfficerTombstoned(o));
+              if (parsed.length > 0) {
+                leaderboardOfficers = parsed;
+                loaded = true;
+              }
             }
           }
         } catch (e) {}
@@ -2199,11 +2696,14 @@
             if (!error && data && data.length > 0 && data[0].narration) {
               let cloudList = JSON.parse(data[0].narration);
               if (Array.isArray(cloudList)) {
-                const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
-                cloudList.forEach(o => { if (!o.manager) o.manager = myDisplayName; });
-                leaderboardOfficers = cloudList;
-                localStorage.setItem(localKey, JSON.stringify(cloudList));
-                loaded = true;
+                cloudList = cloudList.filter(o => !isOfficerTombstoned(o));
+                if (cloudList.length > 0) {
+                  const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+                  cloudList.forEach(o => { if (!o.manager) o.manager = myDisplayName; });
+                  leaderboardOfficers = cloudList;
+                  localStorage.setItem(localKey, JSON.stringify(cloudList));
+                  loaded = true;
+                }
               }
             }
           } catch (e) {}
@@ -2264,7 +2764,10 @@
             const parsed = JSON.parse(masterLocal);
             if (Array.isArray(parsed)) parsed.forEach(o => {
               const k = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
-              if (!seenAdminKeys.has(k)) { seenAdminKeys.add(k); allAdminCallers.push(o); }
+              if (!isOfficerTombstoned(o) && !seenAdminKeys.has(k)) {
+                seenAdminKeys.add(k);
+                allAdminCallers.push(o);
+              }
             });
           }
           for (let i = 0; i < localStorage.length; i++) {
@@ -2274,7 +2777,10 @@
                 const subParsed = JSON.parse(localStorage.getItem(lk));
                 if (Array.isArray(subParsed)) subParsed.forEach(o => {
                   const k = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
-                  if (!seenAdminKeys.has(k)) { seenAdminKeys.add(k); allAdminCallers.push(o); }
+                  if (!isOfficerTombstoned(o) && !seenAdminKeys.has(k)) {
+                    seenAdminKeys.add(k);
+                    allAdminCallers.push(o);
+                  }
                 });
               } catch(e) {}
             }
@@ -2287,13 +2793,38 @@
 
         if (supabaseClient) {
           try {
+            let allOfficers = [];
+            const seenOfficerKeys = new Set();
+
+            // 1. Authoritative master copy SYS_LEADERBOARD_MIS (Admin & global views)
+            const { data: mData } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+              .limit(1);
+
+            if (mData && mData.length > 0 && mData[0].narration) {
+              try {
+                const mList = JSON.parse(mData[0].narration);
+                if (Array.isArray(mList)) {
+                  mList.forEach(o => {
+                    if (!isOfficerTombstoned(o)) {
+                      const uniqueKey = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
+                      if (!seenOfficerKeys.has(uniqueKey)) {
+                        seenOfficerKeys.add(uniqueKey);
+                        allOfficers.push(o);
+                      }
+                    }
+                  });
+                }
+              } catch(e) {}
+            }
+
+            // 2. Also check manager partitions SYS_LEADERBOARD_MIS_% for any newer/additional callers
             const { data, error } = await supabaseClient
               .from('bank_transactions')
               .select('*')
               .ilike('ref_no', 'SYS_LEADERBOARD_MIS_%');
-
-            let allOfficers = [];
-            const seenOfficerKeys = new Set();
 
             if (!error && data && data.length > 0) {
               data.forEach(row => {
@@ -2310,39 +2841,22 @@
                     list.forEach(o => {
                       if (!o.manager && rowMgr) o.manager = rowMgr;
                       const uniqueKey = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
-                      const nameKey = (o.name || '').toUpperCase().trim();
-                      if (!deletedOfficerKeys.has(uniqueKey) && !deletedOfficerKeys.has(nameKey)) {
+                      if (!isOfficerTombstoned(o)) {
                         if (!seenOfficerKeys.has(uniqueKey)) {
                           seenOfficerKeys.add(uniqueKey);
                           allOfficers.push(o);
+                        } else {
+                          // Update numbers from manager partition if partition is newer
+                          const existingIdx = allOfficers.findIndex(e => `${(e.manager || '').toUpperCase()}_${(e.name || '').toUpperCase()}` === uniqueKey);
+                          if (existingIdx >= 0 && o.target !== undefined) {
+                            allOfficers[existingIdx] = Object.assign({}, allOfficers[existingIdx], o);
+                          }
                         }
                       }
                     });
                   }
                 } catch(e) {}
               });
-            }
-
-            // Also check master SYS_LEADERBOARD_MIS if any
-            const { data: mData } = await supabaseClient
-              .from('bank_transactions')
-              .select('*')
-              .eq('ref_no', 'SYS_LEADERBOARD_MIS')
-              .limit(1);
-
-            if (mData && mData.length > 0 && mData[0].narration) {
-              try {
-                const mList = JSON.parse(mData[0].narration);
-                if (Array.isArray(mList)) {
-                  mList.forEach(o => {
-                    const uniqueKey = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
-                    if (!seenOfficerKeys.has(uniqueKey)) {
-                      seenOfficerKeys.add(uniqueKey);
-                      allOfficers.push(o);
-                    }
-                  });
-                }
-              } catch(e) {}
             }
 
             if (allOfficers.length > 0) {
@@ -2390,6 +2904,9 @@
     }
 
     async function saveLeaderboardToCloud(notify = false) {
+      if (currentRole !== 'ADMIN' && currentRole !== 'MANAGER') {
+        return; // MANAGEMENT and BACKEND are strictly read-only observers for leaderboard changes
+      }
       updateAutosaveStatus('saving');
       const { isAdm, myMgrName, cloudRef, localKey } = getLeaderboardStorageKeys();
       localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
@@ -2454,6 +2971,43 @@
                 status: 'SYSTEM'
               }]);
           }
+          // Non-admin manager: Also update master copy in Supabase for global views
+          if (!isAdm) {
+            try {
+              const { data: mRow } = await supabaseClient
+                .from('bank_transactions')
+                .select('id, narration')
+                .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+                .limit(1);
+
+              let masterList = [];
+              if (mRow && mRow.length > 0 && mRow[0].narration) {
+                try { masterList = JSON.parse(mRow[0].narration) || []; } catch(e) {}
+              }
+              const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+              masterList = masterList.filter(o => !isOfficerUnderManager(o, myDisplayName));
+              masterList.push(...leaderboardOfficers);
+
+              if (mRow && mRow.length > 0) {
+                await supabaseClient
+                  .from('bank_transactions')
+                  .update({ narration: JSON.stringify(masterList), updated_at: new Date().toISOString() })
+                  .eq('id', mRow[0].id);
+              } else {
+                await supabaseClient
+                  .from('bank_transactions')
+                  .insert([{
+                    bank_name: 'SYSTEM',
+                    ref_no: 'SYS_LEADERBOARD_MIS',
+                    tx_date: '01-01-2026',
+                    amount: 0,
+                    narration: JSON.stringify(masterList),
+                    status: 'SYSTEM'
+                  }]);
+              }
+            } catch(e) {}
+          }
+
           updateAutosaveStatus('saved');
           if (notify) showToast('Live Collection MIS saved & synced to Cloud!', 'success');
         } catch (e) {
@@ -2464,30 +3018,36 @@
         updateAutosaveStatus('saved');
         if (notify) showToast('Saved locally', 'info');
       }
+
+      // INSTANT MULTI-SYSTEM PROPAGATION & LOCAL RENDER
+      calculateLeaderboard();
+      if (typeof renderLeaderboardMIS === 'function') renderLeaderboardMIS();
+      if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+      if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+      if (typeof updateTopKpis === 'function') updateTopKpis();
+      notifyOtherSystemsLocal(cloudRef);
     }
 
     // ==========================================
     // TAB SWITCHING LOGIC
     // ==========================================
     function switchTab(tabId) {
-      // STRICT ROLE GATE: Manager can NEVER access Admin Permissions, Branch Collection, or Manager Collection
-      if (currentRole !== 'ADMIN' && (tabId === 'admin-permissions' || tabId === 'branch-collection' || tabId === 'manager-collection')) {
-        tabId = 'dashboard';
-        showToast('Access Denied: This tab is strictly restricted to Administrator.', 'error');
-        return;
-      }
+      const role = (currentRole || (currentUser && currentUser.role) || 'MANAGER').toUpperCase();
+      const allowed = ROLE_PERMISSIONS[role] || ['dashboard'];
 
-      // ADMIN CANNOT ACCESS LIVE MIS REPORT (as requested: Admin manages permissions & paid file)
-      if (currentRole === 'ADMIN' && tabId === 'mis-report') {
-        tabId = 'paid-file';
-        showToast('Live MIS Report is dedicated to Managers. Admin manages Permissions & Paid File.', 'info');
+      if (!allowed.includes(tabId)) {
+        const fallback = allowed[0] || 'dashboard';
+        showToast(`Access Denied: Your role (${role}) does not have access to this tab.`, 'error');
+        if (currentTab !== fallback) {
+          switchTab(fallback);
+        }
         return;
       }
 
       currentTab = tabId;
 
       // Auto-sync collection data silently on view switch without needing any manual button
-      if (tabId === 'dashboard' || tabId === 'mis-report') {
+      if (tabId === 'dashboard' || tabId === 'mis-report' || tabId === 'branch-collection' || tabId === 'manager-collection') {
         if (typeof syncLiveCollectionFromPaidFile === 'function') {
           syncLiveCollectionFromPaidFile(false);
         }
@@ -2517,12 +3077,15 @@
       });
 
       if (tabId === 'dashboard') renderTop3Dashboard();
-      if (tabId === 'mis-report') renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      if (tabId === 'mis-report') {
+        renderLeaderboardMIS();
+        if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      }
       if (tabId === 'paid-file') renderPaidFileTable();
       if (tabId === 'branch-collection') renderBranchWiseCollection();
       if (tabId === 'manager-collection') renderManagerWiseCollection();
       if (tabId === 'admin-permissions') {
-        if (currentRole === 'ADMIN') {
+        if (role === 'ADMIN') {
           syncCredentialsWithCloud().then(() => renderUserManagerTable());
           renderUserManagerTable();
         }
@@ -2772,6 +3335,11 @@
               renderLeaderboardMIS();
               await loadPaidFileFromCloud();
               await loadLeaderboardFromCloud();
+              syncLiveCollectionFromPaidFile(false);
+              calculateLeaderboard();
+              if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+              if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+              if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
               return;
             } else {
               localStorage.removeItem('shaha_portal_session_v4');
@@ -2944,55 +3512,57 @@
       renderLeaderboardMIS();
       await loadPaidFileFromCloud();
       await loadLeaderboardFromCloud();
-      if (sessionObj.role === 'ADMIN') {
-        switchTab('paid-file');
-      } else {
-        switchTab('dashboard');
-      }
+      syncLiveCollectionFromPaidFile(false);
+      calculateLeaderboard();
+      if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+      if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+      switchTab('dashboard');
     }
 
     function applyUserSession(user) {
+      const role = (user.role || 'MANAGER').toUpperCase();
+      currentRole = role;
       currentUser = user;
-      currentRole = user.role;
-      currentManager = user.key === 'ADMIN' ? '' : (user.name || user.key);
-      currentAgency = user.agency || 'INH';
+      currentManager = (role === 'ADMIN' || role === 'MANAGEMENT' || role === 'BACKEND') ? '' : (user.name || user.key);
+      currentAgency = user.agency || user.branch || 'INH';
 
-      // Update Nav
-      document.getElementById('nav-user-name').innerText = user.name;
-      document.getElementById('nav-user-role').innerText = user.role === 'ADMIN' ? 'Super Admin' : `Manager (${currentAgency})`;
-      document.getElementById('nav-user-avatar').innerText = user.name.charAt(0).toUpperCase();
+      // Update Nav User Identity & Role Tag
+      const uNameEl = document.getElementById('nav-user-name');
+      const uRoleEl = document.getElementById('nav-user-role');
+      const uAvatarEl = document.getElementById('nav-user-avatar');
+      if (uNameEl) uNameEl.innerText = user.name;
+      if (uAvatarEl) uAvatarEl.innerText = (user.name || 'U').charAt(0).toUpperCase();
 
-      const tabAdminPerm = document.getElementById('tab-admin-permissions');
-      const tabMis = document.getElementById('tab-mis-report');
-      const tabDash = document.getElementById('tab-dashboard');
-      const tabPaid = document.getElementById('tab-paid-file');
+      let roleDisplay = 'Manager';
+      if (role === 'ADMIN') roleDisplay = 'Super Admin';
+      else if (role === 'MANAGEMENT') roleDisplay = 'Senior Management';
+      else if (role === 'BACKEND') roleDisplay = 'Backend Operations Team';
+      else roleDisplay = `Manager (${currentAgency})`;
+      if (uRoleEl) uRoleEl.innerText = roleDisplay;
+
+      // 4-Tier Strict Tab Visibility Gates based on ROLE_PERMISSIONS
+      const allowedTabs = ROLE_PERMISSIONS[role] || ['dashboard'];
+      const allTabs = ['dashboard', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'];
+
+      allTabs.forEach(tabId => {
+        const btn = document.getElementById(`tab-${tabId}`);
+        if (btn) {
+          if (allowedTabs.includes(tabId)) {
+            btn.classList.remove('hidden');
+            btn.style.removeProperty('display');
+            btn.style.setProperty('display', 'inline-flex', 'important');
+          } else {
+            btn.classList.add('hidden');
+            btn.style.setProperty('display', 'none', 'important');
+          }
+        }
+      });
+
+      // Admin Permissions Section & DB Button
       const btnDb = document.getElementById('btn-supabase-config');
       const adminSec = document.getElementById('content-admin-permissions');
-
-      if (currentRole === 'ADMIN') {
-        // ADMIN: Full Access to Dashboard, MIS Report, Paid File & Admin Permissions
-        const tabMgrCol = document.getElementById('tab-manager-collection');
-        if (tabMgrCol) {
-          tabMgrCol.classList.remove('hidden');
-          tabMgrCol.style.removeProperty('display');
-          tabMgrCol.style.setProperty('display', 'flex', 'important');
-        }
-        const tabBranch = document.getElementById('tab-branch-collection');
-        if (tabBranch) {
-          tabBranch.classList.remove('hidden');
-          tabBranch.style.removeProperty('display');
-          tabBranch.style.setProperty('display', 'flex', 'important');
-        }
-        if (tabAdminPerm) {
-          tabAdminPerm.classList.remove('hidden');
-          tabAdminPerm.style.removeProperty('display');
-          tabAdminPerm.style.setProperty('display', 'flex', 'important');
-        }
-        if (tabMis) {
-          tabMis.classList.remove('hidden');
-          tabMis.style.removeProperty('display');
-          tabMis.style.setProperty('display', 'flex', 'important');
-        }
+      if (role === 'ADMIN') {
         if (btnDb) {
           btnDb.classList.remove('hidden');
           btnDb.style.removeProperty('display');
@@ -3001,50 +3571,25 @@
         if (adminSec) {
           adminSec.style.removeProperty('display');
         }
-        switchTab('paid-file');
       } else {
-        // MANAGER: STRICT ISOLATION - NO ADMIN PERMISSIONS, NO DB CONFIG
-        const tabMgrCol = document.getElementById('tab-manager-collection');
-        if (tabMgrCol) {
-          tabMgrCol.classList.add('hidden');
-          tabMgrCol.style.setProperty('display', 'none', 'important');
-        }
-        const tabBranch = document.getElementById('tab-branch-collection');
-        if (tabBranch) {
-          tabBranch.classList.add('hidden');
-          tabBranch.style.setProperty('display', 'none', 'important');
-        }
-        if (tabAdminPerm) {
-          tabAdminPerm.classList.add('hidden');
-          tabAdminPerm.style.setProperty('display', 'none', 'important');
+        if (btnDb) {
+          btnDb.classList.add('hidden');
+          btnDb.style.setProperty('display', 'none', 'important');
         }
         if (adminSec) {
           adminSec.classList.add('hidden');
           adminSec.style.setProperty('display', 'none', 'important');
         }
-        if (tabMis) {
-          tabMis.classList.remove('hidden');
-          tabMis.style.removeProperty('display');
-          tabMis.style.setProperty('display', 'flex', 'important');
-        }
-        if (tabDash) {
-          tabDash.classList.remove('hidden');
-          tabDash.style.removeProperty('display');
-          tabDash.style.setProperty('display', 'flex', 'important');
-        }
-        if (btnDb) {
-          btnDb.classList.add('hidden');
-          btnDb.style.setProperty('display', 'none', 'important');
-        }
-        switchTab('dashboard');
       }
 
-      // Manager Isolation: Hide Bank, Manager & Quick Date filters from Manager view
-      const isManager = currentRole !== 'ADMIN';
-      const adminFilters = document.querySelectorAll('.admin-only-filter');
+      // Paid Filters: Admin and Backend have full filters (Bank, Manager, Date, Add Case, Export, Cloud)
+      // Manager has isolated clean filters (Officer, Date, Add Case)
+      // Management has no Paid tab
+      const adminFilters = document.querySelectorAll('#filter-box-bank, #filter-box-manager, #filter-box-date, #mis-mgr-filter-wrap, #officer-manager-field-wrap');
       const filtersGrid = document.getElementById('paid-filters-container');
+      const canViewAllPaidFilters = (role === 'ADMIN' || role === 'BACKEND');
 
-      if (isManager) {
+      if (!canViewAllPaidFilters) {
         adminFilters.forEach(el => {
           el.classList.add('hidden');
           el.style.setProperty('display', 'none', 'important');
@@ -3063,6 +3608,8 @@
         }
       }
 
+      // Initial tab landing
+      switchTab('dashboard');
       lucide.createIcons();
     }
 
@@ -3209,6 +3756,7 @@
         if (sel) sel.value = existing.name;
         return;
       }
+      const myMgrForCaller = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
       leaderboardOfficers.push({
         name: cleanName,
         aliases: cleanName,
@@ -3220,7 +3768,8 @@
         balance: 0,
         projection: 0,
         achieved: 0,
-        rank: leaderboardOfficers.length + 1
+        rank: leaderboardOfficers.length + 1,
+        manager: myMgrForCaller
       });
       populateOfficerDropdowns();
       const sel = document.getElementById('paid-select-officer');
@@ -3310,7 +3859,8 @@
             balance: 0,
             projection: 0,
             achieved: 0,
-            rank: leaderboardOfficers.length + 1
+            rank: leaderboardOfficers.length + 1,
+            manager: managerName
           });
           populateOfficerDropdowns();
         }
@@ -3401,21 +3951,25 @@
       if (!confirm(`Are you sure you want to delete payment of ₹${item.amount} for '${item.cust_name}'?`)) return;
 
       deletedPaidRecordIds.add(String(editId));
-      localStorage.setItem('shaha_deleted_paid_record_ids_v1', JSON.stringify(Array.from(deletedPaidRecordIds)));
+      await saveDeletedTombstonesToCloud();
 
       paidFileRecords = paidFileRecords.filter(r => r.id !== editId);
       closePaidCaseModal();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
 
-      // Instantly remove from master admin storage in localStorage
+      // Instantly purge from ALL localStorage keys starting with shaha_paid_file_records
       try {
-        const masterPaidStr = localStorage.getItem('shaha_paid_file_records_admin');
-        if (masterPaidStr) {
-          let masterPaid = JSON.parse(masterPaidStr);
-          if (Array.isArray(masterPaid)) {
-            masterPaid = masterPaid.filter(r => r.id !== editId && !deletedPaidRecordIds.has(String(r.id)));
-            localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(masterPaid));
+        for (let i = 0; i < localStorage.length; i++) {
+          const lk = localStorage.key(i);
+          if (lk && lk.startsWith('shaha_paid_file_records')) {
+            try {
+              let pList = JSON.parse(localStorage.getItem(lk));
+              if (Array.isArray(pList)) {
+                pList = pList.filter(r => r.id !== editId && !deletedPaidRecordIds.has(String(r.id)));
+                localStorage.setItem(lk, JSON.stringify(pList));
+              }
+            } catch(e) {}
           }
         }
       } catch(e) {}
@@ -3729,14 +4283,14 @@
         let todaySum = Number(off.baseline_today || 0);
         let mtdSum = Number(off.baseline_aoy || 0);
 
-        const isAdm = currentRole === 'ADMIN';
-      const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
-      const recordsToExport = isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgrName));
+        const isGlobalViewer = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager || '').toLowerCase().trim();
+      const recordsToExport = isGlobalViewer ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgrName));
 
       recordsToExport.forEach(r => {
           // STRICT MANAGER PRIVACY ISOLATION:
-          // Managers only aggregate collections from their own cases/team! Admin views all.
-          if (!isAdm && !isRecordOwnedByManager(r, myMgrName)) {
+          // Managers only aggregate collections from their own cases/team! Admin, Management & Backend view all.
+          if (!isGlobalViewer && !isRecordOwnedByManager(r, myMgrName)) {
             return;
           }
           if (r.splits && r.splits.length > 0) {
@@ -3775,6 +4329,7 @@
     }
 
     function calculateLeaderboard() {
+      leaderboardOfficers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isUserDeleted(o.manager));
       leaderboardOfficers.forEach(off => {
         const target = Number(off.target) || 0;
         const aoy = Number(off.aoy) || 0;
@@ -3819,9 +4374,9 @@
       const pctEl = document.getElementById('kpi-achieved-pct');
       const balEl = document.getElementById('kpi-balance-amount');
 
-      const isAdm = currentRole === 'ADMIN';
-      const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
-      const myPaidRecords = isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgrName));
+      const isGlobalViewer = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager || '').toLowerCase().trim();
+      const myPaidRecords = isGlobalViewer ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgrName));
 
       const todayStr = getTodayFormattedStr();
       const todayRecords = myPaidRecords.filter(r => isSameDate(r.pay_date, todayStr));
@@ -3840,7 +4395,7 @@
       // For Admin: sum of all paid cases
       // For Manager: sum of their own officer totals (or sum of their own paid records)
       const myTotalCollection = myPaidRecords.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
-      const displayTotal = isAdm ? paidFileRecords.reduce((acc, r) => acc + (Number(r.amount) || 0), 0) : (sumTotal > 0 ? sumTotal : myTotalCollection);
+      const displayTotal = isGlobalViewer ? paidFileRecords.reduce((acc, r) => acc + (Number(r.amount) || 0), 0) : (sumTotal > 0 ? sumTotal : myTotalCollection);
 
       let avgAchieved = sumTarget > 0 ? Math.round((displayTotal / sumTarget) * 100) : 0;
 
@@ -3879,7 +4434,18 @@
       calculateLeaderboard();
       tbody.innerHTML = '';
 
-      if (leaderboardOfficers.length === 0) {
+      const filtMgrEl = document.getElementById('mis-filter-manager');
+      const selectedFilterMgr = filtMgrEl ? filtMgrEl.value.trim() : '';
+
+      let displayList = leaderboardOfficers;
+      if (currentRole === 'MANAGER') {
+        const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+        displayList = displayList.filter(o => isOfficerUnderManager(o, myName));
+      } else if (selectedFilterMgr) {
+        displayList = displayList.filter(o => isOfficerUnderManager(o, selectedFilterMgr));
+      }
+
+      if (displayList.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="12" class="py-12 px-4 text-center text-slate-400 bg-slate-50">
@@ -3913,7 +4479,8 @@
 
       let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0, sumProjection = 0;
 
-      leaderboardOfficers.forEach((off, idx) => {
+      displayList.forEach((off, dispIdx) => {
+        const origIdx = leaderboardOfficers.indexOf(off);
         const target = Number(off.target) || 0;
         const aoy = Number(off.aoy) || 0;
         const today = Number(off.today) || 0;
@@ -3931,13 +4498,13 @@
         sumProjection += projection;
 
         const tr = document.createElement('tr');
-        tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f2f2f2] hover:bg-blue-50/40';
+        tr.className = dispIdx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f2f2f2] hover:bg-blue-50/40';
 
         const achievedStyle = getAchievedBgColor(achieved);
         const rankStyle = getRankBgColor(rank);
 
         tr.innerHTML = `
-          <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
+          <td class="py-1.5 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${dispIdx + 1}</td>
           <td class="py-1.5 px-3 text-center border border-slate-300 font-extrabold text-[#174375] bg-blue-50/70 text-xs sm:text-[13px] uppercase tracking-wide mis-mgr-col">${off.manager || currentManager || "SMITA JAGTAP"}</td>
           <td class="py-1.5 px-3 text-center border border-slate-300 font-black text-slate-900 bg-slate-100 text-xs sm:text-[13px]">${off.name}</td>
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px]">${target.toLocaleString('en-IN')}</td>
@@ -3949,7 +4516,7 @@
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]" style="${achievedStyle}">${achieved}%</td>
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]" style="${rankStyle}">${rank}</td>
           <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
-            <button onclick="openEditOfficerModal(${idx})" title="Edit Officer" class="p-1 hover:bg-blue-100 rounded text-blue-700 transition">
+            <button onclick="openEditOfficerModal(${origIdx >= 0 ? origIdx : dispIdx})" title="Edit Officer" class="p-1 hover:bg-blue-100 rounded text-blue-700 transition">
               <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
@@ -4004,7 +4571,22 @@
       const offMgrInput = document.getElementById('officer-input-manager');
       if (offMgrInput) {
         populateOfficerDropdowns();
-        offMgrInput.value = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        const targetMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        let matched = false;
+        for (let i = 0; i < offMgrInput.options.length; i++) {
+          if (offMgrInput.options[i].value.toLowerCase().trim() === targetMgr.toLowerCase().trim()) {
+            offMgrInput.selectedIndex = i;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched && targetMgr) {
+          const opt = document.createElement('option');
+          opt.value = targetMgr;
+          opt.innerText = targetMgr;
+          offMgrInput.appendChild(opt);
+          offMgrInput.value = targetMgr;
+        }
         offMgrInput.disabled = (currentRole !== 'ADMIN');
       }
 
@@ -4037,7 +4619,22 @@
       const offMgrInput = document.getElementById('officer-input-manager');
       if (offMgrInput) {
         populateOfficerDropdowns();
-        offMgrInput.value = off.manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        const targetMgr = off.manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        let matched = false;
+        for (let i = 0; i < offMgrInput.options.length; i++) {
+          if (offMgrInput.options[i].value.toLowerCase().trim() === targetMgr.toLowerCase().trim()) {
+            offMgrInput.selectedIndex = i;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched && targetMgr) {
+          const opt = document.createElement('option');
+          opt.value = targetMgr;
+          opt.innerText = targetMgr;
+          offMgrInput.appendChild(opt);
+          offMgrInput.value = targetMgr;
+        }
         offMgrInput.disabled = (currentRole !== 'ADMIN');
       }
 
@@ -4099,6 +4696,19 @@
         deletedOfficerKeys.delete(callerKey);
         deletedOfficerKeys.delete(name);
         localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+        if (supabaseClient) {
+          try {
+            supabaseClient.from('bank_transactions').select('id, narration').eq('ref_no', 'SYS_DELETED_TOMBSTONES').limit(1).then(({ data }) => {
+              if (data && data.length > 0 && data[0].narration) {
+                try {
+                  const tomb = JSON.parse(data[0].narration);
+                  tomb.officers = (tomb.officers || []).filter(k => k !== callerKey && k !== name);
+                  supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(tomb), updated_at: new Date().toISOString() }).eq('id', data[0].id);
+                } catch(e) {}
+              }
+            });
+          } catch(e) {}
+        }
         showToast(`Added new caller ${name}`, 'success');
       }
 
@@ -4121,25 +4731,25 @@
 
         deletedOfficerKeys.add(callerKey);
         deletedOfficerKeys.add(nameOnlyKey);
-        localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+        await saveDeletedTombstonesToCloud();
 
         leaderboardOfficers.splice(idx, 1);
         closeOfficerModal();
         populateOfficerDropdowns();
         syncLiveCollectionFromPaidFile(false);
 
-        // Instantly delete from master copy in localStorage so Admin view updates immediately
+        // Instantly purge from ALL localStorage keys starting with shaha_leaderboard_mis
         try {
-          const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
-          if (masterLocal) {
-            let mList = JSON.parse(masterLocal);
-            if (Array.isArray(mList)) {
-              mList = mList.filter(o => {
-                const k1 = `${(o.manager || '').toUpperCase().trim()}_${(o.name || '').toUpperCase().trim()}`;
-                const k2 = (o.name || '').toUpperCase().trim();
-                return k1 !== callerKey && k2 !== nameOnlyKey && !deletedOfficerKeys.has(k1) && !deletedOfficerKeys.has(k2);
-              });
-              localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(mList));
+          for (let i = 0; i < localStorage.length; i++) {
+            const lk = localStorage.key(i);
+            if (lk && lk.startsWith('shaha_leaderboard_mis')) {
+              try {
+                let mList = JSON.parse(localStorage.getItem(lk));
+                if (Array.isArray(mList)) {
+                  mList = mList.filter(o => !isOfficerTombstoned(o));
+                  localStorage.setItem(lk, JSON.stringify(mList));
+                }
+              } catch(e) {}
             }
           }
         } catch(e) {}
@@ -4373,14 +4983,15 @@
       const hasMisAccess = document.getElementById('new-user-mis-access') ? document.getElementById('new-user-mis-access').checked : false;
 
       deletedUserKeys.delete(rawUser);
+      const chosenRole = document.getElementById('new-user-role') ? document.getElementById('new-user-role').value : 'MANAGER';
       USER_CREDENTIALS[rawUser] = {
         name: name,
-        role: 'MANAGER',
+        role: chosenRole,
         branch: agency,
         agency: agency,
         pin: pin,
         username: rawUser,
-        has_mis_access: hasMisAccess
+        has_mis_access: (chosenRole === 'MANAGER' || chosenRole === 'ADMIN') ? hasMisAccess : false
       };
 
       // Explicitly initialize dedicated 100% fresh clean slate MIS & PAID DATA for the new manager
@@ -4452,6 +5063,65 @@
       showToast(`Profile created for ${name} & synced to Cloud!`, 'success');
     }
 
+    function handleNewUserRoleChange() {
+      const roleEl = document.getElementById('new-user-role');
+      const misBox = document.getElementById('new-user-mis-box');
+      const misInp = document.getElementById('new-user-mis-access');
+      const misLbl = document.getElementById('new-user-mis-label');
+      if (!roleEl || !misBox) return;
+      const r = roleEl.value;
+      if (r === 'MANAGER') {
+        misBox.className = 'sm:col-span-5 flex items-center gap-2 pt-1 bg-amber-50/70 p-3 rounded-lg border border-amber-200';
+        if (misInp) { misInp.checked = true; misInp.disabled = false; }
+        if (misLbl) misLbl.innerHTML = '<i data-lucide="trophy" class="w-4 h-4 text-amber-600"></i><span class="text-amber-900 font-bold">Manager Profile: Grant Daily Leaderboard MIS Access (Mapped to Callers in MIS Report)</span>';
+      } else if (r === 'BACKEND') {
+        misBox.className = 'sm:col-span-5 flex items-center gap-2 pt-1 bg-emerald-50/70 p-3 rounded-lg border border-emerald-200';
+        if (misInp) { misInp.checked = false; misInp.disabled = true; }
+        if (misLbl) misLbl.innerHTML = '<i data-lucide="shield" class="w-4 h-4 text-emerald-600"></i><span class="text-emerald-900 font-bold">Backend Team: Access to Dashboard, PAID DATA & Collections (Excluded from MIS Report callers)</span>';
+      } else if (r === 'MANAGEMENT') {
+        misBox.className = 'sm:col-span-5 flex items-center gap-2 pt-1 bg-purple-50/70 p-3 rounded-lg border border-purple-200';
+        if (misInp) { misInp.checked = false; misInp.disabled = true; }
+        if (misLbl) misLbl.innerHTML = '<i data-lucide="eye" class="w-4 h-4 text-purple-600"></i><span class="text-purple-900 font-bold">Senior Management: Executive Collection & Branch View (Excluded from MIS Report callers)</span>';
+      } else {
+        misBox.className = 'sm:col-span-5 flex items-center gap-2 pt-1 bg-blue-50/70 p-3 rounded-lg border border-blue-200';
+        if (misInp) { misInp.checked = true; misInp.disabled = false; }
+        if (misLbl) misLbl.innerHTML = '<i data-lucide="shield-alert" class="w-4 h-4 text-blue-600"></i><span class="text-blue-900 font-bold">Administrator: Master Full Access across all features</span>';
+      }
+      if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    }
+
+    async function changeUserRole(userKey, newRole) {
+      if (currentRole !== 'ADMIN') {
+        showToast('Access Denied: Only Administrator can change roles.', 'error');
+        return;
+      }
+      if (!USER_CREDENTIALS[userKey]) return;
+      if (userKey === 'admin' && newRole !== 'ADMIN') {
+        showToast('Cannot change role of primary Super Admin account.', 'error');
+        renderUserManagerTable();
+        return;
+      }
+
+      USER_CREDENTIALS[userKey].role = newRole;
+      if (newRole !== 'MANAGER' && newRole !== 'ADMIN') {
+        USER_CREDENTIALS[userKey].has_mis_access = false;
+      }
+
+      await saveCredentialsToCloud();
+      populateOfficerDropdowns();
+      renderUserManagerTable();
+      if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+      if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+
+      let label = newRole;
+      if (newRole === 'MANAGER') label = 'Manager (MIS & Callers Enabled)';
+      else if (newRole === 'BACKEND') label = 'Backend Team (Paid Data + Collections)';
+      else if (newRole === 'MANAGEMENT') label = 'Senior Management (Collections Only)';
+      else if (newRole === 'ADMIN') label = 'Administrator (Full Access)';
+
+      showToast(`Role updated to ${label} for ${USER_CREDENTIALS[userKey].name}! MIS Report & Collections synchronized.`, 'success');
+    }
+
     async function toggleMisAccess(userKey) {
       if (currentRole !== 'ADMIN') {
         showToast('Access Denied: Only Administrator can change MIS permissions.', 'error');
@@ -4477,30 +5147,48 @@
         const u = USER_CREDENTIALS[k];
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
-        const isAdm = u.role === 'ADMIN' || k === 'admin';
-        const badge = isAdm ? 
-          '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">ADMIN</span>' :
-          `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-blue-800 border border-blue-200 font-bold">${u.branch || u.agency || "AGENCY"}</span>`;
+        const role = (u.role || 'MANAGER').toUpperCase();
+        const isAdm = role === 'ADMIN' || k === 'admin';
 
+        let roleSelector = '';
+        if (isAdm && k === 'admin') {
+          roleSelector = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-blue-100 text-blue-800 border border-blue-300">ADMIN (Super Admin)</span>';
+        } else {
+          roleSelector = `
+            <div class="relative">
+              <select onchange="changeUserRole('${k}', this.value)" class="w-full bg-slate-50 hover:bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-purple-600 focus:bg-white focus:outline-none transition cursor-pointer shadow-2xs">
+                <option value="MANAGER" ${role === 'MANAGER' ? 'selected' : ''}>Manager (MIS, Callers, Paid)</option>
+                <option value="BACKEND" ${role === 'BACKEND' ? 'selected' : ''}>Backend Team (Paid + Collections)</option>
+                <option value="MANAGEMENT" ${role === 'MANAGEMENT' ? 'selected' : ''}>Senior Management (Collections)</option>
+                <option value="ADMIN" ${role === 'ADMIN' ? 'selected' : ''}>Administrator (Total Access)</option>
+              </select>
+            </div>
+          `;
+        }
+
+        const branchBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">${u.branch || u.agency || "ALL"}</span>`;
         const safeKey = k.replace(/[^a-zA-Z0-9]/g, '_');
         const loginId = u.username || k;
 
-        const deleteAction = isAdm ?
-          `<span class="text-slate-300 text-[11px] font-medium italic">Protected</span>` :
+        const deleteAction = (k === 'admin') ?
+          `<span class="text-slate-400 text-[11px] font-semibold italic bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Protected</span>` :
           `<button onclick="deleteUser('${k}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-200 text-xs font-bold transition-all" title="Delete Profile">Delete</button>`;
 
         const misAccessCell = isAdm ?
-          `<div class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-600">Admin Controls</span></div>` :
-          (u.has_mis_access ?
-            `<div class="text-center"><button onclick="toggleMisAccess('${k}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-xs font-bold transition-all inline-flex items-center gap-1" title="Click to Revoke MIS Access"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Granted</button></div>` :
-            `<div class="text-center"><button onclick="toggleMisAccess('${k}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-300 rounded text-xs font-semibold transition-all inline-flex items-center gap-1" title="Click to Grant MIS Access"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> No Access</button></div>`);
+          `<div class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">Master Admin Control</span></div>` :
+          (role === 'MANAGEMENT' || role === 'BACKEND') ?
+            `<div class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500">Not Applicable</span></div>` :
+            (u.has_mis_access ?
+              `<div class="text-center"><button onclick="toggleMisAccess('${k}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-xs font-bold transition-all inline-flex items-center gap-1" title="Click to Revoke MIS Access"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Granted</button></div>` :
+              `<div class="text-center"><button onclick="toggleMisAccess('${k}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-300 rounded text-xs font-semibold transition-all inline-flex items-center gap-1" title="Click to Grant MIS Access"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> No Access</button></div>`);
 
         tr.innerHTML = `
           <td class="p-3 border-r border-slate-200">
             <div class="font-extrabold text-slate-900">${u.name}</div>
           </td>
+          <td class="p-3 border-r border-slate-200">${roleSelector}</td>
           <td class="p-3 border-r border-slate-200 font-mono font-bold text-blue-700">${loginId}</td>
-          <td class="p-3 border-r border-slate-200">${badge}</td>
+          <td class="p-3 border-r border-slate-200">${branchBadge}</td>
           <td class="p-3 border-r border-slate-200 font-mono font-semibold text-slate-700">
             <span id="pwd-display-${safeKey}">••••••••</span>
             <button onclick="toggleViewPassword('${k}')" class="ml-2 text-blue-600 hover:text-blue-800 text-[11px] font-bold">Show</button>
@@ -4594,16 +5282,115 @@
         showToast('Access Denied: Only Administrator can delete users.', 'error');
         return;
       }
+      const cleanK = String(userKey || '').toLowerCase().trim();
+      if (cleanK === 'admin') {
+        showToast('Protected Account: Primary Super Admin account cannot be deleted to prevent system lockout.', 'error');
+        return;
+      }
       const u = USER_CREDENTIALS[userKey];
       if (!u) return;
-      if (!confirm(`Are you sure you want to permanently delete profile '${u.name}' (${userKey})?`)) return;
-      deletedUserKeys.add(userKey);
+
+      const mgrName = (u.name || '').trim();
+      const mgrUsername = (u.username || userKey || '').trim();
+      const safeKey = mgrName ? mgrName.toLowerCase().replace(/[^a-z0-9]/g, '_') : '';
+
+      if (!confirm(`Are you sure you want to permanently delete profile '${u.name}' (${userKey})?\n\nThis will permanently delete this manager AND immediately purge all of their callers, targets, and collections across all reports.`)) return;
+
+      // 1. Add all identifiers to deletedUserKeys
+      deletedUserKeys.add(cleanK);
+      if (mgrUsername) deletedUserKeys.add(mgrUsername.toLowerCase());
+      if (mgrName) deletedUserKeys.add(mgrName.toLowerCase());
+      if (safeKey) deletedUserKeys.add(safeKey);
+
       delete USER_CREDENTIALS[userKey];
+      if (safeKey && USER_CREDENTIALS[safeKey]) delete USER_CREDENTIALS[safeKey];
+
+      // 2. Cascade purge: find and tombstone all callers under this manager
+      const purgedCallers = new Set();
+      leaderboardOfficers = leaderboardOfficers.filter(off => {
+        const isUnder = isOfficerUnderManager(off, mgrName) || 
+                        isOfficerUnderManager(off, mgrUsername) || 
+                        isOfficerUnderManager(off, userKey) ||
+                        isUserDeleted(off.manager);
+        if (isUnder) {
+          const k1 = `${(off.manager || '').toUpperCase().trim()}_${(off.name || '').toUpperCase().trim()}`;
+          deletedOfficerKeys.add(k1);
+          if (off.name) purgedCallers.add(off.name.toUpperCase().trim());
+          return false; // Remove caller!
+        }
+        return true;
+      });
+
+      // 3. Cascade purge: find and tombstone all paid cases under this manager or their callers
+      paidFileRecords = paidFileRecords.filter(rec => {
+        const isRecUnder = isRecordOwnedByManager(rec, mgrName) || 
+                           isRecordOwnedByManager(rec, mgrUsername) || 
+                           isRecordOwnedByManager(rec, userKey) ||
+                           isUserDeleted(rec.manager);
+        const callerName = (rec.caller_name || '').toUpperCase().trim();
+        const isCallerPurged = purgedCallers.has(callerName);
+        if (isRecUnder || isCallerPurged) {
+          if (rec.id) deletedPaidRecordIds.add(String(rec.id));
+          return false; // Remove paid case!
+        }
+        return true;
+      });
+
+      // 4. Clean localStorage
       localStorage.setItem('shaha_deleted_user_keys_v1', JSON.stringify(Array.from(deletedUserKeys)));
+      localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+      localStorage.setItem('shaha_deleted_paid_record_ids_v1', JSON.stringify(Array.from(deletedPaidRecordIds)));
+      localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(leaderboardOfficers));
+      localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(paidFileRecords));
+      localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+
+      // Remove dedicated partitions from localStorage
+      const partitionKeys = [userKey, mgrUsername, mgrName, safeKey].filter(Boolean);
+      partitionKeys.forEach(pk => {
+        const cleanP = pk.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        localStorage.removeItem('shaha_leaderboard_mis_v2_' + cleanP);
+        localStorage.removeItem('shaha_paid_file_records_' + cleanP);
+        localStorage.removeItem('shaha_leaderboard_mis_v2_' + pk);
+        localStorage.removeItem('shaha_paid_file_records_' + pk);
+      });
+
+      // 5. Cloud cleanup: delete Supabase partition rows and update master tombstones
+      if (supabaseClient) {
+        try {
+          const refsToDelete = [];
+          partitionKeys.forEach(pk => {
+            const cleanP = pk.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            refsToDelete.push('SYS_LEADERBOARD_MIS_' + cleanP);
+            refsToDelete.push('SYS_PAID_RECORDS_' + cleanP);
+            refsToDelete.push('SYS_LEADERBOARD_MIS_' + pk);
+            refsToDelete.push('SYS_PAID_RECORDS_' + pk);
+          });
+          await supabaseClient
+            .from('bank_transactions')
+            .delete()
+            .in('ref_no', refsToDelete);
+        } catch (e) {
+          console.warn('Cloud partition deletion notice:', e);
+        }
+      }
+
+      // 6. Save updated master credentials, tombstones, leaderboard & paid records to cloud
       await saveCredentialsToCloud();
+      await saveDeletedTombstonesToCloud();
+      await saveLeaderboardToCloud(true);
+      await savePaidFileToCloud();
+
+      // 7. Update UI across all views immediately
+      calculateLeaderboard();
+      renderLeaderboardMIS();
+      renderPaidFileTable();
+      renderBranchWiseCollection();
+      renderManagerWiseCollection();
+      updateTopKpis();
       renderUserManagerTable();
       populateOfficerDropdowns();
-      showToast(`User ID '${userKey}' permanently deleted.`, 'info');
+
+      showToast(`User '${u.name}' and all associated records permanently purged!`, 'info');
     }
 
     async function confirmResetAllOfficerNumbers() {
@@ -4691,17 +5478,20 @@
       const clean = String(managerIdentifier).toLowerCase().trim();
       for (const k in USER_CREDENTIALS) {
         const u = USER_CREDENTIALS[k];
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r !== 'MANAGER') continue;
         const uName = (u.name || '').toLowerCase().trim();
         const uUser = (u.username || k).toLowerCase().trim();
         if (clean === uName || clean === uUser || clean.includes(uName) || uName.includes(clean)) {
-          return (u.branch || u.agency || 'JOGESHWARI').toUpperCase().trim();
+          const br = (u.branch || u.agency || 'JOGESHWARI').toUpperCase().trim();
+          return (br === 'ALL' || br === 'ALL BRANCHES' || br === 'HQ') ? 'JOGESHWARI' : br;
         }
       }
       return 'JOGESHWARI';
     }
 
     function renderBranchWiseCollection() {
-      if (currentRole !== 'ADMIN') return;
+      if (currentRole !== 'ADMIN' && currentRole !== 'MANAGEMENT' && currentRole !== 'BACKEND') return;
       const tbody = document.getElementById('branch-collection-tbody');
       const tfoot = document.getElementById('branch-collection-tfoot');
       const dateEl = document.getElementById('branch-summary-date');
@@ -4715,22 +5505,33 @@
       if (dateEl) dateEl.innerText = todayDateStr;
       if (titleEl) titleEl.innerText = `Branch Wise Collection Summary - ${todayDateStr}`;
 
-      const standardBranches = ['JOGESHWARI', 'BANGALORE', 'SAROJ', 'WORLI'];
+      const standardBranches = ['JOGESHWARI', 'BANGALORE', 'SAROJ', 'WORLI', 'AGENCY'];
       const branchData = {};
+      const nonBranchNames = new Set(['ALL', 'ALL BRANCHES', 'HQ', 'HEAD OFFICE', 'OPS', 'SYSTEM']);
 
       standardBranches.forEach(b => {
         branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
       });
 
       for (const k in USER_CREDENTIALS) {
-        const b = (USER_CREDENTIALS[k].branch || USER_CREDENTIALS[k].agency || '').toUpperCase().trim();
-        if (b && !branchData[b]) {
+        if (isUserDeleted(k)) continue;
+        const u = USER_CREDENTIALS[k];
+        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r !== 'MANAGER') continue;
+        const b = (u.branch || u.agency || '').toUpperCase().trim();
+        if (b && !nonBranchNames.has(b) && !branchData[b]) {
           branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
         }
       }
 
       leaderboardOfficers.forEach(off => {
-        const b = getBranchForManager(off.manager);
+        if (isOfficerTombstoned(off) || isUserDeleted(off.manager)) return;
+        let b = getBranchForManager(off.manager);
+        if (!b || nonBranchNames.has(b)) {
+          b = 'JOGESHWARI';
+        }
+        b = b.toUpperCase().trim();
         if (!branchData[b]) {
           branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
         }
@@ -4746,7 +5547,8 @@
         branchData[b].count += 1;
       });
 
-      const branchesList = Object.values(branchData);
+      // Filter out any non-branch entries such as 'ALL'
+      const branchesList = Object.values(branchData).filter(item => !nonBranchNames.has(item.branch));
       branchesList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.branch.localeCompare(b.branch));
 
       tbody.innerHTML = '';
@@ -4908,7 +5710,7 @@
     }
 
     function renderManagerWiseCollection() {
-      if (currentRole !== 'ADMIN') return;
+      if (currentRole !== 'ADMIN' && currentRole !== 'MANAGEMENT' && currentRole !== 'BACKEND') return;
       const tbody = document.getElementById('manager-collection-tbody');
       const tfoot = document.getElementById('manager-collection-tfoot');
       const dateEl = document.getElementById('mgr-summary-date');
@@ -4924,11 +5726,17 @@
 
       const managersMap = {};
 
-      // 1. Populate from USER_CREDENTIALS
+      // 1. Populate ONLY users whose role is strictly MANAGER (Exclude ADMIN, MANAGEMENT, BACKEND, CUSTOMER SERVICE, and DELETED)
       for (const k in USER_CREDENTIALS) {
+        if (isUserDeleted(k)) continue;
         const u = USER_CREDENTIALS[k];
-        if (u.role === 'ADMIN') continue;
+        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
+        const role = (u.role || 'MANAGER').toUpperCase();
+        if (role !== 'MANAGER') continue;
+
         const mName = u.name || k;
+        const mLower = mName.toLowerCase().trim();
+        if (mLower.includes('backend') || mLower.includes('management') || mLower.includes('admin')) continue;
         const branch = (u.branch || u.agency || 'JOGESHWARI').toUpperCase();
         managersMap[k] = {
           key: k,
@@ -4943,9 +5751,26 @@
         };
       }
 
-      // Also ensure any manager named in leaderboardOfficers exists
+      // Collect non-manager identity names to strictly exclude from Manager Wise Collection
+      const nonManagerNames = new Set();
+      for (const k in USER_CREDENTIALS) {
+        const u = USER_CREDENTIALS[k];
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r !== 'MANAGER') {
+          if (u.name) nonManagerNames.add(u.name.toLowerCase().trim());
+          if (u.username) nonManagerNames.add(u.username.toLowerCase().trim());
+          nonManagerNames.add(k.toLowerCase().trim());
+        }
+      }
+
+      // Also ensure any manager named in leaderboardOfficers exists (as long as not deleted and not non-manager)
       leaderboardOfficers.forEach(off => {
-        const offMgr = off.manager || 'GENERAL';
+        if (isOfficerTombstoned(off)) return;
+        const offMgr = (off.manager || '').trim();
+        if (!offMgr) return;
+        if (isUserDeleted(offMgr)) return; // Strictly skip deleted managers!
+        if (nonManagerNames.has(offMgr.toLowerCase())) return; // Strictly skip non-managers
+
         let foundKey = null;
         for (const mk in managersMap) {
           if (isOfficerUnderManager(off, managersMap[mk].name)) {
@@ -4955,6 +5780,7 @@
         }
         if (!foundKey) {
           const safeKey = offMgr.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          if (isUserDeleted(safeKey)) return;
           managersMap[safeKey] = {
             key: safeKey,
             name: offMgr,
@@ -5068,7 +5894,11 @@
     }
 
     function openManagerSlideDrawer(mgrKey) {
-      if (currentRole !== 'ADMIN') return;
+      if (currentRole !== 'ADMIN' && currentRole !== 'MANAGEMENT' && currentRole !== 'BACKEND') return;
+      if (isUserDeleted(mgrKey)) {
+        closeManagerSlideDrawer();
+        return;
+      }
       const drawer = document.getElementById('manager-slide-drawer');
       const backdrop = document.getElementById('manager-slide-drawer-backdrop');
       if (!drawer || !backdrop) return;
@@ -5242,7 +6072,34 @@
       }
     }
 
-  </script>
+  
+    // ==============================================================
+    // PURPLE, ORANGE & WHITE THEME ENGINE
+    // ==============================================================
+    function applyAppTheme(mode) {
+      const isPurple = mode === 'purple';
+      if (isPurple) {
+        document.body.classList.add('theme-purple');
+        document.body.classList.remove('theme-white');
+      } else {
+        document.body.classList.remove('theme-purple');
+        document.body.classList.add('theme-white');
+      }
+      localStorage.setItem('shaha_portal_theme', isPurple ? 'purple' : 'white');
+      const label = document.getElementById('theme-toggle-label');
+      if (label) {
+        label.innerText = isPurple ? 'Theme: Purple' : 'Theme: White';
+      }
+    }
+
+
+
+    // Auto-initialize theme on load
+    try {
+      const savedTheme = localStorage.getItem('shaha_portal_theme') || 'white';
+      applyAppTheme(savedTheme);
+    } catch(e) {}
+</script>
   <!-- ============================================================== -->
   <!-- MODAL: ALL CALLERS ACHIEVEMENT LEADERBOARD (% ACHIEVED)        -->
   <!-- ============================================================== -->
