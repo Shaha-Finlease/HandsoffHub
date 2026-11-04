@@ -2315,10 +2315,10 @@
     // TAB SWITCHING LOGIC
     // ==========================================
     function switchTab(tabId) {
-      // STRICT ROLE GATE: Manager can NEVER access Admin Permissions console
-      if (currentRole !== 'ADMIN' && tabId === 'admin-permissions') {
+      // STRICT ROLE GATE: Manager can NEVER access Admin Permissions, Branch Collection, or Manager Collection
+      if (currentRole !== 'ADMIN' && (tabId === 'admin-permissions' || tabId === 'branch-collection' || tabId === 'manager-collection')) {
         tabId = 'dashboard';
-        showToast('Access Denied: Admin permissions console is strictly restricted to Administrator.', 'error');
+        showToast('Access Denied: This tab is strictly restricted to Administrator.', 'error');
         return;
       }
 
@@ -4433,6 +4433,7 @@
     }
 
     function renderBranchWiseCollection() {
+      if (currentRole !== 'ADMIN') return;
       const tbody = document.getElementById('branch-collection-tbody');
       const tfoot = document.getElementById('branch-collection-tfoot');
       const dateEl = document.getElementById('branch-summary-date');
@@ -4639,6 +4640,7 @@
     }
 
     function renderManagerWiseCollection() {
+      if (currentRole !== 'ADMIN') return;
       const tbody = document.getElementById('manager-collection-tbody');
       const tfoot = document.getElementById('manager-collection-tfoot');
       const dateEl = document.getElementById('mgr-summary-date');
@@ -4798,6 +4800,7 @@
     }
 
     function openManagerSlideDrawer(mgrKey) {
+      if (currentRole !== 'ADMIN') return;
       const drawer = document.getElementById('manager-slide-drawer');
       const backdrop = document.getElementById('manager-slide-drawer-backdrop');
       if (!drawer || !backdrop) return;
