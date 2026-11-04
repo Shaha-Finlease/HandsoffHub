@@ -1520,7 +1520,8 @@
     // --- User Credentials (Admin & Managers) ---
     const DEFAULT_INITIAL_CREDENTIALS = {
       'admin': { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'admin123', username: 'admin' },
-      'ambuj': { name: 'Ambuj Tripathi', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'ambuj@123', username: 'ambuj', has_mis_access: true },
+      'smita': { name: 'Smita Jagtap', role: 'MANAGER', branch: 'WORLI', agency: 'WORLI', pin: 'smita123', username: 'smita', has_mis_access: true },
+      'ambuj': { name: 'Ambuj Tripathi', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'ambuj123', username: 'ambuj', has_mis_access: true },
       'komals': { name: 'Komal S', role: 'MANAGER', branch: 'BANGALORE', agency: 'BANGALORE', pin: '123456', username: 'komals', has_mis_access: true }
     };
     let USER_CREDENTIALS = JSON.parse(JSON.stringify(DEFAULT_INITIAL_CREDENTIALS));
@@ -1529,6 +1530,22 @@
       const delSaved = localStorage.getItem('shaha_deleted_user_keys_v1');
       if (delSaved) {
         JSON.parse(delSaved).forEach(k => deletedUserKeys.add(k));
+      }
+    } catch(e) {}
+
+    let deletedOfficerKeys = new Set();
+    try {
+      const delOffSaved = localStorage.getItem('shaha_deleted_officer_keys_v1');
+      if (delOffSaved) {
+        JSON.parse(delOffSaved).forEach(k => deletedOfficerKeys.add(k));
+      }
+    } catch(e) {}
+
+    let deletedPaidRecordIds = new Set();
+    try {
+      const delPaidSaved = localStorage.getItem('shaha_deleted_paid_record_ids_v1');
+      if (delPaidSaved) {
+        JSON.parse(delPaidSaved).forEach(id => deletedPaidRecordIds.add(String(id)));
       }
     } catch(e) {}
 
@@ -1880,9 +1897,24 @@
     }
 
     // --- Storage Key Helper for Paid File (Strict Per-Manager Data Privacy & Isolation) ---
+    function getManagerStorageKey(managerIdentifier) {
+      if (!managerIdentifier) return 'general';
+      const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const target = clean(managerIdentifier);
+      for (const k in USER_CREDENTIALS) {
+        const u = USER_CREDENTIALS[k];
+        const uClean = clean(u.username || k);
+        const nClean = clean(u.name || '');
+        if (target === uClean || target === clean(k) || target === nClean || (nClean && target.includes(nClean)) || (target && nClean.includes(target))) {
+          return k.toLowerCase();
+        }
+      }
+      return String(managerIdentifier).toLowerCase().replace(/[^a-z0-9]/g, '_');
+    }
+
     function getPaidFileStorageKeys() {
       const isAdm = currentRole === 'ADMIN';
-      const myMgrName = (currentUser ? (currentUser.username || currentUser.key || currentUser.name) : (currentManager || 'admin')).toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const myMgrName = isAdm ? 'admin' : getManagerStorageKey(currentUser ? (currentUser.username || currentUser.name || currentUser.key) : currentManager);
       const cloudRef = isAdm ? 'SYS_PAID_FILE_RECORDS' : `SYS_PAID_RECORDS_${myMgrName}`;
       const localKey = isAdm ? 'shaha_paid_file_records_admin' : `shaha_paid_file_records_${myMgrName}`;
       return { isAdm, myMgrName, cloudRef, localKey };
@@ -1933,11 +1965,23 @@
       } else {
         // SUPER ADMIN: Load all partitions across all managers + master
         try {
-          const local = localStorage.getItem(localKey);
-          if (local) {
-            const parsed = JSON.parse(local);
-            if (Array.isArray(parsed)) paidFileRecords = parsed;
+          let allLocal = [];
+          const seenLocalIds = new Set();
+          const masterLocal = localStorage.getItem(localKey);
+          if (masterLocal) {
+            const parsed = JSON.parse(masterLocal);
+            if (Array.isArray(parsed)) parsed.forEach(r => { if (!seenLocalIds.has(r.id)) { seenLocalIds.add(r.id); allLocal.push(r); } });
           }
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('shaha_paid_file_records_') && k !== localKey) {
+              try {
+                const subParsed = JSON.parse(localStorage.getItem(k));
+                if (Array.isArray(subParsed)) subParsed.forEach(r => { if (!seenLocalIds.has(r.id)) { seenLocalIds.add(r.id); allLocal.push(r); } });
+              } catch(e) {}
+            }
+          }
+          if (allLocal.length > 0) paidFileRecords = allLocal;
         } catch(e) {}
 
         if (supabaseClient) {
@@ -1956,7 +2000,7 @@
                   const list = JSON.parse(row.narration);
                   if (Array.isArray(list)) {
                     list.forEach(r => {
-                      if (!seenIds.has(r.id)) {
+                      if (!seenIds.has(r.id) && !deletedPaidRecordIds.has(String(r.id))) {
                         seenIds.add(r.id);
                         allRecs.push(r);
                       }
@@ -2093,7 +2137,7 @@
 
     function getLeaderboardStorageKeys() {
       const isAdm = currentRole === 'ADMIN';
-      const myMgrName = (currentUser ? (currentUser.username || currentUser.key || currentUser.name) : (currentManager || 'admin')).toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const myMgrName = isAdm ? 'admin' : getManagerStorageKey(currentUser ? (currentUser.username || currentUser.name || currentUser.key) : currentManager);
       const cloudRef = isAdm ? 'SYS_LEADERBOARD_MIS' : `SYS_LEADERBOARD_MIS_${myMgrName}`;
       const localKey = isAdm ? 'shaha_leaderboard_mis_v2' : `shaha_leaderboard_mis_v2_${myMgrName}`;
       return { isAdm, myMgrName, cloudRef, localKey };
@@ -2110,7 +2154,7 @@
           const local = localStorage.getItem(localKey);
           if (local !== null && local !== undefined) {
             const parsed = JSON.parse(local);
-            if (Array.isArray(parsed)) {
+            if (Array.isArray(parsed) && parsed.length > 0) {
               leaderboardOfficers = parsed;
               loaded = true;
             }
@@ -2138,34 +2182,79 @@
           } catch (e) {}
         }
 
-        if (!loaded) {
-          leaderboardOfficers = createFreshLeaderboardOfficers();
-          localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-          if (supabaseClient) {
+        // Fallback: If manager has no callers in private partition, check master copy
+        if (!loaded || leaderboardOfficers.length === 0) {
+          try {
+            const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
+            if (masterLocal) {
+              const mParsed = JSON.parse(masterLocal);
+              if (Array.isArray(mParsed)) {
+                const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+                const myCallers = mParsed.filter(o => isOfficerUnderManager(o, myDisplayName));
+                if (myCallers.length > 0) {
+                  leaderboardOfficers = myCallers;
+                  localStorage.setItem(localKey, JSON.stringify(myCallers));
+                  loaded = true;
+                }
+              }
+            }
+          } catch(e) {}
+
+          if (!loaded && supabaseClient) {
             try {
-              await supabaseClient
+              const { data: mData } = await supabaseClient
                 .from('bank_transactions')
-                .insert([{
-                  bank_name: 'SYSTEM',
-                  ref_no: cloudRef,
-                  tx_date: '01-01-2026',
-                  amount: 0,
-                  narration: JSON.stringify(leaderboardOfficers),
-                  status: 'SYSTEM'
-                }]);
+                .select('*')
+                .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+                .limit(1);
+              if (mData && mData.length > 0 && mData[0].narration) {
+                const masterList = JSON.parse(mData[0].narration);
+                if (Array.isArray(masterList)) {
+                  const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+                  const myCallers = masterList.filter(o => isOfficerUnderManager(o, myDisplayName));
+                  if (myCallers.length > 0) {
+                    leaderboardOfficers = myCallers;
+                    localStorage.setItem(localKey, JSON.stringify(myCallers));
+                    loaded = true;
+                  }
+                }
+              }
             } catch(e) {}
           }
+        }
+
+        if (!loaded) {
+          leaderboardOfficers = [];
+          localStorage.setItem(localKey, '[]');
         }
       } else {
         // SUPER ADMIN: Load ALL manager partitions + master copy
         try {
-          const local = localStorage.getItem(localKey);
-          if (local !== null && local !== undefined) {
-            const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              leaderboardOfficers = parsed;
-              loaded = true;
+          let allAdminCallers = [];
+          const seenAdminKeys = new Set();
+          const masterLocal = localStorage.getItem(localKey);
+          if (masterLocal) {
+            const parsed = JSON.parse(masterLocal);
+            if (Array.isArray(parsed)) parsed.forEach(o => {
+              const k = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
+              if (!seenAdminKeys.has(k)) { seenAdminKeys.add(k); allAdminCallers.push(o); }
+            });
+          }
+          for (let i = 0; i < localStorage.length; i++) {
+            const lk = localStorage.key(i);
+            if (lk && lk.startsWith('shaha_leaderboard_mis_v2_') && lk !== localKey) {
+              try {
+                const subParsed = JSON.parse(localStorage.getItem(lk));
+                if (Array.isArray(subParsed)) subParsed.forEach(o => {
+                  const k = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
+                  if (!seenAdminKeys.has(k)) { seenAdminKeys.add(k); allAdminCallers.push(o); }
+                });
+              } catch(e) {}
             }
+          }
+          if (allAdminCallers.length > 0) {
+            leaderboardOfficers = allAdminCallers;
+            loaded = true;
           }
         } catch(e) {}
 
@@ -2194,9 +2283,12 @@
                     list.forEach(o => {
                       if (!o.manager && rowMgr) o.manager = rowMgr;
                       const uniqueKey = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
-                      if (!seenOfficerKeys.has(uniqueKey)) {
-                        seenOfficerKeys.add(uniqueKey);
-                        allOfficers.push(o);
+                      const nameKey = (o.name || '').toUpperCase().trim();
+                      if (!deletedOfficerKeys.has(uniqueKey) && !deletedOfficerKeys.has(nameKey)) {
+                        if (!seenOfficerKeys.has(uniqueKey)) {
+                          seenOfficerKeys.add(uniqueKey);
+                          allOfficers.push(o);
+                        }
                       }
                     });
                   }
@@ -2274,6 +2366,42 @@
       updateAutosaveStatus('saving');
       const { isAdm, myMgrName, cloudRef, localKey } = getLeaderboardStorageKeys();
       localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+
+      // TWO-WAY SYNC: Distribute to individual manager partitions if Admin; update master copy if Manager
+      if (isAdm) {
+        const byMgr = {};
+        leaderboardOfficers.forEach(o => {
+          const mk = getManagerStorageKey(o.manager || 'general');
+          if (!byMgr[mk]) byMgr[mk] = [];
+          byMgr[mk].push(o);
+        });
+        for (const mk in byMgr) {
+          localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(byMgr[mk]));
+          if (supabaseClient) {
+            try {
+              const mRef = `SYS_LEADERBOARD_MIS_${mk}`;
+              supabaseClient.from('bank_transactions').select('id').eq('ref_no', mRef).limit(1).then(({ data }) => {
+                if (data && data.length > 0) {
+                  supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(byMgr[mk]), updated_at: new Date().toISOString() }).eq('id', data[0].id);
+                } else {
+                  supabaseClient.from('bank_transactions').insert([{ bank_name: 'SYSTEM', ref_no: mRef, tx_date: '01-01-2026', amount: 0, narration: JSON.stringify(byMgr[mk]), status: 'SYSTEM' }]);
+                }
+              });
+            } catch(e) {}
+          }
+        }
+      } else {
+        try {
+          const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
+          let masterList = masterLocal ? JSON.parse(masterLocal) : [];
+          if (!Array.isArray(masterList)) masterList = [];
+          const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+          masterList = masterList.filter(o => !isOfficerUnderManager(o, myDisplayName));
+          masterList.push(...leaderboardOfficers);
+          localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(masterList));
+        } catch(e) {}
+      }
+
       if (supabaseClient) {
         try {
           const { data } = await supabaseClient
@@ -2758,8 +2886,9 @@
       const meta = USER_CREDENTIALS[matchedKey];
       const enteredPass = passInput.toLowerCase();
       const storedPass = String(meta.pin || '').trim().toLowerCase();
+      const cleanPass = s => s.replace(/[^a-z0-9]/g, '');
 
-      if (enteredPass !== storedPass) {
+      if (enteredPass !== storedPass && cleanPass(enteredPass) !== cleanPass(storedPass)) {
         showLoginError('Invalid Password.');
         return;
       }
@@ -3220,6 +3349,18 @@
       closePaidCaseModal();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
+      // Auto-update master paid records in localStorage so Admin immediately reflects it
+      try {
+        const masterPaidStr = localStorage.getItem('shaha_paid_file_records_admin');
+        let masterPaid = masterPaidStr ? JSON.parse(masterPaidStr) : [];
+        if (!Array.isArray(masterPaid)) masterPaid = [];
+        paidFileRecords.forEach(r => {
+          const existIdx = masterPaid.findIndex(m => m.id === r.id);
+          if (existIdx >= 0) masterPaid[existIdx] = r;
+          else masterPaid.unshift(r);
+        });
+        localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(masterPaid));
+      } catch(e) {}
       await savePaidFileToCloud();
       await saveLeaderboardToCloud();
     }
@@ -3229,14 +3370,46 @@
       if (!editIdStr) return;
       const editId = parseInt(editIdStr, 10);
       const item = paidFileRecords.find(r => r.id === editId);
+      if (!item) return;
       if (!confirm(`Are you sure you want to delete payment of ₹${item.amount} for '${item.cust_name}'?`)) return;
+
+      deletedPaidRecordIds.add(String(editId));
+      localStorage.setItem('shaha_deleted_paid_record_ids_v1', JSON.stringify(Array.from(deletedPaidRecordIds)));
 
       paidFileRecords = paidFileRecords.filter(r => r.id !== editId);
       closePaidCaseModal();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
+
+      // Instantly remove from master admin storage in localStorage
+      try {
+        const masterPaidStr = localStorage.getItem('shaha_paid_file_records_admin');
+        if (masterPaidStr) {
+          let masterPaid = JSON.parse(masterPaidStr);
+          if (Array.isArray(masterPaid)) {
+            masterPaid = masterPaid.filter(r => r.id !== editId && !deletedPaidRecordIds.has(String(r.id)));
+            localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(masterPaid));
+          }
+        }
+      } catch(e) {}
+
       await savePaidFileToCloud();
-      showToast('Payment record deleted.', 'info');
+
+      // Instantly remove from master SYS_PAID_FILE_RECORDS in Supabase
+      if (supabaseClient) {
+        try {
+          const { data: mData } = await supabaseClient.from('bank_transactions').select('id, narration').eq('ref_no', 'SYS_PAID_FILE_RECORDS').limit(1);
+          if (mData && mData.length > 0 && mData[0].narration) {
+            let mList = JSON.parse(mData[0].narration);
+            if (Array.isArray(mList)) {
+              mList = mList.filter(r => r.id !== editId && !deletedPaidRecordIds.has(String(r.id)));
+              await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(mList), updated_at: new Date().toISOString() }).eq('id', mData[0].id);
+            }
+          }
+        } catch(e) {}
+      }
+
+      showToast(`Payment of ₹${item.amount} for ${item.cust_name} deleted and synced with Admin!`, 'info');
     }
 
     // ==========================================
@@ -3486,7 +3659,12 @@
       const p = parseDateParts(payDateStr);
       const cur = parseDateParts(todayStr);
       if (!p || !cur) return false;
-      return p.y === cur.y && p.m === cur.m && p.d < cur.d;
+      if (p.y < cur.y) return true;
+      if (p.y === cur.y) {
+        if (p.m < cur.m) return true;
+        if (p.m === cur.m && p.d < cur.d) return true;
+      }
+      return false;
     }
 
     function isOfficerMatch(officer, candidateName) {
@@ -3519,9 +3697,9 @@
       const isAdm = currentRole === 'ADMIN';
       const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
 
-      // Reset today collection to 0, preserve baseline AOY
+      // Preserve baseline manual today and baseline AOY
       leaderboardOfficers.forEach(off => {
-        let todaySum = 0;
+        let todaySum = Number(off.baseline_today || 0);
         let mtdSum = Number(off.baseline_aoy || 0);
 
         const isAdm = currentRole === 'ADMIN';
@@ -3813,10 +3991,10 @@
       document.getElementById('officer-modal-title').innerText = `Edit Caller: ${off.name}`;
       document.getElementById('officer-edit-idx').value = String(idx);
       document.getElementById('officer-input-name').value = off.name;
-      document.getElementById('officer-input-target').value = off.target || 0;
-      document.getElementById('officer-input-aoy').value = off.baseline_aoy || 0;
-      document.getElementById('officer-input-today').value = off.today || 0;
-      document.getElementById('officer-input-proj').value = off.projection || 0;
+      document.getElementById('officer-input-target').value = off.target !== undefined ? off.target : 0;
+      document.getElementById('officer-input-aoy').value = (off.baseline_aoy !== undefined ? off.baseline_aoy : off.aoy) || 0;
+      document.getElementById('officer-input-today').value = (off.baseline_today !== undefined ? off.baseline_today : off.today) || 0;
+      document.getElementById('officer-input-proj').value = off.projection !== undefined ? off.projection : 0;
 
       const mgrWrap = document.getElementById('officer-manager-field-wrap');
       if (mgrWrap) {
@@ -3849,6 +4027,7 @@
       const name = document.getElementById('officer-input-name').value.trim().toUpperCase();
       const target = parseFloat(document.getElementById('officer-input-target').value) || 0;
       const baseAoy = parseFloat(document.getElementById('officer-input-aoy').value) || 0;
+      const baseToday = parseFloat(document.getElementById('officer-input-today').value) || 0;
       const proj = parseFloat(document.getElementById('officer-input-proj').value) || 0;
       let chosenMgr = '';
       if (currentRole === 'ADMIN' && document.getElementById('officer-input-manager')) {
@@ -3867,6 +4046,9 @@
         leaderboardOfficers[idx].name = name;
         leaderboardOfficers[idx].target = target;
         leaderboardOfficers[idx].baseline_aoy = baseAoy;
+        leaderboardOfficers[idx].aoy = baseAoy;
+        leaderboardOfficers[idx].baseline_today = baseToday;
+        leaderboardOfficers[idx].today = baseToday;
         leaderboardOfficers[idx].projection = proj;
         if (chosenMgr) leaderboardOfficers[idx].manager = chosenMgr;
         showToast(`Updated caller ${name}`, 'success');
@@ -3877,14 +4059,19 @@
           target: target,
           baseline_aoy: baseAoy,
           aoy: baseAoy,
-          today: 0,
+          baseline_today: baseToday,
+          today: baseToday,
           projection: proj,
-          total: baseAoy,
-          balance: target - baseAoy,
-          achieved: 0,
+          total: baseAoy + baseToday,
+          balance: target - (baseAoy + baseToday),
+          achieved: target > 0 ? Math.round(((baseAoy + baseToday) / target) * 100) : 0,
           rank: leaderboardOfficers.length + 1,
           manager: chosenMgr || (currentUser ? currentUser.name : 'SMITA JAGTAP')
         });
+        const callerKey = `${(chosenMgr || '').toUpperCase().trim()}_${name}`;
+        deletedOfficerKeys.delete(callerKey);
+        deletedOfficerKeys.delete(name);
+        localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
         showToast(`Added new caller ${name}`, 'success');
       }
 
@@ -3897,14 +4084,60 @@
     async function deleteOfficerFromModal() {
       const idx = parseInt(document.getElementById('officer-edit-idx').value, 10);
       if (idx >= 0 && idx < leaderboardOfficers.length) {
-        const offName = leaderboardOfficers[idx].name;
+        const off = leaderboardOfficers[idx];
+        const offName = off.name;
+        const offMgr = off.manager || currentManager || '';
+        const callerKey = `${offMgr.toUpperCase().trim()}_${offName.toUpperCase().trim()}`;
+        const nameOnlyKey = offName.toUpperCase().trim();
+
         if (!confirm(`Are you sure you want to remove '${offName}' from Live Collection?`)) return;
+
+        deletedOfficerKeys.add(callerKey);
+        deletedOfficerKeys.add(nameOnlyKey);
+        localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+
         leaderboardOfficers.splice(idx, 1);
         closeOfficerModal();
         populateOfficerDropdowns();
         syncLiveCollectionFromPaidFile(false);
+
+        // Instantly delete from master copy in localStorage so Admin view updates immediately
+        try {
+          const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
+          if (masterLocal) {
+            let mList = JSON.parse(masterLocal);
+            if (Array.isArray(mList)) {
+              mList = mList.filter(o => {
+                const k1 = `${(o.manager || '').toUpperCase().trim()}_${(o.name || '').toUpperCase().trim()}`;
+                const k2 = (o.name || '').toUpperCase().trim();
+                return k1 !== callerKey && k2 !== nameOnlyKey && !deletedOfficerKeys.has(k1) && !deletedOfficerKeys.has(k2);
+              });
+              localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(mList));
+            }
+          }
+        } catch(e) {}
+
         await saveLeaderboardToCloud();
-        showToast(`Removed officer ${offName}`, 'info');
+
+        // Instantly delete from master copy in Supabase Cloud
+        if (supabaseClient) {
+          try {
+            const { data: mData } = await supabaseClient.from('bank_transactions').select('id, narration').eq('ref_no', 'SYS_LEADERBOARD_MIS').limit(1);
+            if (mData && mData.length > 0 && mData[0].narration) {
+              let mList = JSON.parse(mData[0].narration);
+              if (Array.isArray(mList)) {
+                mList = mList.filter(o => {
+                  const k1 = `${(o.manager || '').toUpperCase().trim()}_${(o.name || '').toUpperCase().trim()}`;
+                  const k2 = (o.name || '').toUpperCase().trim();
+                  return k1 !== callerKey && k2 !== nameOnlyKey && !deletedOfficerKeys.has(k1) && !deletedOfficerKeys.has(k2);
+                });
+                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(mList), updated_at: new Date().toISOString() }).eq('id', mData[0].id);
+              }
+            }
+          } catch(e) {}
+        }
+
+        showToast(`Removed caller '${offName}'. Synchronized with Admin view.`, 'info');
       }
     }
 
@@ -3953,8 +4186,16 @@
         const pInp = document.getElementById(`qe-proj-${idx}`);
 
         if (tInp) off.target = parseFloat(tInp.value) || 0;
-        if (aInp) off.baseline_aoy = parseFloat(aInp.value) || 0;
-        if (tdInp) off.today = parseFloat(tdInp.value) || 0;
+        if (aInp) {
+          const valAoy = parseFloat(aInp.value) || 0;
+          off.baseline_aoy = valAoy;
+          off.aoy = valAoy;
+        }
+        if (tdInp) {
+          const valTd = parseFloat(tdInp.value) || 0;
+          off.baseline_today = valTd;
+          off.today = valTd;
+        }
         if (pInp) off.projection = parseFloat(pInp.value) || 0;
       });
 
