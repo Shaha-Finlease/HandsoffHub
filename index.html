@@ -1864,7 +1864,7 @@
       }
     }
 
-    // --- Instant Live Server Refresh ---
+    // --- Instant Comprehensive Live Server Refresh ---
     async function handleAppRefresh() {
       const btn = document.getElementById('btn-nav-refresh');
       const icon = document.getElementById('icon-nav-refresh');
@@ -1872,27 +1872,54 @@
       if (btn) btn.disabled = true;
 
       try {
-        showToast('Refreshing live data from server...', 'info');
+        showToast('Refreshing all live data, collections & tables...', 'info');
+
+        // 1. Sync credentials, paid files & leaderboard from Cloud & Local
         await Promise.all([
           syncCredentialsWithCloud(),
           loadPaidFileFromCloud(),
           loadLeaderboardFromCloud()
         ]);
 
+        // 2. Recalculate Live Collections from latest Paid Records
+        syncLiveCollectionFromPaidFile(false);
+        calculateLeaderboard();
+
+        // 3. Re-render Core Tables & Dropdowns
+        populateOfficerDropdowns();
         renderPaidFileTable();
         renderLeaderboardMIS();
         if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
         updateTopKpis();
-        populateOfficerDropdowns();
 
-        showToast('All live data refreshed successfully!', 'success');
+        // 4. Refresh Admin-Exclusive Views if Admin
+        if (currentRole === 'ADMIN') {
+          if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+          if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+          if (typeof renderUserManagerTable === 'function') renderUserManagerTable();
+
+          // Live re-render Manager Slide Drawer if currently open
+          const drawer = document.getElementById('manager-slide-drawer');
+          const drawerMgrName = document.getElementById('drawer-manager-name');
+          if (drawer && !drawer.classList.contains('translate-x-full') && drawerMgrName && drawerMgrName.innerText) {
+            openManagerSlideDrawer(drawerMgrName.innerText);
+          }
+        }
+
+        // 5. Update Lucide Icons
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+
+        showToast('All values, reports & collections refreshed successfully!', 'success');
       } catch(e) {
+        console.error('Error during refresh:', e);
         showToast('Data refreshed.', 'info');
       } finally {
         setTimeout(() => {
           if (icon) icon.classList.remove('animate-spin');
           if (btn) btn.disabled = false;
-        }, 500);
+        }, 600);
       }
     }
 
