@@ -1651,7 +1651,16 @@
     let paidFileRecords = [];
 
     // --- Recovery Officers Template Generator (100% Fresh Blank Slate - 0 Callers) ---
+    const SEED_OFFICERS = [
+      { name: 'KALPITA RIKAME', aliases: 'KALPITA RIKAME', target: 291500, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 291500, achieved: 0, rank: 1, manager: 'SMITA JAGTAP' },
+      { name: 'NIDHI KADAM', aliases: 'NIDHI KADAM', target: 259600, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 259600, achieved: 0, rank: 2, manager: 'SMITA JAGTAP' }
+    ];
+    ['SMITA JAGTAP_KALPITA RIKAME', 'KALPITA RIKAME', 'SMITA JAGTAP_NIDHI KADAM', 'NIDHI KADAM'].forEach(k => deletedOfficerKeys.delete(k));
+
     function createFreshLeaderboardOfficers() {
+      return JSON.parse(JSON.stringify(SEED_OFFICERS));
+    }
+    function _legacyCreateFreshOfficers_unused() {
       return [];
     }
     let leaderboardOfficers = createFreshLeaderboardOfficers();
@@ -2547,8 +2556,13 @@
                 if (cloudList.length > 0) {
                   const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
                   cloudList.forEach(o => { if (!o.manager) o.manager = myDisplayName; });
-                  leaderboardOfficers = cloudList;
-                  localStorage.setItem(localKey, JSON.stringify(cloudList));
+                  const merged = [...leaderboardOfficers];
+                  cloudList.forEach(cOff => {
+                    const mIdx = merged.findIndex(m => (m.name || '').toUpperCase().trim() === (cOff.name || '').toUpperCase().trim());
+                    if (mIdx >= 0) { merged[mIdx] = Object.assign({}, merged[mIdx], cOff); } else { merged.push(cOff); }
+                  });
+                  leaderboardOfficers = merged;
+                  localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
                   loaded = true;
                 }
               }
@@ -2599,6 +2613,18 @@
 
         if (!loaded && leaderboardOfficers.length === 0) {
           if (leaderboardOfficers.length === 0) leaderboardOfficers = [];
+        }
+        const activeMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+        SEED_OFFICERS.forEach(sOff => {
+          if (!isOfficerTombstoned(sOff) && isOfficerUnderManager(sOff, activeMgr)) {
+            const exists = leaderboardOfficers.some(o => (o.name || '').toUpperCase().trim() === (sOff.name || '').toUpperCase().trim());
+            if (!exists) {
+              leaderboardOfficers.push(Object.assign({}, sOff));
+              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+            }
+          }
+        });
+        if (false) {
           if (typeof paidFileRecords !== 'undefined' && localKey.includes('paid')) { if (paidFileRecords.length === 0) localStorage.setItem(localKey, '[]'); else localStorage.setItem(localKey, JSON.stringify(paidFileRecords)); } else { if (leaderboardOfficers.length === 0) localStorage.setItem(localKey, '[]'); else localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers)); }
         }
       } else {
@@ -2707,7 +2733,7 @@
             }
 
             if (allOfficers.length > 0) {
-              leaderboardOfficers = allOfficers;
+              SEED_OFFICERS.forEach(s => { if (!isOfficerTombstoned(s) && !allOfficers.some(o => (o.name || '').toUpperCase().trim() === (s.name || '').toUpperCase().trim())) allOfficers.push(Object.assign({}, s)); }); leaderboardOfficers = allOfficers;
               localStorage.setItem(localKey, JSON.stringify(allOfficers));
               loaded = true;
             }
@@ -2716,6 +2742,18 @@
 
         if (!loaded && leaderboardOfficers.length === 0) {
           if (leaderboardOfficers.length === 0) leaderboardOfficers = [];
+        }
+        const activeMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+        SEED_OFFICERS.forEach(sOff => {
+          if (!isOfficerTombstoned(sOff) && isOfficerUnderManager(sOff, activeMgr)) {
+            const exists = leaderboardOfficers.some(o => (o.name || '').toUpperCase().trim() === (sOff.name || '').toUpperCase().trim());
+            if (!exists) {
+              leaderboardOfficers.push(Object.assign({}, sOff));
+              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+            }
+          }
+        });
+        if (false) {
         }
       }
 
@@ -3186,9 +3224,21 @@
               applyUserSession(session);
               showPortal();
               startSessionInactivityMonitor();
-              await syncCredentialsWithCloud();
+              await syncCredentialsWithCloud(); /*
               if (leaderboardOfficers.length === 0) leaderboardOfficers = [];
-              renderLeaderboardMIS();
+        }
+        const activeMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+        SEED_OFFICERS.forEach(sOff => {
+          if (!isOfficerTombstoned(sOff) && isOfficerUnderManager(sOff, activeMgr)) {
+            const exists = leaderboardOfficers.some(o => (o.name || '').toUpperCase().trim() === (sOff.name || '').toUpperCase().trim());
+            if (!exists) {
+              leaderboardOfficers.push(Object.assign({}, sOff));
+              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+            }
+          }
+        });
+        if (false) {
+*/              if (leaderboardOfficers.length === 0) leaderboardOfficers = []; renderLeaderboardMIS();
               await loadPaidFileFromCloud();
               await loadLeaderboardFromCloud();
               syncLiveCollectionFromPaidFile(false);
@@ -3539,7 +3589,7 @@
       if (editId !== null) {
         const item = paidFileRecords.find(r => r.id === editId);
         if (!item) return;
-        const isAdm = currentRole === 'ADMIN';
+        const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
         const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
         if (!isAdm && !isRecordOwnedByManager(item, myMgrName)) {
           showToast('Privacy Protection: You cannot view or edit another manager\'s payment case.', 'error');
@@ -3570,15 +3620,15 @@
 
         if (item.splits && item.splits.length >= 2) {
           document.getElementById('paid-check-split').checked = true;
-          togglePaidSplitMode();
+          togglePaidSplitMode(); clearPaidCallerSearch();
           document.getElementById('split-caller-1').value = item.splits[0].officer;
           document.getElementById('split-pct-1').value = item.splits[0].pct;
           document.getElementById('split-caller-2').value = item.splits[1].officer;
           document.getElementById('split-pct-2').value = item.splits[1].pct;
         } else {
           document.getElementById('paid-check-split').checked = false;
-          togglePaidSplitMode();
-          document.getElementById('paid-select-officer').value = item.officer || (leaderboardOfficers.length > 0 ? leaderboardOfficers[0].name : '');
+          togglePaidSplitMode(); clearPaidCallerSearch();
+          selectPaidCaller(item.officer || '', item.manager || '');
         }
         document.getElementById('btn-delete-paid').classList.remove('hidden');
       } else {
@@ -3592,7 +3642,7 @@
         document.getElementById('paid-input-bank').value = 'HDFC';
         document.getElementById('paid-input-narr').value = '';
         document.getElementById('paid-check-split').checked = false;
-        togglePaidSplitMode();
+        togglePaidSplitMode(); clearPaidCallerSearch();
         document.getElementById('btn-delete-paid').classList.add('hidden');
       }
 
@@ -3611,7 +3661,7 @@
       if (existing) {
         showToast(`Caller '${cleanName}' already exists!`, 'info');
         populateOfficerDropdowns();
-        const sel = document.getElementById('paid-select-officer');
+        const selVal = (document.getElementById('paid-select-officer') ? document.getElementById('paid-select-officer').value : '').trim(); const searchVal = (document.getElementById('paid-caller-search-input') ? document.getElementById('paid-caller-search-input').value : '').trim();
         if (sel) sel.value = existing.name;
         return;
       }
@@ -3632,10 +3682,173 @@
       });
       populateOfficerDropdowns();
       const sel = document.getElementById('paid-select-officer');
-      if (sel) sel.value = cleanName;
+      selectPaidCaller(cleanName, myMgrForCaller);
       syncLiveCollectionFromPaidFile(false);
       await saveLeaderboardToCloud(false);
       showToast(`Caller '${cleanName}' added & selected!`, 'success');
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    function openPaidCallerSearchDropdown() {
+      const input = document.getElementById('paid-caller-search-input');
+      const query = input ? input.value.trim() : '';
+      renderPaidCallerSearchResults(query);
+      const res = document.getElementById('paid-caller-search-results');
+      if (res) res.classList.remove('hidden');
+    }
+
+    function handlePaidCallerSearchInput(query) {
+      const clearBtn = document.getElementById('btn-clear-caller-search');
+      if (clearBtn) clearBtn.classList.toggle('hidden', !query.trim());
+      renderPaidCallerSearchResults(query);
+      const res = document.getElementById('paid-caller-search-results');
+      if (res) res.classList.remove('hidden');
+    }
+
+    function renderPaidCallerSearchResults(query = '') {
+      const res = document.getElementById('paid-caller-search-results');
+      if (!res) return;
+
+      const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager || '').toLowerCase().trim();
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const cleanQ = query.toLowerCase().trim();
+
+      const validOfficers = (leaderboardOfficers || []).filter(o => !isOfficerTombstoned(o) && !isUserDeleted(o.manager));
+
+      let sortedOfficers = [...validOfficers].sort((a, b) => {
+        const aMine = isOfficerUnderManager(a, myMgr);
+        const bMine = isOfficerUnderManager(b, myMgr);
+        if (aMine && !bMine) return -1;
+        if (!aMine && bMine) return 1;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+
+      if (cleanQ) {
+        sortedOfficers = sortedOfficers.filter(o => {
+          return (o.name || '').toLowerCase().includes(cleanQ) || 
+                 (o.manager || '').toLowerCase().includes(cleanQ);
+        });
+      }
+
+      if (sortedOfficers.length === 0) {
+        res.innerHTML = `
+          <div class="p-3 text-center bg-slate-50 space-y-2">
+            <p class="text-xs text-slate-500 font-medium">No caller found matching "${escapeHtml(cleanQ)}"</p>
+            <button type="button" onclick="quickAddNewCallerNamed('${escapeHtml(cleanQ).replace(/'/g, "\\'")}')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold transition shadow-2xs cursor-pointer">
+              + Add "${escapeHtml(cleanQ)}" as New Caller
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      sortedOfficers.forEach(off => {
+        const mgrLabel = off.manager || 'General';
+        const isMyOfficer = isOfficerUnderManager(off, myMgr);
+        const badgeColor = isMyOfficer ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200';
+        html += `
+          <div onclick="selectPaidCaller('${off.name.replace(/'/g, "\\'")}', '${mgrLabel.replace(/'/g, "\\'")}')" class="p-2.5 hover:bg-blue-50 cursor-pointer flex items-center justify-between transition group">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center text-[10px] font-black text-slate-700 group-hover:text-blue-700">
+                ${(off.name || 'C').charAt(0)}
+              </div>
+              <div>
+                <div class="font-black text-slate-900 text-xs">${off.name}</div>
+                <div class="text-[10px] text-slate-400 font-medium flex items-center gap-1.5">
+                  <span class="px-1.5 py-0.2 rounded border ${badgeColor} font-bold">${mgrLabel}</span>
+                  <span>Target: ₹${Number(off.target || 0).toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+            </div>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 group-hover:bg-blue-600 group-hover:text-white text-slate-700 transition">Select</span>
+          </div>
+        `;
+      });
+
+      res.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function selectPaidCaller(callerName, mgrName = '') {
+      const selInput = document.getElementById('paid-select-officer');
+      const searchInput = document.getElementById('paid-caller-search-input');
+      const badge = document.getElementById('paid-selected-caller-badge');
+      const badgeName = document.getElementById('paid-selected-caller-name');
+      const badgeMgr = document.getElementById('paid-selected-caller-mgr');
+      const clearBtn = document.getElementById('btn-clear-caller-search');
+      const res = document.getElementById('paid-caller-search-results');
+
+      if (selInput) selInput.value = callerName;
+      if (searchInput) searchInput.value = callerName;
+      if (badgeName) badgeName.innerText = callerName;
+      if (badgeMgr) badgeMgr.innerText = mgrName ? `Manager: ${mgrName}` : '';
+      if (badge) badge.classList.remove('hidden');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      if (res) res.classList.add('hidden');
+    }
+
+    function clearPaidCallerSearch() {
+      const selInput = document.getElementById('paid-select-officer');
+      const searchInput = document.getElementById('paid-caller-search-input');
+      const badge = document.getElementById('paid-selected-caller-badge');
+      const clearBtn = document.getElementById('btn-clear-caller-search');
+      const res = document.getElementById('paid-caller-search-results');
+
+      if (selInput) selInput.value = '';
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      if (badge) badge.classList.add('hidden');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (res) res.classList.add('hidden');
+    }
+
+    async function quickAddNewCallerNamed(suggestedName) {
+      if (!suggestedName) {
+        quickAddNewCallerFromModal();
+        return;
+      }
+      const cleanName = suggestedName.trim().toUpperCase();
+      const myMgrForCaller = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+      deletedOfficerKeys.delete(cleanName);
+      deletedOfficerKeys.delete(`${myMgrForCaller.toUpperCase().trim()}_${cleanName}`);
+      localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+
+      leaderboardOfficers.push({
+        name: cleanName,
+        aliases: cleanName,
+        target: 0,
+        baseline_aoy: 0,
+        aoy: 0,
+        today: 0,
+        total: 0,
+        balance: 0,
+        projection: 0,
+        achieved: 0,
+        rank: leaderboardOfficers.length + 1,
+        manager: myMgrForCaller
+      });
+
+      populateOfficerDropdowns();
+      selectPaidCaller(cleanName, myMgrForCaller);
+      syncLiveCollectionFromPaidFile(false);
+      await saveLeaderboardToCloud(false);
+      showToast(`Caller '${cleanName}' added & selected!`, 'success');
+    }
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', function(e) {
+        const box = document.getElementById('single-caller-box');
+        const res = document.getElementById('paid-caller-search-results');
+        if (box && res && !box.contains(e.target)) {
+          res.classList.add('hidden');
+        }
+      });
     }
 
     function togglePaidSplitMode() {
@@ -3693,8 +3906,8 @@
           { officer: off2, pct: pct2, amount: (amount * pct2) / 100 }
         ];
       } else {
-        const sel = document.getElementById('paid-select-officer');
-        officer = sel ? (sel.value || (sel.options && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].value : '')) : '';
+        const selVal = (document.getElementById('paid-select-officer') ? document.getElementById('paid-select-officer').value : '').trim(); const searchVal = (document.getElementById('paid-caller-search-input') ? document.getElementById('paid-caller-search-input').value : '').trim();
+        officer = (selVal || searchVal).toUpperCase();
         if (!officer) {
           showToast('Please select or add a caller for this payment (Click "+ Add Caller").', 'error');
           return;
@@ -3863,11 +4076,11 @@
       if (!tbody) return;
 
       const q = (document.getElementById('paid-filter-search') ? document.getElementById('paid-filter-search').value : '').toLowerCase().trim();
-      const isAdm = currentRole === 'ADMIN';
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
       const fOff = document.getElementById('paid-filter-officer') ? document.getElementById('paid-filter-officer').value : '';
-      const fBank = (!isAdm || !document.getElementById('paid-filter-bank')) ? '' : document.getElementById('paid-filter-bank').value;
-      const fMgr = (!isAdm || !document.getElementById('paid-filter-manager')) ? '' : document.getElementById('paid-filter-manager').value;
-      const fDate = (!isAdm || !document.getElementById('paid-filter-date')) ? 'all' : document.getElementById('paid-filter-date').value;
+      const fBank = document.getElementById('paid-filter-bank') ? document.getElementById('paid-filter-bank').value : '';
+      const fMgr = (isAdm && document.getElementById('paid-filter-manager')) ? document.getElementById('paid-filter-manager').value : '';
+      const fDate = document.getElementById('paid-filter-date') ? document.getElementById('paid-filter-date').value : 'all';
 
       const todayStr = getTodayFormattedStr();
       const curMonth = (new Date()).getMonth();
@@ -3892,7 +4105,7 @@
         }
 
         // Officer
-        if (fOff && !((r.officer || '').includes(fOff))) return false;
+        if (fOff && !isOfficerMatch({ name: fOff }, r.officer) && !(r.officer || '').toUpperCase().includes(fOff.toUpperCase())) return false;
 
         // Bank
         if (fBank && r.bank !== fBank) return false;
@@ -3911,7 +4124,7 @@
         return true;
       });
 
-      if (countEl) countEl.innerText = myOwnedRecords.length;
+      window.currentFilteredPaidRecords = filtered; if (countEl) countEl.innerText = myOwnedRecords.length;
       if (badgeTotal) badgeTotal.innerText = `${filtered.length} of ${myOwnedRecords.length} Records`;
 
       tbody.innerHTML = '';
@@ -3998,9 +4211,9 @@
         ]
       ];
 
-      const isAdm = currentRole === 'ADMIN';
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
       const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
-      const recordsToExport = isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgrName));
+      const recordsToExport = (window.currentFilteredPaidRecords && Array.isArray(window.currentFilteredPaidRecords)) ? window.currentFilteredPaidRecords : (isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgrName)));
 
       recordsToExport.forEach(r => {
         if (r.splits && r.splits.length > 0) {
@@ -4037,9 +4250,9 @@
       const ws = XLSX.utils.aoa_to_sheet(rowsData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'PAID DATA');
-      const filename = `Paid_File_${getTodayFormattedStr()}.xlsx`;
+      const filename = `Paid_File_Filtered_${recordsToExport.length}_Records_${getTodayFormattedStr().replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
       XLSX.writeFile(wb, filename);
-      showToast(`Exported ${filename} (${paidFileRecords.length} records)!`, 'success');
+      showToast(`Exported ${recordsToExport.length} filtered paid records (${filename})!`, 'success');
     }
 
     // ==========================================
@@ -4134,7 +4347,7 @@
       const periodInput = document.getElementById('leaderboard-period-input');
       const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
-      const isAdm = currentRole === 'ADMIN';
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
       const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
 
       // Preserve baseline manual today and baseline AOY
@@ -4314,12 +4527,12 @@ function renderLeaderboardMIS() {
       let displayList = leaderboardOfficers;
       if (currentRole === 'MANAGER') {
         const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-        displayList = displayList.filter(o => { if (!o) return false; if (!o.manager || o.manager === 'SMITA JAGTAP' || o.manager === 'Manager') { o.manager = myName; return true; } return isOfficerUnderManager(o, myName); });
+        displayList = displayList.filter(o => { if (!o || isOfficerTombstoned(o)) return false; return isOfficerUnderManager(o, myName); });
       } else if (selectedFilterMgr) {
         displayList = displayList.filter(o => isOfficerUnderManager(o, selectedFilterMgr));
       }
 
-      if (displayList.length === 0) {
+      const searchEl = document.getElementById('mis-filter-search'); const searchVal = searchEl ? searchEl.value.toLowerCase().trim() : ''; if (searchVal) { displayList = displayList.filter(o => (o.name || '').toLowerCase().includes(searchVal) || (o.manager || '').toLowerCase().includes(searchVal)); } window.currentFilteredLeaderboardList = displayList; if (displayList.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="12" class="py-12 px-4 text-center text-slate-400 bg-slate-50">
@@ -4528,7 +4741,10 @@ function renderLeaderboardMIS() {
       const baseToday = parseFloat(document.getElementById('officer-input-today').value) || 0;
       const proj = parseFloat(document.getElementById('officer-input-proj').value) || 0;
       let chosenMgr = '';
-      if (currentRole === 'ADMIN' && document.getElementById('officer-input-manager')) {
+      if (currentRole === 'MANAGER') {
+        chosenMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+        if (!chosenMgr && currentUser && currentUser.key && USER_CREDENTIALS[currentUser.key]) { chosenMgr = USER_CREDENTIALS[currentUser.key].name; }
+      } else if (currentRole === 'ADMIN' && document.getElementById('officer-input-manager')) {
         chosenMgr = document.getElementById('officer-input-manager').value;
       }
       if (!chosenMgr) {
@@ -4587,6 +4803,9 @@ function renderLeaderboardMIS() {
       }
 
       closeOfficerModal();
+      const { localKey: sLocalKey } = getLeaderboardStorageKeys();
+      localStorage.setItem(sLocalKey, JSON.stringify(leaderboardOfficers));
+      lastKnownServerTime = Date.now() + 8000;
       populateOfficerDropdowns();
       syncLiveCollectionFromPaidFile(false);
       await saveLeaderboardToCloud(true);
@@ -4609,6 +4828,9 @@ function renderLeaderboardMIS() {
 
         leaderboardOfficers.splice(idx, 1);
         closeOfficerModal();
+      const { localKey: sLocalKey } = getLeaderboardStorageKeys();
+      localStorage.setItem(sLocalKey, JSON.stringify(leaderboardOfficers));
+      lastKnownServerTime = Date.now() + 8000;
         populateOfficerDropdowns();
         syncLiveCollectionFromPaidFile(false);
 
@@ -4660,7 +4882,7 @@ function renderLeaderboardMIS() {
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      leaderboardOfficers.forEach((off, idx) => {
+      const exportList = (window.currentFilteredLeaderboardList && window.currentFilteredLeaderboardList.length > 0) ? window.currentFilteredLeaderboardList : (currentRole === 'MANAGER' ? leaderboardOfficers.filter(o => isOfficerUnderManager(o, (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '')) : leaderboardOfficers); exportList.forEach((off, idx) => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
@@ -4690,7 +4912,7 @@ function renderLeaderboardMIS() {
     }
 
     async function saveQuickEditNumbers() {
-      leaderboardOfficers.forEach((off, idx) => {
+      const exportList = (window.currentFilteredLeaderboardList && window.currentFilteredLeaderboardList.length > 0) ? window.currentFilteredLeaderboardList : (currentRole === 'MANAGER' ? leaderboardOfficers.filter(o => isOfficerUnderManager(o, (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '')) : leaderboardOfficers); exportList.forEach((off, idx) => {
         const tInp = document.getElementById(`qe-target-${idx}`);
         const aInp = document.getElementById(`qe-aoy-${idx}`);
         const tdInp = document.getElementById(`qe-today-${idx}`);
@@ -4738,7 +4960,7 @@ function renderLeaderboardMIS() {
 
       let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0, sumProjection = 0;
 
-      leaderboardOfficers.forEach((off, idx) => {
+      const exportList = (window.currentFilteredLeaderboardList && window.currentFilteredLeaderboardList.length > 0) ? window.currentFilteredLeaderboardList : (currentRole === 'MANAGER' ? leaderboardOfficers.filter(o => isOfficerUnderManager(o, (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '')) : leaderboardOfficers); exportList.forEach((off, idx) => {
         sumTarget += off.target;
         sumAoy += off.aoy;
         sumToday += off.today;
@@ -4767,7 +4989,7 @@ function renderLeaderboardMIS() {
       const ws = XLSX.utils.aoa_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Daily Leaderboard MIS');
-      const filename = `Daily_Leaderboard_MIS_${period.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+      const filename = `Daily_Leaderboard_MIS_Filtered_${exportList.length}_Callers_${period.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
       XLSX.writeFile(wb, filename);
       showToast(`Exported ${filename}`, 'success');
     }
@@ -5580,7 +5802,7 @@ function renderLeaderboardMIS() {
       const clean = s => s.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
       const c1 = clean(offMgr);
       const c2 = clean(targetMgr);
-      return c1 === c2 || c1.includes(c2) || c2.includes(c1);
+      return c1 === c2 || c1.replace(/\s/g, '') === c2.replace(/\s/g, '') || c1.includes(c2) || c2.includes(c1);
     }
 
     function renderManagerWiseCollection() {
