@@ -3662,7 +3662,7 @@
         showToast(`Caller '${cleanName}' already exists!`, 'info');
         populateOfficerDropdowns();
         const selVal = (document.getElementById('paid-select-officer') ? document.getElementById('paid-select-officer').value : '').trim(); const searchVal = (document.getElementById('paid-caller-search-input') ? document.getElementById('paid-caller-search-input').value : '').trim();
-        if (sel) sel.value = existing.name;
+        selectPaidCaller(existing.name, existing.manager || '');
         return;
       }
       const myMgrForCaller = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP'; deletedOfficerKeys.delete(cleanName); deletedOfficerKeys.delete(`${myMgrForCaller.toUpperCase().trim()}_${cleanName}`); localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
