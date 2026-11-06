@@ -723,10 +723,10 @@
                   <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   Live Collection Pulse
                 </span>
-                <span id="today-tab-date-badge" class="text-xs text-slate-400 font-mono">--</span>
+                <span id="today-tab-date-badge" class="text-xs font-mono" style="color: var(--ink-3);">--</span>
               </div>
-              <h1 class="text-2xl font-bold tracking-tight text-white">Today Collection</h1>
-              <p class="text-xs text-slate-400 mt-1">Real-time daily collection breakdown, regional branch totals, and manager analytics.</p>
+              <h1 class="text-2xl font-bold tracking-tight" style="color: var(--ink);">Today Collection</h1>
+              <p class="text-xs mt-1" style="color: var(--ink-3);">Real-time daily collection breakdown, regional branch totals, and manager analytics.</p>
             </div>
             <div class="actions flex items-center gap-2">
               <button onclick="handleAppRefresh()" class="btn" title="Refresh Live Numbers">
@@ -742,9 +742,9 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
             <!-- LEFT: MTD / AOY -->
-            <div class="card p-5 border border-slate-700/60 flex flex-col justify-between" style="background: var(--panel);">
+            <div class="card p-5 flex flex-col justify-between" style="background: var(--panel); border: 1px solid var(--line);">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <span class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--ink-3);">
                   <i data-lucide="history" class="w-4 h-4 text-blue-400"></i>
                   <span>MTD / AOY Collection</span>
                 </span>
@@ -752,10 +752,10 @@
               </div>
               <div class="my-3">
                 <div id="today-tab-mtd-val" class="text-2xl sm:text-3xl font-extrabold text-blue-400 font-mono-num">₹0</div>
-                <p class="text-[11px] text-slate-400 mt-1">Month to Date before today</p>
+                <p class="text-[11px] mt-1" style="color: var(--ink-3);">Month to Date before today</p>
               </div>
-              <div class="pt-3 border-t border-slate-700/40 flex items-center justify-between text-xs text-slate-400">
-                <span>Month: <b id="today-tab-month-name" class="text-slate-200">Current</b></span>
+              <div class="pt-3 flex items-center justify-between text-xs" style="border-top: 1px solid var(--line); color: var(--ink-3);">
+                <span>Month: <b id="today-tab-month-name" class="num" style="color: var(--ink);">Current</b></span>
                 <span class="font-mono text-blue-400 font-semibold">MTD Progress</span>
               </div>
             </div>
@@ -763,42 +763,42 @@
             <!-- CENTER: TODAY COLLECTION (HERO CARD) -->
             <div class="card p-5 border-2 border-emerald-500/50 shadow-lg flex flex-col justify-between relative overflow-hidden" style="background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(6, 78, 59, 0.15)), var(--panel);">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <span class="text-xs font-black uppercase tracking-wider flex items-center gap-1.5" style="color: var(--good);">
                   <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+                  <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
                   <span>Today Collection</span>
                 </span>
-                <span id="today-tab-today-count-chip" class="chip chip-accent text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0 Cases Today</span>
+                <span id="today-tab-today-count-chip" class="chip chip-accent text-[11px] font-bold" style="background: rgba(16, 185, 129, 0.15); color: var(--good); border: 1px solid rgba(16, 185, 129, 0.35);">0 Cases Today</span>
               </div>
               <div class="my-3 text-center sm:text-left">
-                <div id="today-tab-today-val" class="text-3xl sm:text-4xl font-black text-emerald-400 font-mono-num tracking-tight">₹0</div>
-                <p class="text-xs text-emerald-300/80 font-medium mt-1 flex items-center gap-1">
+                <div id="today-tab-today-val" class="text-3xl sm:text-4xl font-black font-mono-num tracking-tight" style="color: var(--good);">₹0</div>
+                <p class="text-xs font-medium mt-1 flex items-center gap-1" style="color: var(--good);">
                   <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
                   <span>Verified customer payments collected today</span>
                 </p>
               </div>
-              <div class="pt-3 border-t border-emerald-500/20 flex items-center justify-between text-xs text-slate-300">
-                <span id="today-tab-today-date" class="font-mono text-emerald-300 text-[11px]">--</span>
-                <span class="font-bold text-emerald-400 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Active</span>
+              <div class="pt-3 flex items-center justify-between text-xs" style="border-top: 1px solid rgba(16, 185, 129, 0.25);">
+                <span id="today-tab-today-date" class="font-mono font-semibold text-[11px]" style="color: var(--good);">--</span>
+                <span class="font-bold flex items-center gap-1" style="color: var(--good);"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Active</span>
               </div>
             </div>
 
             <!-- RIGHT: TOTAL COLLECTION -->
-            <div class="card p-5 border border-slate-700/60 flex flex-col justify-between" style="background: var(--panel);">
+            <div class="card p-5 flex flex-col justify-between" style="background: var(--panel); border: 1px solid var(--line);">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <i data-lucide="wallet" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--ink-3);">
+                  <i data-lucide="wallet" class="w-4 h-4 text-amber-500"></i>
                   <span>Total Month Collection</span>
                 </span>
                 <span id="today-tab-ach-badge" class="chip text-[11px] font-bold">0% Achieved</span>
               </div>
               <div class="my-3">
-                <div id="today-tab-total-val" class="text-2xl sm:text-3xl font-extrabold text-amber-300 font-mono-num">₹0</div>
+                <div id="today-tab-total-val" class="text-2xl sm:text-3xl font-extrabold font-mono-num" style="color: var(--ink);">₹0</div>
                 <div class="meter mt-2"><i id="today-tab-total-bar" style="width: 0%; background: var(--good)"></i></div>
               </div>
-              <div class="pt-3 border-t border-slate-700/40 flex items-center justify-between text-xs text-slate-400">
-                <span>Target: <b id="today-tab-target-val" class="text-slate-200 num">₹0</b></span>
-                <span id="today-tab-bal-val" class="font-bold text-rose-400 num">Bal: ₹0</span>
+              <div class="pt-3 flex items-center justify-between text-xs" style="border-top: 1px solid var(--line); color: var(--ink-3);">
+                <span>Target: <b id="today-tab-target-val" class="num" style="color: var(--ink);">₹0</b></span>
+                <span id="today-tab-bal-val" class="font-bold num" style="color: var(--bad);">Bal: ₹0</span>
               </div>
             </div>
 
@@ -808,14 +808,14 @@
           <div class="space-y-6">
 
             <!-- 1. DAY WISE COLLECTION GRAPH -->
-            <section class="card p-5 space-y-4" style="background: var(--panel);">
-              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/40 pb-3">
+            <section class="card p-5 space-y-4" style="background: var(--panel); border: 1px solid var(--line);">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3" style="border-bottom: 1px solid var(--line);">
                 <div class="space-y-0.5">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <h2 class="text-base font-bold text-white tracking-tight">1. Day Wise Collection Graph</h2>
+                    <h2 class="text-base font-bold tracking-tight" style="color: var(--ink);">1. Day Wise Collection Graph</h2>
                   </div>
-                  <p class="text-xs text-slate-400">Daily collection trend across every day of the active month</p>
+                  <p class="text-xs" style="color: var(--ink-3);">Daily collection trend across every day of the active month</p>
                 </div>
                 <div class="flex items-center gap-3 text-xs" id="today-tab-chart-stats">
                   <!-- Dynamically populated -->
@@ -827,14 +827,14 @@
             </section>
 
             <!-- 2. BRANCH WISE COLLECTION -->
-            <section class="card p-5 space-y-4" style="background: var(--panel);">
-              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/40 pb-3">
+            <section class="card p-5 space-y-4" style="background: var(--panel); border: 1px solid var(--line);">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3" style="border-bottom: 1px solid var(--line);">
                 <div class="space-y-0.5">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <h2 class="text-base font-bold text-white tracking-tight">2. Branch Wise Collection Summary</h2>
+                    <h2 class="text-base font-bold tracking-tight" style="color: var(--ink);">2. Branch Wise Collection Summary</h2>
                   </div>
-                  <p class="text-xs text-slate-400">Regional branch-level performance, targets, today's credit and balances</p>
+                  <p class="text-xs" style="color: var(--ink-3);">Regional branch-level performance, targets, today's credit and balances</p>
                 </div>
                 <span class="chip text-xs font-mono" id="today-tab-branch-count-badge">5 Branches</span>
               </div>
@@ -846,13 +846,13 @@
                       <th class="p-2.5">Branch Name</th>
                       <th class="p-2.5 text-center">Target (₹)</th>
                       <th class="p-2.5 text-center">AOY / MTD (₹)</th>
-                      <th class="p-2.5 text-center text-emerald-400 font-bold">Today (₹)</th>
+                      <th class="p-2.5 text-center font-bold" style="color: var(--good);">Today (₹)</th>
                       <th class="p-2.5 text-center font-bold">Total (₹)</th>
                       <th class="p-2.5 text-center">Balance (₹)</th>
                       <th class="p-2.5 text-center">Achieved %</th>
                     </tr>
                   </thead>
-                  <tbody id="today-tab-branch-tbody" class="divide-y divide-slate-800">
+                  <tbody id="today-tab-branch-tbody" class="divide-y" style="border-color: var(--line);">
                     <!-- Dynamic -->
                   </tbody>
                   <tfoot id="today-tab-branch-tfoot" class="font-bold">
@@ -863,14 +863,14 @@
             </section>
 
             <!-- 3. MANAGER WISE COLLECTION -->
-            <section class="card p-5 space-y-4" style="background: var(--panel);">
-              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/40 pb-3">
+            <section class="card p-5 space-y-4" style="background: var(--panel); border: 1px solid var(--line);">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3" style="border-bottom: 1px solid var(--line);">
                 <div class="space-y-0.5">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                    <h2 class="text-base font-bold text-white tracking-tight">3. Manager Wise Collection Summary</h2>
+                    <h2 class="text-base font-bold tracking-tight" style="color: var(--ink);">3. Manager Wise Collection Summary</h2>
                   </div>
-                  <p class="text-xs text-slate-400">Live collections by recovery managers with team caller details</p>
+                  <p class="text-xs" style="color: var(--ink-3);">Live collections by recovery managers with team caller details</p>
                 </div>
                 <span class="chip text-xs font-mono" id="today-tab-mgr-count-badge">Managers</span>
               </div>
@@ -884,14 +884,14 @@
                       <th class="p-2.5 text-center">Callers</th>
                       <th class="p-2.5 text-center">Target (₹)</th>
                       <th class="p-2.5 text-center">AOY / MTD (₹)</th>
-                      <th class="p-2.5 text-center text-emerald-400 font-bold">Today (₹)</th>
+                      <th class="p-2.5 text-center font-bold" style="color: var(--good);">Today (₹)</th>
                       <th class="p-2.5 text-center font-bold">Total (₹)</th>
                       <th class="p-2.5 text-center">Balance (₹)</th>
                       <th class="p-2.5 text-center">Achieved %</th>
                       <th class="p-2.5 text-center">Team Details</th>
                     </tr>
                   </thead>
-                  <tbody id="today-tab-manager-tbody" class="divide-y divide-slate-800">
+                  <tbody id="today-tab-manager-tbody" class="divide-y" style="border-color: var(--line);">
                     <!-- Dynamic -->
                   </tbody>
                   <tfoot id="today-tab-manager-tfoot" class="font-bold">
@@ -1012,13 +1012,13 @@
               </label>
               <label id="filter-box-manager" class="admin-only-filter field">
                 <span>Manager</span>
-                <select id="paid-filter-manager" onchange="renderPaidFileTable()" class="control">
+                <select id="paid-filter-manager" onchange="handlePaidManagerFilterChange()" class="control">
                   <option value="">All Managers</option>
                 </select>
               </label>
               <label id="filter-box-date" class="field">
                 <span>Date</span>
-                <select id="paid-filter-date" onchange="renderPaidFileTable()" class="control">
+                <input type="date" id="paid-filter-custom-date" onchange="renderPaidFileTable()" class="control mt-1 hidden" style="display:none; padding: 4px 8px; font-size: 11px;"><select id="paid-filter-date" onchange="handlePaidDateFilterChange(this.value)" class="control">
                   <option value="all">All Dates</option>
                   <option value="today">Today's Payments</option>
                   <option value="month">Current Month (MTD)</option>
@@ -1774,14 +1774,14 @@
     }
 
     function isManagerName(nameOrKey) {
-      if (!nameOrKey) return false;
+      if (!nameOrKey) return false; const rawName = String(nameOrKey || '').trim().toUpperCase(); if (rawName.includes('POONAM KANOJIA')) return false;
       const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
       const target = clean(nameOrKey);
       if (!target) return false;
       const KNOWN_MGR_NAMES = ['aditi gawade', 'aditi', 'ambuj tripathi', 'ambuj', 'shravanthi p', 'shravanthi', 'shweta singh', 'shweta', 'omkar singh', 'omkar', 'poonam i', 'poonam indulkar', 'poonam', 'smita jagtap', 'smita', 'customer service', 'customerservice', 'admin', 'ops head', 'admin ops head', 'senior management', 'management', 'shaha', 'backend operations team', 'backend'];
       for (const km of KNOWN_MGR_NAMES) {
         const cKm = clean(km);
-        if (target === cKm || (cKm.length >= 4 && (target.includes(cKm) || cKm.includes(target)))) return true;
+        if (target === cKm) return true;
       }
       if (typeof USER_CREDENTIALS !== 'undefined') {
         for (const k in USER_CREDENTIALS) {
@@ -1789,14 +1789,15 @@
           if (!u) continue;
           const uKey = clean(k); const uName = clean(u.name || ''); const uUser = clean(u.username || '');
           if (target === uKey || target === uName || target === uUser) return true;
-          if (uName && uName.length >= 4 && (target.includes(uName) || uName.includes(target))) return true;
-          if (uKey && uKey.length >= 4 && (target.includes(uKey) || uKey.includes(target))) return true;
+          if (uName && target === uName) return true;
+          if (uKey && target === uKey) return true;
         }
       }
       return false;
     }
 
     function isOfficerTombstoned(o) {
+      if (o && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => s.name === o.name && (!s.manager || s.manager === o.manager))) return false;
       if (o && isManagerName(o.name)) return true;
       if (!o) return true;
       if (o.manager && isUserDeleted(o.manager)) return true;
@@ -1824,7 +1825,7 @@
           if (data && data.length > 0 && data[0].narration) {
             const cloudTombstones = JSON.parse(data[0].narration);
             if (cloudTombstones.officers && Array.isArray(cloudTombstones.officers)) {
-              cloudTombstones.officers.forEach(k => deletedOfficerKeys.add(k));
+              cloudTombstones.officers.forEach(k => { if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => k === s.name || k.endsWith('_' + s.name))) return; deletedOfficerKeys.add(k); });
             }
             if (cloudTombstones.paidRecords && Array.isArray(cloudTombstones.paidRecords)) {
               cloudTombstones.paidRecords.forEach(id => deletedPaidRecordIds.add(String(id)));
@@ -1870,9 +1871,12 @@
     // --- Recovery Officers Template Generator (100% Fresh Blank Slate - 0 Callers) ---
     const SEED_OFFICERS = [
       { name: 'KALPITA RIKAME', aliases: 'KALPITA RIKAME', target: 291500, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 291500, achieved: 0, rank: 1, manager: 'SMITA JAGTAP' },
-      { name: 'NIDHI KADAM', aliases: 'NIDHI KADAM', target: 259600, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 259600, achieved: 0, rank: 2, manager: 'SMITA JAGTAP' }
+      { name: 'NIDHI KADAM', aliases: 'NIDHI KADAM', target: 259600, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 259600, achieved: 0, rank: 2, manager: 'SMITA JAGTAP' },
+      { name: 'POONAM KANOJIA', aliases: 'POONAM KANOJIA', target: 253000, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 253000, achieved: 0, rank: 1, manager: 'SHWETA SINGH' }
     ];
-    ['SMITA JAGTAP_KALPITA RIKAME', 'KALPITA RIKAME', 'SMITA JAGTAP_NIDHI KADAM', 'NIDHI KADAM'].forEach(k => deletedOfficerKeys.delete(k));
+    ['SMITA JAGTAP_KALPITA RIKAME', 'KALPITA RIKAME', 'SMITA JAGTAP_NIDHI KADAM', 'NIDHI KADAM', 'SHWETA SINGH_POONAM KANOJIA', 'POONAM KANOJIA'].forEach(k => deletedOfficerKeys.delete(k));
+    try { ['shaha_leaderboard_mis_v2_shweta', 'shaha_leaderboard_mis_v2_shweta_singh'].forEach(sk => { let list = []; try { list = JSON.parse(localStorage.getItem(sk)) || []; } catch(e) {} if (!Array.isArray(list)) list = []; if (!list.some(o => (o.name || '').toUpperCase().trim() === 'POONAM KANOJIA')) { list.push({ name: 'POONAM KANOJIA', aliases: 'POONAM KANOJIA', target: 253000, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 253000, achieved: 0, rank: list.length + 1, manager: 'SHWETA SINGH' }); localStorage.setItem(sk, JSON.stringify(list)); } }); } catch(e) {}
+    try { ['shaha_leaderboard_mis_v2_smita', 'shaha_leaderboard_mis_v2_smita_jagtap'].forEach(sk => { let list = []; try { list = JSON.parse(localStorage.getItem(sk)) || []; } catch(e) {} if (!Array.isArray(list)) list = []; ['KALPITA RIKAME', 'NIDHI KADAM'].forEach(name => { if (!list.some(o => (o.name || '').toUpperCase().trim() === name)) { const seed = SEED_OFFICERS.find(s => s.name === name); if (seed) list.push(JSON.parse(JSON.stringify(seed))); } }); localStorage.setItem(sk, JSON.stringify(list)); }); } catch(e) {}
 
     function createFreshLeaderboardOfficers() {
       return JSON.parse(JSON.stringify(SEED_OFFICERS));
@@ -2005,7 +2009,7 @@
         const cleanMgr = String(manager || '').trim().toUpperCase();
         const comboKey = `${cleanMgr}_${cleanName}`;
         const nameKey = cleanName;
-        if (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey) || isManagerName(cleanName)) return;
+        const isSeedCaller = typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => s.name === cleanName); if (!isSeedCaller && (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey))) return; if (isManagerName(cleanName)) return;
         if (isUserDeleted(manager)) return;
         if (seenCombo.has(comboKey) || seenCombo.has(nameKey)) return;
 
@@ -2133,14 +2137,14 @@
         let opts = '';
         mgrs.forEach(m => { opts += `<option value="${m}">${m}</option>`; });
         offMgrInput.innerHTML = opts;
-        if (cur) offMgrInput.value = cur;
+        if (cur) offMgrInput.value = cur; } if (typeof updatePaidOfficerFilterDropdown === 'function') updatePaidOfficerFilterDropdown(); if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown(); } /*
       }
     }
 
     // ==========================================
     // SUPABASE CLOUD SYNC
     // ==========================================
-    let realtimeChannel = null;
+    */ let realtimeChannel = null;
     let lastKnownServerTime = 0;
     let isRemoteSyncInProgress = false;
     let portalSyncBroadcast = null;
@@ -2950,6 +2954,15 @@
               } catch(e) {}
             }
           }
+          if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+            SEED_OFFICERS.forEach(o => {
+              const k = `${(o.manager || '').toUpperCase()}_${(o.name || '').toUpperCase()}`;
+              if (!isOfficerTombstoned(o) && !seenAdminKeys.has(k)) {
+                seenAdminKeys.add(k);
+                allAdminCallers.push(JSON.parse(JSON.stringify(o)));
+              }
+            });
+          }
           if (allAdminCallers.length > 0) {
             leaderboardOfficers = allAdminCallers;
             loaded = true;
@@ -3025,8 +3038,8 @@
             }
 
             if (allOfficers.length > 0) {
-              SEED_OFFICERS.forEach(s => { if (!isOfficerTombstoned(s) && !allOfficers.some(o => (o.name || '').toUpperCase().trim() === (s.name || '').toUpperCase().trim())) allOfficers.push(Object.assign({}, s)); }); leaderboardOfficers = allOfficers;
-              localStorage.setItem(localKey, JSON.stringify(allOfficers));
+              const mergedAdmin = [...leaderboardOfficers]; allOfficers.forEach(cOff => { const uKey = `${(cOff.manager || '').toUpperCase().trim()}_${(cOff.name || '').toUpperCase().trim()}`; const mIdx = mergedAdmin.findIndex(m => `${(m.manager || '').toUpperCase().trim()}_${(m.name || '').toUpperCase().trim()}` === uKey); if (mIdx >= 0) { mergedAdmin[mIdx] = Object.assign({}, mergedAdmin[mIdx], cOff); } else if (!isOfficerTombstoned(cOff)) { mergedAdmin.push(cOff); } }); leaderboardOfficers = mergedAdmin;
+              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
               loaded = true;
             }
           } catch(e) {}
@@ -3493,9 +3506,9 @@
 
       if (statsEl) {
         statsEl.innerHTML = `
-          <span class="chip"><b class="num text-white">${fmtShortInr(monthSum)}</b> Month Total</span>
-          <span class="chip"><b class="num text-accent">${bestDay ? 'Day ' + bestDay + ' (' + fmtShortInr(best) + ')' : '--'}</b> Peak Day</span>
-          <span class="chip"><b class="num text-info">${fmtShortInr(need)}/day</b> Run-rate</span>
+          <span class="chip"><b class="num" style="color: var(--ink);">${fmtShortInr(monthSum)}</b> Month Total</span>
+          <span class="chip"><b class="num" style="color: var(--accent);">${bestDay ? 'Day ' + bestDay + ' (' + fmtShortInr(best) + ')' : '--'}</b> Peak Day</span>
+          <span class="chip"><b class="num" style="color: var(--info);">${fmtShortInr(need)}/day</b> Run-rate</span>
         `;
       }
     }
@@ -3567,18 +3580,18 @@
 
         const achievedStyle = getAchievedBgColor(achievedPct);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40 transition';
+        tr.style.borderBottom = '1px solid var(--line)';
         tr.innerHTML = `
-          <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
-          <td class="p-2.5 font-bold text-white flex items-center gap-2">
-            <i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-400"></i>
+          <td class="p-2.5 text-center font-bold" style="color: var(--ink-3);">${idx + 1}</td>
+          <td class="p-2.5 font-bold flex items-center gap-2" style="color: var(--ink);">
+            <i data-lucide="building-2" class="w-3.5 h-3.5" style="color: var(--info);"></i>
             <span>${bItem.branch}</span>
           </td>
-          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(target)}</td>
-          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(aoy)}</td>
-          <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(today)}</td>
-          <td class="p-2.5 text-center font-mono num font-black text-white">${formatCurrency(total)}</td>
-          <td class="p-2.5 text-center font-mono num font-bold text-rose-400">${formatCurrency(balance)}</td>
+          <td class="p-2.5 text-center font-mono num" style="color: var(--ink-2);">${formatCurrency(target)}</td>
+          <td class="p-2.5 text-center font-mono num" style="color: var(--ink-2);">${formatCurrency(aoy)}</td>
+          <td class="p-2.5 text-center font-mono num font-black" style="color: var(--good);">${formatCurrency(today)}</td>
+          <td class="p-2.5 text-center font-mono num font-black" style="color: var(--ink);">${formatCurrency(total)}</td>
+          <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(balance)}</td>
           <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded text-xs font-bold" style="${achievedStyle}">${achievedPct}%</span></td>
         `;
         tbody.appendChild(tr);
@@ -3587,14 +3600,14 @@
       if (tfoot) {
         let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
         tfoot.innerHTML = `
-          <tr class="bg-slate-800/60 text-white border-t-2 border-slate-700">
-            <td colspan="2" class="p-2.5 text-left font-black uppercase tracking-wider text-amber-300">TOTAL</td>
-            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumTarget)}</td>
-            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumAoy)}</td>
-            <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(sumToday)}</td>
-            <td class="p-2.5 text-center font-mono num font-black text-amber-300">${formatCurrency(sumTotal)}</td>
-            <td class="p-2.5 text-center font-mono num font-bold text-rose-300">${formatCurrency(sumBalance)}</td>
-            <td class="p-2.5 text-center font-bold text-amber-300">${avgAchieved}%</td>
+          <tr style="background: var(--raised-2); border-top: 2px solid var(--line); color: var(--ink);">
+            <td colspan="2" class="p-2.5 text-left font-black uppercase tracking-wider" style="color: var(--ink);">TOTAL</td>
+            <td class="p-2.5 text-center font-mono num" style="color: var(--ink);">${formatCurrency(sumTarget)}</td>
+            <td class="p-2.5 text-center font-mono num" style="color: var(--ink);">${formatCurrency(sumAoy)}</td>
+            <td class="p-2.5 text-center font-mono num font-black" style="color: var(--good);">${formatCurrency(sumToday)}</td>
+            <td class="p-2.5 text-center font-mono num font-black" style="color: var(--ink);">${formatCurrency(sumTotal)}</td>
+            <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(sumBalance)}</td>
+            <td class="p-2.5 text-center font-bold" style="color: var(--ink);">${avgAchieved}%</td>
           </tr>
         `;
       }
@@ -3684,23 +3697,23 @@
 
         const achievedStyle = getAchievedBgColor(achievedPct);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40 transition';
+        tr.style.borderBottom = '1px solid var(--line)';
         tr.innerHTML = `
-          <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
-          <td class="p-2.5 font-bold text-white flex items-center gap-2">
-            <div class="w-6 h-6 rounded-full bg-blue-900/60 text-blue-300 font-bold flex items-center justify-center text-[10px]">${mItem.name.charAt(0)}</div>
+          <td class="p-2.5 text-center font-bold" style="color: var(--ink-3);">${idx + 1}</td>
+          <td class="p-2.5 font-bold flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px]" style="background: var(--raised-2); color: var(--info); border: 1px solid var(--line);">${mItem.name.charAt(0)}</div>
             <span>${mItem.name}</span>
           </td>
-          <td class="p-2.5 text-center text-slate-400">${mItem.branch}</td>
+          <td class="p-2.5 text-center" style="color: var(--ink-2);">${mItem.branch}</td>
           <td class="p-2.5 text-center"><span class="chip text-[11px] font-mono">${mItem.callersCount} Callers</span></td>
-          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(target)}</td>
-          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(aoy)}</td>
-          <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(today)}</td>
-          <td class="p-2.5 text-center font-mono num font-black text-white">${formatCurrency(total)}</td>
-          <td class="p-2.5 text-center font-mono num font-bold text-rose-400">${formatCurrency(balance)}</td>
+          <td class="p-2.5 text-center font-mono num" style="color: var(--ink-2);">${formatCurrency(target)}</td>
+          <td class="p-2.5 text-center font-mono num" style="color: var(--ink-2);">${formatCurrency(aoy)}</td>
+          <td class="p-2.5 text-center font-mono num font-black" style="color: var(--good);">${formatCurrency(today)}</td>
+          <td class="p-2.5 text-center font-mono num font-black" style="color: var(--ink);">${formatCurrency(total)}</td>
+          <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(balance)}</td>
           <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded text-xs font-bold" style="${achievedStyle}">${achievedPct}%</span></td>
           <td class="p-2.5 text-center">
-            <button type="button" onclick="openManagerSlideDrawer('${mItem.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded bg-slate-700/60 hover:bg-blue-600 hover:text-white text-slate-200 text-[11px] font-bold transition flex items-center gap-1 mx-auto cursor-pointer">
+            <button type="button" onclick="openManagerSlideDrawer('${mItem.name.replace(/'/g, "\\'")}')" class="btn text-[11px] font-bold py-1 px-2.5 mx-auto flex items-center gap-1 cursor-pointer">
               <i data-lucide="eye" class="w-3 h-3"></i>
               <span>View Team</span>
             </button>
@@ -3712,14 +3725,14 @@
       if (tfoot) {
         let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
         tfoot.innerHTML = `
-          <tr class="bg-slate-800/60 text-white border-t-2 border-slate-700">
-            <td colspan="4" class="p-2.5 text-left font-black uppercase tracking-wider text-amber-300">TOTAL</td>
-            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumTarget)}</td>
-            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumAoy)}</td>
-            <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(sumToday)}</td>
-            <td class="p-2.5 text-center font-mono num font-black text-amber-300">${formatCurrency(sumTotal)}</td>
-            <td class="p-2.5 text-center font-mono num font-bold text-rose-300">${formatCurrency(sumBalance)}</td>
-            <td class="p-2.5 text-center font-bold text-amber-300">${avgAchieved}%</td>
+          <tr style="background: var(--raised-2); border-top: 2px solid var(--line); color: var(--ink);">
+            <td colspan="4" class="p-2.5 text-left font-black uppercase tracking-wider" style="color: var(--ink);">TOTAL</td>
+            <td class="p-2.5 text-center font-mono num" style="color: var(--ink);">${formatCurrency(sumTarget)}</td>
+            <td class="p-2.5 text-center font-mono num" style="color: var(--ink);">${formatCurrency(sumAoy)}</td>
+            <td class="p-2.5 text-center font-mono num font-black" style="color: var(--good);">${formatCurrency(sumToday)}</td>
+            <td class="p-2.5 text-center font-mono num font-black" style="color: var(--ink);">${formatCurrency(sumTotal)}</td>
+            <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(sumBalance)}</td>
+            <td class="p-2.5 text-center font-bold" style="color: var(--ink);">${avgAchieved}%</td>
             <td class="p-2.5"></td>
           </tr>
         `;
@@ -3892,7 +3905,7 @@
           }
         });
         if (false) {
-*/              if (leaderboardOfficers.length === 0) leaderboardOfficers = []; renderLeaderboardMIS();
+*/              const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND'); const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || ''; if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) { leaderboardOfficers = isAdm ? JSON.parse(JSON.stringify(SEED_OFFICERS)) : JSON.parse(JSON.stringify(SEED_OFFICERS.filter(o => isOfficerUnderManager(o, myDisplayName)))); } renderLeaderboardMIS();
               await loadPaidFileFromCloud();
               await loadLeaderboardFromCloud();
               syncLiveCollectionFromPaidFile(false);
@@ -4307,6 +4320,7 @@
       document.getElementById('paid-case-modal').classList.add('hidden');
     }
 
+    function resolveCallerManagerForAdd() { if (currentRole === 'MANAGER') { return (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP'; } const pMgr = document.getElementById('paid-filter-manager'); if (pMgr && pMgr.value && pMgr.value !== 'all' && pMgr.value !== 'All Managers') return pMgr.value; const mFilt = document.getElementById('mis-filter-manager'); if (mFilt && mFilt.value && mFilt.value !== 'all' && mFilt.value !== 'All Managers') return mFilt.value; const offMgr = document.getElementById('officer-input-manager'); if (offMgr && offMgr.value && !offMgr.value.toLowerCase().includes('admin') && !offMgr.value.toLowerCase().includes('management')) return offMgr.value; return prompt('Assign caller to which Manager (e.g. SMITA JAGTAP, SHWETA SINGH, AMBUJ TRIPATHI)?', 'SMITA JAGTAP') || 'SMITA JAGTAP'; }
     async function quickAddNewCallerFromModal() {
       const callerName = prompt("Enter Caller / Recovery Officer Name:");
       if (!callerName || !callerName.trim()) return;
@@ -4319,7 +4333,7 @@
         selectPaidCaller(existing.name, existing.manager || '');
         return;
       }
-      const myMgrForCaller = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP'; deletedOfficerKeys.delete(cleanName); deletedOfficerKeys.delete(`${myMgrForCaller.toUpperCase().trim()}_${cleanName}`); localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+      const myMgrForCaller = resolveCallerManagerForAdd(); deletedOfficerKeys.delete(cleanName); deletedOfficerKeys.delete(`${myMgrForCaller.toUpperCase().trim()}_${cleanName}`); for (const k of Array.from(deletedOfficerKeys)) { if (k === cleanName || k.endsWith('_' + cleanName)) deletedOfficerKeys.delete(k); } await saveDeletedTombstonesToCloud();
       leaderboardOfficers.push({
         name: cleanName,
         aliases: cleanName,
@@ -4336,7 +4350,7 @@
       });
       populateOfficerDropdowns();
       const sel = document.getElementById('paid-select-officer');
-      selectPaidCaller(cleanName, myMgrForCaller);
+      selectPaidCaller(cleanName, myMgrForCaller); const mk = getManagerStorageKey(myMgrForCaller); try { let mgrList = JSON.parse(localStorage.getItem('shaha_leaderboard_mis_v2_' + mk)) || []; if (!Array.isArray(mgrList)) mgrList = []; mgrList.push({ name: cleanName, aliases: cleanName, target: 0, baseline_aoy: 0, aoy: 0, today: 0, total: 0, balance: 0, projection: 0, achieved: 0, rank: mgrList.length + 1, manager: myMgrForCaller }); localStorage.setItem('shaha_leaderboard_mis_v2_' + mk, JSON.stringify(mgrList)); } catch(e) {} localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(leaderboardOfficers)); lastKnownServerTime = Date.now() + 15000;
       syncLiveCollectionFromPaidFile(false);
       await saveLeaderboardToCloud(false);
       showToast(`Caller '${cleanName}' added & selected!`, 'success');
@@ -4468,7 +4482,7 @@
         return;
       }
       const cleanName = suggestedName.trim().toUpperCase();
-      const myMgrForCaller = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+      const myMgrForCaller = resolveCallerManagerForAdd(); deletedOfficerKeys.delete(cleanName); deletedOfficerKeys.delete(`${myMgrForCaller.toUpperCase().trim()}_${cleanName}`); for (const k of Array.from(deletedOfficerKeys)) { if (k === cleanName || k.endsWith('_' + cleanName)) deletedOfficerKeys.delete(k); } await saveDeletedTombstonesToCloud();
       deletedOfficerKeys.delete(cleanName);
       deletedOfficerKeys.delete(`${myMgrForCaller.toUpperCase().trim()}_${cleanName}`);
       localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
@@ -4489,7 +4503,7 @@
       });
 
       populateOfficerDropdowns();
-      selectPaidCaller(cleanName, myMgrForCaller);
+      selectPaidCaller(cleanName, myMgrForCaller); const mk = getManagerStorageKey(myMgrForCaller); try { let mgrList = JSON.parse(localStorage.getItem('shaha_leaderboard_mis_v2_' + mk)) || []; if (!Array.isArray(mgrList)) mgrList = []; mgrList.push({ name: cleanName, aliases: cleanName, target: 0, baseline_aoy: 0, aoy: 0, today: 0, total: 0, balance: 0, projection: 0, achieved: 0, rank: mgrList.length + 1, manager: myMgrForCaller }); localStorage.setItem('shaha_leaderboard_mis_v2_' + mk, JSON.stringify(mgrList)); } catch(e) {} localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(leaderboardOfficers)); lastKnownServerTime = Date.now() + 15000;
       syncLiveCollectionFromPaidFile(false);
       await saveLeaderboardToCloud(false);
       showToast(`Caller '${cleanName}' added & selected!`, 'success');
@@ -4649,7 +4663,7 @@
         showToast(`Added ₹${amount.toLocaleString('en-IN')} payment for ${custName}!`, 'success');
       }
 
-      closePaidCaseModal();
+      closePaidCaseModal(); if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
       // Auto-update master paid records in localStorage so Admin immediately reflects it
@@ -4680,7 +4694,7 @@
       await saveDeletedTombstonesToCloud();
 
       paidFileRecords = paidFileRecords.filter(r => r.id !== editId);
-      closePaidCaseModal();
+      closePaidCaseModal(); if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
 
@@ -4717,6 +4731,7 @@
       }
 
       showToast(`Payment of ₹${item.amount} for ${item.cust_name} deleted and synced with Admin!`, 'info');
+      if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
     }
 
     // ==========================================
@@ -4731,14 +4746,18 @@
 
       const q = (document.getElementById('paid-filter-search') ? document.getElementById('paid-filter-search').value : '').toLowerCase().trim();
       const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
-      const fOff = document.getElementById('paid-filter-officer') ? document.getElementById('paid-filter-officer').value : '';
-      const fBank = document.getElementById('paid-filter-bank') ? document.getElementById('paid-filter-bank').value : '';
-      const fMgr = (isAdm && document.getElementById('paid-filter-manager')) ? document.getElementById('paid-filter-manager').value : '';
-      const fDate = document.getElementById('paid-filter-date') ? document.getElementById('paid-filter-date').value : 'all';
+      const fOff = document.getElementById('paid-filter-officer') ? document.getElementById('paid-filter-officer').value.trim() : '';
+      const fBank = document.getElementById('paid-filter-bank') ? document.getElementById('paid-filter-bank').value.trim() : '';
+      const fMgr = (isAdm && document.getElementById('paid-filter-manager')) ? document.getElementById('paid-filter-manager').value.trim() : '';
+      const fDate = document.getElementById('paid-filter-date') ? document.getElementById('paid-filter-date').value.trim() : 'all';
+      const customDateInp = document.getElementById('paid-filter-custom-date') ? document.getElementById('paid-filter-custom-date').value.trim() : '';
 
       const todayStr = getTodayFormattedStr();
       const curMonth = (new Date()).getMonth();
       const curYear = (new Date()).getFullYear();
+      const yestDate = new Date(); yestDate.setDate(yestDate.getDate() - 1);
+      const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const yestStr = `${String(yestDate.getDate()).padStart(2, '0')}-${monthsList[yestDate.getMonth()]}-${yestDate.getFullYear()}`;
 
       const myManagerName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
       const myOwnedRecords = isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myManagerName));
@@ -4754,21 +4773,50 @@
           const matchQ = (r.cust_id || '').toLowerCase().includes(q) ||
                          (r.cust_name || '').toLowerCase().includes(q) ||
                          (r.narr || '').toLowerCase().includes(q) ||
-                         (r.officer || '').toLowerCase().includes(q);
+                         (r.officer || '').toLowerCase().includes(q) ||
+                         (r.manager || '').toLowerCase().includes(q) ||
+                         (r.bank || '').toLowerCase().includes(q) ||
+                         (r.portfolio || '').toLowerCase().includes(q) ||
+                         (r.mode || '').toLowerCase().includes(q) ||
+                         (r.pay_date || '').toLowerCase().includes(q) ||
+                         String(r.amount || '').includes(q);
           if (!matchQ) return false;
         }
 
         // Officer
-        if (fOff && !isOfficerMatch({ name: fOff }, r.officer) && !(r.officer || '').toUpperCase().includes(fOff.toUpperCase())) return false;
+        if (fOff) {
+          const matchSingle = isOfficerMatch({ name: fOff }, r.officer) || (r.officer || '').toUpperCase().includes(fOff.toUpperCase());
+          let matchSplit = false;
+          if (r.splits && Array.isArray(r.splits)) {
+            matchSplit = r.splits.some(s => s && (isOfficerMatch({ name: fOff }, s.officer) || (s.officer || '').toUpperCase().includes(fOff.toUpperCase())));
+          }
+          if (!matchSingle && !matchSplit) return false;
+        }
 
         // Bank
-        if (fBank && r.bank !== fBank) return false;
+        if (fBank && String(r.bank || '').toUpperCase().trim() !== String(fBank).toUpperCase().trim()) return false;
 
         // Manager
-        if (fMgr && !isRecordOwnedByManager(r, fMgr) && r.manager !== fMgr) return false;
+        if (fMgr && fMgr !== 'all' && fMgr !== 'All Managers') {
+          if (!isRecordOwnedByManager(r, fMgr) && !isOfficerUnderManager({ manager: r.manager }, fMgr)) return false;
+        }
 
         // Date Filter
-        if (fDate === 'today') {
+        if (fDate && fDate !== 'all') {
+          if (fDate === 'today') {
+            if (!isSameDate(r.pay_date, todayStr)) return false;
+          } else if (fDate === 'yesterday') {
+            if (!isSameDate(r.pay_date, yestStr)) return false;
+          } else if (fDate === 'month') {
+            const p = parseDateParts(r.pay_date);
+            if (!p || (p.m - 1 !== curMonth || p.y !== curYear)) return false;
+          } else if (fDate === 'custom') {
+            if (customDateInp && !isSameDate(r.pay_date, customDateInp)) return false;
+          } else {
+            if (!isSameDate(r.pay_date, fDate)) return false;
+          }
+        }
+        if (false) {
           if (r.pay_date !== todayStr) return false;
         } else if (fDate === 'month') {
           const p = parseDateParts(r.pay_date);
@@ -4927,6 +4975,169 @@
       return null;
     }
 
+    // CHECK IF OFFICER BELONGS UNDER MANAGER
+    function isOfficerUnderManager(officer, managerIdentifier) {
+      if (!officer) return false;
+      const targetMgr = String(managerIdentifier || '').toLowerCase().trim();
+      if (!targetMgr || targetMgr === 'all' || targetMgr === 'all managers') return true;
+
+      const offMgr = String(officer.manager || '').toLowerCase().trim();
+      if (offMgr && offMgr === targetMgr) return true;
+
+      const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+      const cTarget = clean(targetMgr);
+      const cOffMgr = clean(offMgr);
+
+      if (cOffMgr && cOffMgr === cTarget) return true;
+
+      const noSpaceTarget = cTarget.replace(/\s/g, '');
+      const noSpaceOffMgr = cOffMgr.replace(/\s/g, '');
+      if (noSpaceOffMgr && noSpaceOffMgr === noSpaceTarget) return true;
+
+      const offWords = cOffMgr.split(' ').filter(Boolean);
+      const targetWords = cTarget.split(' ').filter(Boolean);
+      if (offWords.length > 0 && targetWords.length > 0) {
+        if (offWords[0] === targetWords[0] && offWords[0].length >= 3) return true;
+        if (offWords.some(w => w.length >= 3 && targetWords.includes(w))) return true;
+      }
+
+      const offName = String(officer.name || '').toLowerCase().trim();
+      if (offName.includes('(') && offName.includes(')')) {
+        const parenContent = offName.substring(offName.indexOf('(') + 1, offName.lastIndexOf(')')).trim();
+        const cParen = clean(parenContent);
+        if (cParen === cTarget || cParen.includes(cTarget) || cTarget.includes(cParen)) return true;
+      }
+
+      if (typeof USER_CREDENTIALS !== 'undefined') {
+        for (const k in USER_CREDENTIALS) {
+          const u = USER_CREDENTIALS[k];
+          const uClean = clean(u.name || '');
+          const kClean = clean(k);
+          const uUser = clean(u.username || '');
+          const isTargetMatch = (cTarget === uClean || cTarget === kClean || cTarget === uUser || (cTarget && uClean && (cTarget.includes(uClean) || uClean.includes(cTarget))));
+          if (isTargetMatch) {
+            if (cOffMgr === uClean || cOffMgr === kClean || cOffMgr === uUser || (cOffMgr && uClean && (cOffMgr.includes(uClean) || uClean.includes(cOffMgr)))) {
+              return true;
+            }
+          }
+        }
+      }
+
+      return false;
+    }
+
+    function updatePaidOfficerFilterDropdown() {
+      const filtOff = document.getElementById('paid-filter-officer');
+      const filtMgr = document.getElementById('paid-filter-manager');
+      if (!filtOff) return;
+
+      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const selectedMgr = (isAdm && filtMgr) ? filtMgr.value.trim() : (currentUser ? (currentUser.name || currentUser.username) : currentManager || '');
+      const curSelectedOff = filtOff.value;
+
+      const allOfficers = getAllCallersForSelection();
+      let filteredOfficers = allOfficers;
+
+      if (selectedMgr && selectedMgr !== 'all' && selectedMgr !== 'All Managers') {
+        filteredOfficers = allOfficers.filter(o => isOfficerUnderManager(o, selectedMgr));
+      }
+
+      let html = '';
+      if (selectedMgr && selectedMgr !== 'all' && selectedMgr !== 'All Managers') {
+        html = `<option value="">All Recovery Officers (${filteredOfficers.length} Callers under ${selectedMgr})</option>`;
+      } else {
+        html = `<option value="">All Recovery Officers (${allOfficers.length} Callers)</option>`;
+      }
+
+      filteredOfficers.forEach(o => {
+        const mgrSuffix = o.manager ? ` (${o.manager})` : '';
+        html += `<option value="${o.name}">${o.name}${mgrSuffix}</option>`;
+      });
+
+      filtOff.innerHTML = html;
+
+      if (curSelectedOff && filteredOfficers.some(o => o.name === curSelectedOff)) {
+        filtOff.value = curSelectedOff;
+      } else {
+        filtOff.value = '';
+      }
+    }
+
+    function handlePaidManagerFilterChange() {
+      updatePaidOfficerFilterDropdown();
+      renderPaidFileTable();
+    }
+
+    function updatePaidDateFilterDropdown() {
+      const filtDate = document.getElementById('paid-filter-date');
+      if (!filtDate) return;
+      const curVal = filtDate.value;
+
+      const todayStr = getTodayFormattedStr();
+      const dateCounts = {};
+
+      (paidFileRecords || []).forEach(r => {
+        if (r && r.pay_date) {
+          const d = String(r.pay_date).trim();
+          if (d) dateCounts[d] = (dateCounts[d] || 0) + 1;
+        }
+      });
+
+      const uniqueDates = Object.keys(dateCounts).sort((a, b) => {
+        const pa = parseDateParts(a);
+        const pb = parseDateParts(b);
+        if (!pa || !pb) return a.localeCompare(b);
+        const da = new Date(pa.y, pa.m - 1, pa.d).getTime();
+        const db = new Date(pb.y, pb.m - 1, pb.d).getTime();
+        return db - da;
+      });
+
+      let html = `
+        <option value="all">All Dates</option>
+        <option value="today">Today (${todayStr})</option>
+        <option value="yesterday">Yesterday</option>
+        <option value="month">Current Month (MTD)</option>
+      `;
+
+      if (uniqueDates.length > 0) {
+        html += `<optgroup label="Specific Payment Dates (${uniqueDates.length})">`;
+        uniqueDates.forEach(d => {
+          const isToday = isSameDate(d, todayStr);
+          const label = isToday ? `${d} (Today - ${dateCounts[d]} Cases)` : `${d} (${dateCounts[d]} Cases)`;
+          html += `<option value="${d}">${label}</option>`;
+        });
+        html += `</optgroup>`;
+      }
+
+      html += `<option value="custom">📅 Custom Date (Pick Calendar)...</option>`;
+
+      filtDate.innerHTML = html;
+      if (curVal && (curVal === 'all' || curVal === 'today' || curVal === 'yesterday' || curVal === 'month' || curVal === 'custom' || dateCounts[curVal])) {
+        filtDate.value = curVal;
+      }
+    }
+
+    function handlePaidDateFilterChange(val) {
+      const customInp = document.getElementById('paid-filter-custom-date');
+      if (customInp) {
+        if (val === 'custom') {
+          customInp.classList.remove('hidden');
+          customInp.style.display = 'block';
+          if (!customInp.value) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            customInp.value = `${y}-${m}-${d}`;
+          }
+        } else {
+          customInp.classList.add('hidden');
+          customInp.style.display = 'none';
+        }
+      }
+      renderPaidFileTable();
+    }
+
     // STRICT MANAGER DATA PRIVACY & ACCESS ISOLATION
     function isRecordOwnedByManager(record, managerIdentifier) {
       if (!record) return false;
@@ -4950,6 +5161,23 @@
         if (recWords[0] === targetWords[0] && recWords[0].length >= 3) {
           if (recWords.length === 1 || targetWords.length === 1) return true;
           if (recWords[recWords.length - 1] === targetWords[targetWords.length - 1]) return true;
+        }
+      }
+      if (record.officer) {
+        const allCallers = typeof getAllCallersForSelection === 'function' ? getAllCallersForSelection() : (leaderboardOfficers || []);
+        const matched = allCallers.find(o => isOfficerMatch(o, record.officer));
+        if (matched && isOfficerUnderManager(matched, targetMgr)) return true;
+      }
+      if (record.splits && Array.isArray(record.splits)) {
+        const allCallers = typeof getAllCallersForSelection === 'function' ? getAllCallersForSelection() : (leaderboardOfficers || []);
+        for (const s of record.splits) {
+          if (s && s.officer) {
+            const matched = allCallers.find(o => isOfficerMatch(o, s.officer));
+            if (matched && isOfficerUnderManager(matched, targetMgr)) return true;
+          }
+        }
+      }
+      if (false) {
         }
       }
       return false;
@@ -5182,7 +5410,7 @@ function renderLeaderboardMIS() {
       if (currentRole === 'MANAGER') {
         const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
         displayList = displayList.filter(o => { if (!o || isOfficerTombstoned(o)) return false; return isOfficerUnderManager(o, myName); });
-      } else if (selectedFilterMgr) {
+      } else if (selectedFilterMgr && selectedFilterMgr !== 'all' && selectedFilterMgr !== 'All Managers') {
         displayList = displayList.filter(o => isOfficerUnderManager(o, selectedFilterMgr));
       }
 
@@ -5312,7 +5540,7 @@ function renderLeaderboardMIS() {
       const offMgrInput = document.getElementById('officer-input-manager');
       if (offMgrInput) {
         populateOfficerDropdowns();
-        const targetMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        const targetMgr = (currentRole === 'ADMIN') ? ((document.getElementById('mis-filter-manager') && document.getElementById('mis-filter-manager').value) || (offMgrInput.options[0] ? offMgrInput.options[0].value : 'SMITA JAGTAP')) : ((currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP');
         let matched = false;
         for (let i = 0; i < offMgrInput.options.length; i++) {
           if (offMgrInput.options[i].value.toLowerCase().trim() === targetMgr.toLowerCase().trim()) {
@@ -5402,7 +5630,7 @@ function renderLeaderboardMIS() {
         chosenMgr = document.getElementById('officer-input-manager').value;
       }
       if (!chosenMgr) {
-        chosenMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'SMITA JAGTAP';
+        chosenMgr = (document.getElementById('mis-filter-manager') && document.getElementById('mis-filter-manager').value) || 'SMITA JAGTAP';
       }
 
       if (!name) {
@@ -5438,7 +5666,7 @@ function renderLeaderboardMIS() {
         });
         const callerKey = `${(chosenMgr || '').toUpperCase().trim()}_${name}`;
         deletedOfficerKeys.delete(callerKey);
-        deletedOfficerKeys.delete(name);
+        deletedOfficerKeys.delete(name); for (const k of Array.from(deletedOfficerKeys)) { if (k === name || k === callerKey || k.endsWith('_' + name)) deletedOfficerKeys.delete(k); } await saveDeletedTombstonesToCloud();
         localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
         if (supabaseClient) {
           try {
@@ -5458,8 +5686,8 @@ function renderLeaderboardMIS() {
 
       closeOfficerModal();
       const { localKey: sLocalKey } = getLeaderboardStorageKeys();
-      localStorage.setItem(sLocalKey, JSON.stringify(leaderboardOfficers));
-      lastKnownServerTime = Date.now() + 8000;
+      const sMk = getManagerStorageKey(chosenMgr); try { let mgrList = JSON.parse(localStorage.getItem('shaha_leaderboard_mis_v2_' + sMk)) || []; if (!Array.isArray(mgrList)) mgrList = []; const offObj = leaderboardOfficers.find(o => (o.name || '').toUpperCase().trim() === name); if (offObj) { const mIdx = mgrList.findIndex(o => (o.name || '').toUpperCase().trim() === name); if (mIdx >= 0) mgrList[mIdx] = offObj; else mgrList.push(offObj); localStorage.setItem('shaha_leaderboard_mis_v2_' + sMk, JSON.stringify(mgrList)); } } catch(e) {} localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(leaderboardOfficers));
+      lastKnownServerTime = Date.now() + 15000;
       populateOfficerDropdowns();
       syncLiveCollectionFromPaidFile(false);
       await saveLeaderboardToCloud(true);
@@ -5469,8 +5697,9 @@ function renderLeaderboardMIS() {
       const idx = parseInt(document.getElementById('officer-edit-idx').value, 10);
       if (idx >= 0 && idx < leaderboardOfficers.length) {
         const off = leaderboardOfficers[idx];
-        const offName = off.name;
+        const offName = off.name; const name = offName;
         const offMgr = off.manager || currentManager || '';
+        const chosenMgr = offMgr;
         const callerKey = `${offMgr.toUpperCase().trim()}_${offName.toUpperCase().trim()}`;
         const nameOnlyKey = offName.toUpperCase().trim();
 
@@ -5483,8 +5712,8 @@ function renderLeaderboardMIS() {
         leaderboardOfficers.splice(idx, 1);
         closeOfficerModal();
       const { localKey: sLocalKey } = getLeaderboardStorageKeys();
-      localStorage.setItem(sLocalKey, JSON.stringify(leaderboardOfficers));
-      lastKnownServerTime = Date.now() + 8000;
+      const sMk = getManagerStorageKey(chosenMgr); try { let mgrList = JSON.parse(localStorage.getItem('shaha_leaderboard_mis_v2_' + sMk)) || []; if (!Array.isArray(mgrList)) mgrList = []; const offObj = leaderboardOfficers.find(o => (o.name || '').toUpperCase().trim() === name); if (offObj) { const mIdx = mgrList.findIndex(o => (o.name || '').toUpperCase().trim() === name); if (mIdx >= 0) mgrList[mIdx] = offObj; else mgrList.push(offObj); localStorage.setItem('shaha_leaderboard_mis_v2_' + sMk, JSON.stringify(mgrList)); } } catch(e) {} localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(leaderboardOfficers));
+      lastKnownServerTime = Date.now() + 15000;
         populateOfficerDropdowns();
         syncLiveCollectionFromPaidFile(false);
 
@@ -6447,7 +6676,7 @@ function renderLeaderboardMIS() {
     // ==========================================
     // MANAGER WISE COLLECTION & SLIDE DRILLDOWN
     // ==========================================
-    function isOfficerUnderManager(officer, managerName) {
+    function _deprecated_isOfficerUnderManager_dup(officer, managerName) {
       if (!officer || !managerName) return false;
       const offMgr = String(officer.manager || '').toLowerCase().trim();
       const targetMgr = String(managerName).toLowerCase().trim();
