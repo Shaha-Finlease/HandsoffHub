@@ -515,6 +515,7 @@
       <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-item tab-btn-active">
         <i data-lucide="layout-grid"></i><span>Overview</span>
       </button>
+      <button onclick="switchTab('today-collection')" id="tab-today-collection" class="nav-item tab-btn-inactive"><i data-lucide="calendar-check"></i><span>Today Collection</span></button>
       <button onclick="switchTab('mis-report')" id="tab-mis-report" class="nav-item tab-btn-inactive">
         <i data-lucide="table-2"></i><span>Daily MIS</span>
       </button>
@@ -711,6 +712,198 @@
         <!-- ============================================ -->
         <!-- DAILY MIS                                    -->
         <!-- ============================================ -->
+        <!-- ============================================ -->
+        <!-- TODAY COLLECTION (LIVE HUB)                  -->
+        <!-- ============================================ -->
+        <div id="content-today-collection" class="space-y-6 hidden">
+          <div class="page-head">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Live Collection Pulse
+                </span>
+                <span id="today-tab-date-badge" class="text-xs text-slate-400 font-mono">--</span>
+              </div>
+              <h1 class="text-2xl font-bold tracking-tight text-white">Today Collection</h1>
+              <p class="text-xs text-slate-400 mt-1">Real-time daily collection breakdown, regional branch totals, and manager analytics.</p>
+            </div>
+            <div class="actions flex items-center gap-2">
+              <button onclick="handleAppRefresh()" class="btn" title="Refresh Live Numbers">
+                <i data-lucide="refresh-cw"></i><span>Refresh data</span>
+              </button>
+              <button onclick="openPaidCaseModal()" class="btn btn-primary">
+                <i data-lucide="plus"></i><span>+ Add Paid Case</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TOP 3 METRICS: LEFT MTD/AOY, CENTER TODAY COLLECTION, RIGHT TOTAL COLLECTION -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <!-- LEFT: MTD / AOY -->
+            <div class="card p-5 border border-slate-700/60 flex flex-col justify-between" style="background: var(--panel);">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i data-lucide="history" class="w-4 h-4 text-blue-400"></i>
+                  <span>MTD / AOY Collection</span>
+                </span>
+                <span class="chip text-[11px]">Baseline + Pre-Today</span>
+              </div>
+              <div class="my-3">
+                <div id="today-tab-mtd-val" class="text-2xl sm:text-3xl font-extrabold text-blue-400 font-mono-num">₹0</div>
+                <p class="text-[11px] text-slate-400 mt-1">Month to Date before today</p>
+              </div>
+              <div class="pt-3 border-t border-slate-700/40 flex items-center justify-between text-xs text-slate-400">
+                <span>Month: <b id="today-tab-month-name" class="text-slate-200">Current</b></span>
+                <span class="font-mono text-blue-400 font-semibold">MTD Progress</span>
+              </div>
+            </div>
+
+            <!-- CENTER: TODAY COLLECTION (HERO CARD) -->
+            <div class="card p-5 border-2 border-emerald-500/50 shadow-lg flex flex-col justify-between relative overflow-hidden" style="background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(6, 78, 59, 0.15)), var(--panel);">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+                  <span>Today Collection</span>
+                </span>
+                <span id="today-tab-today-count-chip" class="chip chip-accent text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0 Cases Today</span>
+              </div>
+              <div class="my-3 text-center sm:text-left">
+                <div id="today-tab-today-val" class="text-3xl sm:text-4xl font-black text-emerald-400 font-mono-num tracking-tight">₹0</div>
+                <p class="text-xs text-emerald-300/80 font-medium mt-1 flex items-center gap-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                  <span>Verified customer payments collected today</span>
+                </p>
+              </div>
+              <div class="pt-3 border-t border-emerald-500/20 flex items-center justify-between text-xs text-slate-300">
+                <span id="today-tab-today-date" class="font-mono text-emerald-300 text-[11px]">--</span>
+                <span class="font-bold text-emerald-400 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Active</span>
+              </div>
+            </div>
+
+            <!-- RIGHT: TOTAL COLLECTION -->
+            <div class="card p-5 border border-slate-700/60 flex flex-col justify-between" style="background: var(--panel);">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i data-lucide="wallet" class="w-4 h-4 text-amber-400"></i>
+                  <span>Total Month Collection</span>
+                </span>
+                <span id="today-tab-ach-badge" class="chip text-[11px] font-bold">0% Achieved</span>
+              </div>
+              <div class="my-3">
+                <div id="today-tab-total-val" class="text-2xl sm:text-3xl font-extrabold text-amber-300 font-mono-num">₹0</div>
+                <div class="meter mt-2"><i id="today-tab-total-bar" style="width: 0%; background: var(--good)"></i></div>
+              </div>
+              <div class="pt-3 border-t border-slate-700/40 flex items-center justify-between text-xs text-slate-400">
+                <span>Target: <b id="today-tab-target-val" class="text-slate-200 num">₹0</b></span>
+                <span id="today-tab-bal-val" class="font-bold text-rose-400 num">Bal: ₹0</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 3 TABLES / VISUALS BELOW -->
+          <div class="space-y-6">
+
+            <!-- 1. DAY WISE COLLECTION GRAPH -->
+            <section class="card p-5 space-y-4" style="background: var(--panel);">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/40 pb-3">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <h2 class="text-base font-bold text-white tracking-tight">1. Day Wise Collection Graph</h2>
+                  </div>
+                  <p class="text-xs text-slate-400">Daily collection trend across every day of the active month</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs" id="today-tab-chart-stats">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+              <div id="today-tab-chart-host" class="w-full">
+                <!-- Dynamically populated -->
+              </div>
+            </section>
+
+            <!-- 2. BRANCH WISE COLLECTION -->
+            <section class="card p-5 space-y-4" style="background: var(--panel);">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/40 pb-3">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <h2 class="text-base font-bold text-white tracking-tight">2. Branch Wise Collection Summary</h2>
+                  </div>
+                  <p class="text-xs text-slate-400">Regional branch-level performance, targets, today's credit and balances</p>
+                </div>
+                <span class="chip text-xs font-mono" id="today-tab-branch-count-badge">5 Branches</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="dtable w-full text-xs text-left">
+                  <thead>
+                    <tr>
+                      <th class="p-2.5 text-center w-12">#</th>
+                      <th class="p-2.5">Branch Name</th>
+                      <th class="p-2.5 text-center">Target (₹)</th>
+                      <th class="p-2.5 text-center">AOY / MTD (₹)</th>
+                      <th class="p-2.5 text-center text-emerald-400 font-bold">Today (₹)</th>
+                      <th class="p-2.5 text-center font-bold">Total (₹)</th>
+                      <th class="p-2.5 text-center">Balance (₹)</th>
+                      <th class="p-2.5 text-center">Achieved %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="today-tab-branch-tbody" class="divide-y divide-slate-800">
+                    <!-- Dynamic -->
+                  </tbody>
+                  <tfoot id="today-tab-branch-tfoot" class="font-bold">
+                    <!-- Dynamic -->
+                  </tfoot>
+                </table>
+              </div>
+            </section>
+
+            <!-- 3. MANAGER WISE COLLECTION -->
+            <section class="card p-5 space-y-4" style="background: var(--panel);">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/40 pb-3">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                    <h2 class="text-base font-bold text-white tracking-tight">3. Manager Wise Collection Summary</h2>
+                  </div>
+                  <p class="text-xs text-slate-400">Live collections by recovery managers with team caller details</p>
+                </div>
+                <span class="chip text-xs font-mono" id="today-tab-mgr-count-badge">Managers</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="dtable w-full text-xs text-left">
+                  <thead>
+                    <tr>
+                      <th class="p-2.5 text-center w-12">#</th>
+                      <th class="p-2.5">Manager Name</th>
+                      <th class="p-2.5 text-center">Branch</th>
+                      <th class="p-2.5 text-center">Callers</th>
+                      <th class="p-2.5 text-center">Target (₹)</th>
+                      <th class="p-2.5 text-center">AOY / MTD (₹)</th>
+                      <th class="p-2.5 text-center text-emerald-400 font-bold">Today (₹)</th>
+                      <th class="p-2.5 text-center font-bold">Total (₹)</th>
+                      <th class="p-2.5 text-center">Balance (₹)</th>
+                      <th class="p-2.5 text-center">Achieved %</th>
+                      <th class="p-2.5 text-center">Team Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="today-tab-manager-tbody" class="divide-y divide-slate-800">
+                    <!-- Dynamic -->
+                  </tbody>
+                  <tfoot id="today-tab-manager-tfoot" class="font-bold">
+                    <!-- Dynamic -->
+                  </tfoot>
+                </table>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
         <div id="content-mis-report" class="hidden">
           <div class="page-head">
             <div>
@@ -1507,10 +1700,10 @@
 
     // Role-Based Access Control (RBAC) Permissions Matrix
     const ROLE_PERMISSIONS = {
-      'ADMIN': ['dashboard', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'],
-      'MANAGEMENT': ['dashboard', 'branch-collection', 'manager-collection'],
-      'BACKEND': ['dashboard', 'paid-file', 'branch-collection', 'manager-collection'],
-      'MANAGER': ['dashboard', 'mis-report', 'paid-file']
+      'ADMIN': ['dashboard', 'today-collection', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'],
+      'MANAGEMENT': ['dashboard', 'today-collection', 'branch-collection', 'manager-collection'],
+      'BACKEND': ['dashboard', 'today-collection', 'paid-file', 'branch-collection', 'manager-collection'],
+      'MANAGER': ['dashboard', 'today-collection', 'mis-report', 'paid-file']
     };
     let USER_CREDENTIALS = JSON.parse(JSON.stringify(DEFAULT_INITIAL_CREDENTIALS));
     let deletedUserKeys = new Set();
@@ -1773,6 +1966,77 @@
       syncLiveCollectionFromPaidFile(false);
     }
 
+    function getAllCallersForSelection() {
+      const seenCombo = new Set();
+      const all = [];
+
+      const addCallerObj = (name, target = 0, manager = '', aliases = '') => {
+        if (!name) return;
+        const cleanName = String(name).trim().toUpperCase();
+        if (!cleanName || cleanName === '--' || cleanName === 'UNDEFINED' || cleanName === 'NULL') return;
+        const cleanMgr = String(manager || '').trim().toUpperCase();
+        const comboKey = `${cleanMgr}_${cleanName}`;
+        const nameKey = cleanName;
+        if (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey)) return;
+        if (isUserDeleted(manager)) return;
+        if (seenCombo.has(comboKey) || seenCombo.has(nameKey)) return;
+
+        seenCombo.add(comboKey);
+        seenCombo.add(nameKey);
+        all.push({
+          name: cleanName,
+          target: Number(target) || 0,
+          manager: manager || 'General',
+          aliases: aliases || cleanName
+        });
+      };
+
+      // 1. Current in-memory leaderboardOfficers
+      (leaderboardOfficers || []).forEach(o => {
+        if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases);
+      });
+
+      // 2. SEED_OFFICERS (Kalpita Rikame, Nidhi Kadam, etc.)
+      if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+        SEED_OFFICERS.forEach(o => {
+          if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases);
+        });
+      }
+
+      // 3. Master localStorage: shaha_leaderboard_mis_v2
+      try {
+        const masterStr = localStorage.getItem('shaha_leaderboard_mis_v2');
+        if (masterStr) {
+          const parsed = JSON.parse(masterStr);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(o => { if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases); });
+          }
+        }
+      } catch(e) {}
+
+      // 4. All manager-specific partitions in localStorage
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const lk = localStorage.key(i);
+          if (lk && lk.startsWith('shaha_leaderboard_mis_v2_') && lk !== 'shaha_leaderboard_mis_v2') {
+            try {
+              const list = JSON.parse(localStorage.getItem(lk));
+              if (Array.isArray(list)) {
+                list.forEach(o => { if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases); });
+              }
+            } catch(e) {}
+          }
+        }
+      } catch(e) {}
+
+      // 5. Any caller used in paidFileRecords
+      (paidFileRecords || []).forEach(r => {
+        if (r && r.officer) addCallerObj(r.officer, 0, r.manager || '');
+      });
+
+      return all;
+    }
+
     function populateOfficerDropdowns() {
       const sel = document.getElementById('paid-select-officer');
       const sp1 = document.getElementById('split-caller-1');
@@ -1782,7 +2046,7 @@
       const misFiltMgr = document.getElementById('mis-filter-manager');
       const offMgrInput = document.getElementById('officer-input-manager');
 
-      const validOfficers = (leaderboardOfficers || []).filter(o => !isOfficerTombstoned(o) && !isUserDeleted(o.manager));
+      const validOfficers = getAllCallersForSelection();
       const hasOfficers = validOfficers.length > 0;
       const offOptions = hasOfficers
         ? validOfficers.map(o => `<option value="${o.name}">${o.name}${o.manager ? ' (' + o.manager + ')' : ''}</option>`).join('')
@@ -2183,7 +2447,7 @@
         renderPaidFileTable();
         renderLeaderboardMIS();
         if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
-        updateTopKpis();
+        updateTopKpis(); if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
 
         // 4. Refresh Branch & Manager Collection Views if authorized
         if (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND') {
@@ -2917,7 +3181,7 @@
     // TAB SWITCHING LOGIC
     // ==========================================
     function switchTab(tabId) {
-      const tabNames = { 'dashboard': 'Overview', 'mis-report': 'Daily MIS', 'paid-file': 'Paid data', 'branch-collection': 'Branches', 'manager-collection': 'Managers', 'admin-permissions': 'Users & access' };
+      const tabNames = { 'dashboard': 'Overview', 'today-collection': 'Today Collection', 'mis-report': 'Daily MIS', 'paid-file': 'Paid data', 'branch-collection': 'Branches', 'manager-collection': 'Managers', 'admin-permissions': 'Users & access' };
       const tbTitle = document.getElementById('topbar-title');
       const tbScope = document.getElementById('topbar-scope');
       if (tbTitle) tbTitle.innerText = tabNames[tabId] || '';
@@ -2938,13 +3202,13 @@
       currentTab = tabId;
 
       // Auto-sync collection data silently on view switch without needing any manual button
-      if (tabId === 'dashboard' || tabId === 'mis-report' || tabId === 'branch-collection' || tabId === 'manager-collection') {
+      if (tabId === 'dashboard' || tabId === 'today-collection' || tabId === 'mis-report' || tabId === 'branch-collection' || tabId === 'manager-collection') {
         if (typeof syncLiveCollectionFromPaidFile === 'function') {
           syncLiveCollectionFromPaidFile(false);
         }
       }
 
-      ['dashboard', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'].forEach(t => {
+      ['dashboard', 'today-collection', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (btn) {
@@ -2968,6 +3232,7 @@
       });
 
       if (tabId === 'dashboard') renderTop3Dashboard();
+      if (tabId === 'today-collection') renderTodayCollectionTab();
       if (tabId === 'mis-report') {
         renderLeaderboardMIS();
         if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
@@ -3072,6 +3337,367 @@
         // ==============================================================
     // ALL CALLERS ACHIEVEMENT LEADERBOARD MODAL LOGIC
     // ==============================================================
+    // ==========================================
+    // TODAY COLLECTION TAB DYNAMIC RENDERER
+    // ==========================================
+    function renderTodayCollectionTab() {
+      const isGlobalViewer = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager || '').toLowerCase().trim();
+      const recs = isGlobalViewer ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myMgr));
+
+      const todayStr = getTodayFormattedStr();
+      const todayRecs = recs.filter(r => isSameDate(r.pay_date, todayStr));
+      const todayAmt = todayRecs.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+      calculateLeaderboard();
+
+      let sumTarget = 0, sumTotal = 0, sumAoy = 0, sumTodayAll = 0, sumBalance = 0;
+      leaderboardOfficers.forEach(o => {
+        if (isOfficerTombstoned(o) || isUserDeleted(o.manager)) return;
+        sumTarget += (Number(o.target) || 0);
+        sumTotal += (Number(o.total) || 0);
+        sumAoy += (Number(o.aoy) || 0);
+        sumTodayAll += (Number(o.today) || 0);
+        sumBalance += (Number(o.balance) || 0);
+      });
+
+      const displayTodayAmt = todayAmt;
+      const displayTotalAmt = isGlobalViewer ? recs.reduce((acc, r) => acc + (Number(r.amount) || 0), 0) : (sumTotal > 0 ? sumTotal : recs.reduce((acc, r) => acc + (Number(r.amount) || 0), 0));
+      const displayMtdAoyAmt = Math.max(0, displayTotalAmt - displayTodayAmt);
+      const displayTarget = sumTarget;
+      const displayBal = Math.max(0, displayTarget - displayTotalAmt);
+      const achPct = displayTarget > 0 ? Math.round((displayTotalAmt / displayTarget) * 100) : (displayTotalAmt > 0 ? 100 : 0);
+
+      // 1. Top 3 Metric Cards: Left MTD/AOY, Center Today, Right Total
+      const mtdEl = document.getElementById('today-tab-mtd-val');
+      if (mtdEl) mtdEl.innerText = formatCurrency(displayMtdAoyAmt);
+
+      const todayEl = document.getElementById('today-tab-today-val');
+      if (todayEl) todayEl.innerText = formatCurrency(displayTodayAmt);
+
+      const totalEl = document.getElementById('today-tab-total-val');
+      if (totalEl) totalEl.innerText = formatCurrency(displayTotalAmt);
+
+      const todayCountEl = document.getElementById('today-tab-today-count-chip');
+      if (todayCountEl) todayCountEl.innerText = `${todayRecs.length} Cases Today`;
+
+      const todayDateEl = document.getElementById('today-tab-today-date');
+      if (todayDateEl) todayDateEl.innerText = todayStr;
+
+      const dateBadge = document.getElementById('today-tab-date-badge');
+      if (dateBadge) dateBadge.innerText = todayStr;
+
+      const achBadge = document.getElementById('today-tab-ach-badge');
+      if (achBadge) achBadge.innerText = `${achPct}% Achieved`;
+
+      const totalBar = document.getElementById('today-tab-total-bar');
+      if (totalBar) totalBar.style.width = `${Math.min(100, Math.max(0, achPct))}%`;
+
+      const balEl = document.getElementById('today-tab-bal-val');
+      if (balEl) balEl.innerText = `Bal: ${formatCurrency(displayBal)}`;
+
+      const tarEl = document.getElementById('today-tab-target-val');
+      if (tarEl) tarEl.innerText = formatCurrency(displayTarget);
+
+      const mNameEl = document.getElementById('today-tab-month-name');
+      if (mNameEl) mNameEl.innerText = (new Date()).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+
+      // 2. Render 1: Day Wise Collection Graph
+      renderTodayTabDailyChart(recs);
+
+      // 3. Render 2: Branch Wise Collection Table
+      renderTodayTabBranchTable();
+
+      // 4. Render 3: Manager Wise Collection Table
+      renderTodayTabManagerTable();
+
+      if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    }
+
+    function renderTodayTabDailyChart(recs) {
+      const host = document.getElementById('today-tab-chart-host');
+      const statsEl = document.getElementById('today-tab-chart-stats');
+      if (!host) return;
+
+      const now = new Date();
+      const y = now.getFullYear(), m = now.getMonth() + 1, today = now.getDate();
+      const daysInMonth = new Date(y, m, 0).getDate();
+      const days = new Array(today).fill(0);
+
+      (recs || []).forEach(r => {
+        const p = parseDateParts(r.pay_date);
+        if (p && p.y === y && p.m === m && p.d >= 1 && p.d <= today) {
+          days[p.d - 1] += Number(r.amount) || 0;
+        }
+      });
+
+      const monthSum = days.reduce((a, b) => a + b, 0);
+      const best = Math.max(0, ...days);
+      const bestDay = best > 0 ? days.indexOf(best) + 1 : 0;
+      const daysLeft = daysInMonth - today + 1;
+
+      let totalTar = 0;
+      leaderboardOfficers.forEach(o => { totalTar += Number(o.target) || 0; });
+      const gap = Math.max(0, totalTar - monthSum);
+      const need = gap > 0 ? Math.round(gap / daysLeft) : 0;
+      const monthName = now.toLocaleString('en-IN', { month: 'short' });
+
+      host.innerHTML = `
+        <div style="display: flex; align-items: flex-end; gap: 4px; height: 180px; padding-top: 24px; padding-bottom: 8px; border-bottom: 1px solid var(--line);">
+          ${days.map((v, i) => {
+            const d = i + 1;
+            const hPct = best > 0 ? Math.max(6, Math.round(v / best * 100)) : 6;
+            const isToday = d === today;
+            const isPeak = v > 0 && v === best;
+            const barColor = isToday ? 'var(--good)' : (isPeak ? 'var(--accent)' : 'var(--info)');
+            const opacity = (isToday || isPeak) ? '1' : '0.65';
+            const title = `Day ${d} ${monthName}: ₹${v.toLocaleString('en-IN')}`;
+            return `
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; cursor: pointer;" title="${title}">
+                <div style="font-size: 9px; font-weight: bold; margin-bottom: 3px; color: ${barColor};" class="num">${v > 0 ? fmtShortInr(v) : ''}</div>
+                <div style="width: 100%; max-width: 28px; height: ${hPct}%; background: ${barColor}; opacity: ${opacity}; border-radius: 4px 4px 0 0; transition: all 0.2s;"></div>
+                <div style="font-size: 10px; font-weight: ${isToday ? 'bold' : 'normal'}; color: ${isToday ? 'var(--good)' : 'var(--ink-3)'}; margin-top: 4px;" class="num">${d}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      if (statsEl) {
+        statsEl.innerHTML = `
+          <span class="chip"><b class="num text-white">${fmtShortInr(monthSum)}</b> Month Total</span>
+          <span class="chip"><b class="num text-accent">${bestDay ? 'Day ' + bestDay + ' (' + fmtShortInr(best) + ')' : '--'}</b> Peak Day</span>
+          <span class="chip"><b class="num text-info">${fmtShortInr(need)}/day</b> Run-rate</span>
+        `;
+      }
+    }
+
+    function renderTodayTabBranchTable() {
+      const tbody = document.getElementById('today-tab-branch-tbody');
+      const tfoot = document.getElementById('today-tab-branch-tfoot');
+      if (!tbody) return;
+
+      const standardBranches = ['JOGESHWARI', 'BANGALORE', 'SAROJ', 'WORLI', 'AGENCY'];
+      const branchData = {};
+      const nonBranchNames = new Set(['ALL', 'ALL BRANCHES', 'HQ', 'HEAD OFFICE', 'OPS', 'SYSTEM']);
+
+      standardBranches.forEach(b => {
+        branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+      });
+
+      for (const k in USER_CREDENTIALS) {
+        if (isUserDeleted(k)) continue;
+        const u = USER_CREDENTIALS[k];
+        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r !== 'MANAGER') continue;
+        const b = (u.branch || u.agency || '').toUpperCase().trim();
+        if (b && !nonBranchNames.has(b) && !branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+      }
+
+      leaderboardOfficers.forEach(off => {
+        if (isOfficerTombstoned(off) || isUserDeleted(off.manager)) return;
+        let b = getBranchForManager(off.manager);
+        if (!b || nonBranchNames.has(b)) b = 'JOGESHWARI';
+        b = b.toUpperCase().trim();
+        if (!branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+        const t = Number(off.target) || 0;
+        const a = Number(off.aoy) || 0;
+        const td = Number(off.today) || 0;
+        const tot = Number(off.total) || (a + td);
+
+        branchData[b].target += t;
+        branchData[b].aoy += a;
+        branchData[b].today += td;
+        branchData[b].total += tot;
+        branchData[b].count += 1;
+      });
+
+      const branchesList = Object.values(branchData).filter(item => !nonBranchNames.has(item.branch));
+      branchesList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.branch.localeCompare(b.branch));
+
+      tbody.innerHTML = '';
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
+
+      branchesList.forEach((bItem, idx) => {
+        const target = bItem.target;
+        const aoy = bItem.aoy;
+        const today = bItem.today;
+        const total = aoy + today;
+        const balance = Math.max(0, target - total);
+        let achievedPct = target > 0 ? Math.round((total / target) * 100) : (total > 0 ? 100 : 0);
+
+        sumTarget += target;
+        sumAoy += aoy;
+        sumToday += today;
+        sumTotal += total;
+        sumBalance += balance;
+
+        const achievedStyle = getAchievedBgColor(achievedPct);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition';
+        tr.innerHTML = `
+          <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
+          <td class="p-2.5 font-bold text-white flex items-center gap-2">
+            <i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>${bItem.branch}</span>
+          </td>
+          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(target)}</td>
+          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(aoy)}</td>
+          <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(today)}</td>
+          <td class="p-2.5 text-center font-mono num font-black text-white">${formatCurrency(total)}</td>
+          <td class="p-2.5 text-center font-mono num font-bold text-rose-400">${formatCurrency(balance)}</td>
+          <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded text-xs font-bold" style="${achievedStyle}">${achievedPct}%</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (tfoot) {
+        let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
+        tfoot.innerHTML = `
+          <tr class="bg-slate-800/60 text-white border-t-2 border-slate-700">
+            <td colspan="2" class="p-2.5 text-left font-black uppercase tracking-wider text-amber-300">TOTAL</td>
+            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumTarget)}</td>
+            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumAoy)}</td>
+            <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(sumToday)}</td>
+            <td class="p-2.5 text-center font-mono num font-black text-amber-300">${formatCurrency(sumTotal)}</td>
+            <td class="p-2.5 text-center font-mono num font-bold text-rose-300">${formatCurrency(sumBalance)}</td>
+            <td class="p-2.5 text-center font-bold text-amber-300">${avgAchieved}%</td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderTodayTabManagerTable() {
+      const tbody = document.getElementById('today-tab-manager-tbody');
+      const tfoot = document.getElementById('today-tab-manager-tfoot');
+      const countBadge = document.getElementById('today-tab-mgr-count-badge');
+      if (!tbody) return;
+
+      const mgrData = {};
+      for (const k in USER_CREDENTIALS) {
+        if (isUserDeleted(k)) continue;
+        const u = USER_CREDENTIALS[k];
+        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r !== 'MANAGER') continue;
+        const mName = u.name;
+        const br = getBranchForManager(mName);
+        mgrData[mName] = {
+          name: mName,
+          branch: br,
+          target: 0,
+          aoy: 0,
+          today: 0,
+          total: 0,
+          balance: 0,
+          callersCount: 0
+        };
+      }
+
+      leaderboardOfficers.forEach(off => {
+        if (isOfficerTombstoned(off) || isUserDeleted(off.manager)) return;
+        let m = off.manager || currentManager || 'SMITA JAGTAP';
+        for (const mk in mgrData) {
+          if (isOfficerUnderManager(off, mk)) {
+            m = mk;
+            break;
+          }
+        }
+        if (!mgrData[m]) {
+          mgrData[m] = {
+            name: m,
+            branch: getBranchForManager(m),
+            target: 0,
+            aoy: 0,
+            today: 0,
+            total: 0,
+            balance: 0,
+            callersCount: 0
+          };
+        }
+        const t = Number(off.target) || 0;
+        const a = Number(off.aoy) || 0;
+        const td = Number(off.today) || 0;
+        const tot = Number(off.total) || (a + td);
+
+        mgrData[m].target += t;
+        mgrData[m].aoy += a;
+        mgrData[m].today += td;
+        mgrData[m].total += tot;
+        mgrData[m].callersCount += 1;
+      });
+
+      const mgrList = Object.values(mgrData);
+      mgrList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.name.localeCompare(b.name));
+
+      if (countBadge) countBadge.innerText = `${mgrList.length} Active Managers`;
+
+      tbody.innerHTML = '';
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
+
+      mgrList.forEach((mItem, idx) => {
+        const target = mItem.target;
+        const aoy = mItem.aoy;
+        const today = mItem.today;
+        const total = aoy + today;
+        const balance = Math.max(0, target - total);
+        let achievedPct = target > 0 ? Math.round((total / target) * 100) : (total > 0 ? 100 : 0);
+
+        sumTarget += target;
+        sumAoy += aoy;
+        sumToday += today;
+        sumTotal += total;
+        sumBalance += balance;
+
+        const achievedStyle = getAchievedBgColor(achievedPct);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition';
+        tr.innerHTML = `
+          <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
+          <td class="p-2.5 font-bold text-white flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-blue-900/60 text-blue-300 font-bold flex items-center justify-center text-[10px]">${mItem.name.charAt(0)}</div>
+            <span>${mItem.name}</span>
+          </td>
+          <td class="p-2.5 text-center text-slate-400">${mItem.branch}</td>
+          <td class="p-2.5 text-center"><span class="chip text-[11px] font-mono">${mItem.callersCount} Callers</span></td>
+          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(target)}</td>
+          <td class="p-2.5 text-center font-mono num text-slate-300">${formatCurrency(aoy)}</td>
+          <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(today)}</td>
+          <td class="p-2.5 text-center font-mono num font-black text-white">${formatCurrency(total)}</td>
+          <td class="p-2.5 text-center font-mono num font-bold text-rose-400">${formatCurrency(balance)}</td>
+          <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded text-xs font-bold" style="${achievedStyle}">${achievedPct}%</span></td>
+          <td class="p-2.5 text-center">
+            <button type="button" onclick="openManagerSlideDrawer('${mItem.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded bg-slate-700/60 hover:bg-blue-600 hover:text-white text-slate-200 text-[11px] font-bold transition flex items-center gap-1 mx-auto cursor-pointer">
+              <i data-lucide="eye" class="w-3 h-3"></i>
+              <span>View Team</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (tfoot) {
+        let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : (sumTotal > 0 ? 100 : 0);
+        tfoot.innerHTML = `
+          <tr class="bg-slate-800/60 text-white border-t-2 border-slate-700">
+            <td colspan="4" class="p-2.5 text-left font-black uppercase tracking-wider text-amber-300">TOTAL</td>
+            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumTarget)}</td>
+            <td class="p-2.5 text-center font-mono num text-amber-300">${formatCurrency(sumAoy)}</td>
+            <td class="p-2.5 text-center font-mono num font-black text-emerald-400">${formatCurrency(sumToday)}</td>
+            <td class="p-2.5 text-center font-mono num font-black text-amber-300">${formatCurrency(sumTotal)}</td>
+            <td class="p-2.5 text-center font-mono num font-bold text-rose-300">${formatCurrency(sumBalance)}</td>
+            <td class="p-2.5 text-center font-bold text-amber-300">${avgAchieved}%</td>
+            <td class="p-2.5"></td>
+          </tr>
+        `;
+      }
+    }
+
     function openAllAchieversModal() {
       calculateLeaderboard();
       const modal = document.getElementById('all-achievers-modal');
@@ -3452,7 +4078,7 @@
 
       // 4-Tier Strict Tab Visibility Gates based on ROLE_PERMISSIONS
       const allowedTabs = ROLE_PERMISSIONS[role] || ['dashboard'];
-      const allTabs = ['dashboard', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'];
+      const allTabs = ['dashboard', 'today-collection', 'mis-report', 'paid-file', 'branch-collection', 'manager-collection', 'admin-permissions'];
 
       allTabs.forEach(tabId => {
         const btn = document.getElementById(`tab-${tabId}`);
@@ -3716,7 +4342,7 @@
       const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
       const cleanQ = query.toLowerCase().trim();
 
-      const validOfficers = (leaderboardOfficers || []).filter(o => !isOfficerTombstoned(o) && !isUserDeleted(o.manager));
+      const validOfficers = getAllCallersForSelection();
 
       let sortedOfficers = [...validOfficers].sort((a, b) => {
         const aMine = isOfficerUnderManager(a, myMgr);
@@ -4391,7 +5017,7 @@
       });
 
       calculateLeaderboard();
-      renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard(); if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
       updateTopKpis();
 
       if (notify) {
@@ -4995,7 +5621,7 @@ function renderLeaderboardMIS() {
     }
 
     async function captureAndSendWhatsAppImage() {
-      renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard(); if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
       const card = document.getElementById('leaderboard-capture-area');
       if (!card) return;
 
