@@ -1773,7 +1773,31 @@
       return false;
     }
 
+    function isManagerName(nameOrKey) {
+      if (!nameOrKey) return false;
+      const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const target = clean(nameOrKey);
+      if (!target) return false;
+      const KNOWN_MGR_NAMES = ['aditi gawade', 'aditi', 'ambuj tripathi', 'ambuj', 'shravanthi p', 'shravanthi', 'shweta singh', 'shweta', 'omkar singh', 'omkar', 'poonam i', 'poonam indulkar', 'poonam', 'smita jagtap', 'smita', 'customer service', 'customerservice', 'admin', 'ops head', 'admin ops head', 'senior management', 'management', 'shaha', 'backend operations team', 'backend'];
+      for (const km of KNOWN_MGR_NAMES) {
+        const cKm = clean(km);
+        if (target === cKm || (cKm.length >= 4 && (target.includes(cKm) || cKm.includes(target)))) return true;
+      }
+      if (typeof USER_CREDENTIALS !== 'undefined') {
+        for (const k in USER_CREDENTIALS) {
+          const u = USER_CREDENTIALS[k];
+          if (!u) continue;
+          const uKey = clean(k); const uName = clean(u.name || ''); const uUser = clean(u.username || '');
+          if (target === uKey || target === uName || target === uUser) return true;
+          if (uName && uName.length >= 4 && (target.includes(uName) || uName.includes(target))) return true;
+          if (uKey && uKey.length >= 4 && (target.includes(uKey) || uKey.includes(target))) return true;
+        }
+      }
+      return false;
+    }
+
     function isOfficerTombstoned(o) {
+      if (o && isManagerName(o.name)) return true;
       if (!o) return true;
       if (o.manager && isUserDeleted(o.manager)) return true;
       const k1 = `${(o.manager || '').toUpperCase().trim()}_${(o.name || '').toUpperCase().trim()}`;
@@ -1784,7 +1808,7 @@
       if (!r) return true;
       if (r.id && deletedPaidRecordIds.has(String(r.id))) return true;
       if (r.manager && isUserDeleted(r.manager)) return true;
-      if (r.caller_name && isOfficerTombstoned({ name: r.caller_name, manager: r.manager })) return true;
+      if (r.caller_name && deletedOfficerKeys.has(`${(r.manager || '').toUpperCase().trim()}_${(r.caller_name || '').toUpperCase().trim()}`)) return true;
       return false;
     }
 
@@ -1873,6 +1897,10 @@
             if (val) {
               try {
                 const parsed = JSON.parse(val);
+                if (Array.isArray(parsed)) {
+                  parsed = parsed.filter(o => o && o.name && !isManagerName(o.name));
+                  localStorage.setItem(k, JSON.stringify(parsed));
+                }
                 if (isLegacyDummyCallerList(parsed)) {
                   localStorage.setItem(k, '[]');
                 }
@@ -1977,7 +2005,7 @@
         const cleanMgr = String(manager || '').trim().toUpperCase();
         const comboKey = `${cleanMgr}_${cleanName}`;
         const nameKey = cleanName;
-        if (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey)) return;
+        if (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey) || isManagerName(cleanName)) return;
         if (isUserDeleted(manager)) return;
         if (seenCombo.has(comboKey) || seenCombo.has(nameKey)) return;
 
@@ -3262,7 +3290,7 @@
       updateTopKpis();
 
       // 1. TOP 3 TODAY COLLECTION COLLECTORS (Only callers with actual positive collections today)
-      const topToday = [...leaderboardOfficers].filter(o => (Number(o.today) || 0) > 0).sort((a, b) => {
+      const topToday = [...leaderboardOfficers].filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && (Number(o.today) || 0) > 0).sort((a, b) => {
         const diffToday = (Number(b.today) || 0) - (Number(a.today) || 0);
         if (diffToday !== 0) return diffToday;
         return (Number(b.total) || 0) - (Number(a.total) || 0);
@@ -3287,7 +3315,7 @@
       fillTodayCard('today3', topToday[2]);
 
       // 2. TOP PERFORMERS BY ACHIEVED % ON OVERALL COLLECTION (Only callers with actual collections/achievements)
-      const topAchievers = [...leaderboardOfficers].filter(o => (Number(o.total) || 0) > 0 || (Number(o.achieved) || 0) > 0).sort((a, b) => {
+      const topAchievers = [...leaderboardOfficers].filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && Number(o.target) > 0 && ((Number(o.total) || 0) > 0 || (Number(o.achieved) || 0) > 0)).sort((a, b) => {
         const diffAch = (Number(b.achieved) || 0) - (Number(a.achieved) || 0);
         if (diffAch !== 0) return diffAch;
         return (Number(b.total) || 0) - (Number(a.total) || 0);
@@ -3721,7 +3749,7 @@
       const q = (document.getElementById('all-achievers-search') ? document.getElementById('all-achievers-search').value : '').toLowerCase().trim();
 
       // Sort all officers by achieved % descending, then by total descending
-      const sorted = [...leaderboardOfficers].sort((a, b) => {
+      const sorted = [...leaderboardOfficers].filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && Number(o.target) > 0).sort((a, b) => {
         const diffAch = (Number(b.achieved) || 0) - (Number(a.achieved) || 0);
         if (diffAch !== 0) return diffAch;
         return (Number(b.total) || 0) - (Number(a.total) || 0);
@@ -3810,7 +3838,7 @@
         showToast('Excel export library not ready', 'error');
         return;
       }
-      const sorted = [...leaderboardOfficers].sort((a, b) => {
+      const sorted = [...leaderboardOfficers].filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && Number(o.target) > 0).sort((a, b) => {
         const diffAch = (Number(b.achieved) || 0) - (Number(a.achieved) || 0);
         if (diffAch !== 0) return diffAch;
         return (Number(b.total) || 0) - (Number(a.total) || 0);
@@ -4543,7 +4571,7 @@
       const managerName = currentUser ? (currentUser.name || currentUser.username) : (currentManager || 'Manager');
 
       // Auto-register caller in Live MIS if not already present
-      if (!isSplit && officer) {
+      if (!isSplit && officer && !isManagerName(officer)) {
         const offExists = leaderboardOfficers.some(o => isOfficerMatch(o, officer));
         if (!offExists) { deletedOfficerKeys.delete(officer.toUpperCase().trim()); deletedOfficerKeys.delete(`${managerName.toUpperCase().trim()}_${officer.toUpperCase().trim()}`); localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
           leaderboardOfficers.push({
@@ -4564,7 +4592,7 @@
         }
       } else if (isSplit && splits) {
         splits.forEach(s => {
-          if (s.officer && !leaderboardOfficers.some(o => isOfficerMatch(o, s.officer))) {
+          if (s.officer && !isManagerName(s.officer) && !leaderboardOfficers.some(o => isOfficerMatch(o, s.officer))) {
             leaderboardOfficers.push({
               name: s.officer.toUpperCase().trim(),
               aliases: s.officer.toUpperCase().trim(),
@@ -5028,7 +5056,7 @@
 
     function calculateLeaderboard() {
       leaderboardOfficers = leaderboardOfficers.filter(o => {
-        if (!o || isOfficerTombstoned(o)) return false;
+        if (!o || isOfficerTombstoned(o) || isManagerName(o.name)) return false;
         if (o.manager && isUserDeleted(o.manager)) return false;
         return true;
       });
@@ -5045,7 +5073,7 @@
         if (target > 0) {
           achievedPct = Math.round((total / target) * 100);
         } else if (total > 0) {
-          achievedPct = 100;
+          achievedPct = 0;
         }
 
         off.total = total;
@@ -5150,7 +5178,7 @@ function renderLeaderboardMIS() {
       const filtMgrEl = document.getElementById('mis-filter-manager');
       const selectedFilterMgr = filtMgrEl ? filtMgrEl.value.trim() : '';
 
-      let displayList = leaderboardOfficers;
+      let displayList = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name));
       if (currentRole === 'MANAGER') {
         const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
         displayList = displayList.filter(o => { if (!o || isOfficerTombstoned(o)) return false; return isOfficerUnderManager(o, myName); });
@@ -6286,7 +6314,7 @@ function renderLeaderboardMIS() {
         if (target > 0) {
           achievedPct = Math.round((total / target) * 100);
         } else if (total > 0) {
-          achievedPct = 100;
+          achievedPct = 0;
         }
 
         sumTarget += target;
@@ -6545,7 +6573,7 @@ function renderLeaderboardMIS() {
         if (target > 0) {
           achievedPct = Math.round((total / target) * 100);
         } else if (total > 0) {
-          achievedPct = 100;
+          achievedPct = 0;
         }
 
         sumTarget += target;
@@ -6998,7 +7026,7 @@ function renderLeaderboardMIS() {
         const teamEl = document.getElementById('team-progress');
         if (!teamEl) return;
         const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-        const myCallers = leaderboardOfficers.filter(o => isOfficerUnderManager(o, myName));
+        const myCallers = leaderboardOfficers.filter(o => isOfficerUnderManager(o, myName) && !isManagerName(o.name));
         teamEl.innerHTML = myCallers.length
           ? myCallers.map(o => progRow(o.name, `${formatCurrency(o.total)} of ${formatCurrency(o.target)} • rank #${o.rank}`, o.achieved)).join('')
           : `<div class="empty"><b>No callers in your team yet</b>Open the Daily MIS and select Add officer.</div>`;
