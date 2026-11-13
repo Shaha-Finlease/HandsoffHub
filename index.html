@@ -2094,6 +2094,7 @@
       if (!nameOrKey) return false;
       const rawName = String(nameOrKey || '').trim().toUpperCase();
       if (rawName.includes('POONAM KANOJIA')) return false;
+      if (rawName.includes('DIRECT') || rawName.includes('(SELF)')) return false;
       const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
       const target = clean(nameOrKey);
       if (!target) return false;
@@ -2220,6 +2221,7 @@
 
     function isOfficerTombstoned(o) {
       if (o && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => s.name === o.name && (!s.manager || s.manager === o.manager))) return false;
+      if (o && (o.isManagerSelf || (o.name && (o.name.includes('(SELF)') || o.name.includes('DIRECT'))))) return false;
       if (o && isManagerName(o.name)) return true;
       if (!o) return true;
       if (o.manager && isUserDeleted(o.manager)) return true;
@@ -4389,7 +4391,7 @@
       const periodBadge = document.getElementById('total-tab-period-badge');
       if (periodBadge) periodBadge.innerText = periodStr;
 
-      const list = getRoleScopedOfficers().filter(o => !isManagerName(o.name) && !o.inactive);
+      const list = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name));
 
       let sumTarget = 0, sumMtd = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
       list.forEach(o => {
@@ -4710,6 +4712,21 @@
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${pfGrandTotal.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${pfGrandTotal > 0 ? '100%' : '0%'}</td>
           </tr>`;
+      }
+
+      if (pfGrandTotal > 0) {
+        const grandBal = Math.max(0, sumTarget - pfGrandTotal);
+        const grandAch = sumTarget > 0 ? Math.round((pfGrandTotal / sumTarget) * 100) : 0;
+        const grandDrr = typeof computeMisDrr === 'function' ? computeMisDrr(grandBal, drrDays) : Math.round(grandBal / Math.max(1, drrDays));
+        setTxt('total-tab-total-val', formatCurrency(pfGrandTotal));
+        setTxt('total-tab-ach-chip', `${grandAch}% Achieved`);
+        setTxt('total-tab-mtd-today-split', `${formatCurrency(pfGrandMtd)} + ${formatCurrency(pfGrandToday)}`);
+        setTxt('total-tab-target-val', formatCurrency(sumTarget));
+        setTxt('total-tab-mtd-val', formatCurrency(pfGrandMtd));
+        setTxt('total-tab-balance-val', formatCurrency(grandBal));
+        setTxt('total-tab-drr-val', `${formatCurrency(grandDrr)} / day`);
+        setTxt('total-tab-ach-val', `${grandAch}%`);
+        setTxt('total-tab-today-foot', `Today: ${formatCurrency(pfGrandToday)}`);
       }
 
       // 3. BANK WISE COLLECTION BREAKDOWN (FROM LIVE PAID DATA)
@@ -5404,37 +5421,48 @@
         };
       }
 
-      leaderboardOfficers.forEach(off => {
+      getAllCompanyOfficersReadOnly().forEach(off => {
         if (isOfficerTombstoned(off) || isUserDeleted(off.manager)) return;
         let m = off.manager || currentManager || 'SMITA JAGTAP';
+        let foundM = null;
         for (const mk in mgrData) {
           if (isOfficerUnderManager(off, mk)) {
-            m = mk;
+            foundM = mk;
             break;
           }
         }
-        if (!mgrData[m]) {
-          mgrData[m] = {
-            name: m,
-            branch: getBranchForManager(m),
-            target: 0,
-            aoy: 0,
-            today: 0,
-            total: 0,
-            balance: 0,
-            callersCount: 0
-          };
+        if (!foundM && m) {
+          const rk = resolveManagerUserKey(m);
+          if (rk && USER_CREDENTIALS[rk] && mgrData[USER_CREDENTIALS[rk].name]) {
+            foundM = USER_CREDENTIALS[rk].name;
+          }
+        }
+        if (!foundM) {
+          const b = getBranchForManager(m);
+          foundM = m || `${b} GENERAL`;
+          if (!mgrData[foundM]) {
+            mgrData[foundM] = {
+              name: foundM,
+              branch: b,
+              target: 0,
+              aoy: 0,
+              today: 0,
+              total: 0,
+              balance: 0,
+              callersCount: 0
+            };
+          }
         }
         const t = Number(off.target) || 0;
         const a = Number(off.aoy) || 0;
         const td = Number(off.today) || 0;
         const tot = Number(off.total) || (a + td);
 
-        mgrData[m].target += t;
-        mgrData[m].aoy += a;
-        mgrData[m].today += td;
-        mgrData[m].total += tot;
-        mgrData[m].callersCount += 1;
+        mgrData[foundM].target += t;
+        mgrData[foundM].aoy += a;
+        mgrData[foundM].today += td;
+        mgrData[foundM].total += tot;
+        mgrData[foundM].callersCount += 1;
       });
 
       const mgrList = Object.values(mgrData);
@@ -7051,10 +7079,27 @@
         if (isSameDate(date, todayDateStr)) todaySum += amt;
         else if (isMtdDateBeforeToday(date, todayDateStr)) mtdSum += amt;
       };
+      const isUnassignedOff = off && off.name && off.name.includes('DIRECT');
       records.forEach(r => {
+        if (!r || isRecordTombstoned(r)) return;
         if (r.splits && r.splits.length > 0) {
-          r.splits.forEach(sp => { if (isOfficerMatch(off, sp.officer)) add(r.pay_date, Number(sp.amount) || 0); });
-        } else if (isOfficerMatch(off, r.officer)) add(r.pay_date, Number(r.amount) || 0);
+          r.splits.forEach(sp => {
+            const spName = (sp && sp.officer) ? String(sp.officer).trim() : '';
+            if (spName && isOfficerMatch(off, spName)) {
+              add(r.pay_date, Number(sp.amount) || 0);
+            } else if (!spName && isUnassignedOff && isOfficerUnderManager(off, r.manager)) {
+              add(r.pay_date, Number(sp.amount) || 0);
+            }
+          });
+        } else {
+          const rawOff = String(r.officer || '').trim();
+          const isBlank = !rawOff || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(rawOff.toUpperCase());
+          if (!isBlank && isOfficerMatch(off, rawOff)) {
+            add(r.pay_date, Number(r.amount) || 0);
+          } else if (isBlank && isUnassignedOff && isOfficerUnderManager(off, r.manager)) {
+            add(r.pay_date, Number(r.amount) || 0);
+          }
+        }
       });
       collectionRequests.forEach(q => {
         if (q.status !== 'APPROVED' || q.caller_key !== officerIdentityKey(off) || q.type === 'INACTIVE' || q.type === 'ACTIVE') return;
@@ -7118,11 +7163,39 @@
         const records = [];
         const ids = new Set();
         const addRec = r => {
-          if (!r || isRecordTombstoned(r) || ids.has(String(r.id))) return;
-          ids.add(String(r.id));
+          if (!r || isRecordTombstoned(r)) return;
+          const idKey = (r.id !== undefined && r.id !== null) ? String(r.id) : `${r.pay_date}_${r.amount}_${r.cust_id}_${r.officer}_${records.length}`;
+          if (ids.has(idKey)) return;
+          ids.add(idKey);
           records.push(r);
         };
         (paidFileRecords || []).forEach(addRec);
+
+        // Merge from localStorage for local/offline testing
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const lk = localStorage.key(i);
+            if (lk && lk.startsWith('shaha_paid_file_records_')) {
+              try {
+                const subParsed = JSON.parse(localStorage.getItem(lk));
+                if (Array.isArray(subParsed)) subParsed.forEach(addRec);
+              } catch(e) {}
+            }
+            if (lk && lk.startsWith('shaha_leaderboard_mis_v2_')) {
+              try {
+                const subOfficers = JSON.parse(localStorage.getItem(lk));
+                if (Array.isArray(subOfficers)) subOfficers.forEach(mergeOther);
+              } catch(e) {}
+            }
+          }
+          const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
+          if (masterLocal) {
+            try {
+              const mParsed = JSON.parse(masterLocal);
+              if (Array.isArray(mParsed)) mParsed.forEach(mergeOther);
+            } catch(e) {}
+          }
+        } catch(e) {}
 
         if (supabaseClient) {
           const [lb, pf, pinsRes] = await Promise.all([
@@ -7151,6 +7224,42 @@
             (pf.data || []).forEach(row => parse(row).forEach(addRec));
           }
         }
+
+        const ensureOtherCaller = (rawName, rawMgr) => {
+          let cleanName = String(rawName || '').trim().toUpperCase();
+          const rk = rawMgr ? resolveManagerUserKey(rawMgr) : '';
+          const canonicalMgr = (rk && USER_CREDENTIALS[rk] && USER_CREDENTIALS[rk].name)
+            ? USER_CREDENTIALS[rk].name.toUpperCase()
+            : (String(rawMgr || '').trim().toUpperCase() || 'GENERAL');
+          if (isUserDeleted(canonicalMgr)) return;
+          if (!cleanName || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(cleanName)) {
+            cleanName = `DIRECT (${canonicalMgr})`;
+          }
+          if (cleanName.includes(' / ') || isUserDeleted(cleanName)) return;
+          mergeOther({
+            name: cleanName,
+            aliases: cleanName.includes('DIRECT') ? `${cleanName},--,N/A,NA,NONE,UNASSIGNED,NULL` : cleanName,
+            target: 0,
+            baseline_aoy: 0,
+            aoy: 0,
+            baseline_today: 0,
+            today: 0,
+            projection: 0,
+            total: 0,
+            balance: 0,
+            achieved: 0,
+            rank: 999,
+            manager: canonicalMgr
+          });
+        };
+        records.forEach(r => {
+          if (!r || isRecordTombstoned(r)) return;
+          if (Array.isArray(r.splits) && r.splits.length > 0) {
+            r.splits.forEach(s => { if (s && s.officer) ensureOtherCaller(s.officer, r.manager); });
+          } else {
+            ensureOtherCaller(r.officer, r.manager);
+          }
+        });
 
         const periodInp = document.getElementById('leaderboard-period-input');
         const todayStr = (periodInp && periodInp.value.trim()) ? periodInp.value.trim() : getTodayFormattedStr();
@@ -7194,20 +7303,22 @@
 
       // Ensure callers referenced in paid data (including splits) exist in leaderboardOfficers so they never go missing from Daily MIS
       const ensurePaidCaller = (rawName, rawMgr) => {
-        const cleanName = String(rawName || '').trim().toUpperCase();
-        if (!cleanName || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(cleanName)) return;
-        if (cleanName.includes(' / ') || isManagerName(cleanName) || isUserDeleted(cleanName)) return;
+        let cleanName = String(rawName || '').trim().toUpperCase();
         const rk = rawMgr ? resolveManagerUserKey(rawMgr) : '';
         const canonicalMgr = (rk && USER_CREDENTIALS[rk] && USER_CREDENTIALS[rk].name)
           ? USER_CREDENTIALS[rk].name.toUpperCase()
           : (String(rawMgr || (!isGlobalViewer && typeof myManagerName === 'function' ? myManagerName() : '') || '').trim().toUpperCase() || 'GENERAL');
         if (isUserDeleted(canonicalMgr)) return;
+        if (!cleanName || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(cleanName)) {
+          cleanName = `DIRECT (${canonicalMgr})`;
+        }
+        if (cleanName.includes(' / ') || isUserDeleted(cleanName)) return;
         if (isOfficerTombstoned({ name: cleanName, manager: canonicalMgr })) return;
         const exists = leaderboardOfficers.some(o => isOfficerMatch(o, cleanName) || ((o.name || '').toUpperCase().trim() === cleanName));
         if (!exists) {
           leaderboardOfficers.push({
             name: cleanName,
-            aliases: cleanName,
+            aliases: cleanName.includes('DIRECT') ? `${cleanName},--,N/A,NA,NONE,UNASSIGNED,NULL` : cleanName,
             target: 0,
             baseline_aoy: 0,
             aoy: 0,
@@ -7226,7 +7337,7 @@
         if (!r || isRecordTombstoned(r)) return;
         if (Array.isArray(r.splits) && r.splits.length > 0) {
           r.splits.forEach(s => { if (s && s.officer) ensurePaidCaller(s.officer, r.manager); });
-        } else if (r.officer) {
+        } else {
           ensurePaidCaller(r.officer, r.manager);
         }
       });
@@ -7340,7 +7451,8 @@
       // For Manager: sum of their own officer totals (or sum of their own paid records)
       const monthRecords = myPaidRecords.filter(r => isInCurrentMonth(r.pay_date, todayStr));
       const myTotalCollection = monthRecords.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
-      const displayTotal = sumTotal > 0 ? sumTotal : myTotalCollection;
+      const displayTotal = myTotalCollection > 0 ? myTotalCollection : sumTotal;
+      const displayBal = Math.max(0, sumTarget - displayTotal);
 
       let avgAchieved = sumTarget > 0 ? Math.round((displayTotal / sumTarget) * 100) : 0;
 
@@ -7350,7 +7462,7 @@
       if (mtdCountEl) mtdCountEl.innerText = `${monthRecords.length} cases this month`;
       if (targetEl) targetEl.innerText = `₹${sumTarget.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
       if (pctEl) pctEl.innerText = `${avgAchieved}%`;
-      if (balEl) balEl.innerText = `Bal: ₹${Math.max(0, sumBalance).toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+      if (balEl) balEl.innerText = `Bal: ₹${displayBal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
       if (typeof renderGreeting === 'function') renderGreeting();
       const callersCountEl = document.getElementById('kpi-target-callers-count');
       if (callersCountEl) callersCountEl.innerText = `${scopedOfficers.length} Callers`;
@@ -9397,12 +9509,10 @@ var misExpandedManagers = new Set();
         }
       }
 
-      // Also ensure any manager named in company-wide callers exists (as long as not deleted and not non-manager)
+      // Also ensure any manager named in company-wide callers exists (never skip any caller)
       getAllCompanyOfficersReadOnly().forEach(off => {
-        const offMgr = (off.manager || '').trim();
-        if (!offMgr) return;
+        let offMgr = (off.manager || '').trim();
         if (isUserDeleted(offMgr)) return; // Strictly skip deleted managers!
-        if (nonManagerNames.has(offMgr.toLowerCase())) return; // Strictly skip non-managers
 
         let foundKey = null;
         for (const mk in managersMap) {
@@ -9411,21 +9521,27 @@ var misExpandedManagers = new Set();
             break;
           }
         }
+        if (!foundKey && offMgr) {
+          const rk = resolveManagerUserKey(offMgr);
+          if (rk && managersMap[rk]) foundKey = rk;
+        }
         if (!foundKey) {
-          const safeKey = offMgr.toLowerCase().replace(/[^a-z0-9]/g, '_');
-          if (isUserDeleted(safeKey)) return;
-          managersMap[safeKey] = {
-            key: safeKey,
-            name: offMgr,
-            branch: getBranchForManager(offMgr),
-            target: 0,
-            aoy: 0,
-            today: 0,
-            total: 0,
-            balance: 0,
-            callers: []
-          };
-          foundKey = safeKey;
+          const b = getBranchForManager(offMgr) || 'JOGESHWARI';
+          const defaultKey = `mgr_${b.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+          if (!managersMap[defaultKey]) {
+            managersMap[defaultKey] = {
+              key: defaultKey,
+              name: (offMgr && !nonManagerNames.has(offMgr.toLowerCase())) ? offMgr : `${b} GENERAL`,
+              branch: b,
+              target: 0,
+              aoy: 0,
+              today: 0,
+              total: 0,
+              balance: 0,
+              callers: []
+            };
+          }
+          foundKey = defaultKey;
         }
 
         const t = Number(off.target) || 0;
