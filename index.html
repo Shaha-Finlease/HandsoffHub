@@ -1802,10 +1802,16 @@
       </div>
 
       <div class="flex items-center justify-between pt-3 border-t border-slate-200">
-        <button id="btn-delete-officer" onclick="deleteOfficerFromModal()" class="hidden px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-xs font-bold border border-rose-200 transition">Mark Left</button>
+        <div class="flex items-center gap-2">
+          <button id="btn-permanent-delete-officer" type="button" onclick="permanentlyDeleteOfficerFromModal()" class="hidden px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>Delete Caller</span>
+          </button>
+          <button id="btn-delete-officer" type="button" onclick="deleteOfficerFromModal()" class="hidden px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg text-xs font-bold border border-rose-200 transition cursor-pointer">Mark Left</button>
+        </div>
         <div class="flex items-center gap-2 ml-auto">
-          <button onclick="closeOfficerModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold transition">Cancel</button>
-          <button onclick="saveOfficerModal()" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm transition">Save Officer</button>
+          <button type="button" onclick="closeOfficerModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold transition cursor-pointer">Cancel</button>
+          <button type="button" onclick="saveOfficerModal()" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm transition cursor-pointer">Save Officer</button>
         </div>
       </div>
     </div>
@@ -1831,6 +1837,7 @@
           <select id="request-type" onchange="onRequestTypeChange()" class="w-full font-bold bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs">
             <option value="TODAY">Today collection</option>
             <option value="MTD">MTD collection</option>
+            <option value="DELETE">Delete caller (Permanent deletion)</option>
           </select>
         </div>
         <div>
@@ -2176,21 +2183,25 @@
         const mgrClean = clean(mgrUpper);
         if (onlyManager && mgrKey !== onlyKey && mgrClean !== onlyClean) continue;
 
-        const matchingRows = list.filter(o => {
-          if (!o) return false;
+        // Check if this manager already has actual callers in the list
+        const hasActualCallers = list.some(o => {
+          if (!o || o.isManagerSelf) return false;
           const sameTeam = !o.manager || resolveManagerUserKey(o.manager) === mgrKey || clean(o.manager) === mgrClean;
-          return sameTeam && (clean(o.name) === mgrClean || cleanNoParen(o.name) === mgrClean);
+          return sameTeam && !isManagerName(o.name) && !String(o.name || '').toUpperCase().includes('(SELF)');
         });
 
-        // If a saved "(SELF)" row already exists alongside an auto-added plain duplicate, remove the plain duplicate
-        const selfParenIdx = matchingRows.findIndex(o => clean(o.name) !== mgrClean && cleanNoParen(o.name) === mgrClean);
-        if (selfParenIdx >= 0 && matchingRows.length > 1) {
+        // If team already has real callers, remove any auto-generated 0-target manager placeholder
+        if (hasActualCallers) {
           for (let i = list.length - 1; i >= 0; i--) {
             const o = list[i];
             if (!o) continue;
             const sameTeam = !o.manager || resolveManagerUserKey(o.manager) === mgrKey || clean(o.manager) === mgrClean;
-            if (sameTeam && o.isManagerSelf && clean(o.name) === mgrClean) list.splice(i, 1);
+            const isSelfRow = o.isManagerSelf || String(o.name || '').toUpperCase().includes('(SELF)') || clean(o.name) === mgrClean;
+            if (sameTeam && isSelfRow && !(Number(o.target) > 0) && !(Number(o.total) > 0)) {
+              list.splice(i, 1);
+            }
           }
+          continue;
         }
 
         const exists = list.some(o => {
@@ -2220,13 +2231,18 @@
     }
 
     function isOfficerTombstoned(o) {
-      if (o && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => s.name === o.name && (!s.manager || s.manager === o.manager))) return false;
-      if (o && (o.isManagerSelf || (o.name && (o.name.includes('(SELF)') || o.name.includes('DIRECT'))))) return false;
-      if (o && isManagerName(o.name)) return true;
       if (!o) return true;
+      if (o.isManagerSelf || (o.name && (o.name.includes('(SELF)') || o.name.includes('DIRECT')))) return false;
+      if (isManagerName(o.name)) return true;
       if (o.manager && isUserDeleted(o.manager)) return true;
-      const k1 = `${(o.manager || '').toUpperCase().trim()}_${(o.name || '').toUpperCase().trim()}`;
-      return deletedOfficerKeys.has(k1);
+      const oName = String(o.name || '').toUpperCase().trim();
+      const oMgr = String(o.manager || '').toUpperCase().trim();
+      const k1 = `${oMgr}_${oName}`;
+      if (deletedOfficerKeys.has(k1) || deletedOfficerKeys.has(oName)) return true;
+      for (const k of deletedOfficerKeys) {
+        if (k === oName || k === k1 || k.endsWith('_' + oName)) return true;
+      }
+      return false;
     }
 
     function isRecordTombstoned(r) {
@@ -2261,7 +2277,6 @@
                 }
               }
               cloudTombstones.officers.forEach(k => {
-                if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => k === s.name || k.endsWith('_' + s.name))) return;
                 const ku = String(k || '').toUpperCase().trim();
                 for (const am of activeMgrUpperSet) {
                   if (ku === am || ku === `${am}_${am}` || ku === `${am}_${am} (SELF)` || ku.endsWith(`_${am}`) || ku.endsWith(`_${am} (SELF)`)) return;
@@ -2317,10 +2332,6 @@
       { name: 'POONAM KANOJIA', aliases: 'POONAM KANOJIA', target: 253000, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 253000, achieved: 0, rank: 1, manager: 'SHWETA SINGH' },
       { name: 'KUMAR MULE', aliases: 'KUMAR MULE', target: 308000, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 308000, achieved: 0, rank: 1, manager: 'SHRAVANTHI P' }
     ];
-    ['SMITA JAGTAP_KALPITA RIKAME', 'KALPITA RIKAME', 'SMITA JAGTAP_NIDHI KADAM', 'NIDHI KADAM', 'SHWETA SINGH_POONAM KANOJIA', 'POONAM KANOJIA', 'SHRAVANTHI P_KUMAR MULE', 'SHRAVANTHI_KUMAR MULE', 'KUMAR MULE'].forEach(k => deletedOfficerKeys.delete(k));
-    try { ['shaha_leaderboard_mis_v2_shweta', 'shaha_leaderboard_mis_v2_shweta_singh'].forEach(sk => { let list = []; try { list = JSON.parse(localStorage.getItem(sk)) || []; } catch(e) {} if (!Array.isArray(list)) list = []; if (!list.some(o => (o.name || '').toUpperCase().trim() === 'POONAM KANOJIA')) { list.push({ name: 'POONAM KANOJIA', aliases: 'POONAM KANOJIA', target: 253000, baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, projection: 0, total: 0, balance: 253000, achieved: 0, rank: list.length + 1, manager: 'SHWETA SINGH' }); localStorage.setItem(sk, JSON.stringify(list)); } }); } catch(e) {}
-    try { ['shaha_leaderboard_mis_v2_smita', 'shaha_leaderboard_mis_v2_smita_jagtap'].forEach(sk => { let list = []; try { list = JSON.parse(localStorage.getItem(sk)) || []; } catch(e) {} if (!Array.isArray(list)) list = []; ['KALPITA RIKAME', 'NIDHI KADAM'].forEach(name => { if (!list.some(o => (o.name || '').toUpperCase().trim() === name)) { const seed = SEED_OFFICERS.find(s => s.name === name); if (seed) list.push(JSON.parse(JSON.stringify(seed))); } }); localStorage.setItem(sk, JSON.stringify(list)); }); } catch(e) {}
-    try { ['shaha_leaderboard_mis_v2_shravanthi', 'shaha_leaderboard_mis_v2_shravanthi_p'].forEach(sk => { let list = []; try { list = JSON.parse(localStorage.getItem(sk)) || []; } catch(e) {} if (!Array.isArray(list)) list = []; const idx = list.findIndex(o => o && (o.name || '').toUpperCase().trim() === 'KUMAR MULE'); const seed = SEED_OFFICERS.find(s => s.name === 'KUMAR MULE'); if (seed) { if (idx < 0) list.push(JSON.parse(JSON.stringify(seed))); else if (!(Number(list[idx].target) > 0)) list[idx].target = 308000; localStorage.setItem(sk, JSON.stringify(list)); } }); } catch(e) {}
 
     function createFreshLeaderboardOfficers() {
       return JSON.parse(JSON.stringify(SEED_OFFICERS));
@@ -2335,7 +2346,7 @@
       return false;
     }
 
-    // Auto-clean any legacy dummy callers from browser localStorage
+    // Auto-clean any legacy dummy callers and duplicates from browser localStorage
     function purgeLegacyDummyLeaderboardData() {
       try {
         for (let i = 0; i < localStorage.length; i++) {
@@ -2347,6 +2358,21 @@
                 let parsed = JSON.parse(val);
                 if (Array.isArray(parsed)) {
                   parsed = parsed.filter(o => o && o.name && !isManagerName(o.name));
+                  // Deduplicate callers by canonical manager + name
+                  const dedup = new Map();
+                  parsed.forEach(o => {
+                    const cKey = `${String(o.manager || '').toUpperCase().trim()}_${String(o.name || '').toUpperCase().trim()}`;
+                    if (!dedup.has(cKey)) {
+                      dedup.set(cKey, o);
+                    } else {
+                      const cur = dedup.get(cKey);
+                      const isCurEx = Boolean(cur.inactive || cur.status === 'LEFT' || cur.status === 'RESIGNED' || cur.status === 'INACTIVE');
+                      const isNewEx = Boolean(o.inactive || o.status === 'LEFT' || o.status === 'RESIGNED' || o.status === 'INACTIVE');
+                      if (isCurEx && !isNewEx) dedup.set(cKey, o);
+                      else if (Number(o.target) > 0 && !(Number(cur.target) > 0)) cur.target = Number(o.target);
+                    }
+                  });
+                  parsed = Array.from(dedup.values());
                   localStorage.setItem(k, JSON.stringify(parsed));
                 }
                 if (isLegacyDummyCallerList(parsed)) {
@@ -2473,7 +2499,8 @@
         const comboKey = `${cleanMgr}_${cleanName}`;
         const baseComboKey = `${cleanMgr}_${baseName}`;
         const nameKey = cleanName;
-        const isSeedCaller = typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS) && SEED_OFFICERS.some(s => s.name === cleanName); if (!isSeedCaller && (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey) || deletedOfficerKeys.has(baseComboKey) || deletedOfficerKeys.has(baseName))) return; if (isManagerName(cleanName)) return;
+        if (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey) || deletedOfficerKeys.has(baseComboKey) || deletedOfficerKeys.has(baseName)) return;
+        if (isManagerName(cleanName)) return;
         if (isUserDeleted(manager)) return;
         if (seenCombo.has(comboKey) || seenCombo.has(nameKey) || (baseName && (seenCombo.has(baseName) || seenCombo.has(baseComboKey)))) return;
 
@@ -2496,39 +2523,7 @@
         if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases);
       });
 
-      // 2. SEED_OFFICERS (only own team for Managers; all teams for Admin/Global)
-      if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
-        SEED_OFFICERS.forEach(o => {
-          if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases);
-        });
-      }
 
-      // 3 & 4. Master & other-manager localStorage partitions: Global roles only (Managers use their own partition + addCallerObj guard)
-      if (isGlobalRole) {
-        try {
-          const masterStr = localStorage.getItem('shaha_leaderboard_mis_v2');
-          if (masterStr) {
-            const parsed = JSON.parse(masterStr);
-            if (Array.isArray(parsed)) {
-              parsed.forEach(o => { if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases); });
-            }
-          }
-        } catch(e) {}
-
-        try {
-          for (let i = 0; i < localStorage.length; i++) {
-            const lk = localStorage.key(i);
-            if (lk && lk.startsWith('shaha_leaderboard_mis_v2_') && lk !== 'shaha_leaderboard_mis_v2') {
-              try {
-                const list = JSON.parse(localStorage.getItem(lk));
-                if (Array.isArray(list)) {
-                  list.forEach(o => { if (o && o.name) addCallerObj(o.name, o.target, o.manager, o.aliases); });
-                }
-              } catch(e) {}
-            }
-          }
-        } catch(e) {}
-      }
 
       // 5. Any caller used in scoped paidFileRecords
       (paidFileRecords || []).forEach(r => {
@@ -2750,9 +2745,16 @@
 
       isRemoteSyncInProgress = true;
       try {
-        if (!refNo || refNo.includes('CREDENTIALS') || refNo.includes('DELETED') || refNo.includes('PAID')) {
+        if (!refNo || refNo.includes('CREDENTIALS') || refNo.includes('DELETED') || refNo.includes('PAID') || refNo.includes('LEADERBOARD') || refNo.includes('REQUESTS')) {
           await syncDeletedTombstonesWithCloud();
           await syncCredentialsWithCloud();
+        }
+
+        if (typeof loadCollectionRequests === 'function') {
+          await loadCollectionRequests();
+          if (document.getElementById('requests-modal') && !document.getElementById('requests-modal').classList.contains('hidden') && typeof renderRequestsList === 'function') {
+            renderRequestsList();
+          }
         }
 
         await Promise.all([
@@ -3557,288 +3559,174 @@
       let loaded = false;
 
       if (!isAdm) {
-        // NON-ADMIN MANAGER: Load strictly own partition and own team callers
+        // NON-ADMIN MANAGER: Authoritative sync from Master SYS_LEADERBOARD_MIS configured by Admin
         const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-        try {
-          const local = localStorage.getItem(localKey);
-          if (local !== null && local !== undefined) {
-            let parsed = JSON.parse(local);
-            if (Array.isArray(parsed)) {
-              parsed = parsed.filter(o => !isOfficerTombstoned(o) && (!myDisplayName || isOfficerUnderManager(o, myDisplayName)));
-              if (parsed.length > 0) {
-                leaderboardOfficers = parsed;
-                loaded = true;
+
+        // 1. Primary Source: Authoritative master list configured by Admin in SYS_LEADERBOARD_MIS
+        if (supabaseClient) {
+          try {
+            const { data: mData } = await supabaseClient
+              .from('bank_transactions')
+              .select('*')
+              .eq('ref_no', 'SYS_LEADERBOARD_MIS')
+              .order('updated_at', { ascending: false, nullsFirst: false })
+              .order('id', { ascending: false })
+              .limit(1);
+
+            if (mData && mData.length > 0 && mData[0].narration) {
+              const masterList = JSON.parse(mData[0].narration);
+              if (Array.isArray(masterList)) {
+                let myCallers = masterList.filter(o => o && !isOfficerTombstoned(o) && isOfficerUnderManager(o, myDisplayName));
+                if (myCallers.length > 0) {
+                  ensureManagersInTeams(myCallers, myDisplayName);
+
+                  // Deduplicate by clean name and strictly preserve master caller attributes configured by Admin
+                  const dedup = new Map();
+                  myCallers.forEach(o => {
+                    if (!o || !o.name || isOfficerTombstoned(o)) return;
+                    const cName = String(o.name).toUpperCase().trim();
+                    if (!dedup.has(cName)) {
+                      dedup.set(cName, Object.assign({}, o, { name: cName, manager: o.manager || myDisplayName }));
+                    } else {
+                      const cur = dedup.get(cName);
+                      if (o.target !== undefined && !isNaN(Number(o.target))) cur.target = Number(o.target);
+                      if (o.emp_code && !cur.emp_code) cur.emp_code = o.emp_code;
+                      if (o.joining_date && !cur.joining_date) cur.joining_date = o.joining_date;
+                      if (o.status && !cur.status) cur.status = o.status;
+                    }
+                  });
+                  leaderboardOfficers = Array.from(dedup.values());
+                  localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+                  localStorage.setItem('shaha_leaderboard_mis_v2_' + myMgrName, JSON.stringify(leaderboardOfficers));
+                  loaded = true;
+                }
               }
             }
-          }
-        } catch (e) {}
+          } catch(e) {}
+        }
 
-        if (supabaseClient) {
+        // 2. Secondary fallback if master copy unreachable: Load manager's own cloud partition
+        if (!loaded && supabaseClient) {
           try {
             const { data, error } = await supabaseClient
               .from('bank_transactions')
               .select('*')
               .eq('ref_no', cloudRef)
               .order('updated_at', { ascending: false, nullsFirst: false })
-              .order('id', { ascending: false });
+              .order('id', { ascending: false })
+              .limit(1);
 
-            if (!error && data && data.length > 0) {
-              const merged = [...leaderboardOfficers];
-              for (const row of [...data].reverse()) {
-                if (!row || !row.narration) continue;
-                try {
-                  let cloudList = JSON.parse(row.narration);
-                  if (Array.isArray(cloudList)) {
-                    cloudList.forEach(o => { if (o && !o.manager && myDisplayName) o.manager = myDisplayName; });
-                    cloudList = cloudList.filter(o => !isOfficerTombstoned(o) && (!myDisplayName || isOfficerUnderManager(o, myDisplayName)));
-                    cloudList.forEach(cOff => {
-                      if (isOfficerTombstoned(cOff)) return;
-                      const mIdx = merged.findIndex(m => (m.name || '').toUpperCase().trim() === (cOff.name || '').toUpperCase().trim());
-                      if (mIdx >= 0) { merged[mIdx] = Object.assign({}, merged[mIdx], cOff); } else { merged.push(cOff); }
-                    });
-                    loaded = true;
-                  }
-                } catch(e) {}
-              }
-              if (loaded) {
-                leaderboardOfficers = merged;
-                localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+            if (!error && data && data.length > 0 && data[0].narration) {
+              const cloudList = JSON.parse(data[0].narration);
+              if (Array.isArray(cloudList)) {
+                let filtered = cloudList.filter(o => o && !isOfficerTombstoned(o) && isOfficerUnderManager(o, myDisplayName));
+                if (filtered.length > 0) {
+                  ensureManagersInTeams(filtered, myDisplayName);
+                  const dedup = new Map();
+                  filtered.forEach(o => {
+                    const cName = String(o.name || '').toUpperCase().trim();
+                    if (cName && !dedup.has(cName)) dedup.set(cName, Object.assign({}, o, { name: cName, manager: o.manager || myDisplayName }));
+                  });
+                  leaderboardOfficers = Array.from(dedup.values());
+                  localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+                  loaded = true;
+                }
               }
             }
-          } catch (e) {}
+          } catch(e) {}
         }
 
-        // Always merge any missing callers for this manager from master local/cloud copy
-        {
-          const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-          const mergeMissingForMgr = (sourceList) => {
-            if (!Array.isArray(sourceList) || !myDisplayName) return false;
-            const myCallers = sourceList.filter(o => o && !isOfficerTombstoned(o) && isOfficerUnderManager(o, myDisplayName));
-            if (myCallers.length === 0) return false;
-            let changed = false;
-            myCallers.forEach(cOff => {
-              const cName = (cOff.name || '').toUpperCase().trim();
-              if (!cName) return;
-              const exists = leaderboardOfficers.some(m => (m.name || '').toUpperCase().trim() === cName);
-              if (!exists) {
-                leaderboardOfficers.push(Object.assign({}, cOff));
-                changed = true;
-              }
-            });
-            if (changed) localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            return myCallers.length > 0;
-          };
-
+        // 3. Tertiary fallback: localStorage (master local or localKey)
+        if (!loaded) {
           try {
             const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
             if (masterLocal) {
-              if (mergeMissingForMgr(JSON.parse(masterLocal))) loaded = true;
-            }
-          } catch(e) {}
-
-          if (supabaseClient) {
-            try {
-              const { data: mData } = await supabaseClient
-                .from('bank_transactions')
-                .select('*')
-                .eq('ref_no', 'SYS_LEADERBOARD_MIS')
-                .order('updated_at', { ascending: false, nullsFirst: false })
-                .order('id', { ascending: false });
-              if (mData && mData.length > 0) {
-                for (const row of mData) {
-                  if (row && row.narration) {
-                    try { if (mergeMissingForMgr(JSON.parse(row.narration))) loaded = true; } catch(e) {}
-                  }
+              const mList = JSON.parse(masterLocal);
+              if (Array.isArray(mList)) {
+                const myCallers = mList.filter(o => o && !isOfficerTombstoned(o) && isOfficerUnderManager(o, myDisplayName));
+                if (myCallers.length > 0) {
+                  leaderboardOfficers = myCallers;
+                  loaded = true;
                 }
               }
-            } catch(e) {}
-          }
+            }
+            if (!loaded) {
+              const local = localStorage.getItem(localKey);
+              if (local) {
+                const parsed = JSON.parse(local);
+                if (Array.isArray(parsed)) {
+                  leaderboardOfficers = parsed.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, myDisplayName));
+                  if (leaderboardOfficers.length > 0) loaded = true;
+                }
+              }
+            }
+          } catch(e) {}
         }
 
         if (!loaded && leaderboardOfficers.length === 0) {
-          if (leaderboardOfficers.length === 0) leaderboardOfficers = [];
+          leaderboardOfficers = [];
         }
-        const activeMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-        if (restorePinnedNewCallers(leaderboardOfficers, activeMgr)) {
-          localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-        }
-        SEED_OFFICERS.forEach(sOff => {
-          if (!isOfficerTombstoned(sOff) && isOfficerUnderManager(sOff, activeMgr)) {
-            const existing = leaderboardOfficers.find(o => (o.name || '').toUpperCase().trim() === (sOff.name || '').toUpperCase().trim());
-            if (!existing) {
-              leaderboardOfficers.push(Object.assign({}, sOff));
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            } else if (!(Number(existing.target) > 0) && Number(sOff.target) > 0) {
-              existing.target = sOff.target;
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            }
-          }
-        });
-        if (false) {
-          if (typeof paidFileRecords !== 'undefined' && localKey.includes('paid')) { if (paidFileRecords.length === 0) localStorage.setItem(localKey, '[]'); else localStorage.setItem(localKey, JSON.stringify(paidFileRecords)); } else { if (leaderboardOfficers.length === 0) localStorage.setItem(localKey, '[]'); else localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers)); }
-        }
+        ensureManagersInTeams(leaderboardOfficers, myDisplayName);
+
       } else {
-        // SUPER ADMIN: Load ALL manager partitions + master copy
+        // SUPER ADMIN: Load authoritative master copy SYS_LEADERBOARD_MIS
         const normOffKey = (o) => `${String((o && o.manager) || '').toUpperCase().trim()}_${String((o && o.name) || '').toUpperCase().trim()}`;
-        try {
-          let allAdminCallers = [];
-          const seenAdminKeys = new Set();
-          const masterLocal = localStorage.getItem(localKey);
-          if (masterLocal) {
-            const parsed = JSON.parse(masterLocal);
-            if (Array.isArray(parsed)) parsed.forEach(o => {
-              const k = normOffKey(o);
-              if (!isOfficerTombstoned(o) && !seenAdminKeys.has(k)) {
-                seenAdminKeys.add(k);
-                allAdminCallers.push(o);
-              }
-            });
-          }
-          for (let i = 0; i < localStorage.length; i++) {
-            const lk = localStorage.key(i);
-            if (lk && lk.startsWith('shaha_leaderboard_mis_v2_') && lk !== localKey) {
-              try {
-                const subParsed = JSON.parse(localStorage.getItem(lk));
-                if (Array.isArray(subParsed)) subParsed.forEach(o => {
-                  const k = normOffKey(o);
-                  if (!isOfficerTombstoned(o) && !seenAdminKeys.has(k)) {
-                    seenAdminKeys.add(k);
-                    allAdminCallers.push(o);
-                  }
-                });
-              } catch(e) {}
-            }
-          }
-          if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
-            SEED_OFFICERS.forEach(o => {
-              const k = normOffKey(o);
-              if (!isOfficerTombstoned(o) && !seenAdminKeys.has(k)) {
-                seenAdminKeys.add(k);
-                allAdminCallers.push(JSON.parse(JSON.stringify(o)));
-              }
-            });
-          }
-          if (allAdminCallers.length > 0) {
-            leaderboardOfficers = allAdminCallers;
-            loaded = true;
-          }
-        } catch(e) {}
 
         if (supabaseClient) {
           try {
-            let allOfficers = [];
-            const seenOfficerKeys = new Set();
-
-            // 1. Authoritative master copy SYS_LEADERBOARD_MIS (Admin & global views - merge across all rows newest-last)
             const { data: mData } = await supabaseClient
               .from('bank_transactions')
               .select('*')
               .eq('ref_no', 'SYS_LEADERBOARD_MIS')
               .order('updated_at', { ascending: false, nullsFirst: false })
-              .order('id', { ascending: false });
+              .order('id', { ascending: false })
+              .limit(1);
 
-            if (mData && mData.length > 0) {
-              for (const row of mData) {
-                if (!row || !row.narration) continue;
-                try {
-                  const mList = JSON.parse(row.narration);
-                  if (Array.isArray(mList)) {
-                    mList.forEach(o => {
-                      if (!isOfficerTombstoned(o)) {
-                        const uniqueKey = normOffKey(o);
-                        if (!seenOfficerKeys.has(uniqueKey)) {
-                          seenOfficerKeys.add(uniqueKey);
-                          allOfficers.push(o);
-                        }
-                      }
-                    });
+            if (mData && mData.length > 0 && mData[0].narration) {
+              const mList = JSON.parse(mData[0].narration);
+              if (Array.isArray(mList) && mList.length > 0) {
+                const seenKeys = new Set();
+                const cleanList = [];
+                mList.forEach(o => {
+                  if (o && o.name && !isOfficerTombstoned(o)) {
+                    const uKey = normOffKey(o);
+                    if (!seenKeys.has(uKey)) {
+                      seenKeys.add(uKey);
+                      cleanList.push(o);
+                    }
                   }
-                } catch(e) {}
+                });
+                if (cleanList.length > 0) {
+                  ensureManagersInTeams(cleanList);
+                  restorePinnedNewCallers(cleanList);
+                  leaderboardOfficers = cleanList;
+                  localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+                  loaded = true;
+                }
               }
             }
+          } catch(e) {}
+        }
 
-            // 2. Also check manager partitions SYS_LEADERBOARD_MIS_% for any newer/additional callers
-            const { data, error } = await supabaseClient
-              .from('bank_transactions')
-              .select('*')
-              .ilike('ref_no', 'SYS_LEADERBOARD_MIS_%')
-              .order('updated_at', { ascending: true, nullsFirst: true })
-              .order('id', { ascending: true });
-
-            if (!error && data && data.length > 0) {
-              data.forEach(row => {
-                try {
-                  const list = JSON.parse(row.narration);
-                  if (Array.isArray(list)) {
-                    let rowMgr = '';
-                    const mMatch = (row.ref_no || '').match(/^SYS_LEADERBOARD_MIS_(.+)$/i);
-                    if (mMatch) {
-                      const mk = mMatch[1].toLowerCase();
-                      const resolvedKey = USER_CREDENTIALS[mk] ? mk : resolveManagerUserKey(mk.replace(/_/g, ' '));
-                      if (resolvedKey && USER_CREDENTIALS[resolvedKey]) rowMgr = USER_CREDENTIALS[resolvedKey].name;
-                      else rowMgr = mk.replace(/_/g, ' ').toUpperCase();
-                    }
-                    list.forEach(o => {
-                      if (!o.manager && rowMgr) o.manager = rowMgr;
-                      const uniqueKey = normOffKey(o);
-                      if (!isOfficerTombstoned(o)) {
-                        if (!seenOfficerKeys.has(uniqueKey)) {
-                          seenOfficerKeys.add(uniqueKey);
-                          allOfficers.push(o);
-                        } else {
-                          // Update numbers from manager partition if partition is newer
-                          const existingIdx = allOfficers.findIndex(e => normOffKey(e) === uniqueKey);
-                          if (existingIdx >= 0 && o.target !== undefined) {
-                            allOfficers[existingIdx] = Object.assign({}, allOfficers[existingIdx], o);
-                          }
-                        }
-                      }
-                    });
-                  }
-                } catch(e) {}
-              });
-            }
-
-            if (allOfficers.length > 0) {
-              const mergedAdmin = [...leaderboardOfficers];
-              allOfficers.forEach(cOff => {
-                const uKey = normOffKey(cOff);
-                const mIdx = mergedAdmin.findIndex(m => normOffKey(m) === uKey);
-                if (mIdx >= 0) { mergedAdmin[mIdx] = Object.assign({}, mergedAdmin[mIdx], cOff); }
-                else if (!isOfficerTombstoned(cOff)) { mergedAdmin.push(cOff); }
-              });
-              leaderboardOfficers = mergedAdmin;
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-              loaded = true;
+        // Secondary fallback if offline or no cloud data: load from localStorage
+        if (!loaded) {
+          try {
+            const masterLocal = localStorage.getItem(localKey);
+            if (masterLocal) {
+              const parsed = JSON.parse(masterLocal);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                leaderboardOfficers = parsed.filter(o => o && !isOfficerTombstoned(o));
+                ensureManagersInTeams(leaderboardOfficers);
+                loaded = true;
+              }
             }
           } catch(e) {}
         }
 
         if (!loaded && leaderboardOfficers.length === 0) {
-          if (leaderboardOfficers.length === 0) leaderboardOfficers = [];
+          leaderboardOfficers = [];
         }
-        if (restorePinnedNewCallers(leaderboardOfficers)) {
-          localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-        }
-        SEED_OFFICERS.forEach(sOff => {
-          if (!isOfficerTombstoned(sOff)) {
-            const sName = (sOff.name || '').toUpperCase().trim();
-            const sMk = getManagerStorageKey(sOff.manager || '');
-            const existing = leaderboardOfficers.find(o => {
-              if ((o.name || '').toUpperCase().trim() !== sName) return false;
-              return !o.manager || !sOff.manager || getManagerStorageKey(o.manager) === sMk || isOfficerUnderManager(o, sOff.manager);
-            });
-            if (!existing) {
-              leaderboardOfficers.push(Object.assign({}, sOff));
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            } else if (!(Number(existing.target) > 0) && Number(sOff.target) > 0) {
-              existing.target = sOff.target;
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            }
-          }
-        });
-        if (false) {
-        }
+        ensureManagersInTeams(leaderboardOfficers);
       }
 
       populateOfficerDropdowns();
@@ -3880,61 +3768,21 @@
       const { isAdm, myMgrName, cloudRef, localKey } = getLeaderboardStorageKeys();
       const activeMgrDisplay = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
 
-      // Preserve recently pinned newly added callers before persisting so stale tabs cannot drop them
-      restorePinnedNewCallers(leaderboardOfficers, isAdm ? '' : activeMgrDisplay);
+      // Prune tombstoned callers and ensure manager teams
+      leaderboardOfficers = (leaderboardOfficers || []).filter(o => o && o.name && !isOfficerTombstoned(o));
+      if (typeof ensureManagersInTeams === 'function') {
+        ensureManagersInTeams(leaderboardOfficers, isAdm ? '' : activeMgrDisplay);
+      }
       localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
 
       if (supabaseClient) {
         try {
-          // 0. Persist & pull cloud-pinned newly added callers (untouched by old client tabs/PCs)
-          await syncAddedCallerPinsWithCloud(true);
-          restorePinnedNewCallers(leaderboardOfficers, isAdm ? '' : activeMgrDisplay);
-
-          // 1. Fetch latest server state FIRST & merge un-tombstoned callers across all matching rows
+          // Check if cloudRef row exists
           const { data } = await supabaseClient
             .from('bank_transactions')
-            .select('id, narration')
+            .select('id')
             .eq('ref_no', cloudRef)
-            .order('updated_at', { ascending: false, nullsFirst: false })
-            .order('id', { ascending: false });
-
-          if (data && data.length > 0) {
-            for (const row of data) {
-              if (!row || !row.narration) continue;
-              try {
-                const serverList = JSON.parse(row.narration);
-                if (Array.isArray(serverList)) {
-                  mergeOfficersPreserveNew(leaderboardOfficers, serverList, isAdm ? '' : activeMgrDisplay);
-                }
-              } catch(e) {}
-            }
-          }
-
-          let masterRowData = null;
-          if (!isAdm) {
-            try {
-              const { data: mRow } = await supabaseClient
-                .from('bank_transactions')
-                .select('id, narration')
-                .eq('ref_no', 'SYS_LEADERBOARD_MIS')
-                .order('updated_at', { ascending: false, nullsFirst: false })
-                .order('id', { ascending: false });
-              masterRowData = mRow;
-              if (mRow && mRow.length > 0) {
-                for (const row of mRow) {
-                  if (!row || !row.narration) continue;
-                  try {
-                    const srvMaster = JSON.parse(row.narration) || [];
-                    if (Array.isArray(srvMaster)) {
-                      mergeOfficersPreserveNew(leaderboardOfficers, srvMaster, activeMgrDisplay);
-                    }
-                  } catch(e) {}
-                }
-              }
-            } catch(e) {}
-          }
-
-          localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+            .limit(1);
 
           if (data && data.length > 0) {
             await supabaseClient
@@ -3954,91 +3802,75 @@
               }]);
           }
 
-          // TWO-WAY SYNC: Distribute to individual manager partitions if Admin (awaited!); update master copy if Manager
           if (isAdm) {
-            const byMgr = {};
-            leaderboardOfficers.forEach(o => {
-              const mk = getManagerStorageKey(o.manager || 'general');
-              if (!byMgr[mk]) byMgr[mk] = [];
-              byMgr[mk].push(o);
-            });
-            let extraMergedFromPartition = false;
-            for (const mk in byMgr) {
+            // ADMIN: Authoritative distribution to all manager partitions
+            const allManagers = new Set();
+            if (typeof USER_CREDENTIALS !== 'undefined') {
+              for (const k in USER_CREDENTIALS) {
+                const u = USER_CREDENTIALS[k];
+                if (u && (u.role || 'MANAGER').toUpperCase() === 'MANAGER') {
+                  const mName = (u.name || u.username || k || '').trim();
+                  if (mName && !isUserDeleted(mName) && !isUserDeleted(k)) allManagers.add(mName);
+                }
+              }
+            }
+            leaderboardOfficers.forEach(o => { if (o && o.manager) allManagers.add(o.manager); });
+
+            for (const mName of allManagers) {
+              const mk = getManagerStorageKey(mName);
               const mRef = `SYS_LEADERBOARD_MIS_${mk}`;
+              const mgrCallers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, mName));
+              localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(mgrCallers));
               try {
                 const { data: pData } = await supabaseClient
                   .from('bank_transactions')
-                  .select('id, narration')
+                  .select('id')
                   .eq('ref_no', mRef)
-                  .order('updated_at', { ascending: false, nullsFirst: false })
-                  .order('id', { ascending: false });
-                if (pData && pData.length > 0) {
-                  for (const pRow of pData) {
-                    if (!pRow || !pRow.narration) continue;
-                    try {
-                      const pServer = JSON.parse(pRow.narration);
-                      if (Array.isArray(pServer)) {
-                        if (mergeOfficersPreserveNew(byMgr[mk], pServer)) {
-                          mergeOfficersPreserveNew(leaderboardOfficers, byMgr[mk]);
-                          extraMergedFromPartition = true;
-                        }
-                      }
-                    } catch(e) {}
-                  }
-                }
-                localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(byMgr[mk]));
+                  .limit(1);
                 if (pData && pData.length > 0) {
                   await supabaseClient
                     .from('bank_transactions')
-                    .update({ narration: JSON.stringify(byMgr[mk]), updated_at: new Date().toISOString() })
+                    .update({ narration: JSON.stringify(mgrCallers), updated_at: new Date().toISOString() })
                     .eq('ref_no', mRef);
                 } else {
                   await supabaseClient
                     .from('bank_transactions')
-                    .insert([{ bank_name: 'SYSTEM', ref_no: mRef, tx_date: '01-01-2026', amount: 0, narration: JSON.stringify(byMgr[mk]), status: 'SYSTEM' }]);
+                    .insert([{ bank_name: 'SYSTEM', ref_no: mRef, tx_date: '01-01-2026', amount: 0, narration: JSON.stringify(mgrCallers), status: 'SYSTEM' }]);
                 }
-              } catch(e) {
-                localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(byMgr[mk]));
-              }
-            }
-            localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            if (extraMergedFromPartition && data && data.length > 0) {
-              await supabaseClient
-                .from('bank_transactions')
-                .update({ narration: JSON.stringify(leaderboardOfficers), updated_at: new Date().toISOString() })
-                .eq('ref_no', cloudRef);
+              } catch(e) {}
             }
           } else {
+            // MANAGER: Save own partition and update this manager's callers in master SYS_LEADERBOARD_MIS
             try {
               const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
               let localMasterList = masterLocal ? JSON.parse(masterLocal) : [];
               if (!Array.isArray(localMasterList)) localMasterList = [];
-              localMasterList = localMasterList.filter(o => !isOfficerUnderManager(o, activeMgrDisplay));
-              localMasterList.push(...leaderboardOfficers);
-              localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(localMasterList));
+              const otherCallersLocal = localMasterList.filter(o => !isOfficerUnderManager(o, activeMgrDisplay));
+              const updatedMasterLocal = [...otherCallersLocal, ...leaderboardOfficers];
+              localStorage.setItem('shaha_leaderboard_mis_v2', JSON.stringify(updatedMasterLocal));
             } catch(e) {}
 
-            // Non-admin manager: Also update master copy in Supabase for global views
             try {
-              const mRow = masterRowData || (await supabaseClient
+              const { data: mData } = await supabaseClient
                 .from('bank_transactions')
                 .select('id, narration')
                 .eq('ref_no', 'SYS_LEADERBOARD_MIS')
                 .order('updated_at', { ascending: false, nullsFirst: false })
-                .order('id', { ascending: false })).data;
+                .order('id', { ascending: false })
+                .limit(1);
 
               let masterList = [];
-              if (mRow && mRow.length > 0 && mRow[0].narration) {
-                try { masterList = JSON.parse(mRow[0].narration) || []; } catch(e) {}
+              if (mData && mData.length > 0 && mData[0].narration) {
+                try { masterList = JSON.parse(mData[0].narration) || []; } catch(e) {}
               }
               if (!Array.isArray(masterList)) masterList = [];
-              masterList = masterList.filter(o => !isOfficerUnderManager(o, activeMgrDisplay));
-              masterList.push(...leaderboardOfficers);
+              const otherCallers = masterList.filter(o => !isOfficerUnderManager(o, activeMgrDisplay));
+              const updatedMaster = [...otherCallers, ...leaderboardOfficers];
 
-              if (mRow && mRow.length > 0) {
+              if (mData && mData.length > 0) {
                 await supabaseClient
                   .from('bank_transactions')
-                  .update({ narration: JSON.stringify(masterList), updated_at: new Date().toISOString() })
+                  .update({ narration: JSON.stringify(updatedMaster), updated_at: new Date().toISOString() })
                   .eq('ref_no', 'SYS_LEADERBOARD_MIS');
               } else {
                 await supabaseClient
@@ -4048,14 +3880,15 @@
                     ref_no: 'SYS_LEADERBOARD_MIS',
                     tx_date: '01-01-2026',
                     amount: 0,
-                    narration: JSON.stringify(masterList),
+                    narration: JSON.stringify(updatedMaster),
                     status: 'SYSTEM'
                   }]);
               }
             } catch(e) {}
           }
 
-          lastKnownServerTime = Date.now(); updateAutosaveStatus('saved');
+          lastKnownServerTime = Date.now();
+          updateAutosaveStatus('saved');
           if (notify) showToast('Live Collection MIS saved & synced to Cloud!', 'success');
         } catch (e) {
           updateAutosaveStatus('error');
@@ -4063,14 +3896,21 @@
         }
       } else {
         if (isAdm) {
-          const byMgr = {};
-          leaderboardOfficers.forEach(o => {
-            const mk = getManagerStorageKey(o.manager || 'general');
-            if (!byMgr[mk]) byMgr[mk] = [];
-            byMgr[mk].push(o);
-          });
-          for (const mk in byMgr) {
-            localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(byMgr[mk]));
+          const allManagers = new Set();
+          if (typeof USER_CREDENTIALS !== 'undefined') {
+            for (const k in USER_CREDENTIALS) {
+              const u = USER_CREDENTIALS[k];
+              if (u && (u.role || 'MANAGER').toUpperCase() === 'MANAGER') {
+                const mName = (u.name || u.username || k || '').trim();
+                if (mName && !isUserDeleted(mName) && !isUserDeleted(k)) allManagers.add(mName);
+              }
+            }
+          }
+          leaderboardOfficers.forEach(o => { if (o && o.manager) allManagers.add(o.manager); });
+          for (const mName of allManagers) {
+            const mk = getManagerStorageKey(mName);
+            const mgrCallers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, mName));
+            localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(mgrCallers));
           }
         } else {
           try {
@@ -4164,13 +4004,13 @@
       if (tabId === 'paid-file') renderPaidFileTable();
       if (tabId === 'branch-collection') {
         renderBranchWiseCollection();
-        if (isManagerOnlyView() && !companyView && typeof loadCompanyCollectionData === 'function') {
+        if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
           loadCompanyCollectionData().then(() => { if (currentTab === 'branch-collection') renderBranchWiseCollection(); });
         }
       }
       if (tabId === 'manager-collection') {
         renderManagerWiseCollection();
-        if (isManagerOnlyView() && !companyView && typeof loadCompanyCollectionData === 'function') {
+        if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
           loadCompanyCollectionData().then(() => { if (currentTab === 'manager-collection') renderManagerWiseCollection(); });
         }
       }
@@ -5327,7 +5167,8 @@
         if (!branchData[b]) {
           branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
         }
-        const t = Number(off.target) || 0;
+        const isExited = isCallerExited(off);
+        const t = isExited ? 0 : (Number(off.target) || 0);
         const a = Number(off.aoy) || 0;
         const td = Number(off.today) || 0;
         const tot = Number(off.total) || (a + td);
@@ -5336,7 +5177,7 @@
         branchData[b].aoy += a;
         branchData[b].today += td;
         branchData[b].total += tot;
-        branchData[b].count += 1;
+        if (!isExited) branchData[b].count += 1;
       });
 
       const branchesList = Object.values(branchData).filter(item => !nonBranchNames.has(item.branch));
@@ -5683,24 +5524,18 @@
               applyUserSession(session);
               showPortal();
               startSessionInactivityMonitor();
-              await syncCredentialsWithCloud(); /*
-              if (leaderboardOfficers.length === 0) leaderboardOfficers = [];
-        }
-        const activeMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-        SEED_OFFICERS.forEach(sOff => {
-          if (!isOfficerTombstoned(sOff) && isOfficerUnderManager(sOff, activeMgr)) {
-            const existing = leaderboardOfficers.find(o => (o.name || '').toUpperCase().trim() === (sOff.name || '').toUpperCase().trim());
-            if (!existing) {
-              leaderboardOfficers.push(Object.assign({}, sOff));
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            } else if (!(Number(existing.target) > 0) && Number(sOff.target) > 0) {
-              existing.target = sOff.target;
-              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
-            }
-          }
-        });
-        if (false) {
-*/              const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND'); const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || ''; if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) { leaderboardOfficers = isAdm ? JSON.parse(JSON.stringify(SEED_OFFICERS)) : JSON.parse(JSON.stringify(SEED_OFFICERS.filter(o => isOfficerUnderManager(o, myDisplayName)))); } renderLeaderboardMIS();
+              await syncCredentialsWithCloud();
+              const { localKey: authLocalKey } = getLeaderboardStorageKeys();
+              try {
+                const cachedLb = localStorage.getItem(authLocalKey);
+                if (cachedLb) {
+                  const parsed = JSON.parse(cachedLb);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    leaderboardOfficers = parsed.filter(o => o && !isOfficerTombstoned(o));
+                  }
+                }
+              } catch(e) {}
+              renderLeaderboardMIS();
               await loadPaidFileFromCloud();
               await loadLeaderboardFromCloud();
               syncLiveCollectionFromPaidFile(false);
@@ -5890,7 +5725,16 @@
       startSessionInactivityMonitor();
       showPortal();
       showToast(`Welcome back, ${meta.name}!`, 'success');
-      leaderboardOfficers = [];
+      const { localKey: loginLocalKey } = getLeaderboardStorageKeys();
+      try {
+        const cached = localStorage.getItem(loginLocalKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            leaderboardOfficers = parsed.filter(o => o && !isOfficerTombstoned(o));
+          }
+        }
+      } catch(e) {}
       renderLeaderboardMIS();
       await loadPaidFileFromCloud();
       await loadLeaderboardFromCloud();
@@ -7013,11 +6857,8 @@
         for (const s of record.splits) {
           if (s && s.officer) {
             const matched = allCallers.find(o => isOfficerMatch(o, s.officer));
-            if (matched && isOfficerUnderManager(matched, targetMgr)) return true; {
+            if (matched && isOfficerUnderManager(matched, targetMgr)) return true;
           }
-        }
-      }
-      if (false) {
         }
       }
       return false;
@@ -7135,25 +6976,58 @@
         });
 
         const ownCount = officers.length;
+        const syncOwnCallerTarget = (o) => {
+          if (!o || !o.name || isOfficerTombstoned(o)) return;
+          if (!isOfficerUnderManager(o, myMgrIdent)) return;
+          if (!(Number(o.target) > 0)) return;
+          const cName = clean(o.name);
+          const lbOff = (leaderboardOfficers || []).find(m => clean(m.name) === cName || (typeof isOfficerMatch === 'function' && isOfficerMatch(m, cName)));
+          if (lbOff && Number(lbOff.target) !== Number(o.target)) {
+            lbOff.target = Number(o.target);
+            try {
+              const { localKey } = getLeaderboardStorageKeys();
+              localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers));
+            } catch(e) {}
+          }
+          const ownOff = officers.find((m, i) => i < ownCount && (clean(m.name) === cName || (typeof isOfficerMatch === 'function' && isOfficerMatch(m, cName))));
+          if (ownOff && Number(ownOff.target) !== Number(o.target)) {
+            ownOff.target = Number(o.target);
+          }
+        };
+
         const mergeOther = o => {
           if (!o || !o.name || isOfficerTombstoned(o) || isManagerName(o.name)) return;
           if (o.manager && isUserDeleted(o.manager)) return;
+          syncOwnCallerTarget(o);
           if (isOfficerUnderManager(o, myMgrIdent)) return;
           const k = keyOf(o);
+          const cName = clean(o.name);
+          const sMk = getManagerStorageKey(o.manager || '');
           if (!seen.has(k)) {
             seen.add(k);
             officers.push(Object.assign({}, o));
           } else {
-            const idx = officers.findIndex((e, i) => i >= ownCount && keyOf(e) === k);
-            if (idx >= 0 && o.target !== undefined) {
-              officers[idx] = Object.assign({}, officers[idx], o);
+            const idx = officers.findIndex((e, i) => i >= ownCount && (keyOf(e) === k || (clean(e.name) === cName && getManagerStorageKey(e.manager || '') === sMk)));
+            if (idx >= 0) {
+              const cur = officers[idx];
+              const isCurFromMaster = Boolean(cur._fromMaster);
+              const nextTarget = (isCurFromMaster && Number(cur.target) > 0)
+                ? Number(cur.target)
+                : ((Number(o.target) > 0) ? Number(o.target) : (Number(cur.target) > 0 ? Number(cur.target) : 0));
+              const nextBaseAoy = (Number(cur.baseline_aoy) > 0) ? Number(cur.baseline_aoy) : (Number(o.baseline_aoy) || 0);
+              const nextBaseToday = (Number(cur.baseline_today) > 0) ? Number(cur.baseline_today) : (Number(o.baseline_today) || 0);
+              const nextProj = (Number(cur.projection) > 0) ? Number(cur.projection) : (Number(o.projection) || 0);
+              officers[idx] = Object.assign({}, cur, o, {
+                _fromMaster: isCurFromMaster || Boolean(o._fromMaster),
+                target: nextTarget,
+                baseline_aoy: nextBaseAoy,
+                baseline_today: nextBaseToday,
+                projection: nextProj
+              });
             }
           }
         };
 
-        if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
-          SEED_OFFICERS.forEach(o => mergeOther(JSON.parse(JSON.stringify(o))));
-        }
         try {
           if (typeof readLocalAddedCallerPins === 'function') {
             readLocalAddedCallerPins().forEach(p => mergeOther(p));
@@ -7173,6 +7047,13 @@
 
         // Merge from localStorage for local/offline testing
         try {
+          const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
+          if (masterLocal) {
+            try {
+              const mParsed = JSON.parse(masterLocal);
+              if (Array.isArray(mParsed)) mParsed.forEach(o => { if (o) o._fromMaster = true; mergeOther(o); });
+            } catch(e) {}
+          }
           for (let i = 0; i < localStorage.length; i++) {
             const lk = localStorage.key(i);
             if (lk && lk.startsWith('shaha_paid_file_records_')) {
@@ -7181,19 +7062,12 @@
                 if (Array.isArray(subParsed)) subParsed.forEach(addRec);
               } catch(e) {}
             }
-            if (lk && lk.startsWith('shaha_leaderboard_mis_v2_')) {
+            if (lk && lk.startsWith('shaha_leaderboard_mis_v2_') && lk !== 'shaha_leaderboard_mis_v2') {
               try {
                 const subOfficers = JSON.parse(localStorage.getItem(lk));
                 if (Array.isArray(subOfficers)) subOfficers.forEach(mergeOther);
               } catch(e) {}
             }
-          }
-          const masterLocal = localStorage.getItem('shaha_leaderboard_mis_v2');
-          if (masterLocal) {
-            try {
-              const mParsed = JSON.parse(masterLocal);
-              if (Array.isArray(mParsed)) mParsed.forEach(mergeOther);
-            } catch(e) {}
           }
         } catch(e) {}
 
@@ -7204,8 +7078,13 @@
             supabaseClient.from('bank_transactions').select('ref_no,narration,updated_at,id').eq('ref_no', 'SYS_ADDED_CALLERS_PIN').order('updated_at', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(1)
           ]);
           if (!lb.error && !pf.error) {
-            const lbRows = (lb.data || []).slice().sort((x, y) => (x.ref_no === 'SYS_LEADERBOARD_MIS' ? 0 : 1) - (y.ref_no === 'SYS_LEADERBOARD_MIS' ? 0 : 1));
-            lbRows.forEach(row => {
+            // Master SYS_LEADERBOARD_MIS has authoritative targets
+            const masterRow = (lb.data || []).find(r => r.ref_no === 'SYS_LEADERBOARD_MIS');
+            if (masterRow) {
+              parse(masterRow).forEach(o => { if (o) o._fromMaster = true; mergeOther(o); });
+            }
+            const otherRows = (lb.data || []).filter(r => r.ref_no !== 'SYS_LEADERBOARD_MIS');
+            otherRows.forEach(row => {
               let rowMgr = '';
               const mMatch = (row.ref_no || '').match(/^SYS_LEADERBOARD_MIS_(.+)$/i);
               if (mMatch) {
@@ -7236,14 +7115,35 @@
             cleanName = `DIRECT (${canonicalMgr})`;
           }
           if (cleanName.includes(' / ') || isUserDeleted(cleanName)) return;
+
+          let inheritedTarget = 0, inheritedAoy = 0, inheritedToday = 0;
+          try {
+            const mStr = localStorage.getItem('shaha_leaderboard_mis_v2');
+            if (mStr) {
+              const mParsed = JSON.parse(mStr);
+              if (Array.isArray(mParsed)) {
+                const hit = mParsed.find(m => m && isOfficerMatch(m, cleanName) && isOfficerUnderManager(m, canonicalMgr));
+                if (hit && Number(hit.target) > 0) {
+                  inheritedTarget = Number(hit.target);
+                  inheritedAoy = Number(hit.baseline_aoy) || 0;
+                  inheritedToday = Number(hit.baseline_today) || 0;
+                }
+              }
+            }
+          } catch(e) {}
+          if (!inheritedTarget && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+            const hit = SEED_OFFICERS.find(s => isOfficerMatch(s, cleanName) && isOfficerUnderManager(s, canonicalMgr));
+            if (hit && Number(hit.target) > 0) inheritedTarget = Number(hit.target);
+          }
+
           mergeOther({
             name: cleanName,
             aliases: cleanName.includes('DIRECT') ? `${cleanName},--,N/A,NA,NONE,UNASSIGNED,NULL` : cleanName,
-            target: 0,
-            baseline_aoy: 0,
-            aoy: 0,
-            baseline_today: 0,
-            today: 0,
+            target: inheritedTarget,
+            baseline_aoy: inheritedAoy,
+            aoy: inheritedAoy,
+            baseline_today: inheritedToday,
+            today: inheritedToday,
             projection: 0,
             total: 0,
             balance: 0,
@@ -7273,19 +7173,53 @@
         });
 
         companyView = { others: officers.slice(ownCount) };
+        try { localStorage.setItem('shaha_company_view_others_cache', JSON.stringify(companyView.others)); } catch(e) {}
       } catch (e) { console.warn('Company collection data not loaded', e); }
     }
 
     function getAllCompanyOfficersReadOnly() {
+      const isAdm = !isManagerOnlyView();
+      let list = [];
       const base = (leaderboardOfficers || []).filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !(o.manager && isUserDeleted(o.manager)));
-      if (!isManagerOnlyView()) return base;
-      const others = (companyView && Array.isArray(companyView.others)) ? companyView.others : [];
-      if (others.length === 0 && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
-        const myMgrIdent = getCurrentManagerIdentifier();
-        const seedOthers = SEED_OFFICERS.filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !isOfficerUnderManager(o, myMgrIdent) && !(o.manager && isUserDeleted(o.manager)));
-        return [...base, ...seedOthers];
+      if (isAdm) {
+        list = base;
+      } else {
+        let others = (companyView && Array.isArray(companyView.others)) ? companyView.others : null;
+        if (!others) {
+          try {
+            const cached = localStorage.getItem('shaha_company_view_others_cache');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed)) others = parsed;
+            }
+          } catch(e) {}
+        }
+        if (!others) others = [];
+        list = [...base, ...others.filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !(o.manager && isUserDeleted(o.manager)))];
       }
-      return [...base, ...others.filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !(o.manager && isUserDeleted(o.manager)))];
+
+      // Strictly deduplicate by canonical manager + caller identity
+      const dedupMap = new Map();
+      list.forEach(o => {
+        if (!o || !o.name) return;
+        const mk = getManagerStorageKey(o.manager || '');
+        const cName = String(o.name || '').toUpperCase().trim();
+        const key = `${mk}_${cName}`;
+        if (!dedupMap.has(key)) {
+          dedupMap.set(key, Object.assign({}, o, { name: cName }));
+        } else {
+          const cur = dedupMap.get(key);
+          if (Number(o.target) > 0 && !(Number(cur.target) > 0)) cur.target = Number(o.target);
+          if (Number(o.total) > 0 && !(Number(cur.total) > 0)) {
+            cur.total = Number(o.total);
+            cur.aoy = Number(o.aoy) || 0;
+            cur.today = Number(o.today) || 0;
+            cur.balance = (Number(cur.target) || 0) - cur.total;
+            cur.achieved = (Number(cur.target) || 0) > 0 ? Math.round((cur.total / Number(cur.target)) * 100) : 0;
+          }
+        }
+      });
+      return Array.from(dedupMap.values());
     }
 
     function syncLiveCollectionFromPaidFile(notify = false) {
@@ -7316,14 +7250,33 @@
         if (isOfficerTombstoned({ name: cleanName, manager: canonicalMgr })) return;
         const exists = leaderboardOfficers.some(o => isOfficerMatch(o, cleanName) || ((o.name || '').toUpperCase().trim() === cleanName));
         if (!exists) {
+          let foundTarget = 0, foundAoy = 0, foundToday = 0;
+          try {
+            const mStr = localStorage.getItem('shaha_leaderboard_mis_v2');
+            if (mStr) {
+              const mParsed = JSON.parse(mStr);
+              if (Array.isArray(mParsed)) {
+                const hit = mParsed.find(m => m && isOfficerMatch(m, cleanName) && isOfficerUnderManager(m, canonicalMgr));
+                if (hit && Number(hit.target) > 0) {
+                  foundTarget = Number(hit.target);
+                  foundAoy = Number(hit.baseline_aoy) || 0;
+                  foundToday = Number(hit.baseline_today) || 0;
+                }
+              }
+            }
+          } catch(e) {}
+          if (!foundTarget && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+            const hit = SEED_OFFICERS.find(s => isOfficerMatch(s, cleanName) && isOfficerUnderManager(s, canonicalMgr));
+            if (hit && Number(hit.target) > 0) foundTarget = Number(hit.target);
+          }
           leaderboardOfficers.push({
             name: cleanName,
             aliases: cleanName.includes('DIRECT') ? `${cleanName},--,N/A,NA,NONE,UNASSIGNED,NULL` : cleanName,
-            target: 0,
-            baseline_aoy: 0,
-            aoy: 0,
-            baseline_today: 0,
-            today: 0,
+            target: foundTarget,
+            baseline_aoy: foundAoy,
+            aoy: foundAoy,
+            baseline_today: foundToday,
+            today: foundToday,
             projection: 0,
             total: 0,
             balance: 0,
@@ -7331,6 +7284,24 @@
             rank: leaderboardOfficers.length + 1,
             manager: canonicalMgr
           });
+        } else {
+          const existing = leaderboardOfficers.find(o => isOfficerMatch(o, cleanName) || ((o.name || '').toUpperCase().trim() === cleanName));
+          if (existing && !(Number(existing.target) > 0)) {
+            try {
+              const mStr = localStorage.getItem('shaha_leaderboard_mis_v2');
+              if (mStr) {
+                const mParsed = JSON.parse(mStr);
+                if (Array.isArray(mParsed)) {
+                  const hit = mParsed.find(m => m && isOfficerMatch(m, cleanName) && isOfficerUnderManager(m, canonicalMgr));
+                  if (hit && Number(hit.target) > 0) existing.target = Number(hit.target);
+                }
+              }
+            } catch(e) {}
+            if (!(Number(existing.target) > 0) && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+              const hit = SEED_OFFICERS.find(s => isOfficerMatch(s, cleanName) && isOfficerUnderManager(s, canonicalMgr));
+              if (hit && Number(hit.target) > 0) existing.target = Number(hit.target);
+            }
+          }
         }
       };
       recordsToUse.forEach(r => {
@@ -7368,6 +7339,51 @@
         if (o.manager && isUserDeleted(o.manager)) return false;
         return true;
       });
+
+      // Deduplicate callers by canonical manager + clean caller name
+      const dedupLeaderboard = new Map();
+      leaderboardOfficers.forEach(o => {
+        if (!o || !o.name) return;
+        const mk = getManagerStorageKey(o.manager || '');
+        const cName = String(o.name || '').toUpperCase().trim();
+        const key = `${mk}_${cName}`;
+        if (!dedupLeaderboard.has(key)) {
+          dedupLeaderboard.set(key, o);
+        } else {
+          const existing = dedupLeaderboard.get(key);
+          if (isCallerExited(existing) && !isCallerExited(o)) {
+            existing.status = o.status || 'ACTIVE';
+            existing.inactive = false;
+            delete existing.exit_date;
+            delete existing.exit_reason;
+          }
+          if (Number(o.target) > 0) {
+            existing.target = Number(o.target);
+          }
+          if (o.emp_code && !existing.emp_code) existing.emp_code = o.emp_code;
+          if (o.joining_date && !existing.joining_date) existing.joining_date = o.joining_date;
+          if (o.aliases && (!existing.aliases || existing.aliases.length < o.aliases.length)) existing.aliases = o.aliases;
+          if (Number(o.baseline_aoy) > 0 && !(Number(existing.baseline_aoy) > 0)) existing.baseline_aoy = Number(o.baseline_aoy);
+          if (Number(o.baseline_today) > 0 && !(Number(existing.baseline_today) > 0)) existing.baseline_today = Number(o.baseline_today);
+        }
+      });
+      leaderboardOfficers = Array.from(dedupLeaderboard.values());
+
+      // Enrich any caller whose target is 0 from authoritative master list or SEED_OFFICERS
+      try {
+        const mStr = localStorage.getItem('shaha_leaderboard_mis_v2');
+        const mList = mStr ? JSON.parse(mStr) : null;
+        if (Array.isArray(mList) && mList.length > 0) {
+          leaderboardOfficers.forEach(off => {
+            if (!(Number(off.target) > 0)) {
+              const mHit = mList.find(m => m && isOfficerMatch(m, off.name) && (!off.manager || isOfficerUnderManager(m, off.manager)));
+              if (mHit && Number(mHit.target) > 0) {
+                off.target = Number(mHit.target);
+              }
+            }
+          });
+        }
+      } catch(e) {}
 
       leaderboardOfficers.forEach(off => {
         const target = Number(off.target) || 0;
@@ -7436,7 +7452,15 @@
       const todayRecords = myPaidRecords.filter(r => isSameDate(r.pay_date, todayStr));
       const todayTotal = todayRecords.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
 
-      const scopedOfficers = getRoleScopedOfficers();
+      const rawScoped = getRoleScopedOfficers();
+      const seenScopedKeys = new Set();
+      const scopedOfficers = rawScoped.filter(o => {
+        if (!o || isCallerExited(o)) return false;
+        const k = `${getManagerStorageKey(o.manager)}_${String(o.name || '').toUpperCase().trim()}`;
+        if (seenScopedKeys.has(k)) return false;
+        seenScopedKeys.add(k);
+        return true;
+      });
       let sumTarget = 0, sumTotal = 0, sumBalance = 0, sumMtdAoy = 0, sumTodayAll = 0;
       scopedOfficers.forEach(o => {
         sumTarget += (Number(o.target) || 0);
@@ -7446,17 +7470,15 @@
         sumBalance += (Number(o.balance) || 0);
       });
 
-      // Total Collection displayed:
-      // For Admin: sum of all paid cases
-      // For Manager: sum of their own officer totals (or sum of their own paid records)
+      // Total Collection displayed: Strictly aligned with Daily MIS sumTotal 100%
       const monthRecords = myPaidRecords.filter(r => isInCurrentMonth(r.pay_date, todayStr));
-      const myTotalCollection = monthRecords.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
-      const displayTotal = myTotalCollection > 0 ? myTotalCollection : sumTotal;
+      const displayTotal = sumTotal;
+      const displayToday = sumTodayAll;
       const displayBal = Math.max(0, sumTarget - displayTotal);
 
       let avgAchieved = sumTarget > 0 ? Math.round((displayTotal / sumTarget) * 100) : 0;
 
-      if (todayEl) todayEl.innerText = `₹${todayTotal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+      if (todayEl) todayEl.innerText = `₹${displayToday.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
       if (todayCountEl) todayCountEl.innerText = `${todayRecords.length} paid cases`;
       if (mtdEl) mtdEl.innerText = `₹${displayTotal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
       if (mtdCountEl) mtdCountEl.innerText = `${monthRecords.length} cases this month`;
@@ -7546,7 +7568,35 @@ var misExpandedManagers = new Set();
       } else if (selectedFilterMgr && selectedFilterMgr !== 'all' && selectedFilterMgr !== 'All Managers') {
         displayList = displayList.filter(o => isOfficerUnderManager(o, selectedFilterMgr));
       }
-      const totalsList = displayList;
+
+      // Filter out auto-generated manager (SELF) placeholder if real callers already exist
+      const hasRealCallersByMgr = new Map();
+      displayList.forEach(o => {
+        if (!o.isManagerSelf && !isManagerName(o.name) && !String(o.name || '').toUpperCase().includes('(SELF)')) {
+          const mKey = getManagerStorageKey(o.manager || '');
+          hasRealCallersByMgr.set(mKey, true);
+        }
+      });
+      displayList = displayList.filter(o => {
+        const cleanName = String(o.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanMgr = String(o.manager || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const isSelf = o.isManagerSelf || String(o.name || '').toUpperCase().includes('(SELF)') || (cleanName === cleanMgr);
+        if (isSelf && !(Number(o.target) > 0) && !(Number(o.total) > 0)) {
+          const mKey = getManagerStorageKey(o.manager || '');
+          if (hasRealCallersByMgr.get(mKey)) return false;
+        }
+        return true;
+      });
+
+      // Deduplicate displayList by canonical manager + caller identity
+      const seenDisplayKeys = new Set();
+      displayList = displayList.filter(o => {
+        const k = `${getManagerStorageKey(o.manager)}_${String(o.name || '').toUpperCase().trim()}`;
+        if (seenDisplayKeys.has(k)) return false;
+        seenDisplayKeys.add(k);
+        return true;
+      });
+
       const statusFilterEl = document.getElementById('mis-status-filter');
       const statusFilter = statusFilterEl ? statusFilterEl.value : 'ACTIVE';
       if (statusFilter === 'ACTIVE') {
@@ -7555,7 +7605,13 @@ var misExpandedManagers = new Set();
         displayList = displayList.filter(o => isCallerExited(o));
       }
 
-      const searchEl = document.getElementById('mis-filter-search'); const searchVal = searchEl ? searchEl.value.toLowerCase().trim() : ''; const sumList = (searchVal || statusFilter === 'EXITED') ? null : totalsList; if (searchVal) { displayList = displayList.filter(o => (o.name || '').toLowerCase().includes(searchVal) || (o.manager || '').toLowerCase().includes(searchVal) || (o.emp_code || '').toLowerCase().includes(searchVal)); } window.currentFilteredLeaderboardList = displayList; if (displayList.length === 0) {
+      const searchEl = document.getElementById('mis-filter-search');
+      const searchVal = searchEl ? searchEl.value.toLowerCase().trim() : '';
+      if (searchVal) {
+        displayList = displayList.filter(o => (o.name || '').toLowerCase().includes(searchVal) || (o.manager || '').toLowerCase().includes(searchVal) || (o.emp_code || '').toLowerCase().includes(searchVal));
+      }
+      window.currentFilteredLeaderboardList = displayList;
+      if (displayList.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="13" class="py-12 px-4 text-center text-slate-400 bg-slate-50">
@@ -7640,9 +7696,15 @@ var misExpandedManagers = new Set();
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]" style="${achievedStyle}">${achieved}%</td>
           <td class="py-1.5 px-2 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]">${rankBadge(rank)}</td>
           <td class="py-1.5 px-1 text-center border border-slate-300 mis-action-col">
-            <button onclick="openEditOfficerModal(${origIdx})" title="Edit Officer" class="p-1 hover:bg-blue-100 rounded text-blue-700 transition">
-              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-            </button>
+            <div class="flex items-center justify-center gap-0.5">
+              <button type="button" onclick="openEditOfficerModal(${origIdx})" title="Edit Officer" class="p-1 hover:bg-blue-100 rounded text-blue-700 transition cursor-pointer">
+                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+              </button>
+              ${!off.isManagerSelf && !isManagerName(off.name) ? `
+              <button type="button" onclick="quickDeleteOfficerByIndex(${origIdx})" title="${currentRole === 'MANAGER' ? 'Request Delete Caller (Send to Admin)' : 'Delete Caller'}" class="p-1 hover:bg-rose-100 rounded text-rose-600 transition cursor-pointer">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>` : ''}
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -7693,7 +7755,7 @@ var misExpandedManagers = new Set();
         });
       }
 
-      (sumList || displayList).forEach(o => {
+      displayList.forEach(o => {
         sumTarget += Number(o.target) || 0;
         sumAoy += Number(o.aoy) || 0;
         sumToday += Number(o.today) || 0;
@@ -7778,7 +7840,10 @@ var misExpandedManagers = new Set();
         offMgrInput.disabled = (currentRole !== 'ADMIN');
       }
 
-      document.getElementById('btn-delete-officer').classList.add('hidden');
+      const permDelBtn = document.getElementById('btn-permanent-delete-officer');
+      if (permDelBtn) permDelBtn.classList.add('hidden');
+      const delBtn = document.getElementById('btn-delete-officer');
+      if (delBtn) delBtn.classList.add('hidden');
       document.getElementById('officer-modal').classList.remove('hidden');
     }
 
@@ -7914,11 +7979,24 @@ var misExpandedManagers = new Set();
         offMgrInput.disabled = (currentRole !== 'ADMIN');
       }
 
+      const permDelBtn = document.getElementById('btn-permanent-delete-officer');
+      if (permDelBtn) {
+        if (off.isManagerSelf || (typeof isManagerName === 'function' && isManagerName(off.name))) {
+          permDelBtn.classList.add('hidden');
+        } else {
+          permDelBtn.classList.remove('hidden');
+          const spanText = permDelBtn.querySelector('span');
+          if (spanText) {
+            spanText.textContent = (currentRole === 'MANAGER') ? 'Request Delete Caller' : 'Delete Caller';
+          }
+        }
+      }
       const delBtn = document.getElementById('btn-delete-officer');
       if (delBtn) {
         delBtn.classList.remove('hidden');
         delBtn.innerText = isCallerExited(off) ? 'Re-activate Caller' : 'Mark Left';
       }
+      if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
       document.getElementById('officer-modal').classList.remove('hidden');
     }
 
@@ -8055,6 +8133,189 @@ var misExpandedManagers = new Set();
       showToast(makeInactive ? `Caller '${off.name}' marked as ${selectedExitStatus}.` : `Caller '${off.name}' is active again.`, 'info');
     }
 
+    async function requestCallerDeletion(off, reason) {
+      if (!off) return;
+      const callerName = String(off.name || '').trim().toUpperCase();
+      const key = officerIdentityKey(off);
+      const req = newRequestRecord(off, 'DELETE', getTodayFormattedStr(), 0, reason);
+      try {
+        const sent = await changeCollectionRequests(list => {
+          if (list.some(q => q.status === 'PENDING' && q.caller_key === key && q.type === 'DELETE')) {
+            showToast(`A deletion request for ${callerName} is already waiting for Admin approval.`, 'info');
+            return false;
+          }
+          list.push(req);
+        });
+        if (sent) {
+          showToast(`Deletion request for caller '${callerName}' sent to Admin for approval.`, 'success');
+          notifyOtherSystemsLocal('SYS_COLLECTION_REQUESTS');
+        }
+      } catch(e) {
+        showToast('The deletion request was not sent. Please try again.', 'error');
+      }
+      updateRequestsBadge();
+      if (typeof renderRequestsList === 'function') renderRequestsList();
+    }
+
+    async function executePermanentDeleteOfficer(callerName, mgrName) {
+      callerName = String(callerName || '').trim().toUpperCase();
+      mgrName = String(mgrName || '').trim().toUpperCase();
+      if (!callerName) return;
+
+      // 1. Permanent Tombstone
+      const canonicalKey = `${mgrName}_${callerName}`;
+      deletedOfficerKeys.add(canonicalKey);
+      deletedOfficerKeys.add(callerName);
+      for (const k of Array.from(deletedOfficerKeys)) {
+        if (k.endsWith('_' + callerName)) deletedOfficerKeys.add(k);
+      }
+      localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
+      await saveDeletedTombstonesToCloud();
+
+      // 2. Unpin from local & cloud added caller pins
+      try {
+        const localPins = typeof readLocalAddedCallerPins === 'function' ? readLocalAddedCallerPins() : [];
+        const nextPins = localPins.filter(p => {
+          const pName = String((p && p.name) || '').toUpperCase().trim();
+          const pMgr = String((p && p.manager) || '').toUpperCase().trim();
+          return !(pName === callerName && (!pMgr || !mgrName || pMgr === mgrName));
+        });
+        localStorage.setItem('shaha_added_callers_pin_v1', JSON.stringify(nextPins));
+        if (supabaseClient) {
+          await supabaseClient
+            .from('bank_transactions')
+            .update({ narration: JSON.stringify(nextPins), updated_at: new Date().toISOString() })
+            .eq('ref_no', 'SYS_ADDED_CALLERS_PIN');
+        }
+      } catch(e) {}
+
+      // 3. Remove from leaderboardOfficers in memory
+      leaderboardOfficers = leaderboardOfficers.filter(o => {
+        if (!o) return false;
+        const oName = String(o.name || '').toUpperCase().trim();
+        const oMgr = String(o.manager || '').toUpperCase().trim();
+        return !(oName === callerName && (!oMgr || !mgrName || oMgr === mgrName || isOfficerUnderManager(o, mgrName)));
+      });
+
+      // 4. Clean up local storage partitions
+      const sMk = getManagerStorageKey(mgrName);
+      try {
+        const partitions = ['shaha_leaderboard_mis_v2', `shaha_leaderboard_mis_v2_${sMk}`];
+        for (let i = 0; i < localStorage.length; i++) {
+          const lk = localStorage.key(i);
+          if (lk && lk.startsWith('shaha_leaderboard_mis_v2')) partitions.push(lk);
+        }
+        new Set(partitions).forEach(pk => {
+          try {
+            let list = JSON.parse(localStorage.getItem(pk)) || [];
+            if (Array.isArray(list)) {
+              list = list.filter(o => {
+                if (!o) return false;
+                const oName = String(o.name || '').toUpperCase().trim();
+                const oMgr = String(o.manager || '').toUpperCase().trim();
+                return !(oName === callerName && (!oMgr || !mgrName || oMgr === mgrName || isOfficerUnderManager(o, mgrName)));
+              });
+              localStorage.setItem(pk, JSON.stringify(list));
+            }
+          } catch(e) {}
+        });
+      } catch(e) {}
+
+      // 5. Update cloud storage (both per-manager partition and master SYS_LEADERBOARD_MIS)
+      if (supabaseClient) {
+        try {
+          const cloudPartitionRef = `SYS_LEADERBOARD_MIS_${sMk}`;
+          const { data: partData } = await supabaseClient.from('bank_transactions').select('id, narration').eq('ref_no', cloudPartitionRef).order('updated_at', { ascending: false, nullsFirst: false }).limit(1);
+          if (partData && partData.length > 0 && partData[0].narration) {
+            let pList = JSON.parse(partData[0].narration) || [];
+            if (Array.isArray(pList)) {
+              pList = pList.filter(o => String((o && o.name) || '').toUpperCase().trim() !== callerName);
+              await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(pList), updated_at: new Date().toISOString() }).eq('ref_no', cloudPartitionRef);
+            }
+          }
+
+          const { data: masterData } = await supabaseClient.from('bank_transactions').select('id, narration').eq('ref_no', 'SYS_LEADERBOARD_MIS').order('updated_at', { ascending: false, nullsFirst: false }).limit(1);
+          if (masterData && masterData.length > 0 && masterData[0].narration) {
+            let mList = JSON.parse(masterData[0].narration) || [];
+            if (Array.isArray(mList)) {
+              mList = mList.filter(o => {
+                if (!o) return false;
+                const oName = String(o.name || '').toUpperCase().trim();
+                const oMgr = String(o.manager || '').toUpperCase().trim();
+                return !(oName === callerName && (!oMgr || !mgrName || oMgr === mgrName || isOfficerUnderManager(o, mgrName)));
+              });
+              await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(mList), updated_at: new Date().toISOString() }).eq('ref_no', 'SYS_LEADERBOARD_MIS');
+            }
+          }
+        } catch(e) {
+          console.error('Error saving deleted caller to cloud:', e);
+        }
+      }
+
+      await saveLeaderboardToCloud(true);
+      notifyOtherSystemsLocal('SYS_LEADERBOARD_MIS');
+      notifyOtherSystemsLocal('SYS_DELETED_TOMBSTONES');
+
+      // 6. Recalculate & re-render everything
+      populateOfficerDropdowns();
+      syncLiveCollectionFromPaidFile(false);
+      calculateLeaderboard();
+      renderLeaderboardMIS();
+      updateTopKpis();
+      if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+      if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
+      if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+      if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+      if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    }
+
+    async function permanentlyDeleteOfficerFromModal() {
+      const idx = resolveEditOfficerIdx();
+      if (!(idx >= 0 && idx < leaderboardOfficers.length)) return;
+      const off = leaderboardOfficers[idx];
+      if (!off) return;
+
+      const callerName = String(off.name || '').trim().toUpperCase();
+      if (!callerName) return;
+
+      if (off.isManagerSelf || (typeof isManagerName === 'function' && isManagerName(callerName))) {
+        showToast('Manager account cannot be deleted.', 'error');
+        return;
+      }
+
+      const mgrName = String(off.manager || (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '').trim().toUpperCase();
+
+      if (currentRole === 'MANAGER') {
+        const reason = prompt(`Reason for requesting deletion of caller '${callerName}':`, '');
+        if (reason === null) return;
+        if (reason.trim().length < 3) {
+          showToast('Please enter a valid reason for requesting caller deletion.', 'error');
+          return;
+        }
+        await requestCallerDeletion(off, reason.trim());
+        closeOfficerModal();
+        return;
+      }
+
+      // ADMIN direct deletion
+      if (!confirm(`Are you sure you want to permanently delete caller '${callerName}'?\n\nThis will completely remove '${callerName}' from the Daily MIS, caller lists, and calculations.`)) {
+        return;
+      }
+
+      closeOfficerModal();
+      await executePermanentDeleteOfficer(callerName, mgrName);
+      showToast(`Caller '${callerName}' has been permanently deleted.`, 'success');
+    }
+
+    function quickDeleteOfficerByIndex(idx) {
+      if (idx < 0 || idx >= leaderboardOfficers.length) return;
+      const off = leaderboardOfficers[idx];
+      if (!off) return;
+      document.getElementById('officer-edit-idx').value = String(idx);
+      document.getElementById('officer-edit-idx').dataset.key = officerIdentityKey(off);
+      permanentlyDeleteOfficerFromModal();
+    }
+
     async function setCallerInactive(off, makeInactive, nextStatus = 'LEFT', exitDate = '', exitReason = '') {
       off.inactive = Boolean(makeInactive);
       if (makeInactive) {
@@ -8153,22 +8414,28 @@ var misExpandedManagers = new Set();
       document.getElementById('requests-modal').classList.remove('hidden');
     }
 
-    // Today: the date is today and locked. MTD: a date earlier in this month (default yesterday).
+    // Today: the date is today and locked. MTD: a date earlier in this month. DELETE: delete caller request.
     function onRequestTypeChange() {
       const type = document.getElementById('request-type').value;
       const dateEl = document.getElementById('request-date');
+      const amtEl = document.getElementById('request-amount');
       const todayStr = getTodayFormattedStr();
-      if (type === 'TODAY') {
-        dateEl.value = todayStr;
-        dateEl.disabled = true;
-        dateEl.style.opacity = '0.6';
+      if (type === 'DELETE') {
+        if (dateEl) { dateEl.value = todayStr; dateEl.disabled = true; dateEl.style.opacity = '0.5'; }
+        if (amtEl) { amtEl.value = '0'; amtEl.disabled = true; amtEl.style.opacity = '0.5'; }
+      } else if (type === 'TODAY') {
+        if (dateEl) { dateEl.value = todayStr; dateEl.disabled = true; dateEl.style.opacity = '0.6'; }
+        if (amtEl) { amtEl.value = ''; amtEl.disabled = false; amtEl.style.opacity = ''; }
       } else {
         const d = new Date(); d.setDate(d.getDate() - 1);
         const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const yStr = `${String(d.getDate()).padStart(2, '0')}-${M[d.getMonth()]}-${d.getFullYear()}`;
-        dateEl.value = isMtdDateBeforeToday(yStr, todayStr) ? yStr : '';
-        dateEl.disabled = false;
-        dateEl.style.opacity = '';
+        if (dateEl) {
+          dateEl.value = isMtdDateBeforeToday(yStr, todayStr) ? yStr : '';
+          dateEl.disabled = false;
+          dateEl.style.opacity = '';
+        }
+        if (amtEl) { amtEl.value = ''; amtEl.disabled = false; amtEl.style.opacity = ''; }
       }
     }
 
@@ -8192,15 +8459,22 @@ var misExpandedManagers = new Set();
         const when = q.requested_at ? new Date(q.requested_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
         const decided = q.status !== 'PENDING' ? `<div class="text-[10px] text-slate-500">${escHtml(q.decided_by || '')}${q.decision_note ? ': ' + escHtml(q.decision_note) : ''}</div>` : '';
         const actions = (currentRole === 'ADMIN' && q.status === 'PENDING')
-          ? `<button onclick="decideCollectionRequest(${escHtml(JSON.stringify(String(q.id)))}, true)" class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700">Approve</button>
-             <button onclick="decideCollectionRequest(${escHtml(JSON.stringify(String(q.id)))}, false)" class="ml-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">Reject</button>`
+          ? `<button onclick="decideCollectionRequest(${escHtml(JSON.stringify(String(q.id)))}, true)" class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer">Approve</button>
+             <button onclick="decideCollectionRequest(${escHtml(JSON.stringify(String(q.id)))}, false)" class="ml-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 cursor-pointer">Reject</button>`
           : '';
+        const typeBadge = {
+          MTD: '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">MTD</span>',
+          TODAY: '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">Today</span>',
+          INACTIVE: '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700">Mark inactive</span>',
+          ACTIVE: '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Mark active</span>',
+          DELETE: '<span class="px-1.5 py-0.5 rounded text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300">DELETE CALLER</span>'
+        }[q.type] || `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">${escHtml(q.type || 'Today')}</span>`;
         return `<tr>
           <td class="p-2.5 font-mono whitespace-nowrap">${escHtml(q.date)}</td>
-          <td class="p-2.5 whitespace-nowrap font-bold">${({ MTD: 'MTD', INACTIVE: 'Mark inactive', ACTIVE: 'Mark active' })[q.type] || 'Today'}</td>
+          <td class="p-2.5 whitespace-nowrap font-bold">${typeBadge}</td>
           <td class="p-2.5 font-bold">${escHtml(q.caller)}</td>
           <td class="p-2.5">${escHtml(q.manager)}</td>
-          <td class="p-2.5 text-right font-mono font-bold">${isStatusRequest(q) ? '—' : (amt > 0 ? '+' : '') + escHtml(amt.toLocaleString('en-IN'))}</td>
+          <td class="p-2.5 text-right font-mono font-bold">${(isStatusRequest(q) || q.type === 'DELETE') ? '—' : (amt > 0 ? '+' : '') + escHtml(amt.toLocaleString('en-IN'))}</td>
           <td class="p-2.5 max-w-[220px]">${escHtml(q.reason)}</td>
           <td class="p-2.5 whitespace-nowrap">${escHtml(q.requested_by || '')}<div class="text-[10px] text-slate-500">${escHtml(when)}</div></td>
           <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold" style="${statusStyle[q.status] || ''}">${escHtml(q.status)}</span>${decided}</td>
@@ -8224,7 +8498,7 @@ var misExpandedManagers = new Set();
       };
     }
 
-    function isStatusRequest(q) { return q.type === 'INACTIVE' || q.type === 'ACTIVE'; }
+    function isStatusRequest(q) { return q.type === 'INACTIVE' || q.type === 'ACTIVE' || q.type === 'DELETE'; }
 
     async function requestCallerStatusChange(off, makeInactive) {
       const key = officerIdentityKey(off);
@@ -8280,16 +8554,25 @@ var misExpandedManagers = new Set();
       if (currentRole !== 'MANAGER') return;
       const key = document.getElementById('request-caller').value;
       const off = leaderboardOfficers.find(o => officerIdentityKey(o) === key);
-      const date = document.getElementById('request-date').value.trim();
-      const amount = parseFloat(document.getElementById('request-amount').value);
+      const type = document.getElementById('request-type').value;
       const reason = document.getElementById('request-reason').value.trim();
       if (!off) { showToast('Please select a caller.', 'error'); return; }
+
+      if (type === 'DELETE') {
+        if (reason.length < 3) { showToast('Please enter a reason for caller deletion.', 'error'); return; }
+        await requestCallerDeletion(off, reason);
+        document.getElementById('request-reason').value = '';
+        renderRequestsList();
+        return;
+      }
+
+      const date = document.getElementById('request-date').value.trim();
+      const amount = parseFloat(document.getElementById('request-amount').value);
       const pd = parseDateParts(date);
       const pdObj = pd ? new Date(pd.y, pd.m - 1, pd.d) : null;
       if (!pdObj || pdObj.getFullYear() !== pd.y || pdObj.getMonth() !== pd.m - 1 || pdObj.getDate() !== pd.d) {
         showToast('Please enter a valid date, for example 07-Nov-2026.', 'error'); return;
       }
-      const type = document.getElementById('request-type').value === 'MTD' ? 'MTD' : 'TODAY';
       if (type === 'TODAY' && !isSameDate(date, getTodayFormattedStr())) {
         showToast('A Today request must have today\'s date.', 'error'); return;
       }
@@ -8321,8 +8604,14 @@ var misExpandedManagers = new Set();
       if (!local) return;
       let note = '';
       if (approve) {
-        const ask = isStatusRequest(local) ? `Approve: mark ${local.caller} ${local.type === 'INACTIVE' ? 'inactive' : 'active'}?`
-          : `Approve ${Number(local.amount) > 0 ? '+' : ''}${Number(local.amount).toLocaleString('en-IN')} for ${local.caller} on ${local.date}?`;
+        let ask = '';
+        if (local.type === 'DELETE') {
+          ask = `Approve permanent deletion of caller '${local.caller}' under manager '${local.manager}'?\n\nThis will permanently delete the caller and remove them from the manager's view and Daily MIS.`;
+        } else if (isStatusRequest(local)) {
+          ask = `Approve: mark ${local.caller} ${local.type === 'INACTIVE' ? 'inactive' : 'active'}?`;
+        } else {
+          ask = `Approve ${Number(local.amount) > 0 ? '+' : ''}${Number(local.amount).toLocaleString('en-IN')} for ${local.caller} on ${local.date}?`;
+        }
         if (!confirm(ask)) return;
       } else {
         note = prompt('Reason for the rejection (optional):', '');
@@ -8337,7 +8626,12 @@ var misExpandedManagers = new Set();
           q.decided_at = new Date().toISOString();
           if (note) q.decision_note = String(note).trim().slice(0, 300);
         });
-        if (done && approve && isStatusRequest(local)) {
+        if (done && approve && local.type === 'DELETE') {
+          await executePermanentDeleteOfficer(local.caller, local.manager);
+          showToast(`Approved. Caller '${local.caller}' has been permanently deleted from manager view.`, 'success');
+        } else if (done && !approve && local.type === 'DELETE') {
+          showToast(`Caller deletion request for '${local.caller}' was rejected.`, 'info');
+        } else if (done && approve && (local.type === 'INACTIVE' || local.type === 'ACTIVE')) {
           const off = leaderboardOfficers.find(o => officerIdentityKey(o) === local.caller_key);
           if (off) {
             await setCallerInactive(off, local.type === 'INACTIVE');
@@ -9277,7 +9571,8 @@ var misExpandedManagers = new Set();
         if (!branchData[b]) {
           branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
         }
-        const t = Number(off.target) || 0;
+        const isExited = isCallerExited(off);
+        const t = isExited ? 0 : (Number(off.target) || 0);
         const a = Number(off.aoy) || 0;
         const td = Number(off.today) || 0;
         const tot = Number(off.total) || (a + td);
@@ -9286,7 +9581,7 @@ var misExpandedManagers = new Set();
         branchData[b].aoy += a;
         branchData[b].today += td;
         branchData[b].total += tot;
-        branchData[b].count += 1;
+        if (!isExited) branchData[b].count += 1;
       });
 
       // Filter out any non-branch entries such as 'ALL'
@@ -9544,7 +9839,8 @@ var misExpandedManagers = new Set();
           foundKey = defaultKey;
         }
 
-        const t = Number(off.target) || 0;
+        const isExited = isCallerExited(off);
+        const t = isExited ? 0 : (Number(off.target) || 0);
         const a = Number(off.aoy) || 0;
         const td = Number(off.today) || 0;
         const tot = Number(off.total) || (a + td);
@@ -9553,7 +9849,7 @@ var misExpandedManagers = new Set();
         managersMap[foundKey].aoy += a;
         managersMap[foundKey].today += td;
         managersMap[foundKey].total += tot;
-        managersMap[foundKey].callers.push(off);
+        if (!isExited) managersMap[foundKey].callers.push(off);
       });
 
       const mgrList = Object.values(managersMap);
@@ -9696,10 +9992,11 @@ var misExpandedManagers = new Set();
         }
       }
 
-      const callers = getRoleScopedOfficers().filter(o => isOfficerUnderManager(o, mgrName));
+      const callers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, mgrName) && !isManagerName(o.name));
+      const activeCallers = callers.filter(c => !isCallerExited(c));
 
       let sumTarget = 0, sumToday = 0, sumTotal = 0;
-      callers.forEach(c => {
+      activeCallers.forEach(c => {
         sumTarget += Number(c.target) || 0;
         sumToday += Number(c.today) || 0;
         sumTotal += Number(c.total) || 0;
@@ -9707,16 +10004,16 @@ var misExpandedManagers = new Set();
 
       const achieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
 
-      document.getElementById('drawer-kpi-count').innerText = callers.length;
+      document.getElementById('drawer-kpi-count').innerText = activeCallers.length;
       document.getElementById('drawer-kpi-target').innerText = '₹' + sumTarget.toLocaleString('en-IN');
       document.getElementById('drawer-kpi-today').innerText = '₹' + sumToday.toLocaleString('en-IN');
       document.getElementById('drawer-kpi-achieved').innerText = achieved + '%';
-      document.getElementById('drawer-caller-total-label').innerText = `${callers.length} Callers under ${mgrName}`;
+      document.getElementById('drawer-caller-total-label').innerText = `${activeCallers.length} Active Callers under ${mgrName}`;
 
       const tbody = document.getElementById('drawer-callers-tbody');
       tbody.innerHTML = '';
 
-      if (callers.length === 0) {
+      if (activeCallers.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="8" class="p-8 text-center text-slate-400 bg-slate-50">
@@ -9729,7 +10026,7 @@ var misExpandedManagers = new Set();
           </tr>
         `;
       } else {
-        callers.filter(c => !c.inactive).forEach((c, idx) => {
+        activeCallers.forEach((c, idx) => {
           const tr = document.createElement('tr');
           tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f8fafc] hover:bg-blue-50/40';
           const achievedStyle = getAchievedBgColor(c.achieved);
