@@ -6,6 +6,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <meta name="app-build-id" content="BUILD_20261113_165000">
+  <meta name="app-version" content="4.5.0-live">
   <title>Shaha Finlease · Live Collections</title>
   <script>try { document.documentElement.dataset.theme = localStorage.getItem('shaha_ui_theme') === 'light' ? 'light' : 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }</script>
   <!-- Tailwind CSS -->
@@ -289,16 +291,113 @@
     .seg button:hover { color: var(--ink); }
     .seg button[aria-pressed="true"] { background: var(--raised-2); color: var(--ink); }
 
-    /* ===== Dashboard ===== */
-    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
-    .kpi { padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; }
-    .kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink-2); }
-    .kpi-value { font-size: 30px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; margin-top: 6px; }
-    .kpi-foot { font-size: 12px; color: var(--ink-3); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    /* ===== Dashboard & Overview 6-KPI Row ===== */
+    .kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .kpi {
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      border-radius: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+      transition: transform .18s ease, box-shadow .18s ease;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .kpi:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+    }
+    .kpi.text-center { text-align: center; align-items: center; }
+    .kpi.text-center .kpi-top { justify-content: space-between; width: 100%; }
+    .kpi.text-center .kpi-value { text-align: center; width: 100%; margin: 0 auto; }
+    .kpi.text-center .kpi-foot { justify-content: center; text-align: center; width: 100%; }
+    .kpi-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-2);
+      white-space: nowrap;
+      width: 100%;
+      min-width: 0;
+    }
+    .kpi-top span:first-child {
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kpi-top .chip {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      white-space: nowrap;
+      line-height: 1.25;
+      flex-shrink: 0;
+    }
+    .kpi-value {
+      font-size: clamp(20px, 1.55vw, 25px);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin: 4px auto 2px auto;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      display: block;
+    }
+    .kpi-hero {
+      padding: 18px 20px;
+    }
+    .kpi-hero .kpi-value {
+      font-size: clamp(26px, 2.3vw, 34px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin: 6px auto 4px auto;
+      text-align: center;
+    }
+    .kpi-foot {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      min-width: 0;
+      min-height: 18px;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .kpi-foot span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    .kpi-foot b {
+      color: var(--ink);
+    }
     .kpi-value .cur { color: var(--accent); margin-right: 1px; }
 
-    .meter { height: 6px; border-radius: 99px; background: var(--raised-2); overflow: hidden; }
-    .meter > i, .meter > div { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .6s var(--ease); }
+    .meter { height: 5px; border-radius: 99px; background: var(--raised-2); overflow: hidden; }
+    .meter > i, .meter > div { display: block; height: 100%; border-radius: inherit; background: var(--good); transition: width .6s var(--ease); }
 
     .rank-row { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
     .rank-row:first-child { border-top: 0; padding-top: 4px; }
@@ -535,9 +634,11 @@
       .topbar { display: none; }
       .content { padding: 20px 16px 40px; }
     }
-    @media (max-width: 560px) {
+    @media (max-width: 1200px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 768px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 480px) {
       .kpis { grid-template-columns: minmax(0, 1fr); }
-      .kpi-value { font-size: 26px; }
+      .kpi-value { font-size: 22px; }
       .chart { margin-left: 52px; } .chart-x { margin-left: 52px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -546,6 +647,15 @@
   </style>
 </head>
 <body class="min-h-screen antialiased">
+
+  <!-- Live Hot-Sync Global Banner (Slides down when HTML/code update is detected) -->
+  <div id="hot-sync-notification-banner" class="fixed top-0 left-0 right-0 z-[9999] transform -translate-y-full transition-transform duration-300 ease-out bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white shadow-xl px-4 py-2.5 flex items-center justify-between text-xs font-bold border-b border-white/20 pointer-events-none">
+    <div class="flex items-center gap-2.5 mx-auto">
+      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+      <i data-lucide="zap" class="w-4 h-4 text-amber-300"></i>
+      <span id="hot-sync-banner-text">Live update detected on server! Applying changes seamlessly...</span>
+    </div>
+  </div>
 
   <!-- ========================================== -->
   <!-- MAIN AUTHENTICATED PORTAL APP              -->
@@ -640,27 +750,44 @@
             </div>
           </div>
 
-          <!-- KPI row -->
+          <!-- KPI row: Callers, Target, Collection, Today, Balance, Achieved% (Centered & Uncongested) -->
           <div class="kpis">
-            <div class="card kpi">
-              <div class="kpi-top"><span>Collected today</span><span id="kpi-today-count" class="chip">0 paid cases</span></div>
-              <div id="kpi-today-amount" class="kpi-value num">₹0</div>
-              <div class="kpi-foot"><span>Payments with today's date</span></div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Callers</span><span id="kpi-callers-status-chip" class="chip">Active</span></div>
+              <div id="kpi-callers-count-val" class="kpi-value num text-center">0</div>
+              <div class="kpi-foot text-center"><span id="kpi-target-callers-count" class="truncate font-semibold text-slate-500">0 Callers</span></div>
             </div>
-            <div class="card kpi">
-              <div class="kpi-top"><span>Total collection</span><span id="kpi-mtd-count" class="chip">0 total cases</span></div>
-              <div id="kpi-mtd-amount" class="kpi-value num">₹0</div>
-              <div class="kpi-foot"><span>Month to date, today included</span></div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Target</span><span class="chip">Monthly</span></div>
+              <div id="kpi-target-amount" class="kpi-value num text-center">₹0</div>
+              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Allocated target</span></div>
             </div>
-            <div class="card kpi">
-              <div class="kpi-top"><span>Team target</span><span id="kpi-target-callers-count" class="chip">0 Callers</span></div>
-              <div id="kpi-target-amount" class="kpi-value num">₹0</div>
-              <div class="kpi-foot"><span>100% of allocated target</span></div>
+            <div class="card kpi text-center" style="border-color: rgba(234, 88, 12, 0.45); background: linear-gradient(180deg, rgba(234, 88, 12, 0.03) 0%, transparent 100%);">
+              <div class="kpi-top"><span>Collection</span><span id="kpi-mtd-count" class="chip chip-accent">0 cases</span></div>
+              <div id="kpi-mtd-amount" class="kpi-value num text-center font-black" style="color: var(--accent);">₹0</div>
+              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Month to date (MTD)</span></div>
             </div>
-            <div class="card kpi">
-              <div class="kpi-top"><span>Achieved</span><span id="kpi-balance-amount" class="chip">Bal: ₹0</span></div>
-              <div id="kpi-achieved-pct" class="kpi-value num">0%</div>
-              <div class="meter" style="margin-top: 6px"><i id="kpi-achieved-bar" style="width: 0%"></i></div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Today</span><span id="kpi-today-count" class="chip chip-accent">0 cases</span></div>
+              <div id="kpi-today-amount" class="kpi-value num text-center" style="color: var(--good);">₹0</div>
+              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Live payments</span></div>
+            </div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Balance</span><span class="chip" style="color: var(--bad);">Remaining</span></div>
+              <div id="kpi-balance-val" class="kpi-value num text-center" style="color: var(--bad, #be123c);">₹0</div>
+              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Target - Collection</span></div>
+            </div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Achieved</span><span id="kpi-balance-amount" class="chip font-mono">Bal: ₹0</span></div>
+              <div id="kpi-achieved-pct" class="kpi-value num text-center" style="color: var(--accent);">0%</div>
+              <div class="w-full space-y-1 mt-1">
+                <div class="meter w-full" style="height: 5px;"><i id="kpi-achieved-bar" style="width: 0%"></i></div>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 font-medium px-0.5">
+                  <span>0%</span>
+                  <span class="text-slate-500 font-bold">Goal</span>
+                  <span>100%</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -800,22 +927,22 @@
             </div>
           </div>
 
-          <!-- TOP 3 TODAY-ONLY METRICS -->
+          <!-- TOP 3 TODAY-ONLY METRICS (Centered & Bold Hero KPIs) -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="card kpi" style="border-color: var(--accent-line);">
+            <div class="card kpi text-center kpi-hero" style="border-color: rgba(234, 88, 12, 0.45); background: linear-gradient(180deg, rgba(234, 88, 12, 0.03) 0%, transparent 100%);">
               <div class="kpi-top"><span>Today's collection</span><span id="today-tab-today-count-chip" class="chip chip-accent">0 Cases Today</span></div>
-              <div id="today-tab-today-val" class="kpi-value num" style="color: var(--accent);">₹0</div>
-              <div class="kpi-foot"><span>Payments dated today</span><span id="today-tab-today-date" class="num">--</span></div>
+              <div id="today-tab-today-val" class="kpi-value num text-center font-black" style="color: var(--accent);">₹0</div>
+              <div class="kpi-foot text-center justify-center"><span class="truncate">Payments dated today: <b id="today-tab-today-date" class="num font-semibold text-slate-700">--</b></span></div>
             </div>
-            <div class="card kpi">
+            <div class="card kpi text-center kpi-hero">
               <div class="kpi-top"><span>Callers collected today</span><span id="today-tab-active-chip" class="chip">0 Callers</span></div>
-              <div id="today-tab-active-val" class="kpi-value num">0</div>
-              <div class="kpi-foot"><span>Active collectors today</span><span id="today-tab-avg-case" class="num">Avg: ₹0 / case</span></div>
+              <div id="today-tab-active-val" class="kpi-value num text-center font-black">0</div>
+              <div class="kpi-foot text-center justify-center"><span class="truncate">Active collectors today · <b id="today-tab-avg-case" class="num font-semibold text-slate-700">Avg: ₹0 / case</b></span></div>
             </div>
-            <div class="card kpi">
+            <div class="card kpi text-center kpi-hero">
               <div class="kpi-top"><span>Top caller today</span><span id="today-tab-top1-chip" class="chip">#1 Today</span></div>
-              <div id="today-tab-top1-val" class="kpi-value num" style="color: var(--good);">₹0</div>
-              <div class="kpi-foot"><span id="today-tab-top1-name" style="color: var(--ink-2); font-weight: 600;">--</span><span id="today-tab-top1-mgr" class="num">--</span></div>
+              <div id="today-tab-top1-val" class="kpi-value num text-center font-black" style="color: var(--good);">₹0</div>
+              <div class="kpi-foot text-center justify-center"><span class="truncate">Top: <b id="today-tab-top1-name" class="font-bold text-slate-800">--</b> &nbsp;(<span id="today-tab-top1-mgr" class="num text-slate-500">--</span>)</span></div>
             </div>
           </div>
 
@@ -879,26 +1006,43 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="card kpi" style="border-color: var(--accent-line);">
-              <div class="kpi-top"><span>Total Collection (1–31)</span><span id="total-tab-ach-chip" class="chip chip-accent">0% Achieved</span></div>
-              <div id="total-tab-total-val" class="kpi-value num" style="color: var(--accent);">₹0</div>
-              <div class="kpi-foot"><span>MTD + Today</span><span id="total-tab-mtd-today-split" class="num">₹0 + ₹0</span></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Callers</span><span id="total-tab-hit100-chip" class="chip">0 Hit 100%</span></div>
+              <div id="total-tab-callers-val" class="kpi-value num text-center">0</div>
+              <div class="kpi-foot text-center"><span id="total-tab-callers-chip" class="truncate font-semibold text-slate-500">0 Callers</span></div>
             </div>
-            <div class="card kpi">
-              <div class="kpi-top"><span>Monthly Target (100%)</span><span id="total-tab-callers-chip" class="chip">0 Callers</span></div>
-              <div id="total-tab-target-val" class="kpi-value num">₹0</div>
-              <div class="kpi-foot"><span>MTD (AOY)</span><span id="total-tab-mtd-val" class="num">₹0</span></div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Target</span><span class="chip">Monthly</span></div>
+              <div id="total-tab-target-val" class="kpi-value num text-center">₹0</div>
+              <div class="kpi-foot text-center"><span class="truncate">MTD: <b id="total-tab-mtd-val" class="num font-semibold text-slate-700">₹0</b></span></div>
             </div>
-            <div class="card kpi">
-              <div class="kpi-top"><span>Balance Remaining</span><span id="total-tab-drr-days-chip" class="chip">--d left</span></div>
-              <div id="total-tab-balance-val" class="kpi-value num" style="color: var(--bad, #be123c);">₹0</div>
-              <div class="kpi-foot"><span>Daily DRR Needed</span><span id="total-tab-drr-val" class="num">₹0 / day</span></div>
+            <div class="card kpi text-center" style="border-color: rgba(234, 88, 12, 0.45); background: linear-gradient(180deg, rgba(234, 88, 12, 0.03) 0%, transparent 100%);">
+              <div class="kpi-top"><span>Collection</span><span id="total-tab-ach-chip" class="chip chip-accent">0% Ach</span></div>
+              <div id="total-tab-total-val" class="kpi-value num text-center font-black" style="color: var(--accent);">₹0</div>
+              <div class="kpi-foot text-center"><span id="total-tab-mtd-today-split" class="truncate font-medium text-slate-500">₹0 + ₹0</span></div>
             </div>
-            <div class="card kpi">
-              <div class="kpi-top"><span>Achieved %</span><span id="total-tab-hit100-chip" class="chip">0 Hit 100%</span></div>
-              <div id="total-tab-ach-val" class="kpi-value num" style="color: var(--good);">0%</div>
-              <div class="kpi-foot"><span id="total-tab-top1-ach" style="color: var(--ink-2); font-weight: 600;">Top: --</span><span id="total-tab-today-foot" class="num">Today: ₹0</span></div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Today</span><span class="chip chip-accent">Live Today</span></div>
+              <div id="total-tab-today-val" class="kpi-value num text-center" style="color: var(--good);">₹0</div>
+              <div class="kpi-foot text-center"><span id="total-tab-top1-ach" class="truncate font-semibold" style="color: var(--ink-2);">Top: --</span></div>
+            </div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Balance</span><span id="total-tab-drr-days-chip" class="chip">--d left</span></div>
+              <div id="total-tab-balance-val" class="kpi-value num text-center" style="color: var(--bad, #be123c);">₹0</div>
+              <div class="kpi-foot text-center"><span class="truncate">DRR: <b id="total-tab-drr-val" class="num font-semibold text-rose-600">₹0 / day</b></span></div>
+            </div>
+            <div class="card kpi text-center">
+              <div class="kpi-top"><span>Achieved</span><span class="chip font-mono">Target %</span></div>
+              <div id="total-tab-ach-val" class="kpi-value num text-center" style="color: var(--good);">0%</div>
+              <div class="w-full space-y-1 mt-1">
+                <div class="meter w-full" style="height: 5px;"><i id="total-tab-ach-bar" style="width: 0%"></i></div>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 font-medium px-0.5">
+                  <span>0%</span>
+                  <span class="text-slate-500 font-bold">Goal</span>
+                  <span>100%</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1160,14 +1304,15 @@
               <table>
                 <thead>
                   <tr>
-                    <th class="w-14">Sr. No</th>
-                    <th class="l">Branch</th>
-                    <th>Target</th>
-                    <th>AOY / MTD</th>
-                    <th>Today</th>
-                    <th>Total</th>
-                    <th>Balance</th>
-                    <th>Achieved</th>
+                    <th class="w-14 text-center">Sr. No</th>
+                    <th class="l px-4 text-left">Branch</th>
+                    <th class="text-center">Target</th>
+                    <th class="text-center">AOY / MTD</th>
+                    <th class="text-center">Today</th>
+                    <th class="text-center">Total</th>
+                    <th class="text-center">Balance</th>
+                    <th class="text-center">Achieved</th>
+                    <th class="text-center">Callers</th>
                   </tr>
                 </thead>
                 <tbody id="branch-collection-tbody"></tbody>
@@ -1313,11 +1458,13 @@
             <button onclick="closeManagerSlideDrawer()" class="icon-btn" title="Close" aria-label="Close"><i data-lucide="x"></i></button>
           </div>
 
-          <div class="grid grid-cols-4 gap-2" style="padding: 16px 22px; border-bottom: 1px solid var(--line)">
-            <div><span class="card-sub block">Callers</span><span id="drawer-kpi-count" class="num text-lg font-semibold">0</span></div>
-            <div><span class="card-sub block">Target</span><span id="drawer-kpi-target" class="num text-lg font-semibold">₹0</span></div>
-            <div><span class="card-sub block">Today</span><span id="drawer-kpi-today" class="num text-lg font-semibold">₹0</span></div>
-            <div><span class="card-sub block">Achieved</span><span id="drawer-kpi-achieved" class="num text-lg font-semibold" style="color: var(--accent)">0%</span></div>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center" style="padding: 16px 22px; border-bottom: 1px solid var(--line)">
+            <div class="text-center flex flex-col items-center justify-center"><span class="card-sub block text-xs text-center w-full">Callers</span><span id="drawer-kpi-count" class="num text-lg font-semibold block text-center w-full">0</span></div>
+            <div class="text-center flex flex-col items-center justify-center"><span class="card-sub block text-xs text-center w-full">Target</span><span id="drawer-kpi-target" class="num text-lg font-semibold block text-center w-full">₹0</span></div>
+            <div class="text-center flex flex-col items-center justify-center"><span class="card-sub block text-xs text-center w-full">Collection</span><span id="drawer-kpi-collection" class="num text-lg font-semibold block text-center w-full" style="color: var(--good, #16a34a)">₹0</span></div>
+            <div class="text-center flex flex-col items-center justify-center"><span class="card-sub block text-xs text-center w-full">Today</span><span id="drawer-kpi-today" class="num text-lg font-semibold block text-center w-full">₹0</span></div>
+            <div class="text-center flex flex-col items-center justify-center"><span class="card-sub block text-xs text-center w-full">Balance</span><span id="drawer-kpi-balance" class="num text-lg font-semibold block text-center w-full" style="color: var(--bad, #be123c)">₹0</span></div>
+            <div class="text-center flex flex-col items-center justify-center"><span class="card-sub block text-xs text-center w-full">Achieved</span><span id="drawer-kpi-achieved" class="num text-lg font-semibold block text-center w-full" style="color: var(--accent)">0%</span></div>
           </div>
 
           <div class="flex-1 overflow-y-auto" style="padding: 16px 22px">
@@ -1327,17 +1474,17 @@
             </div>
             <div class="sheet">
               <div class="table-scroll">
-                <table class="text-xs">
+                <table class="text-xs w-full text-center">
                   <thead>
                     <tr>
-                      <th class="w-10">#</th>
-                      <th class="l">Caller</th>
-                      <th>Target</th>
-                      <th>Today</th>
-                      <th>Total</th>
-                      <th>Balance</th>
-                      <th>Achieved</th>
-                      <th>Rank</th>
+                      <th class="w-10 text-center">#</th>
+                      <th class="text-center">Caller</th>
+                      <th class="text-center">Target</th>
+                      <th class="text-center">Today</th>
+                      <th class="text-center">Total</th>
+                      <th class="text-center">Balance</th>
+                      <th class="text-center">Achieved</th>
+                      <th class="text-center">Rank</th>
                     </tr>
                   </thead>
                   <tbody id="drawer-callers-tbody"></tbody>
@@ -2420,6 +2567,9 @@
       await syncCredentialsWithCloud();
       await checkAuthSession();
       populateOfficerDropdowns();
+      initAutoRefreshSystem();
+      initLiveCodeSyncDetector();
+      restoreHotSyncNavigationState();
       lucide.createIcons();
     });
 
@@ -2695,7 +2845,8 @@
           'SYS_PORTAL_CREDENTIALS',
           'SYS_DELETED_USER_KEYS',
           'SYS_DELETED_TOMBSTONES',
-          'SYS_COLLECTION_REQUESTS'
+          'SYS_COLLECTION_REQUESTS',
+          'SYS_APP_BUILD_VERSION'
         ];
         if (typeof getLeaderboardStorageKeys === 'function') {
           const lbKeys = getLeaderboardStorageKeys();
@@ -2745,6 +2896,12 @@
 
       isRemoteSyncInProgress = true;
       try {
+        if (refNo === 'SYS_APP_BUILD_VERSION') {
+          if (typeof verifyCloudBuildVersion === 'function') {
+            await verifyCloudBuildVersion();
+          }
+        }
+
         if (!refNo || refNo.includes('CREDENTIALS') || refNo.includes('DELETED') || refNo.includes('PAID') || refNo.includes('LEADERBOARD') || refNo.includes('REQUESTS')) {
           await syncDeletedTombstonesWithCloud();
           await syncCredentialsWithCloud();
@@ -2775,6 +2932,13 @@
         if (typeof updateTopKpis === 'function') updateTopKpis();
         if (typeof populateOfficerDropdowns === 'function') populateOfficerDropdowns();
         if (currentRole === 'ADMIN' && typeof renderUserManagerTable === 'function') renderUserManagerTable();
+
+        // Live re-render Manager Slide Drawer if currently open
+        const drawer = document.getElementById('manager-slide-drawer');
+        const drawerMgrName = document.getElementById('drawer-manager-name');
+        if (drawer && !drawer.classList.contains('translate-x-full') && drawerMgrName && drawerMgrName.innerText && typeof openManagerSlideDrawer === 'function') {
+          openManagerSlideDrawer(drawerMgrName.innerText);
+        }
 
         const indicator = document.getElementById('supabase-indicator');
         if (indicator) {
@@ -2900,8 +3064,11 @@
         USER_CREDENTIALS = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, localUsers);
       }
 
-      // PERMANENT PURGE: Strip any user that was explicitly deleted
+      // PERMANENT PURGE: Strip any custom user that was explicitly deleted (never delete core accounts)
       for (const delKey of deletedUserKeys) {
+        if (delKey === 'admin' || delKey === 'management' || delKey === 'backend' || delKey === 'shaha') {
+          continue;
+        }
         delete USER_CREDENTIALS[delKey];
       }
 
@@ -2984,15 +3151,25 @@
       }
     }
 
+    // ==============================================================
+    // AUTOMATIC 5-SECOND BACKGROUND REFRESH CONTROLLER
+    // ==============================================================
+    let autoRefreshTimer = null;
+    const AUTO_REFRESH_INTERVAL_MS = 5000; // Har 5 second me automatic background refresh
+    let isAppRefreshInProgress = false;
+
     // --- Instant Comprehensive Live Server Refresh ---
-    async function handleAppRefresh() {
+    async function handleAppRefresh(silent = false) {
+      if (isAppRefreshInProgress) return;
+      isAppRefreshInProgress = true;
+
       const btn = document.getElementById('btn-nav-refresh');
       const icon = document.getElementById('icon-nav-refresh');
       if (icon) icon.classList.add('animate-spin');
-      if (btn) btn.disabled = true;
+      if (btn && !silent) btn.disabled = true;
 
       try {
-        showToast('Refreshing all live data, collections & tables...', 'info');
+        if (!silent) showToast('Refreshing all live data, collections & tables...', 'info');
 
         // 1. Sync cloud tombstones (deleted items), credentials, paid files & leaderboard
         await syncDeletedTombstonesWithCloud();
@@ -3013,13 +3190,13 @@
         renderPaidFileTable();
         renderLeaderboardMIS();
         if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
-        updateTopKpis(); if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+        updateTopKpis();
+        if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
 
         // 4. Refresh Branch & Manager Collection Views
         if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
         if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
         if (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND') {
-
           // Live re-render Manager Slide Drawer if currently open
           const drawer = document.getElementById('manager-slide-drawer');
           const drawerMgrName = document.getElementById('drawer-manager-name');
@@ -3036,16 +3213,221 @@
           lucide.createIcons();
         }
 
-        showToast('All values, reports & collections refreshed successfully!', 'success');
+        if (!silent) showToast('All values, reports & collections refreshed successfully!', 'success');
       } catch(e) {
         console.error('Error during refresh:', e);
-        showToast('Data refreshed.', 'info');
+        if (!silent) showToast('Data refreshed.', 'info');
       } finally {
         setTimeout(() => {
           if (icon) icon.classList.remove('animate-spin');
           if (btn) btn.disabled = false;
-        }, 600);
+          isAppRefreshInProgress = false;
+        }, 400);
       }
+    }
+
+    // --- Automatic 5-Second Background Refresh Timer ---
+    function initAutoRefreshSystem() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(async () => {
+        // Agar user login nahi hai ya login modal open hai toh refresh bilkul mat chalao
+        if (!currentUser) return;
+        const loginModal = document.getElementById('login-modal');
+        if (loginModal && !loginModal.classList.contains('hidden')) return;
+
+        // Agar user kisi modal me typing kar raha ho toh us cycle ko skip karo taaki typing disturb na ho
+        const openModal = document.querySelector('#paid-case-modal:not(.hidden), #officer-modal:not(.hidden), #quick-edit-modal:not(.hidden)');
+        if (openModal) return;
+
+        // Silent automatic 5-second background refresh
+        await handleAppRefresh(true);
+      }, AUTO_REFRESH_INTERVAL_MS);
+    }
+
+    // ==============================================================
+    // LIVE CODE & HTML HOT-SYNC DETECTOR (Zero-Reload HTML Update)
+    // ==============================================================
+    const APP_BUILD_ID = "BUILD_20261113_182800";
+    let lastKnownServerEtag = null;
+    let isSeamlessReloading = false;
+    let codeCheckTimer = null;
+
+    function initLiveCodeSyncDetector() {
+      if (codeCheckTimer) clearInterval(codeCheckTimer);
+      // Check for HTML code/file updates every 10 seconds
+      codeCheckTimer = setInterval(async () => {
+        await checkServerForCodeChanges();
+      }, 10000);
+
+      // Also broadcast current build to cloud
+      if (typeof broadcastCurrentBuildToCloud === 'function') {
+        broadcastCurrentBuildToCloud();
+      }
+    }
+
+    async function checkServerForCodeChanges() {
+      if (isSeamlessReloading) return;
+      // Do NOT check or reload if user is not logged in or is on the login screen
+      if (!currentUser) return;
+      const loginModal = document.getElementById('login-modal');
+      if (loginModal && !loginModal.classList.contains('hidden')) return;
+
+      try {
+        const cleanUrl = window.location.href.split('#')[0].split('?')[0];
+
+        // Direct Content Probe: Read HTML to see if APP_BUILD_ID in file changed
+        try {
+          const probe = await fetch(cleanUrl + '?_v_chk=' + Date.now(), {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache' }
+          });
+          if (probe.ok) {
+            const html = await probe.text();
+            const match = html.match(/APP_BUILD_ID\s*=\s*"([^"]+)"/);
+            if (match && match[1] && match[1] !== APP_BUILD_ID && match[1] > APP_BUILD_ID) {
+              console.log(`[Live Hot-Sync] New build version detected in HTML: ${match[1]}`);
+              triggerLiveSeamlessHotReload(`New update detected (${match[1]})! Applying changes live...`);
+              return;
+            }
+          }
+        } catch (e) {}
+
+      } catch (err) {}
+    }
+
+    async function verifyCloudBuildVersion() {
+      if (!supabaseClient || isSeamlessReloading) return;
+      // Do NOT check or reload if user is not logged in or is on the login screen
+      if (!currentUser) return;
+      const loginModal = document.getElementById('login-modal');
+      if (loginModal && !loginModal.classList.contains('hidden')) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('bank_transactions')
+          .select('narration')
+          .eq('ref_no', 'SYS_APP_BUILD_VERSION')
+          .order('updated_at', { ascending: false, nullsFirst: false })
+          .limit(1);
+
+        if (!error && data && data.length > 0 && data[0].narration) {
+          const remoteBuild = data[0].narration.trim();
+          // ONLY reload if the cloud build is strictly newer than our local build!
+          if (remoteBuild && remoteBuild > APP_BUILD_ID) {
+            console.log(`[Live Hot-Sync] Newer cloud build: remote=${remoteBuild}, local=${APP_BUILD_ID}`);
+            triggerLiveSeamlessHotReload(`Admin published update (${remoteBuild})! Syncing live...`);
+          } else if (remoteBuild && remoteBuild < APP_BUILD_ID) {
+            // Local build is newer; update cloud so other clients receive the update
+            try {
+              supabaseClient.from('bank_transactions').update({ narration: APP_BUILD_ID, updated_at: new Date().toISOString() }).eq('ref_no', 'SYS_APP_BUILD_VERSION').then(()=>{});
+            } catch (e) {}
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function broadcastCurrentBuildToCloud() {
+      if (!supabaseClient) return;
+      try {
+        const { data } = await supabaseClient
+          .from('bank_transactions')
+          .select('id, narration')
+          .eq('ref_no', 'SYS_APP_BUILD_VERSION')
+          .limit(1);
+
+        if (data && data.length > 0) {
+          if (data[0].narration !== APP_BUILD_ID && APP_BUILD_ID > (data[0].narration || '')) {
+            await supabaseClient
+              .from('bank_transactions')
+              .update({ narration: APP_BUILD_ID, updated_at: new Date().toISOString() })
+              .eq('id', data[0].id);
+          }
+        } else {
+          await supabaseClient
+            .from('bank_transactions')
+            .insert([{
+              bank_name: 'SYSTEM',
+              ref_no: 'SYS_APP_BUILD_VERSION',
+              tx_date: '01-01-2026',
+              amount: 0,
+              narration: APP_BUILD_ID,
+              status: 'SYSTEM'
+            }]);
+        }
+      } catch (e) {}
+    }
+
+    function triggerLiveSeamlessHotReload(reasonText) {
+      if (isSeamlessReloading) return;
+      // CRITICAL: NEVER reload while user is not logged in or on the login screen!
+      if (!currentUser) return;
+      const loginModal = document.getElementById('login-modal');
+      if (loginModal && !loginModal.classList.contains('hidden')) return;
+
+      // Anti-loop protection: Maximum 1 reload per 60 seconds
+      const lastReload = Number(sessionStorage.getItem('shaha_last_hot_reload_ts') || 0);
+      if (Date.now() - lastReload < 60000) {
+        console.warn('[Hot-Reload] Suppressing reload loop; already reloaded recently.');
+        return;
+      }
+      sessionStorage.setItem('shaha_last_hot_reload_ts', String(Date.now()));
+
+      isSeamlessReloading = true;
+
+      // 1. Preserve active navigation state in sessionStorage
+      try {
+        sessionStorage.setItem('shaha_hot_sync_tab', currentTab || 'dashboard');
+        sessionStorage.setItem('shaha_hot_sync_scroll', String(window.scrollY || 0));
+
+        // Preserve open drawer state
+        const drawer = document.getElementById('manager-slide-drawer');
+        const drawerName = document.getElementById('drawer-manager-name');
+        if (drawer && !drawer.classList.contains('translate-x-full') && drawerName && drawerName.innerText) {
+          sessionStorage.setItem('shaha_hot_sync_drawer_mgr', drawerName.innerText.trim());
+        } else {
+          sessionStorage.removeItem('shaha_hot_sync_drawer_mgr');
+        }
+      } catch (e) {}
+
+      // 2. Show sleek slide-down banner
+      const banner = document.getElementById('hot-sync-notification-banner');
+      const bannerText = document.getElementById('hot-sync-banner-text');
+      if (banner) {
+        if (bannerText && reasonText) bannerText.innerText = reasonText;
+        banner.classList.remove('-translate-y-full');
+        banner.classList.add('translate-y-0');
+      }
+
+      // 3. Seamless cache-busted hot reload (login session stays 100% active)
+      setTimeout(() => {
+        const cleanUrl = window.location.href.split('#')[0].split('?')[0];
+        window.location.replace(cleanUrl + '?_hot_sync=' + Date.now());
+      }, 500);
+    }
+
+    function restoreHotSyncNavigationState() {
+      try {
+        const savedTab = sessionStorage.getItem('shaha_hot_sync_tab');
+        const savedScroll = sessionStorage.getItem('shaha_hot_sync_scroll');
+        const savedDrawer = sessionStorage.getItem('shaha_hot_sync_drawer_mgr');
+
+        if (savedTab && typeof switchTab === 'function' && savedTab !== 'dashboard') {
+          sessionStorage.removeItem('shaha_hot_sync_tab');
+          switchTab(savedTab);
+        }
+        if (savedScroll) {
+          sessionStorage.removeItem('shaha_hot_sync_scroll');
+          setTimeout(() => {
+            window.scrollTo({ top: Number(savedScroll), behavior: 'smooth' });
+          }, 150);
+        }
+        if (savedDrawer && typeof openManagerSlideDrawer === 'function') {
+          sessionStorage.removeItem('shaha_hot_sync_drawer_mgr');
+          setTimeout(() => {
+            openManagerSlideDrawer(savedDrawer);
+          }, 350);
+        }
+      } catch (e) {}
     }
 
     // --- Storage Key Helper for Paid File (Strict Per-Manager Data Privacy & Isolation) ---
@@ -4245,16 +4627,32 @@
       const totalDrr = typeof computeMisDrr === 'function' ? computeMisDrr(sumBalance, drrDays) : Math.round(Math.max(0, sumBalance) / Math.max(1, drrDays));
 
       const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      setTxt('total-tab-callers-val', String(list.length));
       setTxt('total-tab-total-val', formatCurrency(sumTotal));
-      setTxt('total-tab-ach-chip', `${overallAch}% Achieved`);
-      setTxt('total-tab-mtd-today-split', `${formatCurrency(sumMtd)} + ${formatCurrency(sumToday)}`);
+      setTxt('total-tab-today-val', formatCurrency(sumToday));
+      setTxt('total-tab-ach-chip', `${overallAch}% Ach`);
+      const splitEl = document.getElementById('total-tab-mtd-today-split');
+      if (splitEl) {
+        splitEl.innerText = `${fmtShortInr(sumMtd)} + ${fmtShortInr(sumToday)}`;
+        splitEl.title = `MTD: ${formatCurrency(sumMtd)} + Today: ${formatCurrency(sumToday)}`;
+      }
       setTxt('total-tab-target-val', formatCurrency(sumTarget));
       setTxt('total-tab-callers-chip', `${list.length} ${list.length === 1 ? 'Caller' : 'Callers'}`);
-      setTxt('total-tab-mtd-val', formatCurrency(sumMtd));
+      const mtdValEl = document.getElementById('total-tab-mtd-val');
+      if (mtdValEl) {
+        mtdValEl.innerText = formatCurrency(sumMtd);
+        mtdValEl.title = `MTD (AOY): ${formatCurrency(sumMtd)}`;
+      }
       setTxt('total-tab-balance-val', formatCurrency(sumBalance));
       setTxt('total-tab-drr-days-chip', `${drrDays}d left`);
-      setTxt('total-tab-drr-val', `${formatCurrency(totalDrr)} / day`);
+      const drrValEl = document.getElementById('total-tab-drr-val');
+      if (drrValEl) {
+        drrValEl.innerText = `${fmtShortInr(totalDrr)} / day`;
+        drrValEl.title = `DRR Needed: ${formatCurrency(totalDrr)} / day`;
+      }
       setTxt('total-tab-ach-val', `${overallAch}%`);
+      const totalAchBar = document.getElementById('total-tab-ach-bar');
+      if (totalAchBar) totalAchBar.style.width = `${Math.min(100, Math.max(0, overallAch))}%`;
       const hit100Count = list.filter(o => (Number(o.target) || 0) > 0 && (Number(o.achieved) || 0) >= 100).length;
       setTxt('total-tab-hit100-chip', `${hit100Count} Hit 100%`);
       setTxt('total-tab-today-foot', `Today: ${formatCurrency(sumToday)}`);
@@ -4559,6 +4957,7 @@
         const grandAch = sumTarget > 0 ? Math.round((pfGrandTotal / sumTarget) * 100) : 0;
         const grandDrr = typeof computeMisDrr === 'function' ? computeMisDrr(grandBal, drrDays) : Math.round(grandBal / Math.max(1, drrDays));
         setTxt('total-tab-total-val', formatCurrency(pfGrandTotal));
+        setTxt('total-tab-today-val', formatCurrency(pfGrandToday));
         setTxt('total-tab-ach-chip', `${grandAch}% Achieved`);
         setTxt('total-tab-mtd-today-split', `${formatCurrency(pfGrandMtd)} + ${formatCurrency(pfGrandToday)}`);
         setTxt('total-tab-target-val', formatCurrency(sumTarget));
@@ -4566,6 +4965,8 @@
         setTxt('total-tab-balance-val', formatCurrency(grandBal));
         setTxt('total-tab-drr-val', `${formatCurrency(grandDrr)} / day`);
         setTxt('total-tab-ach-val', `${grandAch}%`);
+        const totalAchBar = document.getElementById('total-tab-ach-bar');
+        if (totalAchBar) totalAchBar.style.width = `${Math.min(100, Math.max(0, grandAch))}%`;
         setTxt('total-tab-today-foot', `Today: ${formatCurrency(pfGrandToday)}`);
       }
 
@@ -5665,15 +6066,17 @@
       try {
         await Promise.race([
           syncCredentialsWithCloud(),
-          new Promise(resolve => setTimeout(resolve, 2000))
+          new Promise(resolve => setTimeout(resolve, 600))
         ]);
       } catch (e) {}
 
-      const cleanInput = usernameInput.toLowerCase();
+      const cleanInput = usernameInput.toLowerCase().trim();
       let matchedKey = null;
 
+      // 1. Check in loaded USER_CREDENTIALS
       for (const k in USER_CREDENTIALS) {
         const u = USER_CREDENTIALS[k];
+        if (!u) continue;
         const uName = (u.username || k).toLowerCase().trim();
         const fName = (u.name || '').toLowerCase().trim();
         if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName) {
@@ -5682,26 +6085,45 @@
         }
       }
 
+      // 2. Fallback to DEFAULT_INITIAL_CREDENTIALS if not found (prevents accidental lockout)
       if (!matchedKey) {
-        // A first name alone works only when exactly one user has that first name.
-        const firstNameHits = Object.keys(USER_CREDENTIALS).filter(k => String(USER_CREDENTIALS[k].name || '').toLowerCase().trim().split(' ')[0] === cleanInput);
-        if (firstNameHits.length === 1) matchedKey = firstNameHits[0];
+        for (const k in DEFAULT_INITIAL_CREDENTIALS) {
+          const u = DEFAULT_INITIAL_CREDENTIALS[k];
+          if (!u) continue;
+          const uName = (u.username || k).toLowerCase().trim();
+          const fName = (u.name || '').toLowerCase().trim();
+          if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName) {
+            matchedKey = k;
+            USER_CREDENTIALS[k] = Object.assign({}, u);
+            break;
+          }
+        }
+      }
+
+      // 3. First name match
+      if (!matchedKey) {
+        const allUsers = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, USER_CREDENTIALS);
+        const firstNameHits = Object.keys(allUsers).filter(k => String(allUsers[k].name || '').toLowerCase().trim().split(' ')[0] === cleanInput);
+        if (firstNameHits.length === 1) {
+          matchedKey = firstNameHits[0];
+          if (!USER_CREDENTIALS[matchedKey]) USER_CREDENTIALS[matchedKey] = Object.assign({}, allUsers[matchedKey]);
+        }
       }
 
       if (!matchedKey) {
-        showLoginError('Invalid Username or Password.');
+        showLoginError('Invalid Username or Login ID. Please check and try again.');
         return;
       }
 
-      const meta = USER_CREDENTIALS[matchedKey];
-      // Same rule as the original page: uppercase/lowercase and symbols do not matter.
-      const enteredPass = passInput.toLowerCase();
+      const meta = USER_CREDENTIALS[matchedKey] || DEFAULT_INITIAL_CREDENTIALS[matchedKey];
+      // Case-insensitive & symbols-tolerant password matching
+      const enteredPass = passInput.toLowerCase().trim();
       const storedPass = String(meta.pin || '').trim().toLowerCase();
       const cleanPass = s => s.replace(/[^a-z0-9]/g, '');
       const passOk = storedPass && (enteredPass === storedPass || (cleanPass(storedPass) && cleanPass(enteredPass) === cleanPass(storedPass)));
 
       if (!passOk) {
-        showLoginError('Invalid Username or Password.');
+        showLoginError('Incorrect Password. Please check your password and try again.');
         return;
       }
 
@@ -7479,15 +7901,24 @@
       let avgAchieved = sumTarget > 0 ? Math.round((displayTotal / sumTarget) * 100) : 0;
 
       if (todayEl) todayEl.innerText = `₹${displayToday.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
-      if (todayCountEl) todayCountEl.innerText = `${todayRecords.length} paid cases`;
+      if (todayCountEl) todayCountEl.innerText = `${todayRecords.length} ${todayRecords.length === 1 ? 'case' : 'cases'}`;
       if (mtdEl) mtdEl.innerText = `₹${displayTotal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
-      if (mtdCountEl) mtdCountEl.innerText = `${monthRecords.length} cases this month`;
+      if (mtdCountEl) mtdCountEl.innerText = `${monthRecords.length} ${monthRecords.length === 1 ? 'case' : 'cases'}`;
       if (targetEl) targetEl.innerText = `₹${sumTarget.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
       if (pctEl) pctEl.innerText = `${avgAchieved}%`;
-      if (balEl) balEl.innerText = `Bal: ₹${displayBal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+      if (balEl) {
+        balEl.innerText = `Bal: ${fmtShortInr(displayBal)}`;
+        balEl.title = `Remaining Balance: ₹${displayBal.toLocaleString('en-IN')}`;
+      }
+      const kpiBalValEl = document.getElementById('kpi-balance-val');
+      if (kpiBalValEl) kpiBalValEl.innerText = `₹${displayBal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+      const kpiCallersValEl = document.getElementById('kpi-callers-count-val');
+      if (kpiCallersValEl) kpiCallersValEl.innerText = `${scopedOfficers.length}`;
+      const kpiAchBarEl = document.getElementById('kpi-achieved-bar');
+      if (kpiAchBarEl) kpiAchBarEl.style.width = `${Math.min(100, Math.max(0, avgAchieved))}%`;
       if (typeof renderGreeting === 'function') renderGreeting();
       const callersCountEl = document.getElementById('kpi-target-callers-count');
-      if (callersCountEl) callersCountEl.innerText = `${scopedOfficers.length} Callers`;
+      if (callersCountEl) callersCountEl.innerText = `${scopedOfficers.length} ${scopedOfficers.length === 1 ? 'Caller' : 'Callers'}`;
 
 
     }
@@ -9589,7 +10020,7 @@ var misExpandedManagers = new Set();
       branchesList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.branch.localeCompare(b.branch));
 
       tbody.innerHTML = '';
-      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
 
       branchesList.forEach((bItem, idx) => {
         const target = bItem.target;
@@ -9597,6 +10028,7 @@ var misExpandedManagers = new Set();
         const today = bItem.today;
         const total = aoy + today;
         const balance = target - total;
+        const callers = bItem.count || 0;
         let achievedPct = 0;
         if (target > 0) {
           achievedPct = Math.round((total / target) * 100);
@@ -9609,6 +10041,7 @@ var misExpandedManagers = new Set();
         sumToday += today;
         sumTotal += total;
         sumBalance += balance;
+        sumCallers += callers;
 
         const tr = document.createElement('tr');
         tr.className = idx % 2 === 0 ? 'bg-white hover:bg-blue-50/40' : 'bg-[#f2f2f2] hover:bg-blue-50/40';
@@ -9618,8 +10051,8 @@ var misExpandedManagers = new Set();
         tr.innerHTML = `
           <td class="py-2 px-2 text-center border border-slate-300 font-black bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
           <td class="py-2 px-4 text-left border border-slate-300 font-extrabold text-[#174375] bg-blue-50/60 text-xs sm:text-[13px] uppercase tracking-wide">
-            <div class="flex items-center gap-2">
-              <i data-lucide="building" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>
+            <div class="flex items-center gap-2.5">
+              <i data-lucide="building" class="w-4 h-4 text-blue-600 shrink-0"></i>
               <span>${escHtml(bItem.branch)}</span>
             </div>
           </td>
@@ -9629,6 +10062,9 @@ var misExpandedManagers = new Set();
           <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-black text-slate-900 text-xs sm:text-[13px]">${total.toLocaleString('en-IN')}</td>
           <td class="py-2 px-3 text-center border border-slate-300 font-mono-num font-bold text-rose-700 text-xs sm:text-[13px]">${balance.toLocaleString('en-IN')}</td>
           <td class="py-2 px-3 text-center border border-slate-300 font-mono-num text-xs sm:text-[13px]" style="${achievedStyle}">${achievedPct}%</td>
+          <td class="py-2 px-3 text-center border border-slate-300 font-bold text-blue-800 text-xs sm:text-[13px]">
+            <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-black shadow-2xs">${callers} Callers</span>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -9645,6 +10081,7 @@ var misExpandedManagers = new Set();
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumBalance.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${overallAchieved}%</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumCallers} Callers</td>
           </tr>
         `;
       }
@@ -9660,7 +10097,7 @@ var misExpandedManagers = new Set();
       const periodInput = document.getElementById('leaderboard-period-input');
       const period = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
-      const headers = ['Sr. NO', 'BRANCH', 'TARGET', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%'];
+      const headers = ['Sr. NO', 'BRANCH', 'TARGET', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%', 'CALLERS'];
       const rows = [headers];
 
       const tbody = document.getElementById('branch-collection-tbody');
@@ -9669,7 +10106,7 @@ var misExpandedManagers = new Set();
 
       trs.forEach(tr => {
         const tds = tr.querySelectorAll('td');
-        if (tds.length >= 8) {
+        if (tds.length >= 9) {
           rows.push([
             tds[0].innerText.trim(),
             tds[1].innerText.trim(),
@@ -9678,7 +10115,8 @@ var misExpandedManagers = new Set();
             tds[4].innerText.trim().replace(/,/g, ''),
             tds[5].innerText.trim().replace(/,/g, ''),
             tds[6].innerText.trim().replace(/,/g, ''),
-            tds[7].innerText.trim()
+            tds[7].innerText.trim(),
+            tds[8].innerText.trim()
           ]);
         }
       });
@@ -9686,7 +10124,7 @@ var misExpandedManagers = new Set();
       const tfoot = document.getElementById('branch-collection-tfoot');
       if (tfoot) {
         const ftds = tfoot.querySelectorAll('td');
-        if (ftds.length >= 7) {
+        if (ftds.length >= 8) {
           rows.push([
             'TOTAL',
             '',
@@ -9695,7 +10133,8 @@ var misExpandedManagers = new Set();
             ftds[3].innerText.trim().replace(/,/g, ''),
             ftds[4].innerText.trim().replace(/,/g, ''),
             ftds[5].innerText.trim().replace(/,/g, ''),
-            ftds[6].innerText.trim()
+            ftds[6].innerText.trim(),
+            ftds[7].innerText.trim()
           ]);
         }
       }
@@ -10003,10 +10442,15 @@ var misExpandedManagers = new Set();
       });
 
       const achieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+      const sumBalance = Math.max(0, sumTarget - sumTotal);
 
       document.getElementById('drawer-kpi-count').innerText = activeCallers.length;
       document.getElementById('drawer-kpi-target').innerText = '₹' + sumTarget.toLocaleString('en-IN');
+      const drawerColEl = document.getElementById('drawer-kpi-collection');
+      if (drawerColEl) drawerColEl.innerText = '₹' + sumTotal.toLocaleString('en-IN');
       document.getElementById('drawer-kpi-today').innerText = '₹' + sumToday.toLocaleString('en-IN');
+      const drawerBalEl = document.getElementById('drawer-kpi-balance');
+      if (drawerBalEl) drawerBalEl.innerText = '₹' + sumBalance.toLocaleString('en-IN');
       document.getElementById('drawer-kpi-achieved').innerText = achieved + '%';
       document.getElementById('drawer-caller-total-label').innerText = `${activeCallers.length} Active Callers under ${mgrName}`;
 
@@ -10034,7 +10478,7 @@ var misExpandedManagers = new Set();
 
           tr.innerHTML = `
             <td class="p-2 text-center border-r border-slate-200 font-bold bg-[#d9e1f2] text-slate-800">${idx + 1}</td>
-            <td class="p-2 border-r border-slate-200 font-extrabold text-slate-900 bg-slate-50">${escHtml(formatCallerDisplayName(c.name))}</td>
+            <td class="p-2 text-center border-r border-slate-200 font-extrabold text-slate-900 bg-slate-50">${escHtml(formatCallerDisplayName(c.name))}</td>
             <td class="p-2 text-center border-r border-slate-200 font-mono-num font-bold">${Number(c.target).toLocaleString('en-IN')}</td>
             <td class="p-2 text-center border-r border-slate-200 font-mono-num font-bold text-emerald-700">${Number(c.today).toLocaleString('en-IN')}</td>
             <td class="p-2 text-center border-r border-slate-200 font-mono-num font-black text-slate-900">${Number(c.total).toLocaleString('en-IN')}</td>
