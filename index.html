@@ -6763,10 +6763,10 @@
 
       currentTab = tabId;
 
-      // Auto-sync collection data silently on view switch without needing any manual button
+      // Auto-sync collection data silently on view switch without redundant multi-tab DOM rendering
       if (['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'team-progress'].includes(tabId)) {
         if (typeof syncLiveCollectionFromPaidFile === 'function') {
-          syncLiveCollectionFromPaidFile(false);
+          syncLiveCollectionFromPaidFile(false, false);
         }
       }
 
@@ -6793,38 +6793,33 @@
         }
       });
 
-      if (tabId === 'dashboard') renderTop3Dashboard();
-      if (tabId === 'today-collection') {
+      if (tabId === 'dashboard') {
+        renderTop3Dashboard();
+      } else if (tabId === 'today-collection') {
         renderTodayCollectionTab();
-      }
-      if (tabId === 'total-collection') {
+      } else if (tabId === 'total-collection') {
         renderTotalCollectionTab();
-      }
-      if (tabId === 'mis-report') {
+      } else if (tabId === 'mis-report') {
         renderLeaderboardMIS();
-        if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard();
-      }
-      if (tabId === 'paid-file') renderPaidFileTable();
-      if (tabId === 'branch-collection') {
+      } else if (tabId === 'paid-file') {
+        renderPaidFileTable();
+      } else if (tabId === 'branch-collection') {
         renderBranchWiseCollection();
         if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
           loadCompanyCollectionData().then(() => { if (currentTab === 'branch-collection') renderBranchWiseCollection(); });
         }
-      }
-      if (tabId === 'manager-collection') {
+      } else if (tabId === 'manager-collection') {
         renderManagerWiseCollection();
         if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
           loadCompanyCollectionData().then(() => { if (currentTab === 'manager-collection') renderManagerWiseCollection(); });
         }
-      }
-      if (tabId === 'caller-targets') {
+      } else if (tabId === 'caller-targets') {
         renderCallerTargetsTab();
-      }
-      if (tabId === 'day-graph') {
+      } else if (tabId === 'day-graph') {
         renderDayGraphTab();
-      }
-      if (tabId === 'team-progress') renderTeamProgressTab();
-      if (tabId === 'admin-permissions') {
+      } else if (tabId === 'team-progress') {
+        renderTeamProgressTab();
+      } else if (tabId === 'admin-permissions') {
         if (role === 'ADMIN') {
           syncCredentialsWithCloud().then(() => renderUserManagerTable());
           renderUserManagerTable();
@@ -7016,6 +7011,7 @@
       // 1. COMPUTE MANAGER PROJECTIONS & LIVE COLLECTION FOR TODAY
       // ==============================================================
       const allOfficers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
+      const allOfficersForCollection = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o));
       const managersList = [];
       const seenMgrs = new Set();
 
@@ -7047,9 +7043,13 @@
 
         let mgrTodayCollected = 0;
         let callerTargetSum = 0;
-        allOfficers.forEach(o => {
+        allOfficersForCollection.forEach(o => {
           if (isOfficerUnderManager(o, mgr.name)) {
             mgrTodayCollected += (Number(o.today) || 0);
+          }
+        });
+        allOfficers.forEach(o => {
+          if (isOfficerUnderManager(o, mgr.name)) {
             callerTargetSum += (Number(o.target) || 0);
           }
         });
@@ -7070,7 +7070,7 @@
           if (isRecordOwnedByManager(r, mgr.name)) {
             const rawOff = String(r.officer || '').trim();
             const isUnassigned = !rawOff || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(rawOff.toUpperCase());
-            if (isUnassigned && !allOfficers.some(o => o.name.includes('DIRECT') && isOfficerUnderManager(o, mgr.name))) {
+            if (isUnassigned && !allOfficersForCollection.some(o => o.name.includes('DIRECT') && isOfficerUnderManager(o, mgr.name))) {
               mgrTodayCollected += (Number(r.amount) || 0);
             }
           }
