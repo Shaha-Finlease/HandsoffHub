@@ -141,13 +141,21 @@
     .app { min-height: 100vh; }
     .side {
       width: 240px; flex-shrink: 0;
-      position: sticky; top: 0; height: 100vh;
+      position: sticky; top: 0; height: 100vh; max-height: 100vh;
       display: flex; flex-direction: column; gap: 4px;
-      padding: 20px 14px;
+      padding: 16px 12px;
       background: var(--panel);
       border-right: 1px solid var(--line);
+      overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line) transparent;
+      -webkit-overflow-scrolling: touch;
     }
-    .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; }
+    .side::-webkit-scrollbar { width: 5px; }
+    .side::-webkit-scrollbar-track { background: transparent; }
+    .side::-webkit-scrollbar-thumb { background: var(--line-strong, #475569); border-radius: 99px; }
+    .side::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; flex-shrink: 0; }
     .brand-mark {
       width: 32px; height: 32px; border-radius: 9px;
       background: var(--accent); color: var(--accent-ink);
@@ -155,19 +163,20 @@
     }
     .brand-name { font-weight: 600; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
     .brand-sub { font-size: 12px; color: var(--ink-3); }
-    .nav-group { font-size: 12px; color: var(--ink-4); padding: 16px 12px 6px; }
+    .nav-group { font-size: 12px; color: var(--ink-4); padding: 12px 12px 4px; flex-shrink: 0; }
     .nav-item {
       display: flex; align-items: center; gap: 12px;
-      width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);
+      width: 100%; padding: 9px 12px; border-radius: var(--radius-sm);
       font-size: 14px; font-weight: 500; color: var(--ink-2);
       text-align: left; cursor: pointer; user-select: none;
       transition: background-color .18s var(--ease), color .18s var(--ease);
+      flex-shrink: 0;
     }
     .nav-item svg { width: 18px; height: 18px; stroke-width: 1.75; flex-shrink: 0; }
     .nav-item:hover { background: var(--raised); color: var(--ink); }
     .nav-item.tab-btn-active { background: var(--raised-2); color: var(--accent); }
     .nav-item:disabled { opacity: .5; cursor: default; }
-    .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px; }
+    .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; padding-top: 14px; }
     .user-card {
       display: flex; align-items: center; gap: 10px;
       margin-top: 10px; padding: 10px; border-radius: 12px;
@@ -797,110 +806,82 @@
             </div>
           </div>
 
-          <div class="grid-12">
-            <div class="span-8 stack">
-              <!-- Daily chart -->
-              <section class="card" aria-labelledby="chart-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="chart-title" class="card-title">Collection by day</h2>
-                    <div class="card-sub" id="chart-sub">Paid cases recorded this month</div>
-                  </div>
-                  <button onclick="switchTab('paid-file')" class="link-btn">Paid data <i data-lucide="arrow-up-right"></i></button>
+          <div class="stack space-y-4">
+            <!-- Top achievers by % (Closest to target) -->
+            <section class="card" aria-labelledby="ach-title">
+              <div class="card-h">
+                <div>
+                  <h2 id="ach-title" class="card-title">Closest to target</h2>
+                  <div class="card-sub">Ranked by % of target achieved</div>
                 </div>
-                <div class="card-b">
-                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs" style="margin-bottom: 8px;">
-                    <div class="flex flex-wrap items-center gap-2" id="overview-chart-stats"></div>
-                    <div class="flex flex-wrap items-center gap-2">
-                      <label class="inline-field"><i data-lucide="calendar"></i>From <input type="date" id="overview-chart-from" onchange="onChartRangeChange('overview-chart-host')"></label>
-                      <label class="inline-field">To <input type="date" id="overview-chart-to" onchange="onChartRangeChange('overview-chart-host')"></label>
-                      <button type="button" class="btn" onclick="onChartRangeChange('overview-chart-host', true)">This month</button>
-                    </div>
-                  </div>
-                  <div id="overview-chart-host" class="w-full"></div>
-                </div>
-              </section>
-
-              <section class="card mgr-view" aria-labelledby="team-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="team-title" class="card-title">Team progress</h2>
-                    <div class="card-sub">Each caller: collection, today and balance against the target</div>
-                  </div>
-                  <button onclick="switchTab('mis-report')" class="link-btn">Daily MIS <i data-lucide="arrow-up-right"></i></button>
-                </div>
-                <div class="card-b"><div id="team-summary"></div><div id="team-progress"></div></div>
-              </section>
-
-              <div class="grid-2 admin-view">
-                <section class="card" aria-labelledby="branch-title">
-                  <div class="card-h">
-                    <div>
-                      <h2 id="branch-title" class="card-title">Branches</h2>
-                      <div class="card-sub">Achieved % by branch</div>
-                    </div>
-                    <button onclick="switchTab('branch-collection')" class="link-btn">Report <i data-lucide="arrow-up-right"></i></button>
-                  </div>
-                  <div class="card-b"><div id="branch-progress" class="prog-list"></div></div>
-                </section>
-                <section class="card" aria-labelledby="mgr-title">
-                  <div class="card-h">
-                    <div>
-                      <h2 id="mgr-title" class="card-title">Managers</h2>
-                      <div class="card-sub">Select a manager to see the callers</div>
-                    </div>
-                    <button onclick="switchTab('manager-collection')" class="link-btn">Report <i data-lucide="arrow-up-right"></i></button>
-                  </div>
-                  <div class="card-b"><div id="manager-progress" class="prog-list prog-scroll"></div></div>
-                </section>
+                <button onclick="openAllAchieversModal()" id="btn-overall-achievers" class="link-btn" title="See every caller ranked by achievement">All callers <i data-lucide="arrow-up-right"></i></button>
               </div>
-            </div>
+              <div class="card-b grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="ach-row p-3 rounded-xl border border-slate-200" style="background: var(--raised, #f8fafc); border: 1px solid var(--line);">
+                  <div class="ach-line"><span id="ach1-name" class="rank-name font-bold">--</span><span id="ach1-pct" class="ach-pct num font-black text-emerald-600">0%</span></div>
+                  <div class="meter" style="margin-top: 8px"><div id="ach1-bar" style="width: 0%"></div></div>
+                  <div class="ach-meta" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px;">
+                    <span>Total <b id="ach1-total" class="num">₹0</b></span>
+                    <span>Target <b id="ach1-target" class="num">₹0</b></span>
+                    <span>Today <b id="ach1-today" class="num">₹0</b></span>
+                    <span id="ach1-bal">Bal: ₹0</span>
+                  </div>
+                </div>
+                <div class="ach-row p-3 rounded-xl border border-slate-200" style="background: var(--raised, #f8fafc); border: 1px solid var(--line);">
+                  <div class="ach-line"><span id="ach2-name" class="rank-name font-bold">--</span><span id="ach2-pct" class="ach-pct num font-black text-emerald-600">0%</span></div>
+                  <div class="meter" style="margin-top: 8px"><div id="ach2-bar" style="width: 0%"></div></div>
+                  <div class="ach-meta" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px;">
+                    <span>Total <b id="ach2-total" class="num">₹0</b></span>
+                    <span>Target <b id="ach2-target" class="num">₹0</b></span>
+                    <span>Today <b id="ach2-today" class="num">₹0</b></span>
+                    <span id="ach2-bal">Bal: ₹0</span>
+                  </div>
+                </div>
+                <div class="ach-row p-3 rounded-xl border border-slate-200" style="background: var(--raised, #f8fafc); border: 1px solid var(--line);">
+                  <div class="ach-line"><span id="ach3-name" class="rank-name font-bold">--</span><span id="ach3-pct" class="ach-pct num font-black text-emerald-600">0%</span></div>
+                  <div class="meter" style="margin-top: 8px"><div id="ach3-bar" style="width: 0%"></div></div>
+                  <div class="ach-meta" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px;">
+                    <span>Total <b id="ach3-total" class="num">₹0</b></span>
+                    <span>Target <b id="ach3-target" class="num">₹0</b></span>
+                    <span>Today <b id="ach3-today" class="num">₹0</b></span>
+                    <span id="ach3-bal">Bal: ₹0</span>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-            <div class="span-4 stack admin-view">
-              <!-- Today's top 3 -->
-              <section class="card" aria-labelledby="today-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="today-title" class="card-title">Top collectors today</h2>
-                    <div class="card-sub">Ranked by amount paid today</div>
+            <!-- Daily chart -->
+            <section class="card" aria-labelledby="chart-title">
+              <div class="card-h">
+                <div>
+                  <h2 id="chart-title" class="card-title">Collection by day</h2>
+                  <div class="card-sub" id="chart-sub">Paid cases recorded this month</div>
+                </div>
+                <button onclick="switchTab('paid-file')" class="link-btn">Paid data <i data-lucide="arrow-up-right"></i></button>
+              </div>
+              <div class="card-b">
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs" style="margin-bottom: 8px;">
+                  <div class="flex flex-wrap items-center gap-2" id="overview-chart-stats"></div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <label class="inline-field"><i data-lucide="calendar"></i>From <input type="date" id="overview-chart-from" onchange="onChartRangeChange('overview-chart-host')"></label>
+                    <label class="inline-field">To <input type="date" id="overview-chart-to" onchange="onChartRangeChange('overview-chart-host')"></label>
+                    <button type="button" class="btn" onclick="onChartRangeChange('overview-chart-host', true)">This month</button>
                   </div>
                 </div>
-                <div class="card-b">
-                  <div class="rank-row"><span class="rank-no">1</span><span id="today1-name" class="rank-name">--</span><span id="today1-amount" class="rank-amt num">₹0</span></div>
-                  <div class="rank-row"><span class="rank-no">2</span><span id="today2-name" class="rank-name">--</span><span id="today2-amount" class="rank-amt num">₹0</span></div>
-                  <div class="rank-row"><span class="rank-no">3</span><span id="today3-name" class="rank-name">--</span><span id="today3-amount" class="rank-amt num">₹0</span></div>
-                </div>
-              </section>
+                <div id="overview-chart-host" class="w-full"></div>
+              </div>
+            </section>
 
-              <!-- Top achievers by % -->
-              <section class="card" aria-labelledby="ach-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="ach-title" class="card-title">Closest to target</h2>
-                    <div class="card-sub">Ranked by % of target achieved</div>
-                  </div>
-                  <button onclick="openAllAchieversModal()" id="btn-overall-achievers" class="link-btn" title="See every caller ranked by achievement">All callers <i data-lucide="arrow-up-right"></i></button>
+            <section class="card mgr-view" aria-labelledby="team-title">
+              <div class="card-h">
+                <div>
+                  <h2 id="team-title" class="card-title">Team progress</h2>
+                  <div class="card-sub">Each caller: collection, today and balance against the target</div>
                 </div>
-                <div class="card-b">
-                  <div class="ach-row">
-                    <div class="ach-line"><span id="ach1-name" class="rank-name">--</span><span id="ach1-pct" class="ach-pct num">0%</span></div>
-                    <div class="meter" style="margin-top: 8px"><div id="ach1-bar" style="width: 0%"></div></div>
-                    <div class="ach-meta"><span>Total <b id="ach1-total" class="num">₹0</b></span><span>Target <b id="ach1-target" class="num">₹0</b></span><span>Today <b id="ach1-today" class="num">₹0</b></span><span id="ach1-bal">Bal: ₹0</span></div>
-                  </div>
-                  <div class="ach-row">
-                    <div class="ach-line"><span id="ach2-name" class="rank-name">--</span><span id="ach2-pct" class="ach-pct num">0%</span></div>
-                    <div class="meter" style="margin-top: 8px"><div id="ach2-bar" style="width: 0%"></div></div>
-                    <div class="ach-meta"><span>Total <b id="ach2-total" class="num">₹0</b></span><span>Target <b id="ach2-target" class="num">₹0</b></span><span>Today <b id="ach2-today" class="num">₹0</b></span><span id="ach2-bal">Bal: ₹0</span></div>
-                  </div>
-                  <div class="ach-row">
-                    <div class="ach-line"><span id="ach3-name" class="rank-name">--</span><span id="ach3-pct" class="ach-pct num">0%</span></div>
-                    <div class="meter" style="margin-top: 8px"><div id="ach3-bar" style="width: 0%"></div></div>
-                    <div class="ach-meta"><span>Total <b id="ach3-total" class="num">₹0</b></span><span>Target <b id="ach3-target" class="num">₹0</b></span><span>Today <b id="ach3-today" class="num">₹0</b></span><span id="ach3-bal">Bal: ₹0</span></div>
-                  </div>
-                </div>
-              </section>
-
-            </div>
+                <button onclick="switchTab('mis-report')" class="link-btn">Daily MIS <i data-lucide="arrow-up-right"></i></button>
+              </div>
+              <div class="card-b"><div id="team-summary"></div><div id="team-progress"></div></div>
+            </section>
           </div>
         </div>
 
@@ -962,28 +943,42 @@
 
           <!-- TODAY'S TABLES ONLY -->
           <div class="space-y-6">
-            <!-- TOP 5 CALLERS TODAY -->
+            <!-- CALLER WISE TODAY COLLECTION (LIVE CASES & AMOUNT) -->
             <section class="card p-5 space-y-4" style="background: var(--panel); border: 1px solid var(--line);">
               <div class="flex flex-wrap items-center justify-between gap-3 pb-3" style="border-bottom: 1px solid var(--line);">
                 <div class="space-y-0.5">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full" style="background: var(--accent);"></span>
-                    <h2 class="text-base font-bold tracking-tight" style="color: var(--ink);">Top 5 Callers Today</h2>
+                    <h2 class="text-base font-bold tracking-tight" style="color: var(--ink);">Caller Wise Today Collection</h2>
+                    <span class="chip text-xs font-mono" id="today-tab-callers-badge">0 Callers Today</span>
                   </div>
-                  <p class="text-xs" style="color: var(--ink-3);">Highest 5 callers with collection today (excluding Managers &amp; Agency)</p>
+                  <p class="text-xs" style="color: var(--ink-3);">Live breakdown of each caller: total amount collected today &amp; number of cases paid.</p>
                 </div>
-                <span class="chip text-xs font-mono" id="today-tab-top5-badge">Top 5 today</span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <div class="relative">
+                    <input type="text" id="today-caller-search" oninput="renderTodayTabCallersFiltered()" placeholder="Search caller..." class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500 w-44">
+                  </div>
+                  <select id="today-caller-mgr-filter" onchange="renderTodayTabCallersFiltered()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-700 focus:outline-none">
+                    <option value="all">All Managers</option>
+                  </select>
+                  <button type="button" onclick="exportTodayCallersExcel()" class="btn text-xs py-1 px-2.5 flex items-center gap-1" title="Export caller-wise today collection to Excel">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i><span>Export (.xlsx)</span>
+                  </button>
+                </div>
               </div>
               <div class="overflow-x-auto">
                 <table class="dtable w-full text-xs text-left">
                   <thead>
                     <tr>
                       <th class="p-2.5 text-center w-12">#</th>
-                      <th class="p-2.5">Caller</th>
+                      <th class="p-2.5">Caller Name</th>
                       <th class="p-2.5">Manager</th>
                       <th class="p-2.5 text-center">Branch</th>
-                      <th class="p-2.5 text-center">Today Cases</th>
-                      <th class="p-2.5 text-right font-bold" style="color: var(--good);">Today (₹)</th>
+                      <th class="p-2.5 text-center">Cases Today</th>
+                      <th class="p-2.5 text-right">Avg / Case (₹)</th>
+                      <th class="p-2.5 text-right font-bold" style="color: var(--good);">Today Collection (₹)</th>
+                      <th class="p-2.5 text-center">Today Share</th>
+                      <th class="p-2.5 text-center w-24">Cases Details</th>
                     </tr>
                   </thead>
                   <tbody id="today-tab-top5-tbody"></tbody>
@@ -3294,100 +3289,58 @@
       } catch(e) {}
       return fresh;
     }
-    function _legacyCreateFreshOfficers_unused() {
-      return [];
-    }
     let leaderboardOfficers = createFreshLeaderboardOfficers();
 
-    // Caller protection: Do NOT auto-purge callers entered by managers/admin
-    function isLegacyDummyCallerList(list) {
-      return false;
+    // ==========================================
+    // CACHE CLEARING & SANITIZATION CONTROLLER
+    // ==========================================
+    function clearAllAppCacheAndReload() {
+      if (!confirm('Are you sure you want to clear all local cache & reload fresh?\n\nYour login credentials & connection settings will be preserved.')) return;
+      try {
+        const preserveKeys = ['supabase_url', 'supabase_key', 'shaha_custom_credentials_v3', 'shaha_auth_session_user'];
+        const preserved = {};
+        preserveKeys.forEach(k => {
+          const v = localStorage.getItem(k);
+          if (v) preserved[k] = v;
+        });
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        for (const [k, v] of Object.entries(preserved)) {
+          localStorage.setItem(k, v);
+        }
+
+        localStorage.setItem('shaha_target_lock_version', APP_BUILD_ID);
+
+        showToast('All local cache cleared! Reloading fresh...', 'success');
+        setTimeout(() => {
+          const cleanUrl = window.location.href.split('#')[0].split('?')[0];
+          window.location.replace(cleanUrl + '?_v=' + Date.now());
+        }, 300);
+      } catch(e) {
+        window.location.reload();
+      }
     }
 
-    // Auto-clean any legacy dummy callers and duplicates from browser localStorage
+    // Auto-clean any legacy dummy callers and stale bloated cache from browser localStorage (Non-blocking & safe)
     function purgeLegacyDummyLeaderboardData() {
       try {
-        const TARGET_MIGRATION_VERSION = "BUILD_20261117_185000";
-        if (localStorage.getItem('shaha_target_lock_version') !== TARGET_MIGRATION_VERSION) {
-          // Backup/preserve any user-added custom callers before migrating
-          try {
-            const existingMis = JSON.parse(localStorage.getItem('shaha_leaderboard_mis_v2') || '[]');
-            if (Array.isArray(existingMis)) {
-              existingMis.forEach(o => {
-                if (o && o.name && !isManagerName(o.name) && !isOfficerTombstoned(o)) {
-                  if (typeof pinNewlyAddedCaller === 'function') pinNewlyAddedCaller(o);
-                }
-              });
-            }
-          } catch(_) {}
-          localStorage.setItem('shaha_target_lock_version', TARGET_MIGRATION_VERSION);
-          localStorage.removeItem('shaha_authoritative_hardlocked_targets_v2');
-          localStorage.removeItem('shaha_officer_target_registry_v1');
-          localStorage.removeItem('shaha_leaderboard_mis_v2');
-          for (let i = localStorage.length - 1; i >= 0; i--) {
-            const k = localStorage.key(i);
-            if (k && (k.startsWith('shaha_leaderboard_mis_v2_') || k.startsWith('shaha_authoritative_hardlocked_targets_') || k.startsWith('shaha_officer_target_registry_'))) {
+        const CURRENT_VERSION = APP_BUILD_ID;
+        if (localStorage.getItem('shaha_target_lock_version') !== CURRENT_VERSION) {
+          localStorage.setItem('shaha_target_lock_version', CURRENT_VERSION);
+
+          // Snapshot keys safely before removing to avoid mutating collection during iteration
+          const allKeys = Object.keys(localStorage);
+          allKeys.forEach(k => {
+            if (k && (k.startsWith('shaha_leaderboard_mis_v2_') || 
+                      k.startsWith('shaha_authoritative_hardlocked_targets_') || 
+                      k.startsWith('shaha_officer_target_registry_') ||
+                      k.startsWith('shaha_company_view_others_cache') ||
+                      k === 'shaha_paid_file_records_v1')) {
               localStorage.removeItem(k);
             }
-          }
-        }
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith('shaha_leaderboard_mis')) {
-            const val = localStorage.getItem(k);
-            if (val) {
-              try {
-                let parsed = JSON.parse(val);
-                if (Array.isArray(parsed)) {
-                  parsed = parsed.filter(o => o && o.name && !isManagerName(o.name));
-                  healCorruptedCallerManagers(parsed);
-                  // Deduplicate callers by canonical manager + name
-                  const dedup = new Map();
-                  parsed.forEach(o => {
-                    const cKey = `${String(o.manager || '').toUpperCase().trim()}_${String(o.name || '').toUpperCase().trim()}`;
-                    if (!dedup.has(cKey)) {
-                      dedup.set(cKey, o);
-                    } else {
-                      const cur = dedup.get(cKey);
-                      const isCurEx = Boolean(cur.inactive || cur.status === 'LEFT' || cur.status === 'RESIGNED' || cur.status === 'INACTIVE');
-                      const isNewEx = Boolean(o.inactive || o.status === 'LEFT' || o.status === 'RESIGNED' || o.status === 'INACTIVE');
-                      if (isCurEx && !isNewEx) dedup.set(cKey, o);
-                      else if (Number(o.target) > 0 && !(Number(cur.target) > 0)) cur.target = Number(o.target);
-                    }
-                  });
-                  parsed = Array.from(dedup.values());
-                  localStorage.setItem(k, JSON.stringify(parsed));
-                }
-                if (isLegacyDummyCallerList(parsed)) {
-                  localStorage.setItem(k, '[]');
-                }
-              } catch(e) {}
-            }
-          }
-        }
-        // Restore any manager self-caller tombstones removed by legacy manager-name filter
-        if (typeof USER_CREDENTIALS !== 'undefined' && typeof deletedOfficerKeys !== 'undefined') {
-          let removedLegacyMgrTombstone = false;
-          for (const uk in USER_CREDENTIALS) {
-            const u = USER_CREDENTIALS[uk];
-            if (!u || (u.role || 'MANAGER').toUpperCase() !== 'MANAGER') continue;
-            const mUp = String(u.name || uk).toUpperCase().trim();
-            if (deletedOfficerKeys.delete(mUp)) removedLegacyMgrTombstone = true;
-            if (deletedOfficerKeys.delete(`${mUp}_${mUp}`)) removedLegacyMgrTombstone = true;
-          }
-          if (removedLegacyMgrTombstone) {
-            localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
-          }
-        }
-        // Also purge any legacy dummy paid records
-        const localPaid = localStorage.getItem('shaha_paid_file_records_v1');
-        if (localPaid) {
-          try {
-            const parsed = JSON.parse(localPaid);
-            if (Array.isArray(parsed) && parsed.some(r => r.cust_id === '02356864' || (r.officer && r.officer.includes('DARSHANA')))) {
-              localStorage.removeItem('shaha_paid_file_records_v1');
-            }
-          } catch(e) {}
+          });
         }
       } catch(e) {}
     }
@@ -3396,9 +3349,15 @@
     // INITIALIZATION & DOM READY
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        if (typeof applyUiTheme === 'function' && document.documentElement.dataset.theme) {
+          applyUiTheme(document.documentElement.dataset.theme);
+        }
+      } catch(e) {}
       purgeLegacyDummyLeaderboardData();
       initSupabase();
       initTodayProjections();
+      if (typeof initManagerAssignedTargets === 'function') initManagerAssignedTargets();
       initLiveClock();
       initLiveDate();
       try {
@@ -3423,6 +3382,8 @@
 
     function initLiveDate() {
       const dateStr = getTodayFormattedStr();
+      const topbarDate = document.getElementById('topbar-date');
+      if (topbarDate) topbarDate.innerText = dateStr;
       const periodInput = document.getElementById('leaderboard-period-input');
       if (periodInput) periodInput.value = dateStr;
       const paidDateInp = document.getElementById('paid-input-date');
@@ -3804,7 +3765,7 @@
       if (heartbeatTimer) clearInterval(heartbeatTimer);
       heartbeatTimer = setInterval(async () => {
         await checkServerForUpdates();
-      }, 15000); // 15-second background heartbeat (lag-free, prevents network congestion)
+      }, 60000); // 60-second background heartbeat (lag-free, prevents network congestion)
     }
 
     async function checkServerForUpdates() {
@@ -4165,7 +4126,7 @@
     // AUTOMATIC 25-SECOND SMART BACKGROUND REFRESH CONTROLLER
     // ==============================================================
     let autoRefreshTimer = null;
-    const AUTO_REFRESH_INTERVAL_MS = 25000; // 25 second background refresh (smooth & lag-free)
+    const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 second background refresh (gentle, lag-free & battery friendly)
     let isAppRefreshInProgress = false;
 
     // --- Instant Comprehensive Live Server Refresh ---
@@ -4268,7 +4229,7 @@
       }
     }
 
-    // --- Automatic 25-Second Background Refresh Timer ---
+    // --- Automatic 60-Second Background Refresh Timer ---
     function initAutoRefreshSystem() {
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       autoRefreshTimer = setInterval(async () => {
@@ -4279,91 +4240,26 @@
         const openModal = document.querySelector('#paid-case-modal:not(.hidden), #officer-modal:not(.hidden), #quick-edit-modal:not(.hidden), #today-projection-modal:not(.hidden)');
         if (openModal) return;
 
-        // Silent automatic smart background refresh
+        // Silent automatic smart background refresh (gentle 60s cadence)
         await handleAppRefresh(true);
       }, AUTO_REFRESH_INTERVAL_MS);
     }
 
     // ==============================================================
-    // LIVE CODE & HTML HOT-SYNC DETECTOR (Zero-Reload HTML Update)
+    // APP BUILD IDENTIFIER & CLOUD SYNCHRONIZATION
     // ==============================================================
-    const APP_BUILD_ID = "BUILD_20261117_214500";
-    let lastKnownServerEtag = null;
+    const APP_BUILD_ID = "BUILD_20261117_220000";
     let isSeamlessReloading = false;
-    let codeCheckTimer = null;
 
     function initLiveCodeSyncDetector() {
-      if (codeCheckTimer) clearInterval(codeCheckTimer);
-      // Check for HTML code/file updates every 45 seconds (low resource usage)
-      codeCheckTimer = setInterval(async () => {
-        await checkServerForCodeChanges();
-      }, 45000);
-
-      // Also broadcast current build to cloud
+      // Broadcast current build to cloud once on launch
       if (typeof broadcastCurrentBuildToCloud === 'function') {
         broadcastCurrentBuildToCloud();
       }
     }
 
-    async function checkServerForCodeChanges() {
-      if (isSeamlessReloading) return;
-      // Do NOT check or reload if user is not logged in or is on the login screen
-      if (!currentUser) return;
-      const loginModal = document.getElementById('login-modal');
-      if (loginModal && !loginModal.classList.contains('hidden')) return;
-
-      try {
-        const cleanUrl = window.location.href.split('#')[0].split('?')[0];
-
-        // Direct Content Probe: Read HTML to see if APP_BUILD_ID in file changed
-        try {
-          const probe = await fetch(cleanUrl + '?_v_chk=' + Date.now(), {
-            cache: 'no-store',
-            headers: { 'Cache-Control': 'no-cache' }
-          });
-          if (probe.ok) {
-            const html = await probe.text();
-            const match = html.match(/APP_BUILD_ID\s*=\s*"([^"]+)"/);
-            if (match && match[1] && match[1] !== APP_BUILD_ID && match[1] > APP_BUILD_ID) {
-              console.log(`[Live Hot-Sync] New build version detected in HTML: ${match[1]}`);
-              triggerLiveSeamlessHotReload(`New update detected (${match[1]})! Applying changes live...`);
-              return;
-            }
-          }
-        } catch (e) {}
-
-      } catch (err) {}
-    }
-
     async function verifyCloudBuildVersion() {
-      if (!supabaseClient || isSeamlessReloading) return;
-      // Do NOT check or reload if user is not logged in or is on the login screen
-      if (!currentUser) return;
-      const loginModal = document.getElementById('login-modal');
-      if (loginModal && !loginModal.classList.contains('hidden')) return;
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('bank_transactions')
-          .select('narration')
-          .eq('ref_no', 'SYS_APP_BUILD_VERSION')
-          .order('updated_at', { ascending: false, nullsFirst: false })
-          .limit(1);
-
-        if (!error && data && data.length > 0 && data[0].narration) {
-          const remoteBuild = data[0].narration.trim();
-          // ONLY reload if the cloud build is strictly newer than our local build!
-          if (remoteBuild && remoteBuild > APP_BUILD_ID) {
-            console.log(`[Live Hot-Sync] Newer cloud build: remote=${remoteBuild}, local=${APP_BUILD_ID}`);
-            triggerLiveSeamlessHotReload(`Admin published update (${remoteBuild})! Syncing live...`);
-          } else if (remoteBuild && remoteBuild < APP_BUILD_ID) {
-            // Local build is newer; update cloud so other clients receive the update
-            try {
-              supabaseClient.from('bank_transactions').update({ narration: APP_BUILD_ID, updated_at: new Date().toISOString() }).eq('ref_no', 'SYS_APP_BUILD_VERSION').then(()=>{});
-            } catch (e) {}
-          }
-        }
-      } catch (e) {}
+      // Safe no-op: prevents intrusive reload loops that freeze browser tabs
     }
 
     async function broadcastCurrentBuildToCloud() {
@@ -5092,7 +4988,7 @@
 
     // Automatic Migration: Invalidate stale cached targets when build version upgrades
     try {
-      const TARGET_MIGRATION_VERSION = "BUILD_20261117_185000";
+      const TARGET_MIGRATION_VERSION = APP_BUILD_ID;
       if (localStorage.getItem('shaha_target_lock_version') !== TARGET_MIGRATION_VERSION) {
         // Backup/preserve any user-added custom callers before migrating
         try {
@@ -6881,9 +6777,11 @@
         if (amtEl) amtEl.innerText = formatCurrency(off.today);
       }
 
-      fillTodayCard('today1', topToday[0]);
-      fillTodayCard('today2', topToday[1]);
-      fillTodayCard('today3', topToday[2]);
+      if (document.getElementById('today1-name')) {
+        fillTodayCard('today1', topToday[0]);
+        fillTodayCard('today2', topToday[1]);
+        fillTodayCard('today3', topToday[2]);
+      }
 
       // 2. TOP PERFORMERS BY ACHIEVED % ON OVERALL COLLECTION (Only callers with actual collections/achievements)
       const topAchievers = [...scopedDashboardList].filter(o => !o.inactive && !isManagerName(o.name) && Number(o.target) > 0 && ((Number(o.total) || 0) > 0 || (Number(o.achieved) || 0) > 0)).sort((a, b) => {
@@ -13645,6 +13543,7 @@ var misExpandedManagers = new Set();
       if (isAdm) {
         const branchEl = document.getElementById('branch-progress');
         const mgrEl = document.getElementById('manager-progress');
+        if (!branchEl && !mgrEl) return;
 
         const branches = {};
         leaderboardOfficers.forEach(off => {
@@ -13853,22 +13752,7 @@ var misExpandedManagers = new Set();
       if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.classList.add('tt-flash'); setTimeout(() => card.classList.remove('tt-flash'), 1600); }
     }
 
-    function startLiveClock() {
-      const clockEl = document.getElementById('live-clock');
-      const update = () => {
-        if (!clockEl) return;
-        const now = new Date();
-        clockEl.innerText = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).toUpperCase();
-      };
-      update();
-      setInterval(update, 1000);
-    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      applyUiTheme(document.documentElement.dataset.theme);
-      if (typeof initManagerAssignedTargets === 'function') initManagerAssignedTargets();
-      startLiveClock();
-    });
 
   </script>
 
