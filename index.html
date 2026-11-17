@@ -4278,7 +4278,7 @@
     // ==============================================================
     // LIVE CODE & HTML HOT-SYNC DETECTOR (Zero-Reload HTML Update)
     // ==============================================================
-    const APP_BUILD_ID = "BUILD_20261117_203000";
+    const APP_BUILD_ID = "BUILD_20261117_210000";
     let lastKnownServerEtag = null;
     let isSeamlessReloading = false;
     let codeCheckTimer = null;
@@ -9946,41 +9946,71 @@
       return false;
     }
 
-    // Today and MTD of one caller: baselines + paid cases (splits for each caller) + approved requests.
+    // High-performance Caller Collection Calculator (pre-parsed dates, zero closures in loop)
     function computeCallerCollection(off, records, todayDateStr) {
       let todaySum = Number(off.baseline_today || 0);
       let mtdSum = Number(off.baseline_aoy || 0);
-      const add = (date, amt) => {
-        if (isSameDate(date, todayDateStr)) todaySum += amt;
-        else if (isMtdDateBeforeToday(date, todayDateStr)) mtdSum += amt;
-      };
+      const todayP = parseDateParts(todayDateStr);
+      if (!todayP) return { today: todaySum, aoy: mtdSum };
+
       const isUnassignedOff = off && off.name && off.name.includes('DIRECT');
-      records.forEach(r => {
-        if (!r || isRecordTombstoned(r)) return;
+      const recsLen = records ? records.length : 0;
+      for (let i = 0; i < recsLen; i++) {
+        const r = records[i];
+        if (!r || isRecordTombstoned(r)) continue;
+
+        let matchedAmt = 0;
         if (r.splits && r.splits.length > 0) {
-          r.splits.forEach(sp => {
-            const spName = (sp && sp.officer) ? String(sp.officer).trim() : '';
-            const spMgr = (sp && sp.manager) ? sp.manager : r.manager;
+          const splits = r.splits;
+          for (let s = 0; s < splits.length; s++) {
+            const sp = splits[s];
+            if (!sp) continue;
+            const spName = sp.officer ? String(sp.officer).trim() : '';
+            const spMgr = sp.manager || r.manager;
             if (spName && isOfficerMatch(off, spName) && (!spMgr || isOfficerUnderManager(off, spMgr))) {
-              add(r.pay_date, Number(sp.amount) || 0);
+              matchedAmt += (Number(sp.amount) || 0);
             } else if (!spName && isUnassignedOff && isOfficerUnderManager(off, r.manager)) {
-              add(r.pay_date, Number(sp.amount) || 0);
+              matchedAmt += (Number(sp.amount) || 0);
             }
-          });
+          }
         } else {
           const rawOff = String(r.officer || '').trim();
           const isBlank = !rawOff || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(rawOff.toUpperCase());
           if (!isBlank && isOfficerMatch(off, rawOff) && (!r.manager || isOfficerUnderManager(off, r.manager))) {
-            add(r.pay_date, Number(r.amount) || 0);
+            matchedAmt += (Number(r.amount) || 0);
           } else if (isBlank && isUnassignedOff && isOfficerUnderManager(off, r.manager)) {
-            add(r.pay_date, Number(r.amount) || 0);
+            matchedAmt += (Number(r.amount) || 0);
           }
         }
-      });
-      collectionRequests.forEach(q => {
-        if (q.status !== 'APPROVED' || q.caller_key !== officerIdentityKey(off) || q.type === 'INACTIVE' || q.type === 'ACTIVE') return;
-        add(q.date, Number(q.amount) || 0);
-      });
+
+        if (matchedAmt > 0) {
+          const p = parseDateParts(r.pay_date);
+          if (p) {
+            if (p.d === todayP.d && p.m === todayP.m && p.y === todayP.y) {
+              todaySum += matchedAmt;
+            } else if (p.y === todayP.y && p.m === todayP.m && p.d < todayP.d) {
+              mtdSum += matchedAmt;
+            }
+          }
+        }
+      }
+
+      const reqLen = collectionRequests ? collectionRequests.length : 0;
+      const offKey = officerIdentityKey(off);
+      for (let j = 0; j < reqLen; j++) {
+        const q = collectionRequests[j];
+        if (q.status !== 'APPROVED' || q.caller_key !== offKey || q.type === 'INACTIVE' || q.type === 'ACTIVE') continue;
+        const p = parseDateParts(q.date);
+        const qAmt = Number(q.amount) || 0;
+        if (p) {
+          if (p.d === todayP.d && p.m === todayP.m && p.y === todayP.y) {
+            todaySum += qAmt;
+          } else if (p.y === todayP.y && p.m === todayP.m && p.d < todayP.d) {
+            mtdSum += qAmt;
+          }
+        }
+      }
+
       return { today: todaySum, aoy: mtdSum };
     }
 
@@ -10254,7 +10284,7 @@
       });
     }
 
-    function syncLiveCollectionFromPaidFile(notify = false) {
+    function syncLiveCollectionFromPaidFile(notify = false, renderOnlyActive = true) {
       const periodInput = document.getElementById('leaderboard-period-input');
       const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
@@ -10348,8 +10378,29 @@
       });
 
       calculateLeaderboard();
-      renderLeaderboardMIS(); if (typeof renderTop3Dashboard === 'function') renderTop3Dashboard(); if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab(); if (typeof renderTotalCollectionTab === 'function' && currentTab === 'total-collection') renderTotalCollectionTab();
       updateTopKpis();
+
+      if (renderOnlyActive) {
+        if (currentTab === 'mis-report' && typeof renderLeaderboardMIS === 'function') {
+          renderLeaderboardMIS();
+        } else if (currentTab === 'dashboard' && typeof renderTop3Dashboard === 'function') {
+          renderTop3Dashboard();
+        } else if (currentTab === 'today-collection' && typeof renderTodayCollectionTab === 'function') {
+          renderTodayCollectionTab();
+        } else if (currentTab === 'total-collection' && typeof renderTotalCollectionTab === 'function') {
+          renderTotalCollectionTab();
+        } else if (currentTab === 'branch-collection' && typeof renderBranchWiseCollection === 'function') {
+          renderBranchWiseCollection();
+        } else if (currentTab === 'manager-collection' && typeof renderManagerWiseCollection === 'function') {
+          renderManagerWiseCollection();
+        } else if (currentTab === 'caller-targets' && typeof renderCallerTargetsTab === 'function') {
+          renderCallerTargetsTab();
+        } else if (currentTab === 'day-graph' && typeof renderDayGraphTab === 'function') {
+          renderDayGraphTab();
+        } else if (currentTab === 'team-progress' && typeof renderTeamProgressTab === 'function') {
+          renderTeamProgressTab();
+        }
+      }
 
       if (notify) {
         showToast('Live Collection recalculated directly from PAID DATA!', 'success');
