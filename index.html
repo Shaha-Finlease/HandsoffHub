@@ -2601,10 +2601,10 @@
 
     // Role-Based Access Control (RBAC) Permissions Matrix
     const ROLE_PERMISSIONS = {
-      'ADMIN': ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'],
-      'MANAGEMENT': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'team-progress'],
-      'BACKEND': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'paid-file', 'team-progress'],
-      'MANAGER': ['dashboard', 'today-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file']
+      'ADMIN': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'],
+      'MANAGEMENT': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress'],
+      'BACKEND': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress'],
+      'MANAGER': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress']
     };
     let USER_CREDENTIALS = JSON.parse(JSON.stringify(DEFAULT_INITIAL_CREDENTIALS));
     let deletedUserKeys = new Set();
@@ -2698,6 +2698,15 @@
         }
       }
       return false;
+    }
+
+    function officerIdentityKey(off) {
+      if (!off) return '';
+      if (typeof off === 'string') return off.toUpperCase().trim();
+      if (off.key) return String(off.key);
+      const mgr = String(off.manager || '').toUpperCase().trim();
+      const name = String(off.name || '').toUpperCase().trim();
+      return `${mgr}__${name}`;
     }
 
     function getBranchForManager(mgrName) {
@@ -4278,7 +4287,7 @@
     // ==============================================================
     // LIVE CODE & HTML HOT-SYNC DETECTOR (Zero-Reload HTML Update)
     // ==============================================================
-    const APP_BUILD_ID = "BUILD_20261117_210000";
+    const APP_BUILD_ID = "BUILD_20261117_214500";
     let lastKnownServerEtag = null;
     let isSeamlessReloading = false;
     let codeCheckTimer = null;
@@ -6766,7 +6775,11 @@
       // Auto-sync collection data silently on view switch without redundant multi-tab DOM rendering
       if (['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'team-progress'].includes(tabId)) {
         if (typeof syncLiveCollectionFromPaidFile === 'function') {
-          syncLiveCollectionFromPaidFile(false, false);
+          try {
+            syncLiveCollectionFromPaidFile(false, false);
+          } catch(syncErr) {
+            console.error('Silent sync notice on switchTab:', syncErr);
+          }
         }
       }
 
@@ -6784,46 +6797,52 @@
         }
         if (content) {
           const isActive = (t === tabId);
-          content.classList.toggle('hidden', !isActive);
           if (isActive) {
+            content.classList.remove('hidden');
             content.style.removeProperty('display');
+            content.style.display = 'block';
           } else {
+            content.classList.add('hidden');
             content.style.setProperty('display', 'none', 'important');
           }
         }
       });
 
-      if (tabId === 'dashboard') {
-        renderTop3Dashboard();
-      } else if (tabId === 'today-collection') {
-        renderTodayCollectionTab();
-      } else if (tabId === 'total-collection') {
-        renderTotalCollectionTab();
-      } else if (tabId === 'mis-report') {
-        renderLeaderboardMIS();
-      } else if (tabId === 'paid-file') {
-        renderPaidFileTable();
-      } else if (tabId === 'branch-collection') {
-        renderBranchWiseCollection();
-        if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
-          loadCompanyCollectionData().then(() => { if (currentTab === 'branch-collection') renderBranchWiseCollection(); });
+      try {
+        if (tabId === 'dashboard') {
+          renderTop3Dashboard();
+        } else if (tabId === 'today-collection') {
+          renderTodayCollectionTab();
+        } else if (tabId === 'total-collection') {
+          renderTotalCollectionTab();
+        } else if (tabId === 'mis-report') {
+          renderLeaderboardMIS();
+        } else if (tabId === 'paid-file') {
+          renderPaidFileTable();
+        } else if (tabId === 'branch-collection') {
+          renderBranchWiseCollection();
+          if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
+            loadCompanyCollectionData().then(() => { if (currentTab === 'branch-collection') renderBranchWiseCollection(); }).catch(console.error);
+          }
+        } else if (tabId === 'manager-collection') {
+          renderManagerWiseCollection();
+          if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
+            loadCompanyCollectionData().then(() => { if (currentTab === 'manager-collection') renderManagerWiseCollection(); }).catch(console.error);
+          }
+        } else if (tabId === 'caller-targets') {
+          renderCallerTargetsTab();
+        } else if (tabId === 'day-graph') {
+          renderDayGraphTab();
+        } else if (tabId === 'team-progress') {
+          renderTeamProgressTab();
+        } else if (tabId === 'admin-permissions') {
+          if (role === 'ADMIN') {
+            syncCredentialsWithCloud().then(() => renderUserManagerTable()).catch(console.error);
+            renderUserManagerTable();
+          }
         }
-      } else if (tabId === 'manager-collection') {
-        renderManagerWiseCollection();
-        if (isManagerOnlyView() && typeof loadCompanyCollectionData === 'function') {
-          loadCompanyCollectionData().then(() => { if (currentTab === 'manager-collection') renderManagerWiseCollection(); });
-        }
-      } else if (tabId === 'caller-targets') {
-        renderCallerTargetsTab();
-      } else if (tabId === 'day-graph') {
-        renderDayGraphTab();
-      } else if (tabId === 'team-progress') {
-        renderTeamProgressTab();
-      } else if (tabId === 'admin-permissions') {
-        if (role === 'ADMIN') {
-          syncCredentialsWithCloud().then(() => renderUserManagerTable());
-          renderUserManagerTable();
-        }
+      } catch (tabErr) {
+        console.error(`Error rendering tab ${tabId}:`, tabErr);
       }
       safeCreateIcons();
     }
@@ -7011,7 +7030,7 @@
       // 1. COMPUTE MANAGER PROJECTIONS & LIVE COLLECTION FOR TODAY
       // ==============================================================
       const allOfficers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
-      const allOfficersForCollection = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o));
+      const allCompanyOffs = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o));
       const managersList = [];
       const seenMgrs = new Set();
 
@@ -7043,20 +7062,22 @@
 
         let mgrTodayCollected = 0;
         let callerTargetSum = 0;
-        allOfficersForCollection.forEach(o => {
-          if (isOfficerUnderManager(o, mgr.name)) {
+        allCompanyOffs.forEach(o => {
+          const isMatch = isOfficerUnderManager(o, mgr.name) || 
+            (o && o.manager && resolveManagerUserKey(o.manager) && resolveManagerUserKey(o.manager) === resolveManagerUserKey(mgr.name));
+          if (isMatch) {
             mgrTodayCollected += (Number(o.today) || 0);
-          }
-        });
-        allOfficers.forEach(o => {
-          if (isOfficerUnderManager(o, mgr.name)) {
-            callerTargetSum += (Number(o.target) || 0);
+            if (!isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf) {
+              callerTargetSum += (Number(o.target) || 0);
+            }
           }
         });
 
         if (callerTargetSum === 0 && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
           SEED_OFFICERS.forEach(s => {
-            if (isOfficerUnderManager(s, mgr.name)) {
+            const isMatch = isOfficerUnderManager(s, mgr.name) || 
+              (s && s.manager && resolveManagerUserKey(s.manager) && resolveManagerUserKey(s.manager) === resolveManagerUserKey(mgr.name));
+            if (isMatch) {
               callerTargetSum += (Number(s.target) || 0);
             }
           });
@@ -7064,17 +7085,6 @@
 
         const assignedTarget = (typeof getAssignedManagerTarget === 'function') ? getAssignedManagerTarget(mgr.name) : 0;
         const mgrTarget = assignedTarget > 0 ? assignedTarget : callerTargetSum;
-
-        const allCompanyTodayRecs = (paidFileRecords || []).filter(r => isSameDate(r.pay_date, todayStr));
-        allCompanyTodayRecs.forEach(r => {
-          if (isRecordOwnedByManager(r, mgr.name)) {
-            const rawOff = String(r.officer || '').trim();
-            const isUnassigned = !rawOff || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(rawOff.toUpperCase());
-            if (isUnassigned && !allOfficersForCollection.some(o => o.name.includes('DIRECT') && isOfficerUnderManager(o, mgr.name))) {
-              mgrTodayCollected += (Number(r.amount) || 0);
-            }
-          }
-        });
 
         const gap = Math.max(0, projAmount - mgrTodayCollected);
         const achPct = projAmount > 0 ? Math.round((mgrTodayCollected / projAmount) * 100) : (mgrTodayCollected > 0 ? 100 : 0);
