@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="app-build-id" content="BUILD_20261118_123500">
+  <meta name="app-build-id" content="BUILD_20261118_144000">
   <meta name="app-version" content="4.5.0-live">
   <title>Shaha Finlease · Live Collections</title>
   <script>try { document.documentElement.dataset.theme = localStorage.getItem('shaha_ui_theme') === 'light' ? 'light' : 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }</script>
@@ -2578,7 +2578,7 @@
     }
 
     // --- System Defaults & Configurations ---
-    const APP_BUILD_ID = "BUILD_20261118_123500";
+    const APP_BUILD_ID = "BUILD_20261118_144000";
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
     const SESSION_INACTIVITY_LIMIT_MS = 8 * 60 * 60 * 1000; // 8 Hours (Full Shift Active Session)
@@ -6148,10 +6148,11 @@
         ? getTotalCompanyManagerTarget()
         : getAssignedManagerTarget(myMgrName);
       const activeCallersList = allCallers.filter(o => !isCallerExited(o));
+      const pureActiveCallersList = activeCallersList.filter(o => !isManagerEntityRow(o));
       const totalCallerTarget = activeCallersList.reduce((s, o) => s + (Number(o.target) || 0), 0);
       const variance = totalMgrTarget - totalCallerTarget;
-      const activeCount = activeCallersList.length;
-      const exitedCount = allCallers.filter(o => isCallerExited(o)).length;
+      const activeCount = pureActiveCallersList.length;
+      const exitedCount = allCallers.filter(o => isCallerExited(o) && !isManagerEntityRow(o)).length;
 
       const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
       setTxt('ct-kpi-mgr-target', formatCurrency(totalMgrTarget));
@@ -6242,7 +6243,7 @@
                     <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-slate-100 text-slate-700 border border-slate-200">${escHtml(mgrBranch)}</span>
                   </div>
                   <div class="text-xs text-slate-500 font-medium">
-                    ${callersOfMgr.length} ${callersOfMgr.length === 1 ? 'Caller' : 'Callers'} &middot; Main Screen Target: <b class="font-bold text-indigo-900 font-mono">${formatCurrency(assignedTarget)}</b>
+                    ${callersOfMgr.filter(o => !isManagerEntityRow(o)).length} ${callersOfMgr.filter(o => !isManagerEntityRow(o)).length === 1 ? 'Caller' : 'Callers'} &middot; Main Screen Target: <b class="font-bold text-indigo-900 font-mono">${formatCurrency(assignedTarget)}</b>
                   </div>
                 </div>
               </div>
@@ -7373,10 +7374,11 @@
       const dateBadge = document.getElementById('today-tab-date-badge');
       if (dateBadge) dateBadge.innerText = todayStr;
 
+      const activeTodayPureCallers = activeTodayCallers.filter(o => !isManagerEntityRow(o));
       const activeChip = document.getElementById('today-tab-active-chip');
-      if (activeChip) activeChip.innerText = `${activeTodayCallers.length} Callers`;
+      if (activeChip) activeChip.innerText = `${activeTodayPureCallers.length} Callers`;
       const activeVal = document.getElementById('today-tab-active-val');
-      if (activeVal) activeVal.innerText = String(activeTodayCallers.length);
+      if (activeVal) activeVal.innerText = String(activeTodayPureCallers.length);
       const avgEl = document.getElementById('today-tab-avg-case');
       const avgPerCase = todayRecs.length > 0 ? Math.round(todayAmt / todayRecs.length) : 0;
       if (avgEl) avgEl.innerText = `Avg: ${formatCurrency(avgPerCase)} / case`;
@@ -7748,7 +7750,9 @@
         });
       }
       const list = rawList;
-      const activeList = list;
+      // Exclude all Manager / (SELF) / DIRECT rows from Callers count & Hit-100% KPI (collection sums still use full list)
+      const pureCallersList = list.filter(o => !isManagerEntityRow(o));
+      const activeList = pureCallersList;
 
       let sumCallerTarget = 0, sumMtd = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
       list.forEach(o => {
@@ -7807,12 +7811,12 @@
       setTxt('total-tab-ach-val', `${overallAch}%`);
       const totalAchBar = document.getElementById('total-tab-ach-bar');
       if (totalAchBar) totalAchBar.style.width = `${Math.min(100, Math.max(0, overallAch))}%`;
-      const hit100Count = list.filter(o => (Number(o.target) || 0) > 0 && (Number(o.achieved) || 0) >= 100).length;
+      const hit100Count = pureCallersList.filter(o => (Number(o.target) || 0) > 0 && (Number(o.achieved) || 0) >= 100).length;
       setTxt('total-tab-hit100-chip', `${hit100Count} Hit 100%`);
       setTxt('total-tab-today-foot', `Today: ${formatCurrency(sumToday)}`);
 
       // 1. TOP 3 ACHIEVERS ON OVERALL COLLECTION
-      const top3 = list
+      const top3 = pureCallersList
         .filter(o => Number(o.target) > 0 && ((Number(o.total) || 0) > 0 || (Number(o.achieved) || 0) > 0))
         .sort((a, b) => (Number(b.achieved) || 0) - (Number(a.achieved) || 0) || (Number(b.total) || 0) - (Number(a.total) || 0))
         .slice(0, 3);
@@ -8187,7 +8191,7 @@
       const managersList = Array.isArray(pf.managersList) ? pf.managersList : [];
 
       const uniqueCallers = new Set();
-      managersList.forEach(m => (m.callers || []).forEach(c => uniqueCallers.add(c)));
+      managersList.forEach(m => (m.callers || []).filter(c => !isManagerEntityRow({ name: c, manager: m.name })).forEach(c => uniqueCallers.add(c)));
 
       const setElTxt = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
       setElTxt('pf-drawer-name', dispName);
@@ -8209,8 +8213,9 @@
         } else {
           tbody.innerHTML = managersList.map((m, idx) => {
             const share = pfTotal > 0 ? Math.round((m.total / pfTotal) * 100) : 0;
-            const callersPreview = (m.callers || []).slice(0, 4).map(c => formatCallerDisplayName(c)).join(', ');
-            const extraCallers = (m.callers || []).length > 4 ? ` +${m.callers.length - 4} more` : '';
+            const pureMgrCallers = (m.callers || []).filter(c => !isManagerEntityRow({ name: c, manager: m.name }));
+            const callersPreview = pureMgrCallers.slice(0, 4).map(c => formatCallerDisplayName(c)).join(', ');
+            const extraCallers = pureMgrCallers.length > 4 ? ` +${pureMgrCallers.length - 4} more` : '';
             const rowCls = idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]';
             return `
               <tr class="${rowCls} hover:bg-blue-50/50 transition-colors">
@@ -8225,7 +8230,7 @@
                   </button>
                 </td>
                 <td class="p-2.5 text-left">
-                  <span class="chip text-[10px] font-bold">${m.callers.length} ${m.callers.length === 1 ? 'Caller' : 'Callers'}</span>
+                  <span class="chip text-[10px] font-bold">${pureMgrCallers.length} ${pureMgrCallers.length === 1 ? 'Caller' : 'Callers'}</span>
                   ${callersPreview ? `<div class="text-[10px] text-slate-500 mt-1 leading-tight">${escHtml(callersPreview + extraCallers)}</div>` : ''}
                 </td>
                 <td class="p-2.5 text-center num font-semibold">${m.cases.toLocaleString('en-IN')}</td>
@@ -8609,8 +8614,12 @@
         entry.amount += Number(r.amount) || 0;
         entry.cases += 1;
         if (r.splits && r.splits.length > 0) {
-          r.splits.forEach(sp => { if (sp && sp.officer) entry.callers.add(String(sp.officer).toUpperCase().trim()); });
-        } else if (r.officer) {
+          r.splits.forEach(sp => {
+            if (sp && sp.officer && !isManagerEntityRow({ name: sp.officer, manager: sp.manager || r.manager })) {
+              entry.callers.add(String(sp.officer).toUpperCase().trim());
+            }
+          });
+        } else if (r.officer && !isManagerEntityRow({ name: r.officer, manager: r.manager })) {
           entry.callers.add(String(r.officer).toUpperCase().trim());
         }
       });
@@ -8850,8 +8859,8 @@
       // Cache full list for modal lookup & excel export
       _cachedTodayCallerRows = callersList;
 
-      // Update badge
-      const activeCount = callersList.length;
+      // Update badge (count pure callers only, excluding manager / SELF rows)
+      const activeCount = callersList.filter(c => !isManagerEntityRow(c)).length;
       const casesSum = callersList.reduce((s, c) => s + c.cases, 0);
       const amtSum = callersList.reduce((s, c) => s + c.amount, 0);
       if (badge) {
@@ -9161,8 +9170,8 @@
       const periodInput = document.getElementById('leaderboard-period-input');
       const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
-      // Accumulate active caller counts per branch
-      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o));
+      // Accumulate active caller counts per branch (pure callers only, excluding managers)
+      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerEntityRow(o));
       activeOfficers.forEach(off => {
         if (isUserDeleted(off.manager)) return;
         let b = getBranchForManager(off.manager);
@@ -9347,7 +9356,7 @@
         mgrData[foundM].aoy += a;
         mgrData[foundM].today += td;
         mgrData[foundM].total += tot;
-        if (!isCallerExited(off)) mgrData[foundM].callersCount += 1;
+        if (!isCallerExited(off) && !isManagerEntityRow(off)) mgrData[foundM].callersCount += 1;
       });
 
       // Authoritative manager totals sync from paidFileRecords (Admin/Senior Management/Backend) or companyView.managerTotals (Manager)
@@ -11391,6 +11400,36 @@
       return totals;
     }
 
+    function isManagerEntityRow(o) {
+      if (!o || !o.name) return true;
+      if (o.isManagerSelf) return true;
+      const rawName = String(o.name || '').trim().toUpperCase();
+      if (!rawName) return true;
+      if (rawName === 'POONAM KANOJIA' || rawName === 'POONAM J' || rawName === 'POONAM JADHAV') return false;
+      if (rawName.includes('(SELF)') || rawName.startsWith('DIRECT')) return true;
+      if (isManagerName(rawName)) return true;
+
+      const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const cleanNoParen = s => clean(String(s || '').replace(/\([^)]*\)/g, ''));
+      const nameClean = cleanNoParen(rawName);
+      const mgrClean = clean(o.manager || '');
+      if (nameClean && mgrClean && nameClean === mgrClean) return true;
+
+      if (typeof USER_CREDENTIALS !== 'undefined') {
+        for (const k in USER_CREDENTIALS) {
+          const u = USER_CREDENTIALS[k];
+          if (!u) continue;
+          const uName = clean(u.name || '');
+          const uKey = clean(k);
+          const uUser = clean(u.username || '');
+          if (nameClean && (nameClean === uName || nameClean === uKey || (uUser && nameClean === uUser))) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
     function isPlaceholderManagerSelfRow(o) {
       if (!o || !o.isManagerSelf) return false;
       const n = String(o.name || '').toUpperCase().trim();
@@ -11764,13 +11803,14 @@
       }
       const kpiBalValEl = document.getElementById('kpi-balance-val');
       if (kpiBalValEl) kpiBalValEl.innerText = `₹${displayBal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+      const pureScopedCount = scopedOfficers.filter(o => !isManagerEntityRow(o)).length;
       const kpiCallersValEl = document.getElementById('kpi-callers-count-val');
-      if (kpiCallersValEl) kpiCallersValEl.innerText = `${scopedOfficers.length}`;
+      if (kpiCallersValEl) kpiCallersValEl.innerText = `${pureScopedCount}`;
       const kpiAchBarEl = document.getElementById('kpi-achieved-bar');
       if (kpiAchBarEl) kpiAchBarEl.style.width = `${Math.min(100, Math.max(0, avgAchieved))}%`;
       if (typeof renderGreeting === 'function') renderGreeting();
       const callersCountEl = document.getElementById('kpi-target-callers-count');
-      if (callersCountEl) callersCountEl.innerText = `${scopedOfficers.length} ${scopedOfficers.length === 1 ? 'Caller' : 'Callers'}`;
+      if (callersCountEl) callersCountEl.innerText = `${pureScopedCount} ${pureScopedCount === 1 ? 'Caller' : 'Callers'}`;
 
 
     }
@@ -14068,8 +14108,8 @@ var misExpandedManagers = new Set();
         branchData[b].target += getAssignedManagerTarget(mgr.name);
       });
 
-      // Accumulate active caller counts per branch
-      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o));
+      // Accumulate active caller counts per branch (pure callers only, excluding managers)
+      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerEntityRow(o));
       activeOfficers.forEach(off => {
         if (isUserDeleted(off.manager)) return;
         let b = getBranchForManager(off.manager);
@@ -14409,7 +14449,7 @@ var misExpandedManagers = new Set();
         managersMap[foundKey].aoy += a;
         managersMap[foundKey].today += td;
         managersMap[foundKey].total += tot;
-        if (!isExited) managersMap[foundKey].callers.push(off);
+        if (!isExited && !isManagerEntityRow(off)) managersMap[foundKey].callers.push(off);
       });
 
       // Authoritative manager totals sync from full paidFileRecords (Admin / Senior Management / Backend) or companyView.managerTotals (Manager)
@@ -14602,6 +14642,7 @@ var misExpandedManagers = new Set();
 
       const callers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, mgrName) && !isManagerName(o.name));
       const activeCallers = callers.filter(c => !isCallerExited(c));
+      const pureDrawerCallersCount = activeCallers.filter(c => !isManagerEntityRow(c)).length;
 
       let sumTarget = 0, sumToday = 0, sumTotal = 0;
       activeCallers.forEach(c => {
@@ -14613,7 +14654,7 @@ var misExpandedManagers = new Set();
       const achieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
       const sumBalance = Math.max(0, sumTarget - sumTotal);
 
-      document.getElementById('drawer-kpi-count').innerText = activeCallers.length;
+      document.getElementById('drawer-kpi-count').innerText = pureDrawerCallersCount;
       document.getElementById('drawer-kpi-target').innerText = '₹' + sumTarget.toLocaleString('en-IN');
       const drawerColEl = document.getElementById('drawer-kpi-collection');
       if (drawerColEl) drawerColEl.innerText = '₹' + sumTotal.toLocaleString('en-IN');
@@ -14621,7 +14662,7 @@ var misExpandedManagers = new Set();
       const drawerBalEl = document.getElementById('drawer-kpi-balance');
       if (drawerBalEl) drawerBalEl.innerText = '₹' + sumBalance.toLocaleString('en-IN');
       document.getElementById('drawer-kpi-achieved').innerText = achieved + '%';
-      document.getElementById('drawer-caller-total-label').innerText = `${activeCallers.length} Active Callers under ${mgrName}`;
+      document.getElementById('drawer-caller-total-label').innerText = `${pureDrawerCallersCount} Active Callers under ${mgrName}`;
 
       const tbody = document.getElementById('drawer-callers-tbody');
       const tfoot = document.getElementById('drawer-callers-tfoot');
@@ -14663,7 +14704,7 @@ var misExpandedManagers = new Set();
         if (tfoot) {
           tfoot.innerHTML = `
             <tr class="bg-[#174375] text-white font-black">
-              <td colspan="2" class="p-2.5 text-center uppercase tracking-wider font-black">TOTAL (${activeCallers.length})</td>
+              <td colspan="2" class="p-2.5 text-center uppercase tracking-wider font-black">TOTAL (${pureDrawerCallersCount})</td>
               <td class="p-2.5 text-center font-mono-num font-black">${sumTarget.toLocaleString('en-IN')}</td>
               <td class="p-2.5 text-center font-mono-num font-black">${sumToday.toLocaleString('en-IN')}</td>
               <td class="p-2.5 text-center font-mono-num font-black">${sumTotal.toLocaleString('en-IN')}</td>
@@ -14859,7 +14900,7 @@ var misExpandedManagers = new Set();
       if (subEl) {
         subEl.innerText = currentRole === 'ADMIN'
           ? 'Collection across all branches and managers, today and this month.'
-          : `Your team of ${leaderboardOfficers.filter(o => !o.inactive && !isManagerName(o.name)).length} callers: collection for today and this month.`;
+          : `Your team of ${leaderboardOfficers.filter(o => !o.inactive && !isManagerEntityRow(o)).length} callers: collection for today and this month.`;
       }
       if (dateEl) dateEl.innerText = now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
     }
@@ -14916,7 +14957,7 @@ var misExpandedManagers = new Set();
         }
 
         const mList = canonicalMgrs.map(m => {
-          const callers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o) && isOfficerUnderManager(o, m.name));
+          const callers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerEntityRow(o) && isOfficerUnderManager(o, m.name));
           const allMgrOfficers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, m.name));
           const tar = getAssignedManagerTarget(m.name);
           const tot = allMgrOfficers.reduce((s, o) => s + (Number(o.total) || 0), 0);
@@ -14934,7 +14975,7 @@ var misExpandedManagers = new Set();
         const teamEl = document.getElementById('team-progress');
         if (!teamEl) return;
         const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-        const myCallers = leaderboardOfficers.filter(o => isOfficerUnderManager(o, myName) && !isManagerName(o.name) && !o.inactive)
+        const myCallers = leaderboardOfficers.filter(o => isOfficerUnderManager(o, myName) && !isManagerEntityRow(o) && !o.inactive)
           .sort((a, b) => (a.rank || 999) - (b.rank || 999));
         const now = new Date();
         const daysLeft = workingDaysLeft(now);
@@ -15072,11 +15113,12 @@ var misExpandedManagers = new Set();
             ${dayLineSvg(ser, tar, daysInMonth, { W: 380, H: 150, big: false, id: gi + '-' + ci })}
           </div>`;
         }).join('') : '';
+        const pureTeamCallersCount = g.list.filter(item => !isManagerEntityRow(item.o)).length;
         return `<section class="tt-card" data-mgr="${escHtml(g.key)}">
           <div class="tt-head">
             <div class="flex items-start gap-2.5">
               ${rankBadge(gi + 1)}
-              <div><div class="tt-name">${escHtml(g.key)}</div><div class="tt-sub">${g.list.length} ${g.list.length === 1 ? 'caller' : 'callers'} · Today <b class="num ${g.today > 0 ? 'amt-today' : 'amt-zero'}">${inr(g.today)}</b></div></div>
+              <div><div class="tt-name">${escHtml(g.key)}</div><div class="tt-sub">${pureTeamCallersCount} ${pureTeamCallersCount === 1 ? 'caller' : 'callers'} · Today <b class="num ${g.today > 0 ? 'amt-today' : 'amt-zero'}">${inr(g.today)}</b></div></div>
             </div>
             <div class="tt-nums">
               <span class="chip">Target <b class="num" style="margin-left: 4px; color: var(--ink);">${fmtShortInr(g.target)}</b></span>
@@ -15087,7 +15129,7 @@ var misExpandedManagers = new Set();
           </div>
           ${dayLineSvg(g.days, g.target, daysInMonth, { W: 640, H: 250, big: true, id: 'm' + gi })}
           <button type="button" class="btn tt-toggle" onclick="toggleTeamCallers('${escHtml(g.key).replace(/'/g, '&#39;')}')">
-            <i data-lucide="${open ? 'chevron-up' : 'chevron-down'}"></i>${open ? 'Hide callers' : `Show callers (${g.list.length})`}
+            <i data-lucide="${open ? 'chevron-up' : 'chevron-down'}"></i>${open ? 'Hide callers' : `Show callers (${pureTeamCallersCount})`}
           </button>
           ${open ? `<div class="tt-callers">${callers}</div>` : ''}
         </section>`;
