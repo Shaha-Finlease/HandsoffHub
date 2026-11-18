@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="app-build-id" content="BUILD_20261117_103000">
+  <meta name="app-build-id" content="BUILD_20261118_123500">
   <meta name="app-version" content="4.5.0-live">
   <title>Shaha Finlease · Live Collections</title>
   <script>try { document.documentElement.dataset.theme = localStorage.getItem('shaha_ui_theme') === 'light' ? 'light' : 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }</script>
@@ -1582,6 +1582,7 @@
                     </tr>
                   </thead>
                   <tbody id="drawer-callers-tbody"></tbody>
+                  <tfoot id="drawer-callers-tfoot"></tfoot>
                 </table>
               </div>
             </div>
@@ -2577,7 +2578,7 @@
     }
 
     // --- System Defaults & Configurations ---
-    const APP_BUILD_ID = "BUILD_20261118_114500";
+    const APP_BUILD_ID = "BUILD_20261118_123500";
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
     const SESSION_INACTIVITY_LIMIT_MS = 8 * 60 * 60 * 1000; // 8 Hours (Full Shift Active Session)
@@ -4735,20 +4736,35 @@
             const { data, error } = await supabaseClient
               .from('bank_transactions')
               .select('*')
-              .like('ref_no', 'SYS_PAID_RECORDS_%');
+              .like('ref_no', 'SYS_PAID_RECORDS_%')
+              .order('updated_at', { ascending: false, nullsFirst: false })
+              .order('id', { ascending: false });
             if (error) throw error;
 
             let allRecs = [];
             const seenIds = new Set();
+            const getRecKey = (r, idx) => (r && r.id !== undefined && r.id !== null && String(r.id).trim() !== '')
+              ? String(r.id)
+              : `${r.pay_date}_${r.amount}_${r.cust_id}_${r.officer}_${idx}`;
 
             if (!error && data && data.length > 0) {
               data.forEach(row => {
                 try {
+                  let rowMgr = '';
+                  const pMatch = (row.ref_no || '').match(/^SYS_PAID_RECORDS_(.+)$/i);
+                  if (pMatch) {
+                    const mk = pMatch[1].toLowerCase();
+                    const rk = USER_CREDENTIALS[mk] ? mk : resolveManagerUserKey(mk.replace(/_/g, ' '));
+                    if (rk && USER_CREDENTIALS[rk]) rowMgr = USER_CREDENTIALS[rk].name;
+                  }
                   const list = JSON.parse(row.narration);
                   if (Array.isArray(list)) {
-                    list.forEach(r => {
-                      if (!seenIds.has(r.id) && !deletedPaidRecordIds.has(String(r.id))) {
-                        seenIds.add(r.id);
+                    list.forEach((r, idx) => {
+                      if (!r) return;
+                      if (!r.manager && rowMgr) r.manager = rowMgr;
+                      const rKey = getRecKey(r, idx);
+                      if (!seenIds.has(rKey) && !deletedPaidRecordIds.has(String(r.id))) {
+                        seenIds.add(rKey);
                         allRecs.push(r);
                       }
                     });
@@ -4757,11 +4773,13 @@
               });
             }
 
-            // Also check legacy/direct master SYS_PAID_FILE_RECORDS
+            // Also check legacy/direct master SYS_PAID_FILE_RECORDS (latest row first)
             const { data: masterData, error: masterError } = await supabaseClient
               .from('bank_transactions')
               .select('*')
               .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+              .order('updated_at', { ascending: false, nullsFirst: false })
+              .order('id', { ascending: false })
               .limit(1);
             if (masterError) throw masterError;
 
@@ -4769,9 +4787,11 @@
               try {
                 const mList = JSON.parse(masterData[0].narration);
                 if (Array.isArray(mList)) {
-                  mList.forEach(r => {
-                    if (r && !seenIds.has(r.id) && !deletedPaidRecordIds.has(String(r.id))) {
-                      seenIds.add(r.id);
+                  mList.forEach((r, idx) => {
+                    if (!r) return;
+                    const rKey = getRecKey(r, idx);
+                    if (!seenIds.has(rKey) && !deletedPaidRecordIds.has(String(r.id))) {
+                      seenIds.add(rKey);
                       allRecs.push(r);
                     }
                   });
@@ -7373,8 +7393,22 @@
       // ==============================================================
       // 1. COMPUTE MANAGER PROJECTIONS & LIVE COLLECTION FOR TODAY
       // ==============================================================
-      const allOfficers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
+      const allOfficers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o));
       const allOfficersForCollection = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o));
+      let authoritativeTodayMgrTotals = null;
+      if (!isManagerOnlyView() && typeof computeManagerTotalsFromPaidRecords === 'function') {
+        authoritativeTodayMgrTotals = computeManagerTotalsFromPaidRecords(getRoleScopedPaidRecords(), todayStr, getAllCompanyOfficersReadOnly());
+      } else if (isManagerOnlyView()) {
+        authoritativeTodayMgrTotals = (companyView && companyView.managerTotals && companyView.managerTotalsDate === todayStr)
+          ? companyView.managerTotals
+          : null;
+        if (!authoritativeTodayMgrTotals) {
+          try {
+            const cachedMgr = JSON.parse(localStorage.getItem('shaha_company_view_manager_totals_cache') || 'null');
+            if (cachedMgr && cachedMgr.date === todayStr && cachedMgr.totals) authoritativeTodayMgrTotals = cachedMgr.totals;
+          } catch(e) {}
+        }
+      }
       const managersList = [];
       const seenMgrs = new Set();
 
@@ -7438,6 +7472,15 @@
             }
           }
         });
+
+        // Authoritative sync from full paid records so Senior Management, Admin & Managers always see exact Today Collected for every manager
+        if (authoritativeTodayMgrTotals) {
+          const rk = resolveManagerUserKey(mgr.name) || resolveManagerUserKey(mgr.key) || getManagerStorageKey(mgr.name);
+          const myKey = isManagerOnlyView() ? resolveManagerUserKey(getCurrentManagerIdentifier()) : '';
+          if (rk && (!myKey || rk !== myKey) && authoritativeTodayMgrTotals[rk]) {
+            mgrTodayCollected = Number(authoritativeTodayMgrTotals[rk].today) || 0;
+          }
+        }
 
         const gap = Math.max(0, projAmount - mgrTodayCollected);
         const achPct = projAmount > 0 ? Math.round((mgrTodayCollected / projAmount) * 100) : (mgrTodayCollected > 0 ? 100 : 0);
@@ -7687,7 +7730,7 @@
       let rawList = [];
       if (isGlobalTotalView) {
         rawList = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly())
-          .filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && !o.isManagerSelf && !isCallerExited(o));
+          .filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o) && !isCallerExited(o));
       } else {
         // MANAGER VIEW: Strictly scope to logged-in manager's own active MIS callers (1-to-1 with Daily MIS)
         const myScoped = getRoleScopedOfficers().filter(o => o && o.name && !isOfficerTombstoned(o) && !isManagerName(o.name) && !isCallerExited(o));
@@ -9119,7 +9162,7 @@
       const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
       // Accumulate active caller counts per branch
-      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
+      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o));
       activeOfficers.forEach(off => {
         if (isUserDeleted(off.manager)) return;
         let b = getBranchForManager(off.manager);
@@ -9306,6 +9349,37 @@
         mgrData[foundM].total += tot;
         if (!isCallerExited(off)) mgrData[foundM].callersCount += 1;
       });
+
+      // Authoritative manager totals sync from paidFileRecords (Admin/Senior Management/Backend) or companyView.managerTotals (Manager)
+      const periodInp = document.getElementById('leaderboard-period-input');
+      const todayDateStr = (periodInp && periodInp.value.trim()) ? periodInp.value.trim() : getTodayFormattedStr();
+      let mgrTotals = null;
+      if (!isManagerOnlyView() && typeof computeManagerTotalsFromPaidRecords === 'function') {
+        mgrTotals = computeManagerTotalsFromPaidRecords(getRoleScopedPaidRecords(), todayDateStr, getAllCompanyOfficersReadOnly());
+      } else if (isManagerOnlyView()) {
+        mgrTotals = (companyView && companyView.managerTotals && companyView.managerTotalsDate === todayDateStr)
+          ? companyView.managerTotals
+          : null;
+        if (!mgrTotals) {
+          try {
+            const cachedMgr = JSON.parse(localStorage.getItem('shaha_company_view_manager_totals_cache') || 'null');
+            if (cachedMgr && cachedMgr.date === todayDateStr && cachedMgr.totals) mgrTotals = cachedMgr.totals;
+          } catch(e) {}
+        }
+      }
+      if (mgrTotals && Object.keys(mgrTotals).length > 0) {
+        const myMgrKey = isManagerOnlyView() ? resolveManagerUserKey(getCurrentManagerIdentifier()) : '';
+        for (const mName in mgrData) {
+          const rk = resolveManagerUserKey(mName) || getManagerStorageKey(mName);
+          if (!rk || (myMgrKey && rk === myMgrKey)) continue;
+          const mt = mgrTotals[rk];
+          if (mt) {
+            mgrData[mName].aoy = Number(mt.aoy) || 0;
+            mgrData[mName].today = Number(mt.today) || 0;
+            mgrData[mName].total = mgrData[mName].aoy + mgrData[mName].today;
+          }
+        }
+      }
 
       const mgrList = Object.values(mgrData);
       mgrList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.name.localeCompare(b.name));
@@ -9892,7 +9966,7 @@
       // Management has no Paid tab
       const adminFilters = document.querySelectorAll('#filter-box-bank, #filter-box-manager, #filter-box-date, #mis-mgr-filter-wrap, #officer-manager-field-wrap');
       const filtersGrid = document.getElementById('paid-filters-container');
-      const canViewAllPaidFilters = (role === 'ADMIN' || role === 'BACKEND');
+      const canViewAllPaidFilters = (role === 'ADMIN' || role === 'MANAGEMENT' || role === 'BACKEND');
 
       if (!canViewAllPaidFilters) {
         adminFilters.forEach(el => {
@@ -11047,8 +11121,12 @@
               const nextBaseAoy = (Number(cur.baseline_aoy) > 0) ? Number(cur.baseline_aoy) : (Number(o.baseline_aoy) || 0);
               const nextBaseToday = (Number(cur.baseline_today) > 0) ? Number(cur.baseline_today) : (Number(o.baseline_today) || 0);
               const nextProj = (Number(cur.projection) > 0) ? Number(cur.projection) : (Number(o.projection) || 0);
+              const nextAliases = (String(cur.aliases || '').length >= String(o.aliases || '').length) ? (cur.aliases || o.aliases || '') : (o.aliases || cur.aliases || '');
+              const isStandaloneTeam = (cName === 'SAROJ' || cName === 'CUSTOMER SERVICE');
               officers[idx] = Object.assign({}, cur, o, {
                 _fromMaster: isCurFromMaster || Boolean(o._fromMaster),
+                isManagerSelf: isStandaloneTeam ? false : Boolean(cur.isManagerSelf && o.isManagerSelf),
+                aliases: nextAliases,
                 target: nextTarget,
                 baseline_aoy: nextBaseAoy,
                 baseline_today: nextBaseToday,
@@ -11130,8 +11208,35 @@
             if (pinsRes && !pinsRes.error && pinsRes.data && pinsRes.data.length > 0) {
               parse(pinsRes.data[0]).forEach(p => mergeOther(p));
             }
-            (pf.data || []).forEach(row => parse(row).forEach(addRec));
+            (pf.data || []).forEach(row => {
+              let rowMgr = '';
+              const pMatch = (row.ref_no || '').match(/^SYS_PAID_RECORDS_(.+)$/i);
+              if (pMatch) {
+                const mk = pMatch[1].toLowerCase();
+                const rk = USER_CREDENTIALS[mk] ? mk : resolveManagerUserKey(mk.replace(/_/g, ' '));
+                if (rk && USER_CREDENTIALS[rk]) rowMgr = USER_CREDENTIALS[rk].name;
+              }
+              parse(row).forEach(r => {
+                if (r && !r.manager && rowMgr) r.manager = rowMgr;
+                addRec(r);
+              });
+            });
           }
+        }
+
+        // Ensure standalone/seeded callers (e.g. SAROJ, CUSTOMER SERVICE) and their aliases are present
+        if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+          SEED_OFFICERS.forEach(s => {
+            if (!s || !s.name || isOfficerTombstoned(s) || isUserDeleted(s.manager)) return;
+            if (isOfficerUnderManager(s, myMgrIdent)) return;
+            const k = keyOf(s);
+            if (!seen.has(k)) {
+              mergeOther(Object.assign({}, s, { baseline_aoy: 0, aoy: 0, baseline_today: 0, today: 0, total: 0, balance: Number(s.target) || 0, achieved: 0, rank: 999 }));
+            } else if (s.aliases) {
+              const idx = officers.findIndex((e, i) => i >= ownCount && keyOf(e) === k);
+              if (idx >= 0 && !officers[idx].aliases) officers[idx].aliases = s.aliases;
+            }
+          });
         }
 
         const ensureOtherCaller = (rawName, rawMgr) => {
@@ -11202,7 +11307,7 @@
           o.achieved = (Number(o.target) || 0) > 0 ? Math.round((o.total / Number(o.target)) * 100) : 0;
         });
 
-        // Compute read-only aggregate branch totals (zero private customer data exposed)
+        // Compute read-only aggregate branch & manager totals (zero private customer data exposed)
         const nonBr = new Set(['ALL', 'ALL BRANCHES', 'HQ', 'HEAD OFFICE', 'OPS', 'SYSTEM']);
         const branchTotals = {};
         records.forEach(r => {
@@ -11218,19 +11323,86 @@
             branchTotals[b].aoy += amt;
           }
         });
+        const managerTotals = computeManagerTotalsFromPaidRecords(records, todayStr, officers);
 
-        companyView = { others: officers.slice(ownCount), branchTotals: branchTotals, branchTotalsDate: todayStr };
+        companyView = {
+          others: officers.slice(ownCount),
+          branchTotals: branchTotals,
+          branchTotalsDate: todayStr,
+          managerTotals: managerTotals,
+          managerTotalsDate: todayStr
+        };
         try {
           localStorage.setItem('shaha_company_view_others_cache', JSON.stringify(companyView.others));
           localStorage.setItem('shaha_company_view_branch_totals_cache', JSON.stringify({ date: todayStr, totals: branchTotals }));
+          localStorage.setItem('shaha_company_view_manager_totals_cache', JSON.stringify({ date: todayStr, totals: managerTotals }));
         } catch(e) {}
       } catch (e) { console.warn('Company collection data not loaded', e); }
+    }
+
+    function computeManagerTotalsFromPaidRecords(records, todayDateStr, officersList = []) {
+      const totals = {};
+      const addAmt = (rawMgr, rawOff, amt, dateStr) => {
+        if (!amt) return;
+        let mIdent = String(rawMgr || '').trim();
+        if ((!mIdent || NON_MANAGER_TARGET_NAMES.has(mIdent.toUpperCase())) && rawOff && typeof getCallerCanonicalManager === 'function') {
+          mIdent = getCallerCanonicalManager(rawOff, '') || '';
+        }
+        const mk = resolveManagerUserKey(mIdent) || getManagerStorageKey(mIdent);
+        if (!mk || isUserDeleted(mk) || isUserDeleted(mIdent)) return;
+        if (!totals[mk]) totals[mk] = { aoy: 0, today: 0 };
+        if (isSameDate(dateStr, todayDateStr)) {
+          totals[mk].today += amt;
+        } else if (isMtdDateBeforeToday(dateStr, todayDateStr)) {
+          totals[mk].aoy += amt;
+        }
+      };
+
+      (records || []).forEach(r => {
+        if (!r || isRecordTombstoned(r)) return;
+        const amt = Number(r.amount) || 0;
+        if (Array.isArray(r.splits) && r.splits.length > 0) {
+          r.splits.forEach(sp => {
+            if (!sp) return;
+            addAmt(sp.manager || r.manager, sp.officer || r.officer, Number(sp.amount) || 0, r.pay_date);
+          });
+        } else {
+          addAmt(r.manager, r.officer, amt, r.pay_date);
+        }
+      });
+
+      (collectionRequests || []).forEach(q => {
+        if (!q || q.status !== 'APPROVED' || q.type === 'INACTIVE' || q.type === 'ACTIVE') return;
+        addAmt(q.manager, q.caller_name || q.caller, Number(q.amount) || 0, q.date);
+      });
+
+      (officersList || []).forEach(o => {
+        if (!o || isOfficerTombstoned(o) || isUserDeleted(o.manager)) return;
+        const bAoy = Number(o.baseline_aoy) || 0;
+        const bToday = Number(o.baseline_today) || 0;
+        if (!bAoy && !bToday) return;
+        const mk = resolveManagerUserKey(o.manager) || getManagerStorageKey(o.manager);
+        if (!mk) return;
+        if (!totals[mk]) totals[mk] = { aoy: 0, today: 0 };
+        totals[mk].aoy += bAoy;
+        totals[mk].today += bToday;
+      });
+
+      return totals;
+    }
+
+    function isPlaceholderManagerSelfRow(o) {
+      if (!o || !o.isManagerSelf) return false;
+      const n = String(o.name || '').toUpperCase().trim();
+      if (n === 'SAROJ' || n === 'CUSTOMER SERVICE' || n.includes('(SELF)')) return false;
+      if ((Number(o.target) || 0) > 0 || (Number(o.total) || 0) > 0 || (Number(o.aoy) || 0) > 0 || (Number(o.today) || 0) > 0) return false;
+      return true;
     }
 
     function getAllCompanyOfficersReadOnly() {
       const isAdm = !isManagerOnlyView();
       let list = [];
-      const base = (leaderboardOfficers || []).filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !o.isManagerSelf && !(o.manager && isUserDeleted(o.manager)));
+      const base = (leaderboardOfficers || []).filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o) && !(o.manager && isUserDeleted(o.manager)));
       if (isAdm) {
         list = base;
       } else {
@@ -11245,7 +11417,7 @@
           } catch(e) {}
         }
         if (!others) others = [];
-        list = [...base, ...others.filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !o.isManagerSelf && !(o.manager && isUserDeleted(o.manager)))];
+        list = [...base, ...others.filter(o => o && !isOfficerTombstoned(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o) && !(o.manager && isUserDeleted(o.manager)))];
       }
 
       // Strictly deduplicate by canonical manager + caller identity
@@ -11279,7 +11451,7 @@
       }
       const seen = new Set();
       return all.filter(o => {
-        if (!o || !o.name || isCallerExited(o) || isOfficerTombstoned(o) || isManagerName(o.name) || o.isManagerSelf) return false;
+        if (!o || !o.name || isCallerExited(o) || isOfficerTombstoned(o) || isManagerName(o.name) || isPlaceholderManagerSelfRow(o)) return false;
         if (o.manager && isUserDeleted(o.manager)) return false;
         const k = `${getManagerStorageKey(o.manager)}_${String(o.name).toUpperCase().trim()}`;
         if (seen.has(k)) return false;
@@ -13897,7 +14069,7 @@ var misExpandedManagers = new Set();
       });
 
       // Accumulate active caller counts per branch
-      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
+      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o));
       activeOfficers.forEach(off => {
         if (isUserDeleted(off.manager)) return;
         let b = getBranchForManager(off.manager);
@@ -14240,6 +14412,34 @@ var misExpandedManagers = new Set();
         if (!isExited) managersMap[foundKey].callers.push(off);
       });
 
+      // Authoritative manager totals sync from full paidFileRecords (Admin / Senior Management / Backend) or companyView.managerTotals (Manager)
+      let mgrTotals = null;
+      if (!mgrOnly && typeof computeManagerTotalsFromPaidRecords === 'function') {
+        mgrTotals = computeManagerTotalsFromPaidRecords(getRoleScopedPaidRecords(), todayDateStr, getAllCompanyOfficersReadOnly());
+      } else if (mgrOnly) {
+        mgrTotals = (companyView && companyView.managerTotals && companyView.managerTotalsDate === todayDateStr)
+          ? companyView.managerTotals
+          : null;
+        if (!mgrTotals) {
+          try {
+            const cachedMgr = JSON.parse(localStorage.getItem('shaha_company_view_manager_totals_cache') || 'null');
+            if (cachedMgr && cachedMgr.date === todayDateStr && cachedMgr.totals) mgrTotals = cachedMgr.totals;
+          } catch(e) {}
+        }
+      }
+      if (mgrTotals && Object.keys(mgrTotals).length > 0) {
+        for (const mk in managersMap) {
+          const rk = resolveManagerUserKey(managersMap[mk].name) || resolveManagerUserKey(mk) || getManagerStorageKey(managersMap[mk].name);
+          if (!rk || (mgrOnly && myMgrKey && rk === myMgrKey)) continue;
+          const mt = mgrTotals[rk];
+          if (mt) {
+            managersMap[mk].aoy = Number(mt.aoy) || 0;
+            managersMap[mk].today = Number(mt.today) || 0;
+            managersMap[mk].total = managersMap[mk].aoy + managersMap[mk].today;
+          }
+        }
+      }
+
       const mgrList = Object.values(managersMap);
       mgrList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.name.localeCompare(b.name));
 
@@ -14424,7 +14624,9 @@ var misExpandedManagers = new Set();
       document.getElementById('drawer-caller-total-label').innerText = `${activeCallers.length} Active Callers under ${mgrName}`;
 
       const tbody = document.getElementById('drawer-callers-tbody');
+      const tfoot = document.getElementById('drawer-callers-tfoot');
       tbody.innerHTML = '';
+      if (tfoot) tfoot.innerHTML = '';
 
       if (activeCallers.length === 0) {
         tbody.innerHTML = `
@@ -14457,6 +14659,20 @@ var misExpandedManagers = new Set();
           `;
           tbody.appendChild(tr);
         });
+
+        if (tfoot) {
+          tfoot.innerHTML = `
+            <tr class="bg-[#174375] text-white font-black">
+              <td colspan="2" class="p-2.5 text-center uppercase tracking-wider font-black">TOTAL (${activeCallers.length})</td>
+              <td class="p-2.5 text-center font-mono-num font-black">${sumTarget.toLocaleString('en-IN')}</td>
+              <td class="p-2.5 text-center font-mono-num font-black">${sumToday.toLocaleString('en-IN')}</td>
+              <td class="p-2.5 text-center font-mono-num font-black">${sumTotal.toLocaleString('en-IN')}</td>
+              <td class="p-2.5 text-center font-mono-num font-black">${sumBalance.toLocaleString('en-IN')}</td>
+              <td class="p-2.5 text-center font-mono-num font-black">${achieved}%</td>
+              <td class="p-2.5 text-center font-mono-num font-black">—</td>
+            </tr>
+          `;
+        }
       }
 
       lucide.createIcons();
@@ -14700,7 +14916,7 @@ var misExpandedManagers = new Set();
         }
 
         const mList = canonicalMgrs.map(m => {
-          const callers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf && isOfficerUnderManager(o, m.name));
+          const callers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !isPlaceholderManagerSelfRow(o) && isOfficerUnderManager(o, m.name));
           const allMgrOfficers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, m.name));
           const tar = getAssignedManagerTarget(m.name);
           const tot = allMgrOfficers.reduce((s, o) => s + (Number(o.total) || 0), 0);
