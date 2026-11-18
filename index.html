@@ -140,13 +140,31 @@
     .app { min-height: 100vh; }
     .side {
       width: 240px; flex-shrink: 0;
-      position: sticky; top: 0; height: 100vh;
+      position: sticky; top: 0; height: 100vh; max-height: 100vh;
       display: flex; flex-direction: column; gap: 4px;
-      padding: 20px 14px;
+      padding: 16px 12px 20px;
       background: var(--panel);
       border-right: 1px solid var(--line);
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
     }
-    .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; }
+    .side::-webkit-scrollbar {
+      width: 5px;
+    }
+    .side::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .side::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 99px;
+    }
+    .side::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; flex-shrink: 0; }
     .brand-mark {
       width: 32px; height: 32px; border-radius: 9px;
       background: var(--accent); color: var(--accent-ink);
@@ -154,23 +172,33 @@
     }
     .brand-name { font-weight: 600; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
     .brand-sub { font-size: 12px; color: var(--ink-3); }
-    .nav-group { font-size: 12px; color: var(--ink-4); padding: 16px 12px 6px; }
+    .nav-group { font-size: 12px; color: var(--ink-4); padding: 14px 10px 4px; flex-shrink: 0; }
     .nav-item {
       display: flex; align-items: center; gap: 12px;
-      width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);
-      font-size: 14px; font-weight: 500; color: var(--ink-2);
+      width: 100%; padding: 8.5px 12px; border-radius: var(--radius-sm);
+      font-size: 13.5px; font-weight: 500; color: var(--ink-2);
       text-align: left; cursor: pointer; user-select: none;
+      flex-shrink: 0;
       transition: background-color .18s var(--ease), color .18s var(--ease);
     }
     .nav-item svg { width: 18px; height: 18px; stroke-width: 1.75; flex-shrink: 0; }
     .nav-item:hover { background: var(--raised); color: var(--ink); }
     .nav-item.tab-btn-active { background: var(--raised-2); color: var(--accent); }
     .nav-item:disabled { opacity: .5; cursor: default; }
-    .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px; }
+    .side-foot {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+      padding-top: 14px;
+      padding-bottom: 16px;
+    }
     .user-card {
       display: flex; align-items: center; gap: 10px;
-      margin-top: 10px; padding: 10px; border-radius: 12px;
+      margin-top: 8px; padding: 10px; border-radius: 12px;
       background: var(--raised); border: 1px solid var(--line);
+      flex-shrink: 0;
     }
     .avatar {
       width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
@@ -616,6 +644,27 @@
     body:not([data-role="ADMIN"]) .admin-view { display: none !important; }
     body[data-role="ADMIN"] .mgr-view { display: none !important; }
     body[data-role="ADMIN"] #nav-group-collections { display: block !important; }
+    /* Senior Management: Strictly View-Only (Hide all Edit / Add / Update controls) */
+    body[data-role="MANAGEMENT"] .mgmt-readonly-hide,
+    body[data-role="MANAGEMENT"] #btn-mgr-wise-update-target,
+    body[data-role="MANAGEMENT"] #btn-mgr-wise-update-proj,
+    body[data-role="MANAGEMENT"] #btn-today-tab-update-proj,
+    body[data-role="MANAGEMENT"] #btn-today-table-update-proj,
+    body[data-role="MANAGEMENT"] #btn-drawer-update-proj,
+    body[data-role="MANAGEMENT"] #content-mis-report .mis-action-col,
+    body[data-role="MANAGEMENT"] #content-paid-file .paid-action-col,
+    body[data-role="MANAGEMENT"] button[onclick*="openPaidCaseModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openManagerTargetModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openSingleCallerTargetModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openQuickEditModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openAddOfficerModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openEditOfficerModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openRequestsModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="openTodayProjectionModal"],
+    body[data-role="MANAGEMENT"] button[onclick*="savePaidFileToCloud"],
+    body[data-role="MANAGEMENT"] button[onclick*="deletePaidCase"] {
+      display: none !important;
+    }
 
     /* Responsive */
     @media (max-width: 1200px) {
@@ -680,10 +729,7 @@
         </div>
       </div>
 
-      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-item tab-btn-active">
-        <i data-lucide="layout-grid"></i><span>Overview</span>
-      </button>
-      <button onclick="switchTab('today-collection')" id="tab-today-collection" class="nav-item tab-btn-inactive"><i data-lucide="calendar-check"></i><span>Today</span></button>
+      <button onclick="switchTab('today-collection')" id="tab-today-collection" class="nav-item tab-btn-active"><i data-lucide="calendar-check"></i><span>Today</span></button>
       <button onclick="switchTab('total-collection')" id="tab-total-collection" class="nav-item tab-btn-inactive"><i data-lucide="sigma"></i><span>Overall Summary</span></button>
       <button onclick="switchTab('branch-collection')" id="tab-branch-collection" class="nav-item tab-btn-inactive"><i data-lucide="building-2"></i><span>Branch wise</span></button>
       <button onclick="switchTab('manager-collection')" id="tab-manager-collection" class="nav-item tab-btn-inactive"><i data-lucide="users"></i><span>Manager wise</span></button>
@@ -732,7 +778,7 @@
     <div class="main">
       <!-- ===== Top bar ===== -->
       <header class="topbar">
-        <div class="crumb"><span id="topbar-scope">Workspace</span> / <b id="topbar-title">Overview</b></div>
+        <div class="crumb"><span id="topbar-scope">Workspace</span> / <b id="topbar-title">Today</b></div>
         <div class="flex items-center gap-2">
           <span class="pill"><i data-lucide="calendar"></i><span id="topbar-date">--</span></span>
           <span class="pill"><i data-lucide="clock"></i><span id="live-clock" class="num">--</span></span>
@@ -742,176 +788,9 @@
       <main class="content">
 
         <!-- ============================================ -->
-        <!-- OVERVIEW                                     -->
-        <!-- ============================================ -->
-        <div id="content-dashboard">
-          <div class="page-head">
-            <div>
-              <h1 id="greet-title">Good morning</h1>
-              <p id="greet-sub">Your team's collection for today and this month.</p>
-            </div>
-            <div class="actions">
-              <button onclick="switchTab('mis-report')" class="btn mgr-view"><i data-lucide="table-2"></i>Open Daily MIS</button>
-              <button onclick="exportPaidFileExcel()" class="btn admin-view"><i data-lucide="download"></i>Export paid data</button>
-              <button onclick="openPaidCaseModal()" class="btn btn-primary"><i data-lucide="plus"></i>Add paid case</button>
-            </div>
-          </div>
-
-          <!-- KPI row: Callers, Target, Collection, Today, Balance, Achieved% (Centered & Uncongested) -->
-          <div class="kpis">
-            <div class="card kpi text-center">
-              <div class="kpi-top"><span>Callers</span><span id="kpi-callers-status-chip" class="chip">Active</span></div>
-              <div id="kpi-callers-count-val" class="kpi-value num text-center">0</div>
-              <div class="kpi-foot text-center"><span id="kpi-target-callers-count" class="truncate font-semibold text-slate-500">0 Callers</span></div>
-            </div>
-            <div class="card kpi text-center">
-              <div class="kpi-top"><span>Target</span><span class="chip">Monthly</span></div>
-              <div id="kpi-target-amount" class="kpi-value num text-center">₹0</div>
-              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Allocated target</span></div>
-            </div>
-            <div class="card kpi text-center" style="border-color: rgba(234, 88, 12, 0.45); background: linear-gradient(180deg, rgba(234, 88, 12, 0.03) 0%, transparent 100%);">
-              <div class="kpi-top"><span>Collection</span><span id="kpi-mtd-count" class="chip chip-accent">0 cases</span></div>
-              <div id="kpi-mtd-amount" class="kpi-value num text-center font-black" style="color: var(--accent);">₹0</div>
-              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Month to date (MTD)</span></div>
-            </div>
-            <div class="card kpi text-center">
-              <div class="kpi-top"><span>Today</span><span id="kpi-today-count" class="chip chip-accent">0 cases</span></div>
-              <div id="kpi-today-amount" class="kpi-value num text-center" style="color: var(--good);">₹0</div>
-              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Live payments</span></div>
-            </div>
-            <div class="card kpi text-center">
-              <div class="kpi-top"><span>Balance</span><span class="chip" style="color: var(--bad);">Remaining</span></div>
-              <div id="kpi-balance-val" class="kpi-value num text-center" style="color: var(--bad, #be123c);">₹0</div>
-              <div class="kpi-foot text-center"><span class="truncate text-slate-500">Target - Collection</span></div>
-            </div>
-            <div class="card kpi text-center">
-              <div class="kpi-top"><span>Achieved</span><span id="kpi-balance-amount" class="chip font-mono">Bal: ₹0</span></div>
-              <div id="kpi-achieved-pct" class="kpi-value num text-center" style="color: var(--accent);">0%</div>
-              <div class="w-full space-y-1 mt-1">
-                <div class="meter w-full" style="height: 5px;"><i id="kpi-achieved-bar" style="width: 0%"></i></div>
-                <div class="flex items-center justify-between text-[10px] text-slate-400 font-medium px-0.5">
-                  <span>0%</span>
-                  <span class="text-slate-500 font-bold">Goal</span>
-                  <span>100%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid-12">
-            <div class="span-8 stack">
-              <!-- Daily chart -->
-              <section class="card" aria-labelledby="chart-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="chart-title" class="card-title">Collection by day</h2>
-                    <div class="card-sub" id="chart-sub">Paid cases recorded this month</div>
-                  </div>
-                  <button onclick="switchTab('paid-file')" class="link-btn">Paid data <i data-lucide="arrow-up-right"></i></button>
-                </div>
-                <div class="card-b">
-                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs" style="margin-bottom: 8px;">
-                    <div class="flex flex-wrap items-center gap-2" id="overview-chart-stats"></div>
-                    <div class="flex flex-wrap items-center gap-2">
-                      <label class="inline-field"><i data-lucide="calendar"></i>From <input type="date" id="overview-chart-from" onchange="onChartRangeChange('overview-chart-host')"></label>
-                      <label class="inline-field">To <input type="date" id="overview-chart-to" onchange="onChartRangeChange('overview-chart-host')"></label>
-                      <button type="button" class="btn" onclick="onChartRangeChange('overview-chart-host', true)">This month</button>
-                    </div>
-                  </div>
-                  <div id="overview-chart-host" class="w-full"></div>
-                </div>
-              </section>
-
-              <section class="card mgr-view" aria-labelledby="team-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="team-title" class="card-title">Team progress</h2>
-                    <div class="card-sub">Each caller: collection, today and balance against the target</div>
-                  </div>
-                  <button onclick="switchTab('mis-report')" class="link-btn">Daily MIS <i data-lucide="arrow-up-right"></i></button>
-                </div>
-                <div class="card-b"><div id="team-summary"></div><div id="team-progress"></div></div>
-              </section>
-
-              <div class="grid-2 admin-view">
-                <section class="card" aria-labelledby="branch-title">
-                  <div class="card-h">
-                    <div>
-                      <h2 id="branch-title" class="card-title">Branches</h2>
-                      <div class="card-sub">Achieved % by branch</div>
-                    </div>
-                    <button onclick="switchTab('branch-collection')" class="link-btn">Report <i data-lucide="arrow-up-right"></i></button>
-                  </div>
-                  <div class="card-b"><div id="branch-progress" class="prog-list"></div></div>
-                </section>
-                <section class="card" aria-labelledby="mgr-title">
-                  <div class="card-h">
-                    <div>
-                      <h2 id="mgr-title" class="card-title">Managers</h2>
-                      <div class="card-sub">Select a manager to see the callers</div>
-                    </div>
-                    <button onclick="switchTab('manager-collection')" class="link-btn">Report <i data-lucide="arrow-up-right"></i></button>
-                  </div>
-                  <div class="card-b"><div id="manager-progress" class="prog-list prog-scroll"></div></div>
-                </section>
-              </div>
-            </div>
-
-            <div class="span-4 stack admin-view">
-              <!-- Today's top 3 -->
-              <section class="card" aria-labelledby="today-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="today-title" class="card-title">Top collectors today</h2>
-                    <div class="card-sub">Ranked by amount paid today</div>
-                  </div>
-                </div>
-                <div class="card-b">
-                  <div class="rank-row"><span class="rank-no">1</span><span id="today1-name" class="rank-name">--</span><span id="today1-amount" class="rank-amt num">₹0</span></div>
-                  <div class="rank-row"><span class="rank-no">2</span><span id="today2-name" class="rank-name">--</span><span id="today2-amount" class="rank-amt num">₹0</span></div>
-                  <div class="rank-row"><span class="rank-no">3</span><span id="today3-name" class="rank-name">--</span><span id="today3-amount" class="rank-amt num">₹0</span></div>
-                </div>
-              </section>
-
-              <!-- Top achievers by % -->
-              <section class="card" aria-labelledby="ach-title">
-                <div class="card-h">
-                  <div>
-                    <h2 id="ach-title" class="card-title">Closest to target</h2>
-                    <div class="card-sub">Ranked by % of target achieved</div>
-                  </div>
-                  <button onclick="openAllAchieversModal()" id="btn-overall-achievers" class="link-btn" title="See every caller ranked by achievement">All callers <i data-lucide="arrow-up-right"></i></button>
-                </div>
-                <div class="card-b">
-                  <div class="ach-row">
-                    <div class="ach-line"><span id="ach1-name" class="rank-name">--</span><span id="ach1-pct" class="ach-pct num">0%</span></div>
-                    <div class="meter" style="margin-top: 8px"><div id="ach1-bar" style="width: 0%"></div></div>
-                    <div class="ach-meta"><span>Total <b id="ach1-total" class="num">₹0</b></span><span>Target <b id="ach1-target" class="num">₹0</b></span><span>Today <b id="ach1-today" class="num">₹0</b></span><span id="ach1-bal">Bal: ₹0</span></div>
-                  </div>
-                  <div class="ach-row">
-                    <div class="ach-line"><span id="ach2-name" class="rank-name">--</span><span id="ach2-pct" class="ach-pct num">0%</span></div>
-                    <div class="meter" style="margin-top: 8px"><div id="ach2-bar" style="width: 0%"></div></div>
-                    <div class="ach-meta"><span>Total <b id="ach2-total" class="num">₹0</b></span><span>Target <b id="ach2-target" class="num">₹0</b></span><span>Today <b id="ach2-today" class="num">₹0</b></span><span id="ach2-bal">Bal: ₹0</span></div>
-                  </div>
-                  <div class="ach-row">
-                    <div class="ach-line"><span id="ach3-name" class="rank-name">--</span><span id="ach3-pct" class="ach-pct num">0%</span></div>
-                    <div class="meter" style="margin-top: 8px"><div id="ach3-bar" style="width: 0%"></div></div>
-                    <div class="ach-meta"><span>Total <b id="ach3-total" class="num">₹0</b></span><span>Target <b id="ach3-target" class="num">₹0</b></span><span>Today <b id="ach3-today" class="num">₹0</b></span><span id="ach3-bal">Bal: ₹0</span></div>
-                  </div>
-                </div>
-              </section>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- ============================================ -->
-        <!-- DAILY MIS                                    -->
-        <!-- ============================================ -->
-        <!-- ============================================ -->
         <!-- TODAY COLLECTION (LIVE HUB)                  -->
         <!-- ============================================ -->
-        <div id="content-today-collection" class="space-y-6 hidden">
+        <div id="content-today-collection" class="space-y-6">
           <div class="page-head">
             <div>
               <div class="flex items-center gap-2 mb-1">
@@ -1026,6 +905,58 @@
                   </thead>
                   <tbody id="today-tab-proj-tbody"></tbody>
                   <tfoot id="today-tab-proj-tfoot" class="font-bold"></tfoot>
+                </table>
+              </div>
+            </section>
+
+            <!-- CALLER WISE TODAY COLLECTION TABLE -->
+            <section class="card p-5 space-y-4" style="background: var(--panel); border: 1px solid var(--line);">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3" style="border-bottom: 1px solid var(--line);">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full" style="background: #ea580c;"></span>
+                    <h2 class="text-base font-bold tracking-tight" style="color: var(--ink);">Caller Wise Today Collection</h2>
+                    <span class="chip text-xs font-mono font-bold" id="today-tab-all-callers-badge">0 Callers (0 Cases Today)</span>
+                  </div>
+                  <p class="text-xs" style="color: var(--ink-3);">Live breakdown of each caller: total amount collected today &amp; number of cases paid.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <div class="inline-flex rounded-lg border border-slate-300 p-0.5 bg-slate-100 text-xs font-bold" id="today-callers-view-toggle">
+                    <button type="button" onclick="setTodayCallersViewFilter('all')" id="btn-today-callers-all" class="px-2.5 py-1 rounded-md transition cursor-pointer bg-white text-orange-600 shadow-2xs">All Callers</button>
+                    <button type="button" onclick="setTodayCallersViewFilter('top5')" id="btn-today-callers-top5" class="px-2.5 py-1 rounded-md transition cursor-pointer text-slate-600 hover:text-slate-900">Top 5</button>
+                    <button type="button" onclick="setTodayCallersViewFilter('top10')" id="btn-today-callers-top10" class="px-2.5 py-1 rounded-md transition cursor-pointer text-slate-600 hover:text-slate-900">Top 10</button>
+                  </div>
+                  <div class="relative">
+                    <input type="text" id="today-callers-search" oninput="debouncedTodayCallersFilter()" placeholder="Search caller..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500 w-44">
+                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2 text-slate-400"></i>
+                  </div>
+                  <select id="today-callers-filter-mgr" onchange="renderTodayTabAllCallersTable()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
+                    <option value="">All Managers</option>
+                  </select>
+                  <button onclick="exportTodayCallersTableExcel()" class="btn text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer" title="Export Caller Wise Today Collection to Excel">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Export (.xlsx)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="dtable w-full text-xs text-left">
+                  <thead>
+                    <tr>
+                      <th class="p-2.5 text-center w-12">#</th>
+                      <th class="p-2.5">Caller Name</th>
+                      <th class="p-2.5">Manager</th>
+                      <th class="p-2.5 text-center">Branch</th>
+                      <th class="p-2.5 text-center">Cases Today</th>
+                      <th class="p-2.5 text-center">Avg / Case (₹)</th>
+                      <th class="p-2.5 text-right font-black" style="color: var(--good);">Today Collection (₹)</th>
+                      <th class="p-2.5 text-center">Today Share</th>
+                      <th class="p-2.5 text-center w-28">Cases Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="today-tab-all-callers-tbody"></tbody>
+                  <tfoot id="today-tab-all-callers-tfoot" class="font-bold"></tfoot>
                 </table>
               </div>
             </section>
@@ -1320,7 +1251,7 @@
                     <th>Bank</th>
                     <th>Officer</th>
                     <th>Manager</th>
-                    <th class="text-center w-20"><span class="sr-only">Actions</span></th>
+                    <th class="text-center w-20 paid-action-col"><span class="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody id="paid-file-tbody"></tbody>
@@ -1896,6 +1827,20 @@
             </label>
           </div>
 
+          <!-- Manager Scope Selector: Only logged-in manager's callers for manager role, selectable for Admin -->
+          <div id="paid-modal-manager-wrap" class="flex flex-wrap items-center justify-between gap-2 p-2 rounded-lg bg-white border border-blue-200">
+            <label for="paid-modal-manager" class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Manager Team:</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <select id="paid-modal-manager" onchange="onPaidModalManagerChange()" class="bg-white border border-slate-300 rounded-md px-2.5 py-1 text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                <!-- Dynamically populated with active managers -->
+              </select>
+              <span id="paid-modal-manager-locked-badge" class="hidden chip font-bold text-xs" style="background: #174375; color: #fff;"></span>
+            </div>
+          </div>
+
           <!-- Single Caller Selector (Strictly Daily MIS Callers Only) -->
           <div id="single-caller-box" class="space-y-2">
             <div class="flex items-center justify-between mb-1">
@@ -1921,7 +1866,7 @@
                 </span>
                 <span class="text-[10px] text-slate-400 font-medium">Click any caller to auto-select</span>
               </div>
-              <div id="paid-mis-callers-chips" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+              <div id="paid-mis-callers-chips" class="flex flex-wrap gap-1.5 overflow-y-auto pr-1" style="max-height: 200px;">
                 <!-- Dynamically populated chips of all MIS callers for quick click -->
               </div>
             </div>
@@ -2516,6 +2461,51 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- MODAL: TODAY CALLER CASES DETAILS          -->
+  <!-- ========================================== -->
+  <div id="today-caller-cases-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-4xl w-full rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-sm">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 id="today-cases-modal-title" class="font-extrabold text-sm text-slate-900">Cases Paid Today</h3>
+            <p id="today-cases-modal-sub" class="text-xs text-slate-500">List of payments collected today for this caller.</p>
+          </div>
+        </div>
+        <button onclick="closeTodayCallerCasesModal()" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-100 text-slate-700 font-extrabold uppercase tracking-wider text-[11px] sticky top-0 z-10 border-b border-slate-200">
+            <tr>
+              <th class="py-2.5 px-3 text-center w-10">#</th>
+              <th class="py-2.5 px-3">Loan ID / Cust ID</th>
+              <th class="py-2.5 px-3">Customer Name</th>
+              <th class="py-2.5 px-3">Bank</th>
+              <th class="py-2.5 px-3 text-center">Mode</th>
+              <th class="py-2.5 px-3 text-right">Amount (₹)</th>
+              <th class="py-2.5 px-3">Narration</th>
+            </tr>
+          </thead>
+          <tbody id="today-cases-modal-tbody" class="divide-y divide-slate-200 font-medium"></tbody>
+          <tfoot id="today-cases-modal-tfoot" class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300"></tfoot>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-200 pt-3">
+        <span id="today-cases-modal-total-badge" class="text-xs text-slate-500 font-semibold">Total: 0 Cases</span>
+        <button onclick="closeTodayCallerCasesModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition cursor-pointer">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md pointer-events-none"></div>
 
@@ -2578,10 +2568,34 @@
       }, 100);
     }
 
+    let _todayCallersDebounce = null;
+    function debouncedTodayCallersFilter() {
+      if (_todayCallersDebounce) clearTimeout(_todayCallersDebounce);
+      _todayCallersDebounce = setTimeout(() => {
+        if (typeof renderTodayTabAllCallersTable === 'function') renderTodayTabAllCallersTable();
+      }, 100);
+    }
+
     // --- System Defaults & Configurations ---
+    const APP_BUILD_ID = "BUILD_20261118_110500";
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
     const SESSION_INACTIVITY_LIMIT_MS = 8 * 60 * 60 * 1000; // 8 Hours (Full Shift Active Session)
+
+    // Protected Core System Managers: Immune to deletion or tombstoning
+    const CORE_SYSTEM_MANAGERS = new Set([
+      'ambuj', 'ambuj tripathi',
+      'shravanthi', 'shravanthi p',
+      'shweta', 'shweta singh',
+      'omkar', 'omkar singh',
+      'aditi', 'aditi gawade',
+      'poonam', 'poonam i',
+      'smita', 'smita jagtap',
+      'saroj',
+      'customerservice', 'customer service',
+      'anuradha',
+      'admin', 'management', 'backend', 'shaha'
+    ]);
 
     // --- User Credentials (Admin & Managers) ---
     const DEFAULT_INITIAL_CREDENTIALS = {
@@ -2602,10 +2616,10 @@
 
     // Role-Based Access Control (RBAC) Permissions Matrix
     const ROLE_PERMISSIONS = {
-      'ADMIN': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'],
-      'MANAGEMENT': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress'],
-      'BACKEND': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress'],
-      'MANAGER': ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress']
+      'ADMIN': ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'],
+      'MANAGEMENT': ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress'],
+      'BACKEND': ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress'],
+      'MANAGER': ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress']
     };
     let USER_CREDENTIALS = JSON.parse(JSON.stringify(DEFAULT_INITIAL_CREDENTIALS));
     let deletedUserKeys = new Set();
@@ -2636,9 +2650,10 @@
       if (!nameOrKey) return false;
       const raw = String(nameOrKey).toLowerCase().trim();
       if (!raw) return false;
+      const clean = raw.replace(/[^a-z0-9]/g, '');
+      if (typeof CORE_SYSTEM_MANAGERS !== 'undefined' && (CORE_SYSTEM_MANAGERS.has(raw) || CORE_SYSTEM_MANAGERS.has(clean))) return false;
       if (deletedUserKeys.has(raw)) return true;
 
-      const clean = raw.replace(/[^a-z0-9]/g, '');
       const cleanUnderscore = raw.replace(/[^a-z0-9]/g, '_');
 
       for (const d of deletedUserKeys) {
@@ -2677,6 +2692,7 @@
     function isManagerName(nameOrKey) {
       if (!nameOrKey) return false;
       const rawName = String(nameOrKey || '').trim().toUpperCase();
+      if (rawName === 'SAROJ' || rawName === 'CUSTOMER SERVICE') return false;
       if (rawName.includes('POONAM KANOJIA')) return false;
       if (rawName.includes('DIRECT') || rawName.includes('(SELF)')) return false;
       const clean = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -2832,10 +2848,11 @@
 
     function isOfficerTombstoned(o) {
       if (!o) return true;
+      const oName = String(o.name || '').toUpperCase().trim();
+      if (oName === 'SAROJ' || oName === 'CUSTOMER SERVICE') return false;
       if (o.isManagerSelf || (o.name && (o.name.includes('(SELF)') || o.name.includes('DIRECT')))) return false;
       if (isManagerName(o.name)) return true;
       if (o.manager && isUserDeleted(o.manager)) return true;
-      const oName = String(o.name || '').toUpperCase().trim();
       const oMgr = String(o.manager || '').toUpperCase().trim();
       const k1 = oMgr ? `${oMgr}_${oName}` : oName;
       if (deletedOfficerKeys.has(k1)) return true;
@@ -2930,7 +2947,7 @@
     let currentRole = "MANAGER";
     let currentManager = "";
     let currentAgency = "INH";
-    let currentTab = "live-collection";
+    let currentTab = "today-collection";
     let supabaseClient = null;
     let inactivityTimerInterval = null;
 
@@ -3014,8 +3031,8 @@
       { name: 'DIVYA .M', manager: 'ADITI GAWADE', target: 242000, branch: 'JOGESHWARI', emp_code: '100646', joining_date: '20-Aug-2026', status: 'Active', aliases: 'DIVYA,DIVYA M,DIVYA .M,DIVYA MOHITE' },
       { name: 'ADITI GAWADE (SELF)', manager: 'ADITI GAWADE', target: 0, branch: 'JOGESHWARI', emp_code: '100478', joining_date: '15-05-2025', status: 'Active', isManagerSelf: true, aliases: 'ADITI,ADITI GAWADE' },
 
-      // 7. CUSTOMER SERVICE (1 Caller, Target: ₹8,00,000, Branch: WORLI)
-      { name: 'CUSTOMER SERVICE', manager: 'CUSTOMER SERVICE', target: 800000, branch: 'WORLI', emp_code: 'CS001', joining_date: '01-11-2024', status: 'Active' },
+      // 7. CUSTOMER SERVICE (1 Caller, Target: ₹8,00,000, Branch: JOGESHWARI)
+      { name: 'CUSTOMER SERVICE', manager: 'CUSTOMER SERVICE', target: 800000, branch: 'JOGESHWARI', emp_code: 'CS001', joining_date: '01-11-2024', status: 'Active' },
 
       // 8. SAROJ (1 Caller, Target: ₹5,00,000, Branch: SAROJ)
       { name: 'SAROJ', manager: 'SAROJ', target: 500000, branch: 'SAROJ', emp_code: '100565', joining_date: '15-12-2025', status: 'Active', aliases: 'SAROJ B' },
@@ -3228,7 +3245,7 @@
       "AMBIKA": { manager: "ANURADHA", emp: "100653", doj: "22-Sep-2026", branch: "BANGALORE", canonical: "AMBIKA M T" },
 
       // CUSTOMER SERVICE & SAROJ
-      "CUSTOMER SERVICE": { manager: "CUSTOMER SERVICE", emp: "CS001", doj: "01-11-2024", branch: "WORLI" },
+      "CUSTOMER SERVICE": { manager: "CUSTOMER SERVICE", emp: "CS001", doj: "01-11-2024", branch: "JOGESHWARI" },
       "SAROJ": { manager: "SAROJ", emp: "100565", doj: "15-12-2025", branch: "SAROJ", aliases: ["SAROJ B"] },
       "SAROJ B": { manager: "SAROJ", emp: "100565", doj: "15-12-2025", branch: "SAROJ", canonical: "SAROJ" },
 
@@ -3367,6 +3384,14 @@
             if (deletedOfficerKeys.delete(mUp)) removedLegacyMgrTombstone = true;
             if (deletedOfficerKeys.delete(`${mUp}_${mUp}`)) removedLegacyMgrTombstone = true;
           }
+          if (typeof CORE_SYSTEM_MANAGERS !== 'undefined' && typeof deletedUserKeys !== 'undefined') {
+            CORE_SYSTEM_MANAGERS.forEach(k => {
+              if (deletedUserKeys.delete(k)) removedLegacyMgrTombstone = true;
+              if (deletedOfficerKeys.delete(k.toUpperCase())) removedLegacyMgrTombstone = true;
+              if (deletedOfficerKeys.delete(`${k.toUpperCase()}_${k.toUpperCase()}`)) removedLegacyMgrTombstone = true;
+            });
+            localStorage.setItem('shaha_deleted_user_keys_v1', JSON.stringify(Array.from(deletedUserKeys)));
+          }
           if (removedLegacyMgrTombstone) {
             localStorage.setItem('shaha_deleted_officer_keys_v1', JSON.stringify(Array.from(deletedOfficerKeys)));
           }
@@ -3388,6 +3413,7 @@
     // INITIALIZATION & DOM READY
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof initManagerAssignedTargets === 'function') initManagerAssignedTargets();
       purgeLegacyDummyLeaderboardData();
       initSupabase();
       initTodayProjections();
@@ -3466,79 +3492,200 @@
       syncLiveCollectionFromPaidFile(false);
     }
 
-    function getAllCallersForSelection() {
-      const seenCombo = new Set();
-      const all = [];
+    // --- Authoritative Canonical Caller-To-Manager Resolution ---
+    function getCallerCanonicalManager(callerName, fallbackMgr = '') {
+      if (!callerName) return fallbackMgr || '';
+      const raw = String(callerName).trim().toUpperCase();
+      const cleanName = raw.replace(/\(\s*SELF\s*\)/ig, '').replace(/\s+/g, ' ').trim();
+      const cleanNoDot = cleanName.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+
+      // 1. Direct or dot-stripped lookup in CANONICAL_CALLER_DIRECTORY
+      if (typeof CANONICAL_CALLER_DIRECTORY !== 'undefined') {
+        if (CANONICAL_CALLER_DIRECTORY[raw] && CANONICAL_CALLER_DIRECTORY[raw].manager) return CANONICAL_CALLER_DIRECTORY[raw].manager;
+        if (CANONICAL_CALLER_DIRECTORY[cleanName] && CANONICAL_CALLER_DIRECTORY[cleanName].manager) return CANONICAL_CALLER_DIRECTORY[cleanName].manager;
+        if (CANONICAL_CALLER_DIRECTORY[cleanNoDot] && CANONICAL_CALLER_DIRECTORY[cleanNoDot].manager) return CANONICAL_CALLER_DIRECTORY[cleanNoDot].manager;
+        for (const [k, v] of Object.entries(CANONICAL_CALLER_DIRECTORY)) {
+          const kClean = k.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+          if (kClean === cleanNoDot && v && v.manager) return v.manager;
+          if (v && v.aliases && Array.isArray(v.aliases)) {
+            if (v.aliases.some(a => a.replace(/\./g, '').replace(/\s+/g, ' ').trim() === cleanNoDot) && v.manager) return v.manager;
+          }
+        }
+      }
+
+      // 2. Check SEED_OFFICERS
+      if (typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
+        const found = SEED_OFFICERS.find(s => {
+          const sName = String(s.name || '').toUpperCase().trim();
+          const sNoDot = sName.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+          if (sNoDot === cleanNoDot) return true;
+          if (s.aliases) {
+            const al = String(s.aliases).toUpperCase().split(',').map(x => x.replace(/\./g, '').replace(/\s+/g, ' ').trim());
+            if (al.includes(cleanNoDot)) return true;
+          }
+          return false;
+        });
+        if (found && found.manager) return found.manager;
+      }
+
+      // 3. Check parentheses in name (e.g. "PRANALI .R (ADITI GAWADE)")
+      if (raw.includes('(') && raw.includes(')')) {
+        const inside = raw.substring(raw.indexOf('(') + 1, raw.lastIndexOf(')')).trim();
+        if (inside && typeof isManagerActive === 'function' && isManagerActive(inside)) return inside;
+      }
+
+      return fallbackMgr || '';
+    }
+
+    function isCallerBelongingToManager(callerObjOrName, targetMgr) {
+      if (!targetMgr || targetMgr === 'all' || targetMgr === 'All Managers') return true;
+      if (!callerObjOrName) return false;
+
+      const cleanStr = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const targetClean = cleanStr(targetMgr);
+      if (!targetClean) return true;
+
+      let cName = '';
+      let cMgr = '';
+      if (typeof callerObjOrName === 'string') {
+        cName = callerObjOrName;
+      } else if (typeof callerObjOrName === 'object') {
+        cName = callerObjOrName.name || '';
+        cMgr = callerObjOrName.manager || '';
+      }
+
+      // 1. Check explicit manager
+      if (cMgr) {
+        const cMgrClean = cleanStr(cMgr);
+        if (cMgrClean === targetClean || cMgrClean.includes(targetClean) || targetClean.includes(cMgrClean)) return true;
+        if (typeof isOfficerUnderManager === 'function' && isOfficerUnderManager({ manager: cMgr }, targetMgr)) return true;
+      }
+
+      // 2. Check canonical directory & seed directory
+      const canonicalMgr = getCallerCanonicalManager(cName, cMgr);
+      if (canonicalMgr) {
+        const canClean = cleanStr(canonicalMgr);
+        if (canClean === targetClean || canClean.includes(targetClean) || targetClean.includes(canClean)) return true;
+        if (typeof isOfficerUnderManager === 'function' && isOfficerUnderManager({ manager: canonicalMgr }, targetMgr)) return true;
+      }
+
+      // 3. Check caller name with parentheses e.g. "PRANALI .R (ADITI GAWADE)"
+      const rawName = String(cName).toUpperCase();
+      if (rawName.includes('(') && rawName.includes(')')) {
+        const inside = cleanStr(rawName.substring(rawName.indexOf('(') + 1, rawName.lastIndexOf(')')));
+        if (inside === targetClean || inside.includes(targetClean) || targetClean.includes(inside)) return true;
+      }
+
+      return false;
+    }
+
+    let _inGetActiveMisCallers = false;
+    function getActiveMisCallers(forManager = '') {
       const roleUpper = String(currentRole || 'MANAGER').toUpperCase();
       const isGlobalRole = (roleUpper === 'ADMIN' || roleUpper === 'MANAGEMENT' || roleUpper === 'BACKEND');
-      const myMgrName = !isGlobalRole ? ((currentUser ? (currentUser.name || currentUser.username) : currentManager) || '') : '';
 
-      const addCallerObj = (name, target = 0, manager = '', aliases = '', origObj = null) => {
-        if (!name) return;
-        const cleanName = String(name).trim().toUpperCase();
-        if (!cleanName || cleanName === '--' || cleanName === 'UNDEFINED' || cleanName === 'NULL') return;
-        const cleanMgr = String(manager || '').trim().toUpperCase();
-        if (!isGlobalRole && myMgrName && !isOfficerUnderManager({ name: cleanName, manager: cleanMgr }, myMgrName)) return;
-        const baseName = cleanName.replace(/\(\s*SELF\s*\)/ig, '').replace(/\s+/g, ' ').trim();
-        const comboKey = `${cleanMgr}_${cleanName}`;
-        const baseComboKey = `${cleanMgr}_${baseName}`;
-        const nameKey = cleanName;
-        if (deletedOfficerKeys.has(comboKey) || deletedOfficerKeys.has(nameKey) || deletedOfficerKeys.has(baseComboKey) || deletedOfficerKeys.has(baseName)) return;
-        if (isManagerName(cleanName)) return;
-        if (isUserDeleted(manager)) return;
-        if (seenCombo.has(comboKey) || seenCombo.has(nameKey) || (baseName && (seenCombo.has(baseName) || seenCombo.has(baseComboKey)))) return;
+      let targetMgr = '';
+      if (forManager && forManager !== 'all' && forManager !== 'All Managers') {
+        targetMgr = forManager;
+      } else if (!isGlobalRole) {
+        targetMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+      }
 
-        seenCombo.add(comboKey);
-        seenCombo.add(nameKey);
-        if (baseName) {
-          seenCombo.add(baseName);
-          seenCombo.add(baseComboKey);
-        }
-        all.push({
-          name: cleanName,
-          target: Number(target) || 0,
-          manager: manager || (myMgrName ? myMgrName.toUpperCase() : 'General'),
-          aliases: aliases || cleanName,
-          inactive: origObj ? (isCallerExited(origObj) || Boolean(origObj.inactive)) : false,
-          status: origObj ? (origObj.status || 'ACTIVE') : 'ACTIVE'
-        });
-      };
+      // Ensure leaderboardOfficers is freshly deduplicated & synced exactly like Daily MIS
+      if (!_inGetActiveMisCallers && typeof calculateLeaderboard === 'function' && Array.isArray(leaderboardOfficers) && leaderboardOfficers.length > 0) {
+        _inGetActiveMisCallers = true;
+        try { calculateLeaderboard(); } catch (e) {}
+        _inGetActiveMisCallers = false;
+      }
 
-      // 1. Current in-memory leaderboardOfficers (Strictly active callers in Daily MIS)
-      (leaderboardOfficers || []).forEach(o => {
-        if (o && o.name && !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name)) {
-          addCallerObj(o.name, o.target, o.manager, o.aliases, o);
+      // Source of truth: strictly Daily MIS (leaderboardOfficers)
+      const misSource = (Array.isArray(leaderboardOfficers) && leaderboardOfficers.length > 0)
+        ? leaderboardOfficers
+        : (() => {
+            try {
+              const { localKey } = getLeaderboardStorageKeys();
+              const cached = localStorage.getItem(localKey);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+              }
+            } catch(e) {}
+            return (Array.isArray(SEED_OFFICERS) ? SEED_OFFICERS : []);
+          })();
+
+      // EXACT 1-to-1 mirror of renderLeaderboardMIS() active callers pipeline
+      let misList = misSource.filter(o => o && o.name && !isOfficerTombstoned(o) && !isManagerName(o.name));
+
+      if (targetMgr) {
+        misList = misList.filter(o => isOfficerUnderManager(o, targetMgr) || isCallerBelongingToManager(o, targetMgr));
+      }
+
+      // Filter out auto-generated empty (0 target & 0 total) manager (SELF) placeholder if real callers exist (identical to Daily MIS)
+      const hasRealCallersByMgr = new Map();
+      misList.forEach(o => {
+        if (!o.isManagerSelf && !isManagerName(o.name) && !String(o.name || '').toUpperCase().includes('(SELF)')) {
+          const mKey = getManagerStorageKey(o.manager || '');
+          hasRealCallersByMgr.set(mKey, true);
         }
       });
+      misList = misList.filter(o => {
+        const cleanName = String(o.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanMgr = String(o.manager || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const isSelf = o.isManagerSelf || String(o.name || '').toUpperCase().includes('(SELF)') || (cleanName === cleanMgr);
+        if (isSelf && !(Number(o.target) > 0) && !(Number(o.total) > 0)) {
+          const mKey = getManagerStorageKey(o.manager || '');
+          if (hasRealCallersByMgr.get(mKey)) return false;
+        }
+        return true;
+      });
 
-      // 2. Persistent added caller pins (only if active in MIS)
-      if (typeof readLocalAddedCallerPins === 'function') {
-        (readLocalAddedCallerPins() || []).forEach(p => {
-          if (p && p.name && !isOfficerTombstoned(p) && !isCallerExited(p) && !isManagerName(p.name)) {
-            addCallerObj(p.name, p.target, p.manager, p.aliases, p);
-          }
+      // Keep active callers (exact same check as Daily MIS Active Only filter)
+      misList = misList.filter(o => !isCallerExited(o));
+
+      // Deduplicate by exact same key as Daily MIS: canonical manager key + clean uppercase caller name
+      const seenDisplayKeys = new Set();
+      const all = [];
+      misList.forEach(o => {
+        const cleanName = String(o.name || '').trim().toUpperCase();
+        if (!cleanName || cleanName === '--' || cleanName === 'UNDEFINED' || cleanName === 'NULL') return;
+        const cleanMgr = String(o.manager || getCallerCanonicalManager(cleanName, o.manager) || (targetMgr ? targetMgr : 'General')).trim().toUpperCase();
+        if (cleanMgr && isUserDeleted(cleanMgr)) return;
+        const dedupKey = `${getManagerStorageKey(cleanMgr)}_${cleanName}`;
+        if (seenDisplayKeys.has(dedupKey)) return;
+        seenDisplayKeys.add(dedupKey);
+        const isSelfCaller = Boolean(o.isManagerSelf || cleanName.includes('(SELF)') || cleanName.includes('DIRECT'));
+        all.push({
+          name: cleanName,
+          target: Number(o.target) || 0,
+          manager: cleanMgr,
+          aliases: o.aliases || cleanName,
+          isManagerSelf: isSelfCaller,
+          inactive: false,
+          status: 'ACTIVE'
         });
-      }
+      });
 
       return all;
     }
 
-    function renderPaidMisCallersChips(activeOfficers, isGlobalRole) {
+    function getAllCallersForSelection(forManager = '') {
+      return getActiveMisCallers(forManager);
+    }
+
+    function renderPaidMisCallersChips(activeOfficers, isMultiTeamGlobal = false, scopedMgr = '') {
       const chipsHost = document.getElementById('paid-mis-callers-chips');
       const titleHost = document.getElementById('paid-mis-callers-title');
       const countBadge = document.getElementById('paid-caller-count-badge');
       if (countBadge) countBadge.innerText = `${activeOfficers.length} Callers in MIS`;
       if (titleHost) {
-        titleHost.innerText = !isGlobalRole 
-          ? `Callers in your MIS (${activeOfficers.length}):` 
-          : `All Callers in MIS (${activeOfficers.length}):`;
+        titleHost.innerText = `Callers in MIS (${activeOfficers.length}${scopedMgr ? ' · ' + scopedMgr : ''}):`;
       }
       if (!chipsHost) return;
 
       if (activeOfficers.length === 0) {
         chipsHost.innerHTML = `
           <div class="p-2.5 text-center text-xs text-slate-400 bg-slate-50 rounded-lg w-full font-medium">
-            No active callers found in Daily MIS for this team.
+            No active callers found in Daily MIS ${scopedMgr ? 'for ' + escHtml(scopedMgr) : 'for this team'}.
           </div>
         `;
         return;
@@ -3551,7 +3698,7 @@
         const cMgr = String(o.manager || '').trim().toUpperCase();
         const targetNum = Number(o.target) || 0;
         const targetFmt = targetNum > 0 ? `₹${targetNum.toLocaleString('en-IN')}` : '₹0';
-        const isSelected = selVal && (selVal === cName || isOfficerMatch(o, selVal));
+        const isSelected = selVal && (selVal === cName || (typeof isOfficerMatch === 'function' && isOfficerMatch(o, selVal)));
         const btnCls = isSelected
           ? 'paid-caller-chip px-2.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 border border-blue-600 bg-blue-600 text-white shadow-sm cursor-pointer'
           : 'paid-caller-chip px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-800 hover:text-blue-900 cursor-pointer shadow-2xs';
@@ -3563,10 +3710,10 @@
             id="caller-chip-${cName.replace(/[^a-zA-Z0-9]/g, '_')}"
             data-caller="${escHtml(cName)}"
             class="${btnCls}"
-            title="${escHtml(cName)} (${escHtml(cMgr)}) - Target: ${targetFmt}">
+            title="${escHtml(cName)}${cMgr ? ' (' + escHtml(cMgr) + ')' : ''} - Target: ${targetFmt}">
             <span class="${dotCls}"></span>
             <span>${escHtml(cName)}</span>
-            ${isGlobalRole && cMgr ? `<span class="text-[9px] px-1 py-0.2 rounded ${isSelected ? 'bg-blue-700 text-blue-100' : 'bg-slate-200 text-slate-600'} font-semibold">${escHtml(cMgr)}</span>` : ''}
+            ${(isMultiTeamGlobal && cMgr) ? `<span class="text-[9px] px-1 py-0.2 rounded ${isSelected ? 'bg-blue-700 text-blue-100' : 'bg-slate-200 text-slate-600'} font-semibold">${escHtml(cMgr)}</span>` : ''}
             <span class="text-[10px] ${isSelected ? 'text-blue-100' : 'text-slate-500'} font-mono">${targetFmt}</span>
           </button>
         `;
@@ -3598,7 +3745,13 @@
       });
     }
 
-    function populateOfficerDropdowns() {
+    function onPaidModalManagerChange() {
+      const modalMgrSelect = document.getElementById('paid-modal-manager');
+      const chosenMgr = modalMgrSelect ? modalMgrSelect.value.trim() : '';
+      populateOfficerDropdowns(chosenMgr);
+    }
+
+    function populateOfficerDropdowns(targetScopeManager = '') {
       const sel = document.getElementById('paid-select-officer');
       const sp1 = document.getElementById('split-caller-1');
       const sp2 = document.getElementById('split-caller-2');
@@ -3606,47 +3759,86 @@
       const filtMgr = document.getElementById('paid-filter-manager');
       const misFiltMgr = document.getElementById('mis-filter-manager');
       const offMgrInput = document.getElementById('officer-input-manager');
+      const modalMgrSelect = document.getElementById('paid-modal-manager');
+      const modalMgrBadge = document.getElementById('paid-modal-manager-locked-badge');
 
       const roleUpper = String(currentRole || 'MANAGER').toUpperCase();
       const isGlobalRole = (roleUpper === 'ADMIN' || roleUpper === 'MANAGEMENT' || roleUpper === 'BACKEND');
-      const myMgrName = !isGlobalRole ? ((currentUser ? (currentUser.name || currentUser.username) : currentManager) || '') : '';
 
-      const validOfficers = getAllCallersForSelection();
-      const activeOfficers = validOfficers.filter(o => !isCallerInactive(o));
-
-      if (isGlobalRole) {
-        activeOfficers.sort((a, b) => {
-          const mA = String(a.manager || '').toUpperCase();
-          const mB = String(b.manager || '').toUpperCase();
-          if (mA !== mB) return mA.localeCompare(mB);
-          return String(a.name || '').localeCompare(String(b.name || ''));
+      // Collect all managers (strictly role === 'MANAGER')
+      const mgrs = new Set();
+      for (const k in USER_CREDENTIALS) {
+        if (isUserDeleted(k)) continue;
+        const u = USER_CREDENTIALS[k];
+        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
+        const r = (u.role || 'MANAGER').toUpperCase();
+        if (r === 'MANAGER' && u.name) {
+          mgrs.add(u.name);
+        }
+      }
+      if (Array.isArray(SEED_OFFICERS)) {
+        SEED_OFFICERS.forEach(s => {
+          if (s.manager && !isUserDeleted(s.manager) && !isManagerName(s.manager)) {
+            mgrs.add(s.manager);
+          }
         });
-      } else {
-        activeOfficers.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+      }
+      const sortedMgrs = Array.from(mgrs).sort();
+
+      // Determine scoped manager for modal:
+      // STRICT PRIVACY ISOLATION:
+      // For Manager login: scopedMgr is ALWAYS guaranteed to be the logged-in manager's identifier.
+      // Other managers' callers will NEVER be visible to this manager.
+      let scopedMgr = '';
+      if (!isGlobalRole) {
+        scopedMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+      } else if (targetScopeManager && targetScopeManager !== 'all' && targetScopeManager !== 'All Managers') {
+        scopedMgr = targetScopeManager;
+      } else if (modalMgrSelect && modalMgrSelect.value && modalMgrSelect.value !== 'all' && modalMgrSelect.value !== 'All Managers') {
+        scopedMgr = modalMgrSelect.value.trim();
+      } else if (filtMgr && filtMgr.value && filtMgr.value !== 'all' && filtMgr.value !== 'All Managers') {
+        scopedMgr = filtMgr.value.trim();
+      }
+      if (!scopedMgr && sortedMgrs.length > 0) {
+        scopedMgr = sortedMgrs[0];
       }
 
-      let offOptions = '';
-      if (activeOfficers.length === 0) {
-        offOptions = '<option value="">-- No callers available in MIS --</option>';
-      } else if (isGlobalRole) {
-        const byMgr = {};
-        activeOfficers.forEach(o => {
-          const m = o.manager || 'General';
-          if (!byMgr[m]) byMgr[m] = [];
-          byMgr[m].push(o);
-        });
-        offOptions = `<option value="">-- Select Caller from Daily MIS (${activeOfficers.length} Callers) --</option>`;
-        for (const mgr in byMgr) {
-          offOptions += `<optgroup label="${escHtml(mgr)} (${byMgr[mgr].length} Callers)">`;
-          byMgr[mgr].forEach(o => {
-            const tStr = Number(o.target) > 0 ? ` (Target: ₹${Number(o.target).toLocaleString('en-IN')})` : '';
-            offOptions += `<option value="${escHtml(o.name)}" data-manager="${escHtml(o.manager || '')}">${escHtml(o.name + tStr)}</option>`;
+      // Configure Modal Manager selector / badge
+      if (modalMgrSelect) {
+        if (!isGlobalRole) {
+          modalMgrSelect.style.display = 'none';
+          if (modalMgrBadge) {
+            modalMgrBadge.classList.remove('hidden');
+            modalMgrBadge.innerText = scopedMgr || 'YOUR TEAM';
+          }
+        } else {
+          modalMgrSelect.style.display = 'inline-block';
+          if (modalMgrBadge) modalMgrBadge.classList.add('hidden');
+          let mOpts = '';
+          sortedMgrs.forEach(m => {
+            mOpts += `<option value="${escHtml(m)}">${escHtml(m)}</option>`;
           });
-          offOptions += `</optgroup>`;
+          modalMgrSelect.innerHTML = mOpts;
+          if (scopedMgr) {
+            const matchedMgr = sortedMgrs.find(m => m.toUpperCase() === scopedMgr.toUpperCase() || isOfficerUnderManager({ manager: m }, scopedMgr));
+            if (matchedMgr) {
+              scopedMgr = matchedMgr;
+              modalMgrSelect.value = matchedMgr;
+            }
+          }
         }
+      }
+
+      // Fetch valid callers strictly scoped for modal (1-to-1 mirror of Daily MIS active callers)
+      const modalOfficers = getActiveMisCallers(scopedMgr);
+      modalOfficers.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+      let offOptions = '';
+      if (modalOfficers.length === 0) {
+        offOptions = `<option value="">-- No callers available in MIS ${scopedMgr ? 'for ' + scopedMgr : ''} --</option>`;
       } else {
-        offOptions = `<option value="">-- Select Caller from Daily MIS (${activeOfficers.length} Callers) --</option>`;
-        activeOfficers.forEach(o => {
+        offOptions = `<option value="">-- Select Caller from Daily MIS (${modalOfficers.length} Callers${scopedMgr ? ' · ' + scopedMgr : ''}) --</option>`;
+        modalOfficers.forEach(o => {
           const tStr = Number(o.target) > 0 ? ` (Target: ₹${Number(o.target).toLocaleString('en-IN')})` : '';
           offOptions += `<option value="${escHtml(o.name)}" data-manager="${escHtml(o.manager || '')}">${escHtml(o.name + tStr)}</option>`;
         });
@@ -3669,47 +3861,26 @@
         sp2.innerHTML = offOptions;
         if (cur2 && Array.from(sp2.options).some(o => o.value === cur2)) {
           sp2.value = cur2;
-        } else if (activeOfficers.length > 1) {
+        } else if (modalOfficers.length > 1) {
           sp2.selectedIndex = Math.min(2, sp2.options.length - 1);
         }
       }
 
-      // Render MIS callers list below dropdown
-      renderPaidMisCallersChips(activeOfficers, isGlobalRole);
+      // Render MIS callers chips below dropdown
+      renderPaidMisCallersChips(modalOfficers, false, scopedMgr);
 
       // Populate filter dropdowns
-      const allOfficers = validOfficers;
+      const activeFilterMgr = (isGlobalRole && filtMgr && filtMgr.value && filtMgr.value !== 'all' && filtMgr.value !== 'All Managers') ? filtMgr.value.trim() : (isGlobalRole ? '' : scopedMgr);
+      const allOfficersForFilter = getActiveMisCallers(activeFilterMgr);
       const toSimpleOptions = list => list.map(o => `<option value="${escHtml(o.name)}">${escHtml(o.name + (o.manager ? ' (' + o.manager + ')' : ''))}</option>`).join('');
       if (filtOff) {
-        filtOff.innerHTML = allOfficers.length > 0
-          ? '<option value="">All Recovery Officers</option>' + toSimpleOptions(allOfficers)
+        filtOff.innerHTML = allOfficersForFilter.length > 0
+          ? '<option value="">All Recovery Officers</option>' + toSimpleOptions(allOfficersForFilter)
           : '<option value="">All Recovery Officers (0 Callers)</option>';
       }
 
-      // Collect all managers (strictly role === 'MANAGER')
-      const mgrs = new Set();
-      for (const k in USER_CREDENTIALS) {
-        if (isUserDeleted(k)) continue;
-        const u = USER_CREDENTIALS[k];
-        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
-        const r = (u.role || 'MANAGER').toUpperCase();
-        if (r === 'MANAGER' && u.name) {
-          mgrs.add(u.name);
-        }
-      }
-      if (validOfficers) {
-        validOfficers.forEach(o => {
-          if (o.manager && !isUserDeleted(o.manager)) {
-            const mLower = o.manager.toLowerCase().trim();
-            if (!mLower.includes('admin') && !mLower.includes('management') && !mLower.includes('backend')) {
-              mgrs.add(o.manager);
-            }
-          }
-        });
-      }
-
       let mgrHtml = '<option value="">All Managers</option>';
-      mgrs.forEach(m => { mgrHtml += `<option value="${m}">${m}</option>`; });
+      sortedMgrs.forEach(m => { mgrHtml += `<option value="${escHtml(m)}">${escHtml(m)}</option>`; });
 
       if (filtMgr) {
         const cur = filtMgr.value;
@@ -3724,7 +3895,7 @@
       if (offMgrInput) {
         const cur = offMgrInput.value;
         let opts = '';
-        mgrs.forEach(m => { opts += `<option value="${m}">${m}</option>`; });
+        sortedMgrs.forEach(m => { opts += `<option value="${m}">${m}</option>`; });
         offMgrInput.innerHTML = opts;
         if (cur) offMgrInput.value = cur;
       }
@@ -4279,7 +4450,7 @@
     // ==============================================================
     // LIVE CODE & HTML HOT-SYNC DETECTOR (Zero-Reload HTML Update)
     // ==============================================================
-    const APP_BUILD_ID = "BUILD_20261117_213000";
+    // Note: APP_BUILD_ID is defined authoritatively at the top of script ('BUILD_20261117_232000')
     let lastKnownServerEtag = null;
     let isSeamlessReloading = false;
     let codeCheckTimer = null;
@@ -4315,7 +4486,7 @@
           });
           if (probe.ok) {
             const html = await probe.text();
-            const match = html.match(/APP_BUILD_ID\s*=\s*"([^"]+)"/);
+            const match = html.match(/APP_BUILD_ID\s*=\s*['"]([^'"]+)['"]/);
             if (match && match[1] && match[1] !== APP_BUILD_ID && match[1] > APP_BUILD_ID) {
               console.log(`[Live Hot-Sync] New build version detected in HTML: ${match[1]}`);
               triggerLiveSeamlessHotReload(`New update detected (${match[1]})! Applying changes live...`);
@@ -4408,7 +4579,7 @@
 
       // 1. Preserve active navigation state in sessionStorage
       try {
-        sessionStorage.setItem('shaha_hot_sync_tab', currentTab || 'dashboard');
+        sessionStorage.setItem('shaha_hot_sync_tab', currentTab || 'today-collection');
         sessionStorage.setItem('shaha_hot_sync_scroll', String(window.scrollY || 0));
 
         // Preserve open drawer state
@@ -4443,7 +4614,7 @@
         const savedScroll = sessionStorage.getItem('shaha_hot_sync_scroll');
         const savedDrawer = sessionStorage.getItem('shaha_hot_sync_drawer_mgr');
 
-        if (savedTab && typeof switchTab === 'function' && savedTab !== 'dashboard') {
+        if (savedTab && typeof switchTab === 'function' && savedTab !== 'today-collection' && savedTab !== 'dashboard') {
           sessionStorage.removeItem('shaha_hot_sync_tab');
           switchTab(savedTab);
         }
@@ -5433,6 +5604,134 @@
 
     let managerAssignedTargets = {};
 
+    const NON_MANAGER_TARGET_NAMES = new Set([
+      'ADMIN', 'BACKEND', 'MANAGEMENT', 'OPS HEAD', 'ADMIN / OPS HEAD',
+      'SENIOR MANAGEMENT', 'BACKEND OPERATIONS TEAM', 'SHAHA', 'GENERAL', 'ALL', 'HQ', 'HEAD OFFICE'
+    ]);
+
+    function canonicalizeManagerTargetName(mgrName) {
+      if (!mgrName) return '';
+      const clean = s => String(s || '').toUpperCase().trim();
+      const strip = s => clean(s).replace(/[^A-Z0-9]/g, '');
+      const mClean = clean(mgrName);
+      if (!mClean) return '';
+      if (typeof USER_CREDENTIALS !== 'undefined') {
+        const rk = typeof resolveManagerUserKey === 'function' ? resolveManagerUserKey(mgrName) : null;
+        if (rk && USER_CREDENTIALS[rk] && USER_CREDENTIALS[rk].name) {
+          return clean(USER_CREDENTIALS[rk].name);
+        }
+      }
+      const mStrip = strip(mClean);
+      for (const defKey of Object.keys(DEFAULT_MANAGER_ASSIGNED_TARGETS)) {
+        const dClean = clean(defKey);
+        if (dClean === mClean || strip(dClean) === mStrip) return dClean;
+      }
+      return mClean;
+    }
+
+    function normalizeManagerAssignedTargets() {
+      if (!managerAssignedTargets || typeof managerAssignedTargets !== 'object') {
+        managerAssignedTargets = {};
+      }
+      const normalized = {};
+      for (const rawKey in managerAssignedTargets) {
+        const item = managerAssignedTargets[rawKey];
+        if (!item || typeof item !== 'object') continue;
+        const rawName = String(item.manager || rawKey || '').toUpperCase().trim();
+        if (!rawName || NON_MANAGER_TARGET_NAMES.has(rawName)) continue;
+        if (typeof isUserDeleted === 'function' && isUserDeleted(rawName)) continue;
+        const canonName = canonicalizeManagerTargetName(rawName);
+        if (!canonName || NON_MANAGER_TARGET_NAMES.has(canonName)) continue;
+        if (typeof isUserDeleted === 'function' && isUserDeleted(canonName)) continue;
+        const amt = Number(item.amount);
+        if (isNaN(amt)) continue;
+        const ts = Number(item.updatedAt) || 0;
+        const prev = normalized[canonName];
+        const prevTs = Number(prev && prev.updatedAt) || 0;
+        if (!prev || ts >= prevTs) {
+          normalized[canonName] = {
+            ...item,
+            manager: canonName,
+            amount: Math.max(0, amt),
+            updatedAt: ts
+          };
+        }
+      }
+      for (const [mName, amt] of Object.entries(DEFAULT_MANAGER_ASSIGNED_TARGETS)) {
+        const canonName = canonicalizeManagerTargetName(mName);
+        if (!canonName || (typeof isUserDeleted === 'function' && isUserDeleted(canonName))) continue;
+        if (!normalized[canonName]) {
+          normalized[canonName] = {
+            manager: canonName,
+            amount: amt,
+            updatedAt: 1000,
+            updatedBy: 'DEFAULT_BASELINE_NOV2026'
+          };
+        }
+      }
+      managerAssignedTargets = normalized;
+      try {
+        localStorage.setItem('shaha_manager_assigned_targets_v2', JSON.stringify(managerAssignedTargets));
+      } catch (e) {}
+      return managerAssignedTargets;
+    }
+
+    function getCanonicalActiveManagers() {
+      const list = [];
+      const seenKeys = new Set();
+      const nonBranchSet = new Set(['ALL', 'ALL BRANCHES', 'HQ', 'HEAD OFFICE', 'OPS', 'SYSTEM']);
+
+      const addMgr = (keyHint, nameHint, branchHint) => {
+        const rawName = String(nameHint || keyHint || '').toUpperCase().trim();
+        if (!rawName || NON_MANAGER_TARGET_NAMES.has(rawName)) return;
+        if (typeof isUserDeleted === 'function' && (isUserDeleted(rawName) || (keyHint && isUserDeleted(keyHint)))) return;
+
+        const rk = typeof resolveManagerUserKey === 'function'
+          ? (resolveManagerUserKey(rawName) || (keyHint ? resolveManagerUserKey(keyHint) : null))
+          : null;
+        const canonKey = rk || rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!canonKey || seenKeys.has(canonKey)) return;
+
+        let displayName = rawName;
+        let branch = branchHint ? String(branchHint).toUpperCase().trim() : '';
+        if (rk && typeof USER_CREDENTIALS !== 'undefined' && USER_CREDENTIALS[rk]) {
+          const u = USER_CREDENTIALS[rk];
+          if (String(u.role || 'MANAGER').toUpperCase() !== 'MANAGER') return;
+          if (typeof isUserDeleted === 'function' && (isUserDeleted(rk) || isUserDeleted(u.name) || isUserDeleted(u.username))) return;
+          displayName = String(u.name || u.username || rk).toUpperCase().trim();
+          branch = String(u.branch || u.agency || '').toUpperCase().trim();
+        }
+        if (!displayName || NON_MANAGER_TARGET_NAMES.has(displayName)) return;
+        if (!branch || nonBranchSet.has(branch)) {
+          branch = typeof getBranchForManager === 'function' ? getBranchForManager(displayName) : 'JOGESHWARI';
+        }
+        branch = String(branch || 'JOGESHWARI').toUpperCase().trim();
+        if (nonBranchSet.has(branch)) branch = 'JOGESHWARI';
+
+        seenKeys.add(canonKey);
+        list.push({
+          key: rk || canonKey,
+          name: displayName,
+          branch: branch
+        });
+      };
+
+      if (typeof USER_CREDENTIALS !== 'undefined') {
+        for (const k in USER_CREDENTIALS) {
+          const u = USER_CREDENTIALS[k];
+          if (!u) continue;
+          if (String(u.role || 'MANAGER').toUpperCase() !== 'MANAGER') continue;
+          addMgr(k, u.name || u.username || k, u.branch || u.agency);
+        }
+      }
+
+      for (const defName of Object.keys(DEFAULT_MANAGER_ASSIGNED_TARGETS)) {
+        addMgr(defName, defName, '');
+      }
+
+      return list;
+    }
+
     function initManagerAssignedTargets() {
       try {
         const saved = localStorage.getItem('shaha_manager_assigned_targets_v2');
@@ -5442,48 +5741,42 @@
       } catch (e) {
         managerAssignedTargets = {};
       }
-      for (const [mName, amt] of Object.entries(DEFAULT_MANAGER_ASSIGNED_TARGETS)) {
-        const cleanM = String(mName).toUpperCase().trim();
-        if (!managerAssignedTargets[cleanM] || !managerAssignedTargets[cleanM].amount) {
-          managerAssignedTargets[cleanM] = {
-            manager: cleanM,
-            amount: amt,
-            updatedAt: 1000,
-            updatedBy: 'DEFAULT_BASELINE_NOV2026'
-          };
-        }
-      }
+      normalizeManagerAssignedTargets();
     }
+    initManagerAssignedTargets();
 
     function getAssignedManagerTarget(mgrName) {
       if (!mgrName) return 0;
       const clean = s => String(s || '').toUpperCase().trim();
-      const mClean = clean(mgrName);
-      if (managerAssignedTargets[mClean] && managerAssignedTargets[mClean].amount !== undefined && !isNaN(Number(managerAssignedTargets[mClean].amount))) {
-        return Number(managerAssignedTargets[mClean].amount);
+      const canonName = canonicalizeManagerTargetName(mgrName);
+      if (managerAssignedTargets[canonName] && managerAssignedTargets[canonName].amount !== undefined && !isNaN(Number(managerAssignedTargets[canonName].amount))) {
+        return Math.max(0, Number(managerAssignedTargets[canonName].amount));
       }
+      let bestAmt = null;
+      let bestTs = -1;
       for (const k in managerAssignedTargets) {
-        if (clean(k) === mClean || clean(k).includes(mClean) || mClean.includes(clean(k))) {
-          if (managerAssignedTargets[k] && managerAssignedTargets[k].amount !== undefined) {
-            return Number(managerAssignedTargets[k].amount);
+        if (canonicalizeManagerTargetName(k) === canonName) {
+          const item = managerAssignedTargets[k];
+          if (item && item.amount !== undefined && !isNaN(Number(item.amount))) {
+            const ts = Number(item.updatedAt) || 0;
+            if (ts >= bestTs) {
+              bestTs = ts;
+              bestAmt = Math.max(0, Number(item.amount));
+            }
           }
         }
       }
+      if (bestAmt !== null) return bestAmt;
       for (const [k, v] of Object.entries(DEFAULT_MANAGER_ASSIGNED_TARGETS)) {
-        if (clean(k) === mClean || clean(k).includes(mClean) || mClean.includes(clean(k))) {
-          return Number(v);
+        if (canonicalizeManagerTargetName(k) === canonName || clean(k) === canonName) {
+          return Math.max(0, Number(v) || 0);
         }
       }
       return 0;
     }
 
     function getTotalCompanyManagerTarget() {
-      const activeMgrs = ['AMBUJ TRIPATHI', 'SMITA JAGTAP', 'POONAM I', 'SHRAVANTHI P', 'OMKAR SINGH', 'ADITI GAWADE', 'SHWETA SINGH', 'CUSTOMER SERVICE', 'SAROJ', 'ANURADHA'];
-      let sum = 0;
-      activeMgrs.forEach(m => {
-        sum += getAssignedManagerTarget(m);
-      });
-      return sum;
+      return getCanonicalActiveManagers().reduce((sum, m) => sum + getAssignedManagerTarget(m.name), 0);
     }
 
     async function loadManagerAssignedTargetsFromCloud() {
@@ -5502,14 +5795,17 @@
           if (cloudTargets && typeof cloudTargets === 'object') {
             for (const k in cloudTargets) {
               const cItem = cloudTargets[k];
-              const lItem = managerAssignedTargets[k];
-              const cTs = Number(cItem && cItem.updatedAt) || 0;
+              if (!cItem || typeof cItem !== 'object') continue;
+              const canonK = canonicalizeManagerTargetName(cItem.manager || k);
+              if (!canonK || NON_MANAGER_TARGET_NAMES.has(canonK)) continue;
+              const lItem = managerAssignedTargets[canonK];
+              const cTs = Number(cItem.updatedAt) || 0;
               const lTs = Number(lItem && lItem.updatedAt) || 0;
               if (!lItem || cTs >= lTs) {
-                managerAssignedTargets[k] = cItem;
+                managerAssignedTargets[canonK] = { ...cItem, manager: canonK };
               }
             }
-            localStorage.setItem('shaha_manager_assigned_targets_v2', JSON.stringify(managerAssignedTargets));
+            normalizeManagerAssignedTargets();
           }
         }
       } catch (e) {
@@ -5518,9 +5814,8 @@
     }
 
     async function saveManagerAssignedTarget(mgrName, amount, notes = '') {
-      const clean = s => String(s || '').toUpperCase().trim();
-      const mClean = clean(mgrName);
-      if (!mClean) return false;
+      const mClean = canonicalizeManagerTargetName(mgrName);
+      if (!mClean || NON_MANAGER_TARGET_NAMES.has(mClean)) return false;
 
       const numAmt = Math.max(0, Number(amount) || 0);
       const updater = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || currentRole || 'ADMIN';
@@ -5532,7 +5827,7 @@
         updatedBy: updater
       };
       managerAssignedTargets[mClean] = record;
-      localStorage.setItem('shaha_manager_assigned_targets_v2', JSON.stringify(managerAssignedTargets));
+      normalizeManagerAssignedTargets();
 
       if (supabaseClient) {
         try {
@@ -5570,25 +5865,33 @@
         notifyOtherSystemsLocal('SYS_MANAGER_ASSIGNED_TARGETS');
       }
 
-      // Re-render views
-      if (typeof renderTotalCollectionTab === 'function') renderTotalCollectionTab();
+      // Re-render views across all requested tabs & KPIs immediately
+      if (typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
       if (typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
-      if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+      if (typeof renderTotalCollectionTab === 'function') renderTotalCollectionTab();
       if (typeof updateTopKpis === 'function') updateTopKpis();
+      if (typeof renderRolePanels === 'function') renderRolePanels();
       if (typeof renderCallerTargetsTab === 'function') renderCallerTargetsTab();
+      if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+      if (typeof renderTodayTabBranchTable === 'function') renderTodayTabBranchTable();
+      if (typeof renderTodayTabManagerTable === 'function') renderTodayTabManagerTable();
 
       return true;
     }
 
     function openManagerTargetModal(defaultMgr = '') {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot edit targets.', 'info');
+        return;
+      }
       const modal = document.getElementById('manager-target-modal');
       const sel = document.getElementById('mgr-target-select-manager');
       if (!modal || !sel) return;
 
-      const isAdmin = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const isAdmin = (currentRole === 'ADMIN' || currentRole === 'BACKEND');
       const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
 
-      const managers = ['AMBUJ TRIPATHI', 'SMITA JAGTAP', 'POONAM I', 'SHRAVANTHI P', 'OMKAR SINGH', 'ADITI GAWADE', 'SHWETA SINGH', 'CUSTOMER SERVICE', 'SAROJ', 'ANURADHA'];
+      const managers = getCanonicalActiveManagers().map(m => m.name);
 
       let opts = '';
       if (isAdmin) {
@@ -5597,13 +5900,14 @@
           opts += `<option value="${escHtml(m)}">${escHtml(m)} (${getBranchForManager(m)})</option>`;
         });
       } else {
-        const matched = managers.find(m => isOfficerUnderManager({ manager: m }, myMgrName)) || myMgrName || 'SMITA JAGTAP';
+        const matched = managers.find(m => isOfficerUnderManager({ manager: m }, myMgrName)) || canonicalizeManagerTargetName(myMgrName) || 'SMITA JAGTAP';
         opts = `<option value="${escHtml(matched)}">${escHtml(matched)} (${getBranchForManager(matched)})</option>`;
       }
       sel.innerHTML = opts;
 
       if (defaultMgr) {
-        const found = managers.find(m => m.toUpperCase() === defaultMgr.toUpperCase() || m.toUpperCase().includes(defaultMgr.toUpperCase()));
+        const defCanon = canonicalizeManagerTargetName(defaultMgr);
+        const found = managers.find(m => m === defCanon || m.toUpperCase() === defaultMgr.toUpperCase() || m.toUpperCase().includes(defaultMgr.toUpperCase()));
         if (found) sel.value = found;
       } else if (!isAdmin && myMgrName) {
         const found = managers.find(m => isOfficerUnderManager({ manager: m }, myMgrName));
@@ -5675,6 +5979,10 @@
     }
 
     async function saveManagerTargetFromModal() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot edit targets.', 'info');
+        return;
+      }
       const sel = document.getElementById('mgr-target-select-manager');
       const amountInp = document.getElementById('mgr-target-input-amount');
       const notesInp = document.getElementById('mgr-target-input-notes');
@@ -5700,6 +6008,10 @@
     }
 
     function openSingleCallerTargetModal(callerName, managerName) {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot edit caller targets.', 'info');
+        return;
+      }
       const modal = document.getElementById('single-caller-target-modal');
       if (!modal) return;
       document.getElementById('sct-caller-name').value = callerName;
@@ -5720,6 +6032,10 @@
     }
 
     async function saveSingleCallerTarget() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot edit caller targets.', 'info');
+        return;
+      }
       const callerName = document.getElementById('sct-caller-name').value.trim();
       const managerName = document.getElementById('sct-manager-name').value.trim();
       const newTarget = parseFloat(document.getElementById('sct-input-target').value);
@@ -5758,7 +6074,7 @@
       const dateBadge = document.getElementById('caller-targets-date-badge');
       if (dateBadge) dateBadge.innerText = getTodayFormattedStr();
 
-      const activeManagers = ['AMBUJ TRIPATHI', 'SMITA JAGTAP', 'POONAM I', 'SHRAVANTHI P', 'OMKAR SINGH', 'ADITI GAWADE', 'SHWETA SINGH', 'CUSTOMER SERVICE', 'SAROJ', 'ANURADHA'];
+      const activeManagers = getCanonicalActiveManagers().map(m => m.name);
 
       // Populate filter dropdown if empty
       const selMgr = document.getElementById('ct-filter-manager');
@@ -5794,7 +6110,8 @@
       const filtBranch = document.getElementById('ct-filter-branch')?.value || '';
       const filtStatus = document.getElementById('ct-filter-status')?.value || 'ACTIVE';
 
-      const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const isMgmtViewer = (currentRole === 'MANAGEMENT');
+      const isEditAdmin = (currentRole === 'ADMIN' || currentRole === 'BACKEND');
       const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
 
       let managerCardsHtml = '';
@@ -5829,10 +6146,10 @@
         const assignedTarget = getAssignedManagerTarget(mgrName);
         const callersTargetSum = callersOfMgr.filter(o => !isCallerExited(o)).reduce((s, o) => s + (Number(o.target) || 0), 0);
         const mgrVariance = assignedTarget - callersTargetSum;
-        const isOwnManager = isAdm || isOfficerUnderManager({ manager: mgrName }, myMgrName);
+        const isOwnManager = !isMgmtViewer && (isEditAdmin || isOfficerUnderManager({ manager: mgrName }, myMgrName));
 
         const callersRowsHtml = callersOfMgr.length === 0
-          ? `<tr><td colspan="8" class="p-4 text-center text-slate-400 font-medium">No callers found matching the filter criteria under ${escHtml(mgrName)}.</td></tr>`
+          ? `<tr><td colspan="${isMgmtViewer ? 7 : 8}" class="p-4 text-center text-slate-400 font-medium">No callers found matching the filter criteria under ${escHtml(mgrName)}.</td></tr>`
           : callersOfMgr.map((c, cIdx) => {
               const isExited = isCallerExited(c);
               const statusBadge = isExited
@@ -5852,9 +6169,9 @@
                   <td class="p-2.5 text-right font-mono font-black text-slate-900 text-xs sm:text-sm">
                     ${formatCurrency(targetVal)}
                   </td>
-                  <td class="p-2.5 text-center w-20">
+                  ${isMgmtViewer ? '' : `<td class="p-2.5 text-center w-20">
                     ${isOwnManager ? `<button type="button" onclick="openSingleCallerTargetModal('${escHtml(c.name).replace(/'/g, "\\'")}', '${escHtml(mgrName).replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-blue-700 rounded text-[11px] font-bold border border-slate-200 hover:border-blue-300 transition cursor-pointer" title="Edit Caller Target">Edit</button>` : `<span class="text-slate-300">—</span>`}
-                  </td>
+                  </td>`}
                 </tr>
               `;
             }).join('');
@@ -5911,7 +6228,7 @@
                     <th class="p-2.5 text-center">Joining Date</th>
                     <th class="p-2.5 text-center">Status</th>
                     <th class="p-2.5 text-right">Caller Target (₹)</th>
-                    <th class="p-2.5 text-center w-20">Action</th>
+                    ${isMgmtViewer ? '' : '<th class="p-2.5 text-center w-20">Action</th>'}
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 bg-white">
@@ -5921,7 +6238,7 @@
                   <tr>
                     <td colspan="6" class="p-2.5 text-left font-black uppercase">${escHtml(mgrName)} CALLERS TOTAL (${callersOfMgr.length} CALLERS)</td>
                     <td class="p-2.5 text-right font-mono font-black text-slate-900 text-sm">${formatCurrency(callersTargetSum)}</td>
-                    <td class="p-2.5 text-center"></td>
+                    ${isMgmtViewer ? '' : '<td class="p-2.5 text-center"></td>'}
                   </tr>
                 </tfoot>
               </table>
@@ -5946,7 +6263,7 @@
       const allCallers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly())
         .filter(o => !isOfficerTombstoned(o) && !isManagerName(o.name) && !o.isManagerSelf);
 
-      const activeManagers = ['AMBUJ TRIPATHI', 'SMITA JAGTAP', 'POONAM I', 'SHRAVANTHI P', 'OMKAR SINGH', 'ADITI GAWADE', 'SHWETA SINGH', 'CUSTOMER SERVICE', 'SAROJ', 'ANURADHA'];
+      const activeManagers = getCanonicalActiveManagers().map(m => m.name);
 
       const mgrSummaryRows = [
         ['Sr No', 'Manager', 'Branch', 'Manager Assigned Target (Main Screen)', 'Total Callers Target Sum', 'Variance / Buffer', 'Active Callers Count']
@@ -6744,17 +7061,18 @@
     // TAB SWITCHING LOGIC
     // ==========================================
     function switchTab(tabId) {
-      const tabNames = { 'dashboard': 'Overview', 'today-collection': 'Today', 'total-collection': 'Overall Summary', 'branch-collection': 'Branch wise', 'manager-collection': 'Manager wise', 'caller-targets': 'Manager & Caller Targets', 'day-graph': 'Day wise graph', 'mis-report': 'Daily MIS', 'paid-file': 'Paid data', 'team-progress': 'Team progress', 'admin-permissions': 'Users & access' };
+      if (tabId === 'dashboard' || !tabId) tabId = 'today-collection';
+      const tabNames = { 'today-collection': 'Today', 'total-collection': 'Overall Summary', 'branch-collection': 'Branch wise', 'manager-collection': 'Manager wise', 'caller-targets': 'Manager & Caller Targets', 'day-graph': 'Day wise graph', 'mis-report': 'Daily MIS', 'paid-file': 'Paid data', 'team-progress': 'Team progress', 'admin-permissions': 'Users & access' };
       const tbTitle = document.getElementById('topbar-title');
       const tbScope = document.getElementById('topbar-scope');
       if (tbTitle) tbTitle.innerText = tabNames[tabId] || '';
       if (tbScope) tbScope.innerText = ['team-progress', 'admin-permissions'].includes(tabId) ? 'Admin' : 'Workspace';
 
       const role = (currentRole || (currentUser && currentUser.role) || 'MANAGER').toUpperCase();
-      const allowed = ROLE_PERMISSIONS[role] || ['dashboard'];
+      const allowed = ROLE_PERMISSIONS[role] || ['today-collection'];
 
       if (!allowed.includes(tabId)) {
-        const fallback = allowed[0] || 'dashboard';
+        const fallback = allowed[0] || 'today-collection';
         showToast(`Access Denied: Your role (${role}) does not have access to this tab.`, 'error');
         if (currentTab !== fallback) {
           switchTab(fallback);
@@ -6765,7 +7083,7 @@
       currentTab = tabId;
 
       // Auto-sync collection data silently on view switch without redundant multi-tab DOM rendering
-      if (['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'team-progress'].includes(tabId)) {
+      if (['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'team-progress'].includes(tabId)) {
         if (typeof syncLiveCollectionFromPaidFile === 'function') {
           try {
             syncLiveCollectionFromPaidFile(false, false);
@@ -6775,7 +7093,7 @@
         }
       }
 
-      ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'].forEach(t => {
+      ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (btn) {
@@ -7293,6 +7611,7 @@
       }
 
       renderTodayTabCallers(eligibleTopCallers, casesByCaller, todayRecs);
+      renderTodayTabAllCallersTable(todayRecs);
 
       safeCreateIcons();
     }
@@ -7341,8 +7660,12 @@
         sumToday += td;
       });
 
-      // Decoupled manager target: overall summary displays assigned Manager targets
-      const companyMgrTarget = (typeof getTotalCompanyManagerTarget === 'function') ? getTotalCompanyManagerTarget() : 0;
+      // Decoupled manager target: overall summary displays assigned Manager targets (scoped by role)
+      const isGlobalTotalView = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const myTotalMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+      const companyMgrTarget = isGlobalTotalView
+        ? ((typeof getTotalCompanyManagerTarget === 'function') ? getTotalCompanyManagerTarget() : 0)
+        : ((typeof getAssignedManagerTarget === 'function') ? getAssignedManagerTarget(myTotalMgrName) : 0);
       let sumTarget = companyMgrTarget > 0 ? companyMgrTarget : sumCallerTarget;
 
       // Synchronize Today and Total with scoped paidFileRecords so unassigned/direct payments are fully accounted for
@@ -8228,10 +8551,25 @@
       const tbody = document.getElementById('today-tab-top5-tbody');
       const tfoot = document.getElementById('today-tab-top5-tfoot');
       if (!tbody) return;
-      const eligible = (callers || []).filter(o => !isTop5ExcludedManagerOrAgency(o));
+
+      const isMgrRole = (currentRole === 'MANAGER');
+      const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+
+      // Strict manager filter: when Manager is logged in, show only their own callers
+      let eligible = (callers || []).filter(o => !isTop5ExcludedManagerOrAgency(o));
+      if (isMgrRole && myMgr) {
+        eligible = eligible.filter(o => isCallerBelongingToManager(o, myMgr));
+      }
+
       const top = eligible.slice(0, 5);
       const badge = document.getElementById('today-tab-top5-badge');
-      if (badge) badge.innerText = eligible.length > 5 ? `Top 5 of ${eligible.length} callers today` : `${top.length} callers (excl. Manager & Agency)`;
+      if (badge) {
+        if (isMgrRole) {
+          badge.innerText = eligible.length > 5 ? `Top 5 of ${eligible.length} callers in your team today` : `${eligible.length} callers in your team today`;
+        } else {
+          badge.innerText = eligible.length > 5 ? `Top 5 of ${eligible.length} callers today` : `${top.length} callers (excl. Manager & Agency)`;
+        }
+      }
 
       let sumCases = 0, sumToday = 0;
       tbody.innerHTML = top.length ? top.map((o, i) => {
@@ -8259,6 +8597,424 @@
           <td class="p-2.5 text-right num" style="color: var(--good);">${sumToday.toLocaleString('en-IN')}</td>
         </tr>` : '';
       }
+    }
+
+    // ==============================================================
+    // CALLER WISE TODAY COLLECTION TABLE RENDERER & ACTIONS
+    // ==============================================================
+    let _todayCallersViewMode = 'all'; // 'all', 'top5', 'top10'
+    function setTodayCallersViewFilter(mode) {
+      _todayCallersViewMode = mode;
+      ['all', 'top5', 'top10'].forEach(m => {
+        const btn = document.getElementById(`btn-today-callers-${m}`);
+        if (btn) {
+          if (m === mode) {
+            btn.className = 'px-2.5 py-1 rounded-md transition cursor-pointer bg-white text-orange-600 shadow-2xs';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-md transition cursor-pointer text-slate-600 hover:text-slate-900';
+          }
+        }
+      });
+      renderTodayTabAllCallersTable();
+    }
+
+    let _cachedTodayRecsForTable = [];
+    let _cachedTodayCallerRows = [];
+
+    function renderTodayTabAllCallersTable(providedRecs) {
+      const tbody = document.getElementById('today-tab-all-callers-tbody');
+      const tfoot = document.getElementById('today-tab-all-callers-tfoot');
+      const badge = document.getElementById('today-tab-all-callers-badge');
+      const mgrSelect = document.getElementById('today-callers-filter-mgr');
+      if (!tbody) return;
+
+      if (Array.isArray(providedRecs)) {
+        _cachedTodayRecsForTable = providedRecs;
+      }
+      const recs = _cachedTodayRecsForTable || [];
+
+      const roleUpper = String(currentRole || 'MANAGER').toUpperCase();
+      const isGlobalViewer = (roleUpper === 'ADMIN' || roleUpper === 'MANAGEMENT' || roleUpper === 'BACKEND');
+      const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+
+      // Populate Manager Filter for Admin, hide/lock for Manager
+      if (mgrSelect) {
+        if (!isGlobalViewer) {
+          mgrSelect.style.display = 'none';
+        } else {
+          mgrSelect.style.display = 'inline-block';
+          const curVal = mgrSelect.value;
+          const activeMgrs = new Set();
+          for (const k in USER_CREDENTIALS) {
+            const u = USER_CREDENTIALS[k];
+            if (u && String(u.role || 'MANAGER').toUpperCase() === 'MANAGER' && !isUserDeleted(u.name || k)) {
+              activeMgrs.add(u.name || k);
+            }
+          }
+          if (Array.isArray(SEED_OFFICERS)) {
+            SEED_OFFICERS.forEach(s => {
+              if (s.manager && !isUserDeleted(s.manager) && !isManagerName(s.manager)) {
+                activeMgrs.add(s.manager);
+              }
+            });
+          }
+          let opts = '<option value="">All Managers</option>';
+          Array.from(activeMgrs).sort().forEach(m => {
+            opts += `<option value="${escHtml(m)}">${escHtml(m)}</option>`;
+          });
+          mgrSelect.innerHTML = opts;
+          if (curVal) mgrSelect.value = curVal;
+        }
+      }
+
+      const selectedFilterMgr = (isGlobalViewer && mgrSelect) ? mgrSelect.value.trim() : (isGlobalViewer ? '' : myMgr);
+      const searchQ = (document.getElementById('today-callers-search') ? document.getElementById('today-callers-search').value : '').toLowerCase().trim();
+
+      // Aggregate today's collection by caller
+      const callerAgg = {};
+      let totalTodayAmt = 0;
+      let totalCasesCount = 0;
+
+      recs.forEach(r => {
+        if (!r || isRecordTombstoned(r)) return;
+        const rAmt = Number(r.amount) || 0;
+        if (!(rAmt > 0)) return;
+
+        if (r.splits && Array.isArray(r.splits) && r.splits.length > 0) {
+          r.splits.forEach(sp => {
+            if (!sp || !sp.officer) return;
+            const spName = String(sp.officer).trim().toUpperCase();
+            if (!spName || isManagerName(spName)) return;
+            const spAmt = Number(sp.amount) || (rAmt * ((Number(sp.pct) || 0) / 100)) || 0;
+            const spMgr = String(sp.manager || r.manager || getCallerCanonicalManager(spName) || '').trim().toUpperCase();
+            const spBranch = getBranchForManager(spMgr);
+
+            if (!callerAgg[spName]) {
+              callerAgg[spName] = {
+                name: spName,
+                manager: spMgr,
+                branch: spBranch,
+                cases: 0,
+                amount: 0,
+                records: []
+              };
+            }
+            callerAgg[spName].cases += 1;
+            callerAgg[spName].amount += spAmt;
+            callerAgg[spName].records.push({ ...r, caller_amount: spAmt, is_split: true, split_pct: sp.pct });
+            totalTodayAmt += spAmt;
+            totalCasesCount += 1;
+          });
+        } else {
+          const rawOff = String(r.officer || '').trim().toUpperCase();
+          if (!rawOff || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(rawOff) || isManagerName(rawOff)) return;
+          const rMgr = String(r.manager || getCallerCanonicalManager(rawOff) || '').trim().toUpperCase();
+          const rBranch = getBranchForManager(rMgr);
+
+          if (!callerAgg[rawOff]) {
+            callerAgg[rawOff] = {
+              name: rawOff,
+              manager: rMgr,
+              branch: rBranch,
+              cases: 0,
+              amount: 0,
+              records: []
+            };
+          }
+          callerAgg[rawOff].cases += 1;
+          callerAgg[rawOff].amount += rAmt;
+          callerAgg[rawOff].records.push({ ...r, caller_amount: rAmt, is_split: false });
+          totalTodayAmt += rAmt;
+          totalCasesCount += 1;
+        }
+      });
+
+      let callersList = Object.values(callerAgg);
+
+      // STRICT MANAGER ISOLATION:
+      // If Manager role or selectedFilterMgr is set, filter callers strictly to that manager
+      if (selectedFilterMgr && selectedFilterMgr !== 'all' && selectedFilterMgr !== 'All Managers') {
+        callersList = callersList.filter(c => isCallerBelongingToManager(c, selectedFilterMgr));
+      }
+
+      // Search filter
+      if (searchQ) {
+        callersList = callersList.filter(c => 
+          c.name.toLowerCase().includes(searchQ) || 
+          c.manager.toLowerCase().includes(searchQ) || 
+          c.branch.toLowerCase().includes(searchQ)
+        );
+      }
+
+      // Sort by today's collection amount descending, then by cases descending
+      callersList.sort((a, b) => (b.amount - a.amount) || (b.cases - a.cases) || a.name.localeCompare(b.name));
+
+      // Cache full list for modal lookup & excel export
+      _cachedTodayCallerRows = callersList;
+
+      // Update badge
+      const activeCount = callersList.length;
+      const casesSum = callersList.reduce((s, c) => s + c.cases, 0);
+      const amtSum = callersList.reduce((s, c) => s + c.amount, 0);
+      if (badge) {
+        badge.innerText = `${activeCount} ${activeCount === 1 ? 'Caller' : 'Callers'} (${casesSum} ${casesSum === 1 ? 'Case' : 'Cases'} Today)`;
+      }
+
+      // Slice for View Mode: 'all', 'top5', 'top10'
+      let displayedList = callersList;
+      if (_todayCallersViewMode === 'top5') {
+        displayedList = callersList.slice(0, 5);
+      } else if (_todayCallersViewMode === 'top10') {
+        displayedList = callersList.slice(0, 10);
+      }
+
+      if (displayedList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="p-8 text-center text-slate-400 bg-slate-50/50">
+              <div class="flex flex-col items-center justify-center gap-1.5 max-w-sm mx-auto">
+                <i data-lucide="inbox" class="w-7 h-7 text-slate-300"></i>
+                <span class="font-bold text-slate-600 text-sm">No Caller Collections Today Yet</span>
+                <p class="text-xs text-slate-400">Payments recorded today in Paid Data will automatically appear here with cases breakdown.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        if (tfoot) tfoot.innerHTML = '';
+        safeCreateIcons();
+        return;
+      }
+
+      tbody.innerHTML = displayedList.map((c, idx) => {
+        const rank = idx + 1;
+        let rankHtml = '';
+        if (rank === 1) {
+          rankHtml = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-xs text-amber-950 bg-amber-400 shadow-xs">#1 🥇</span>`;
+        } else if (rank === 2) {
+          rankHtml = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-xs text-slate-800 bg-slate-300 shadow-xs">#2 🥈</span>`;
+        } else if (rank === 3) {
+          rankHtml = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-xs text-amber-900 bg-amber-200 border border-amber-300 shadow-xs">#3 🥉</span>`;
+        } else {
+          rankHtml = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-md font-bold text-xs text-slate-700 bg-slate-100">${rank}</span>`;
+        }
+
+        const avgCase = c.cases > 0 ? Math.round(c.amount / c.cases) : 0;
+        const sharePct = totalTodayAmt > 0 ? Math.round((c.amount / totalTodayAmt) * 100) : 0;
+        const initial = c.name.charAt(0).toUpperCase();
+
+        return `
+          <tr class="hover:bg-orange-50/40 transition-colors" style="border-bottom: 1px solid var(--line);">
+            <td class="p-2.5 text-center">${rankHtml}</td>
+            <td class="p-2.5">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px]" style="background: var(--raised-2); color: #ea580c; border: 1px solid var(--line);">
+                  ${escHtml(initial)}
+                </div>
+                <span class="font-bold text-xs" style="color: var(--ink);">${escHtml(c.name)}</span>
+              </div>
+            </td>
+            <td class="p-2.5 text-xs" style="color: var(--ink-2);">${escHtml(c.manager || '-')}</td>
+            <td class="p-2.5 text-center">
+              <span class="chip text-[11px] font-semibold">${escHtml(c.branch || 'JOGESHWARI')}</span>
+            </td>
+            <td class="p-2.5 text-center font-bold">
+              <span class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                ${c.cases} ${c.cases === 1 ? 'Case' : 'Cases'}
+              </span>
+            </td>
+            <td class="p-2.5 text-center font-mono num text-xs" style="color: var(--ink-2);">
+              ${formatCurrency(avgCase)}
+            </td>
+            <td class="p-2.5 text-right font-mono num font-black text-xs" style="color: var(--good);">
+              ${formatCurrency(c.amount)}
+            </td>
+            <td class="p-2.5 text-center">
+              <div class="inline-flex items-center gap-1.5 justify-center">
+                <span class="font-bold font-mono text-[11px]" style="color: var(--ink);">${sharePct}%</span>
+                <div class="w-12 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div class="h-1.5 rounded-full" style="width: ${Math.min(100, sharePct)}%; background: #ea580c;"></div>
+                </div>
+              </div>
+            </td>
+            <td class="p-2.5 text-center">
+              <button type="button" onclick="openTodayCallerCasesModal(${escHtml(JSON.stringify(c.name))}, ${escHtml(JSON.stringify(c.manager))})" class="btn text-[11px] font-bold py-1 px-2.5 mx-auto flex items-center justify-center gap-1 cursor-pointer transition hover:bg-orange-50 border border-slate-300" title="View paid cases collected today by ${escHtml(c.name)}">
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-orange-600"></i>
+                <span>Cases</span>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render Tfoot summary
+      if (tfoot) {
+        const avgTotalCase = casesSum > 0 ? Math.round(amtSum / casesSum) : 0;
+        tfoot.innerHTML = `
+          <tr style="background: var(--raised-2); border-top: 2px solid var(--line); color: var(--ink);">
+            <td colspan="4" class="p-2.5 text-left font-black uppercase tracking-wider" style="color: var(--ink);">
+              TOTAL (${activeCount} CALLERS${_todayCallersViewMode !== 'all' ? ` · DISPLAYING ${displayedList.length}` : ''})
+            </td>
+            <td class="p-2.5 text-center font-mono num font-black text-xs" style="color: var(--info);">
+              ${casesSum} Cases
+            </td>
+            <td class="p-2.5 text-center font-mono num font-bold text-xs" style="color: var(--ink-2);">
+              Avg ${formatCurrency(avgTotalCase)}
+            </td>
+            <td class="p-2.5 text-right font-mono num font-black text-xs" style="color: var(--good);">
+              ${formatCurrency(amtSum)}
+            </td>
+            <td class="p-2.5 text-center font-mono font-bold text-xs" style="color: var(--ink);">
+              100%
+            </td>
+            <td class="p-2.5"></td>
+          </tr>
+        `;
+      }
+
+      safeCreateIcons();
+    }
+
+    function openTodayCallerCasesModal(callerName, mgrName = '') {
+      const modal = document.getElementById('today-caller-cases-modal');
+      const titleEl = document.getElementById('today-cases-modal-title');
+      const subEl = document.getElementById('today-cases-modal-sub');
+      const tbody = document.getElementById('today-cases-modal-tbody');
+      const tfoot = document.getElementById('today-cases-modal-tfoot');
+      const badge = document.getElementById('today-cases-modal-total-badge');
+      if (!modal || !tbody) return;
+
+      const callerClean = String(callerName || '').trim().toUpperCase();
+      const mgrClean = String(mgrName || '').trim().toUpperCase();
+
+      if (titleEl) titleEl.innerText = `${callerClean} — Today's Paid Cases`;
+      if (subEl) subEl.innerText = `Cases collected today (${getTodayFormattedStr()}) by ${callerClean}${mgrClean ? ' under ' + mgrClean : ''}.`;
+
+      const callerRow = (_cachedTodayCallerRows || []).find(c => c.name === callerClean);
+      const records = callerRow ? callerRow.records : (_cachedTodayRecsForTable || []).filter(r => {
+        if (!r || isRecordTombstoned(r)) return false;
+        if (r.splits && Array.isArray(r.splits)) {
+          return r.splits.some(sp => sp && String(sp.officer || '').trim().toUpperCase() === callerClean);
+        }
+        return String(r.officer || '').trim().toUpperCase() === callerClean;
+      });
+
+      if (badge) badge.innerText = `Total: ${records.length} ${records.length === 1 ? 'Case' : 'Cases'}`;
+
+      if (!records || records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No transactions recorded for ${escHtml(callerClean)} today.</td></tr>`;
+        if (tfoot) tfoot.innerHTML = '';
+        modal.classList.remove('hidden');
+        safeCreateIcons();
+        return;
+      }
+
+      let sumAmt = 0;
+      tbody.innerHTML = records.map((r, idx) => {
+        let displayAmt = Number(r.caller_amount || r.amount) || 0;
+        if (r.splits && Array.isArray(r.splits) && !r.caller_amount) {
+          const sp = r.splits.find(s => s && String(s.officer || '').trim().toUpperCase() === callerClean);
+          if (sp) displayAmt = Number(sp.amount) || (Number(r.amount) * ((Number(sp.pct) || 0) / 100)) || 0;
+        }
+        sumAmt += displayAmt;
+        const splitTag = (r.is_split || (r.splits && r.splits.length > 0)) ? `<span class="ml-1 px-1 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800">Split</span>` : '';
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-2.5 px-3 text-center font-bold text-slate-500">${idx + 1}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-blue-700">${escHtml(r.cust_id || '-')}</td>
+            <td class="py-2.5 px-3 font-extrabold text-slate-900">${escHtml(r.cust_name || '-')}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-700">${escHtml(r.bank || 'HDFC')}</td>
+            <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">${escHtml(r.mode || 'ONLINE')}</span></td>
+            <td class="py-2.5 px-3 text-right font-mono font-black text-emerald-700">₹${displayAmt.toLocaleString('en-IN')}${splitTag}</td>
+            <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600 truncate max-w-xs" title="${escHtml(r.narr || '')}">${escHtml(r.narr || '-')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-2.5 px-3 text-right font-black uppercase tracking-wider">Total Collection:</td>
+            <td class="py-2.5 px-3 text-right font-mono font-black text-emerald-800 text-sm">₹${sumAmt.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-slate-500 text-xs">${records.length} ${records.length === 1 ? 'Case' : 'Cases'}</td>
+          </tr>
+        `;
+      }
+
+      modal.classList.remove('hidden');
+      safeCreateIcons();
+    }
+
+    function closeTodayCallerCasesModal() {
+      const modal = document.getElementById('today-caller-cases-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function exportTodayCallersTableExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('Excel engine is still initializing. Please try again.', 'error');
+        return;
+      }
+      const callers = _cachedTodayCallerRows || [];
+      if (callers.length === 0) {
+        showToast('No caller collection data to export for today.', 'info');
+        return;
+      }
+
+      const todayStr = getTodayFormattedStr();
+      const rows = [
+        ['CALLER WISE TODAY COLLECTION REPORT'],
+        [`Date: ${todayStr}`],
+        []
+      ];
+
+      const headers = ['#', 'CALLER NAME', 'MANAGER', 'BRANCH', 'CASES TODAY', 'AVG / CASE (INR)', 'TODAY COLLECTION (INR)', 'TODAY SHARE %'];
+      rows.push(headers);
+
+      let sumCases = 0, sumAmount = 0;
+      const totalAmt = callers.reduce((s, c) => s + c.amount, 0);
+
+      callers.forEach((c, idx) => {
+        sumCases += c.cases;
+        sumAmount += c.amount;
+        const avg = c.cases > 0 ? Math.round(c.amount / c.cases) : 0;
+        const share = totalAmt > 0 ? Math.round((c.amount / totalAmt) * 100) : 0;
+        rows.push([
+          idx + 1,
+          c.name,
+          c.manager,
+          c.branch,
+          c.cases,
+          avg,
+          c.amount,
+          `${share}%`
+        ]);
+      });
+
+      const avgTotal = sumCases > 0 ? Math.round(sumAmount / sumCases) : 0;
+      rows.push([
+        'TOTAL',
+        `${callers.length} Callers`,
+        '',
+        '',
+        sumCases,
+        avgTotal,
+        sumAmount,
+        '100%'
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Caller Today Collection');
+      const filename = `Caller_Wise_Today_Collection_${todayStr.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      showToast(`Exported ${filename}!`, 'success');
+    }
+
+    function onPaidModalManagerChange() {
+      const mgrSelect = document.getElementById('paid-modal-manager');
+      const chosenMgr = mgrSelect ? mgrSelect.value.trim() : '';
+      populateOfficerDropdowns(chosenMgr);
     }
 
     // Legacy alias kept for compatibility
@@ -8293,7 +9049,23 @@
         }
       }
 
-      getAllCompanyOfficersReadOnly().forEach(off => {
+      // Calculate Branch Targets strictly from canonical active managers (zero double-counting)
+      getCanonicalActiveManagers().forEach(mgr => {
+        let b = mgr.branch || getBranchForManager(mgr.name);
+        if (!b || nonBranchNames.has(b)) b = 'JOGESHWARI';
+        b = b.toUpperCase().trim();
+        if (!branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+        branchData[b].target += getAssignedManagerTarget(mgr.name);
+      });
+
+      const periodInput = document.getElementById('leaderboard-period-input');
+      const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
+
+      // Accumulate active caller counts per branch
+      const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
+      activeOfficers.forEach(off => {
         if (isUserDeleted(off.manager)) return;
         let b = getBranchForManager(off.manager);
         if (!b || nonBranchNames.has(b)) b = 'JOGESHWARI';
@@ -8301,18 +9073,47 @@
         if (!branchData[b]) {
           branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
         }
-        const isExited = isCallerExited(off);
-        const t = isExited ? 0 : (Number(off.target) || 0);
-        const a = Number(off.aoy) || 0;
-        const td = Number(off.today) || 0;
-        const tot = Number(off.total) || (a + td);
-
-        branchData[b].target += t;
-        branchData[b].aoy += a;
-        branchData[b].today += td;
-        branchData[b].total += tot;
-        if (!isExited) branchData[b].count += 1;
+        branchData[b].count += 1;
       });
+
+      // Accumulate Today and MTD Collections directly from scoped paid records
+      const scopedRecs = getRoleScopedPaidRecords();
+      scopedRecs.forEach(r => {
+        if (!r || isRecordTombstoned(r)) return;
+        let b = getBranchForManager(r.manager || r.officer);
+        if (!b || nonBranchNames.has(b)) b = 'JOGESHWARI';
+        b = b.toUpperCase().trim();
+        if (!branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+        const amt = Number(r.amount) || 0;
+        if (isSameDate(r.pay_date, todayDateStr)) {
+          branchData[b].today += amt;
+        } else if (isMtdDateBeforeToday(r.pay_date, todayDateStr)) {
+          branchData[b].aoy += amt;
+        }
+      });
+
+      (collectionRequests || []).forEach(q => {
+        if (!q || q.status !== 'APPROVED' || q.type === 'INACTIVE' || q.type === 'ACTIVE') return;
+        let b = getBranchForManager(q.manager || q.caller_name);
+        if (!b || nonBranchNames.has(b)) b = 'JOGESHWARI';
+        b = b.toUpperCase().trim();
+        if (!branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+        const amt = Number(q.amount) || 0;
+        if (isSameDate(q.date, todayDateStr)) {
+          branchData[b].today += amt;
+        } else if (isMtdDateBeforeToday(q.date, todayDateStr)) {
+          branchData[b].aoy += amt;
+        }
+      });
+
+      for (const b in branchData) {
+        branchData[b].total = branchData[b].aoy + branchData[b].today;
+        branchData[b].balance = Math.max(0, branchData[b].target - branchData[b].total);
+      }
 
       const branchesList = Object.values(branchData).filter(item => !nonBranchNames.has(item.branch));
       branchesList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.branch.localeCompare(b.branch));
@@ -8355,6 +9156,7 @@
 
       if (tfoot) {
         let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+        const finalBranchBal = Math.max(0, sumTarget - sumTotal);
         tfoot.innerHTML = `
           <tr style="background: var(--raised-2); border-top: 2px solid var(--line); color: var(--ink);">
             <td colspan="2" class="p-2.5 text-left font-black uppercase tracking-wider" style="color: var(--ink);">TOTAL</td>
@@ -8362,7 +9164,7 @@
             <td class="p-2.5 text-center font-mono num" style="color: var(--ink);">${formatCurrency(sumAoy)}</td>
             <td class="p-2.5 text-center font-mono num font-black" style="color: var(--good);">${formatCurrency(sumToday)}</td>
             <td class="p-2.5 text-center font-mono num font-black" style="color: var(--ink);">${formatCurrency(sumTotal)}</td>
-            <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(sumBalance)}</td>
+            <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(finalBranchBal)}</td>
             <td class="p-2.5 text-center font-bold" style="color: var(--ink);">${avgAchieved}%</td>
           </tr>
         `;
@@ -8376,29 +9178,22 @@
       if (!tbody) return;
 
       const mgrData = {};
-      for (const k in USER_CREDENTIALS) {
-        if (isUserDeleted(k)) continue;
-        const u = USER_CREDENTIALS[k];
-        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
-        const r = (u.role || 'MANAGER').toUpperCase();
-        if (r !== 'MANAGER') continue;
-        const mName = u.name;
-        const br = getBranchForManager(mName);
-        mgrData[mName] = {
-          name: mName,
-          branch: br,
-          target: 0,
+      getCanonicalActiveManagers().forEach(m => {
+        mgrData[m.name] = {
+          name: m.name,
+          branch: m.branch,
+          target: getAssignedManagerTarget(m.name),
           aoy: 0,
           today: 0,
           total: 0,
           balance: 0,
           callersCount: 0
         };
-      }
+      });
 
       getAllCompanyOfficersReadOnly().forEach(off => {
         if (isOfficerTombstoned(off) || isUserDeleted(off.manager)) return;
-        let m = off.manager || currentManager || 'SMITA JAGTAP';
+        let m = off.manager || (typeof getCallerCanonicalManager === 'function' ? getCallerCanonicalManager(off.name, '') : '') || '';
         let foundM = null;
         for (const mk in mgrData) {
           if (isOfficerUnderManager(off, mk)) {
@@ -8407,37 +9202,19 @@
           }
         }
         if (!foundM && m) {
-          const rk = resolveManagerUserKey(m);
-          if (rk && USER_CREDENTIALS[rk] && mgrData[USER_CREDENTIALS[rk].name]) {
-            foundM = USER_CREDENTIALS[rk].name;
-          }
+          const canonM = canonicalizeManagerTargetName(m);
+          if (canonM && mgrData[canonM]) foundM = canonM;
         }
-        if (!foundM) {
-          const b = getBranchForManager(m);
-          foundM = m || `${b} GENERAL`;
-          if (!mgrData[foundM]) {
-            mgrData[foundM] = {
-              name: foundM,
-              branch: b,
-              target: 0,
-              aoy: 0,
-              today: 0,
-              total: 0,
-              balance: 0,
-              callersCount: 0
-            };
-          }
-        }
-        const t = Number(off.target) || 0;
+        if (!foundM) return;
+
         const a = Number(off.aoy) || 0;
         const td = Number(off.today) || 0;
         const tot = Number(off.total) || (a + td);
 
-        mgrData[foundM].target += t;
         mgrData[foundM].aoy += a;
         mgrData[foundM].today += td;
         mgrData[foundM].total += tot;
-        mgrData[foundM].callersCount += 1;
+        if (!isCallerExited(off)) mgrData[foundM].callersCount += 1;
       });
 
       const mgrList = Object.values(mgrData);
@@ -8449,7 +9226,7 @@
       let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0;
 
       mgrList.forEach((mItem, idx) => {
-        const target = mItem.target;
+        const target = getAssignedManagerTarget(mItem.name);
         const aoy = mItem.aoy;
         const today = mItem.today;
         const total = aoy + today;
@@ -8491,6 +9268,7 @@
 
       if (tfoot) {
         let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+        const finalMgrBal = Math.max(0, sumTarget - sumTotal);
         tfoot.innerHTML = `
           <tr style="background: var(--raised-2); border-top: 2px solid var(--line); color: var(--ink);">
             <td colspan="4" class="p-2.5 text-left font-black uppercase tracking-wider" style="color: var(--ink);">TOTAL</td>
@@ -8498,7 +9276,7 @@
             <td class="p-2.5 text-center font-mono num" style="color: var(--ink);">${formatCurrency(sumAoy)}</td>
             <td class="p-2.5 text-center font-mono num font-black" style="color: var(--good);">${formatCurrency(sumToday)}</td>
             <td class="p-2.5 text-center font-mono num font-black" style="color: var(--ink);">${formatCurrency(sumTotal)}</td>
-            <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(sumBalance)}</td>
+            <td class="p-2.5 text-center font-mono num font-bold" style="color: var(--bad);">${formatCurrency(finalMgrBal)}</td>
             <td class="p-2.5 text-center font-bold" style="color: var(--ink);">${avgAchieved}%</td>
             <td class="p-2.5"></td>
           </tr>
@@ -8687,7 +9465,12 @@
                   await loadCompanyCollectionData();
                 }
                 updateTopKpis();
-                if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+                if (typeof renderRolePanels === 'function') renderRolePanels();
+                if (currentTab === 'today-collection' && typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+                if (currentTab === 'total-collection' && typeof renderTotalCollectionTab === 'function') renderTotalCollectionTab();
+                if (currentTab === 'branch-collection' && typeof renderBranchWiseCollection === 'function') renderBranchWiseCollection();
+                if (currentTab === 'manager-collection' && typeof renderManagerWiseCollection === 'function') renderManagerWiseCollection();
+                if (currentTab === 'caller-targets' && typeof renderCallerTargetsTab === 'function') renderCallerTargetsTab();
               }).catch(e => console.warn('Background auth cloud sync notice:', e));
 
               return;
@@ -8930,8 +9713,17 @@
           await loadCompanyCollectionData();
         }
         updateTopKpis();
+        if (typeof renderRolePanels === 'function') renderRolePanels();
         if (currentTab === 'today-collection' && typeof renderTodayCollectionTab === 'function') {
           renderTodayCollectionTab();
+        } else if (currentTab === 'total-collection' && typeof renderTotalCollectionTab === 'function') {
+          renderTotalCollectionTab();
+        } else if (currentTab === 'branch-collection' && typeof renderBranchWiseCollection === 'function') {
+          renderBranchWiseCollection();
+        } else if (currentTab === 'manager-collection' && typeof renderManagerWiseCollection === 'function') {
+          renderManagerWiseCollection();
+        } else if (currentTab === 'caller-targets' && typeof renderCallerTargetsTab === 'function') {
+          renderCallerTargetsTab();
         }
       } catch (err) {
         console.warn('Post-login cloud fetch notice:', err);
@@ -8965,8 +9757,8 @@
       if (uRoleEl) uRoleEl.innerText = roleDisplay;
 
       // 4-Tier Strict Tab Visibility Gates based on ROLE_PERMISSIONS
-      const allowedTabs = ROLE_PERMISSIONS[role] || ['dashboard'];
-      const allTabs = ['dashboard', 'today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'];
+      const allowedTabs = ROLE_PERMISSIONS[role] || ['today-collection'];
+      const allTabs = ['today-collection', 'total-collection', 'branch-collection', 'manager-collection', 'caller-targets', 'day-graph', 'mis-report', 'paid-file', 'team-progress', 'admin-permissions'];
 
       allTabs.forEach(tabId => {
         const btn = document.getElementById(`tab-${tabId}`);
@@ -9032,7 +9824,10 @@
       }
 
       // Initial tab landing
-      switchTab((ROLE_PERMISSIONS[(currentRole || 'MANAGER').toUpperCase()] || ['dashboard'])[0]);
+      switchTab((ROLE_PERMISSIONS[(currentRole || 'MANAGER').toUpperCase()] || ['today-collection'])[0]);
+      if (typeof populateOfficerDropdowns === 'function') {
+        populateOfficerDropdowns();
+      }
       safeCreateIcons();
     }
 
@@ -9102,13 +9897,41 @@
     // PAID FILE RECORD MANAGEMENT (CRUD)
     // ==========================================
     function openPaidCaseModal(editId = null) {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot add or edit paid cases.', 'info');
+        return;
+      }
       document.getElementById('paid-edit-id').value = editId !== null ? String(editId) : '';
-      populateOfficerDropdowns();
+
+      const roleUpper = String(currentRole || 'MANAGER').toUpperCase();
+      const isAdm = (roleUpper === 'ADMIN' || roleUpper === 'MANAGEMENT' || roleUpper === 'BACKEND');
+      let targetModalMgr = '';
+      if (!isAdm) {
+        targetModalMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+      } else {
+        if (editId !== null) {
+          const item = paidFileRecords.find(r => r.id === editId);
+          if (item) {
+            targetModalMgr = item.manager || item.locked_manager || '';
+            if (!targetModalMgr || targetModalMgr.toLowerCase() === 'manager' || (typeof isManagerActive === 'function' && !isManagerActive(targetModalMgr))) {
+              const infMgr = typeof getCallerCanonicalManager === 'function' ? getCallerCanonicalManager(item.officer) : '';
+              if (infMgr) targetModalMgr = infMgr;
+            }
+          }
+        }
+        if (!targetModalMgr) {
+          const pFiltMgr = document.getElementById('paid-filter-manager');
+          if (pFiltMgr && pFiltMgr.value && pFiltMgr.value !== 'all' && pFiltMgr.value !== 'All Managers') {
+            targetModalMgr = pFiltMgr.value.trim();
+          }
+        }
+      }
+
+      populateOfficerDropdowns(targetModalMgr);
 
       if (editId !== null) {
         const item = paidFileRecords.find(r => r.id === editId);
         if (!item) return;
-        const isAdm = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
         const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
         if (!isAdm && !isRecordOwnedByManager(item, myMgrName)) {
           showToast('Privacy Protection: You cannot view or edit another manager\'s payment case.', 'error');
@@ -9203,20 +10026,36 @@
       const sel = document.getElementById('paid-select-officer');
       if (sel) {
         if (cleanName) {
-          let found = false;
+          let foundIdx = -1;
+          const cleanNoDot = cleanName.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+          const baseName = cleanName.replace(/\([^)]*\)/g, '').trim();
+          const baseNoDot = baseName.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+
           for (let i = 0; i < sel.options.length; i++) {
-            if (sel.options[i].value.toUpperCase() === cleanName) {
-              sel.selectedIndex = i;
-              found = true;
+            const optVal = sel.options[i].value.toUpperCase();
+            if (!optVal) continue;
+            const optNoDot = optVal.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+            const optBase = optVal.replace(/\([^)]*\)/g, '').trim();
+            const optBaseNoDot = optBase.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+
+            if (optVal === cleanName || optNoDot === cleanNoDot ||
+                (baseName && (optVal === baseName || optNoDot === baseNoDot)) ||
+                (optBase && (optBase === cleanName || optBaseNoDot === cleanNoDot || optBase === baseName || optBaseNoDot === baseNoDot))) {
+              foundIdx = i;
+              break;
+            }
+            if (typeof isOfficerMatch === 'function' && (isOfficerMatch({ name: optVal }, cleanName) || isOfficerMatch({ name: cleanName }, optVal))) {
+              foundIdx = i;
               break;
             }
           }
-          if (!found) {
-            const opt = document.createElement('option');
-            opt.value = cleanName;
-            opt.innerText = `${cleanName}${mgrName ? ' (' + mgrName + ')' : ''} [Historical Case Caller]`;
-            sel.appendChild(opt);
-            sel.value = cleanName;
+
+          if (foundIdx >= 0) {
+            sel.selectedIndex = foundIdx;
+          } else {
+            // STRICT MIS INTEGRITY: Never inject [Historical Case Caller] dummy options.
+            // Only callers present in Daily MIS are displayed and selectable.
+            sel.value = '';
           }
         } else {
           sel.value = '';
@@ -9268,6 +10107,10 @@
     }
 
     async function savePaidCase() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot modify paid cases.', 'info');
+        return;
+      }
       const editIdStr = document.getElementById('paid-edit-id').value;
       const custId = document.getElementById('paid-input-cust-id').value.trim();
       const custName = document.getElementById('paid-input-cust-name').value.trim().toUpperCase();
@@ -9329,19 +10172,31 @@
         }
       }
 
-      const managerName = currentUser ? (currentUser.name || currentUser.username) : (currentManager || 'Manager');
-
-      // STRICT MIS VALIDATION: Selected caller(s) must be available in Daily MIS
+      // Resolve manager name based on role and modal manager selection
       const isGlobalViewer = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      let managerName = '';
+      if (!isGlobalViewer) {
+        managerName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'Manager';
+      } else {
+        const modalMgrSelect = document.getElementById('paid-modal-manager');
+        if (modalMgrSelect && modalMgrSelect.value) {
+          managerName = modalMgrSelect.value.trim();
+        } else {
+          managerName = getCallerCanonicalManager(isSplit && splits ? splits[0].officer : officer) || 'Manager';
+        }
+      }
       const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager || '').toLowerCase().trim();
 
       const validateCallerInMis = (cName) => {
         if (!cName) return false;
         const cleanC = cName.trim().toUpperCase();
-        return leaderboardOfficers.some(o => {
-          if (!o || isOfficerTombstoned(o) || isCallerExited(o)) return false;
-          if (!isGlobalViewer && myMgrName && !isOfficerUnderManager(o, myMgrName)) return false;
-          return isOfficerMatch(o, cleanC) || String(o.name || '').trim().toUpperCase() === cleanC;
+        const checkMgr = !isGlobalViewer ? myMgrName : (managerName && managerName !== 'Manager' ? managerName : '');
+        return (leaderboardOfficers || []).some(o => {
+          if (!o || isOfficerTombstoned(o) || isCallerExited(o) || isManagerName(o.name)) return false;
+          if (checkMgr && !isCallerBelongingToManager(o, checkMgr)) return false;
+          return (typeof isOfficerMatch === 'function' && isOfficerMatch(o, cleanC)) ||
+                 String(o.name || '').trim().toUpperCase() === cleanC ||
+                 cleanC.replace(/\([^)]*\)/g, '').replace(/\./g, '').trim() === String(o.name || '').replace(/\./g, '').trim();
         });
       };
 
@@ -9427,6 +10282,10 @@
     }
 
     async function deletePaidCase() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot delete paid cases.', 'info');
+        return;
+      }
       const editIdStr = document.getElementById('paid-edit-id').value;
       if (!editIdStr) return;
       const editId = parseInt(editIdStr, 10);
@@ -9506,7 +10365,33 @@
       const myManagerName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
       const myOwnedRecords = isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myManagerName));
 
-      const filtered = myOwnedRecords.filter(r => {
+      // STRICT MIS CALLER FILTER: Only cases whose callers are active in Daily MIS appear in Paid Data
+      const isCallerInDailyMis = (offName, recMgr = '') => {
+        if (!offName) return false;
+        const cleanOff = String(offName).trim().toUpperCase();
+        const baseOff = cleanOff.replace(/\([^)]*\)/g, '').replace(/\./g, '').replace(/\s+/g, ' ').trim();
+        const targetMgrFilter = !isAdm ? myManagerName : (fMgr && fMgr !== 'all' && fMgr !== 'All Managers' ? fMgr : '');
+
+        return (leaderboardOfficers || []).some(o => {
+          if (!o || isOfficerTombstoned(o) || isCallerExited(o) || isManagerName(o.name)) return false;
+          if (targetMgrFilter && !isCallerBelongingToManager(o, targetMgrFilter)) return false;
+          const oName = String(o.name || '').trim().toUpperCase();
+          const baseOName = oName.replace(/\([^)]*\)/g, '').replace(/\./g, '').replace(/\s+/g, ' ').trim();
+          if (oName === cleanOff || (baseOff && baseOName === baseOff)) return true;
+          if (typeof isOfficerMatch === 'function' && (isOfficerMatch(o, cleanOff) || isOfficerMatch({ name: cleanOff }, oName))) return true;
+          return false;
+        });
+      };
+
+      const myMisRecords = myOwnedRecords.filter(r => {
+        if (!isAdm && !isRecordOwnedByManager(r, myManagerName)) return false;
+        if (r.splits && Array.isArray(r.splits) && r.splits.length > 0) {
+          return r.splits.some(s => s && isCallerInDailyMis(s.officer, r.manager));
+        }
+        return isCallerInDailyMis(r.officer, r.manager);
+      });
+
+      const filtered = myMisRecords.filter(r => {
         // Strict Manager Security Isolation: non-admin managers NEVER see another manager's data
         if (!isAdm && !isRecordOwnedByManager(r, myManagerName)) {
           return false;
@@ -9570,8 +10455,9 @@
         return true;
       });
 
-      window.currentFilteredPaidRecords = filtered; if (countEl) countEl.innerText = myOwnedRecords.length;
-      if (badgeTotal) badgeTotal.innerText = `${filtered.length} of ${myOwnedRecords.length} Records`;
+      window.currentFilteredPaidRecords = filtered;
+      if (countEl) countEl.innerText = myMisRecords.length;
+      if (badgeTotal) badgeTotal.innerText = `${filtered.length} of ${myMisRecords.length} Records`;
 
       tbody.innerHTML = '';
       let sumAmount = 0;
@@ -9593,6 +10479,7 @@
         return;
       }
 
+      const isMgmtReadOnly = (currentRole === 'MANAGEMENT');
       tbody.innerHTML = filtered.map((r, idx) => {
         sumAmount += Number(r.amount) || 0;
         return `
@@ -9608,12 +10495,12 @@
             <td class="p-2.5 border-r border-slate-200 font-bold text-slate-700">${escHtml(r.bank)}</td>
             <td class="p-2.5 border-r border-slate-200 font-bold text-amber-700"><span class="inline-flex items-center gap-1.5" title="Caller locked to this case"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i><span>${escHtml(r.officer || '-')}</span></span></td>
             <td class="p-2.5 border-r border-slate-200 text-slate-600 font-medium">${escHtml(r.manager || '-')}</td>
-            <td class="p-2.5 text-center">
+            ${isMgmtReadOnly ? '' : `<td class="p-2.5 text-center paid-action-col">
               <button onclick="openPaidCaseModal(${escHtml(JSON.stringify(r.id))})" class="px-2 py-1 bg-slate-100 hover:bg-blue-100 text-blue-700 rounded border border-slate-300 font-bold transition flex items-center justify-center gap-1 mx-auto text-[11px]">
                 <i data-lucide="edit-2" class="w-3 h-3"></i>
                 <span>Edit</span>
               </button>
-            </td>
+            </td>`}
           </tr>
         `;
       }).join('');
@@ -9623,7 +10510,7 @@
           <tr class="bg-slate-100 text-slate-800">
             <td colspan="5" class="p-3 text-right font-black uppercase tracking-wider">Filtered Total Collection:</td>
             <td class="p-3 font-mono-num font-black text-right text-emerald-800 text-sm">₹${sumAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-            <td colspan="6" class="p-3 text-slate-500 font-medium">Across ${filtered.length} paid cases</td>
+            <td colspan="${isMgmtReadOnly ? 5 : 6}" class="p-3 text-slate-500 font-medium">Across ${filtered.length} paid cases</td>
           </tr>
         `;
       }
@@ -9774,18 +10661,14 @@
       const selectedMgr = (isAdm && filtMgr) ? filtMgr.value.trim() : (currentUser ? (currentUser.name || currentUser.username) : currentManager || '');
       const curSelectedOff = filtOff.value;
 
-      const allOfficers = getAllCallersForSelection();
-      let filteredOfficers = allOfficers;
-
-      if (selectedMgr && selectedMgr !== 'all' && selectedMgr !== 'All Managers') {
-        filteredOfficers = allOfficers.filter(o => isOfficerUnderManager(o, selectedMgr));
-      }
+      const effectiveMgr = (selectedMgr && selectedMgr !== 'all' && selectedMgr !== 'All Managers') ? selectedMgr : '';
+      const filteredOfficers = getActiveMisCallers(effectiveMgr);
 
       let html = '';
       if (selectedMgr && selectedMgr !== 'all' && selectedMgr !== 'All Managers') {
         html = `<option value="">All Recovery Officers (${filteredOfficers.length} Callers under ${selectedMgr})</option>`;
       } else {
-        html = `<option value="">All Recovery Officers (${allOfficers.length} Callers)</option>`;
+        html = `<option value="">All Recovery Officers (${filteredOfficers.length} Callers in MIS)</option>`;
       }
 
       filteredOfficers.forEach(o => {
@@ -10907,6 +11790,10 @@ var misExpandedManagers = new Set();
     // OFFICER ADD / EDIT / DELETE
     // ==========================================
     function openAddOfficerModal() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot add officers.', 'info');
+        return;
+      }
       document.getElementById('officer-modal-title').innerText = 'Add New Recovery Caller';
       document.getElementById('officer-edit-idx').value = '-1';
       delete document.getElementById('officer-edit-idx').dataset.key;
@@ -11046,6 +11933,10 @@ var misExpandedManagers = new Set();
     }
 
     function openEditOfficerModal(idx) {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot edit callers.', 'info');
+        return;
+      }
       const off = leaderboardOfficers[idx];
       if (!off) return;
       document.getElementById('officer-modal-title').innerText = `Edit Caller: ${off.name}`;
@@ -11125,6 +12016,10 @@ var misExpandedManagers = new Set();
     }
 
     async function saveOfficerModal() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot save edits.', 'info');
+        return;
+      }
       const idx = resolveEditOfficerIdx();
       if (idx === -2) {
         showToast('This caller changed while the form was open. Close the form and open it again.', 'error');
@@ -11942,6 +12837,10 @@ var misExpandedManagers = new Set();
     }
 
     function openQuickEditModal() {
+      if (currentRole === 'MANAGEMENT') {
+        showToast('View Only: Senior Management cannot edit targets or HR.', 'info');
+        return;
+      }
       const tbody = document.getElementById('quick-edit-tbody');
       if (!tbody) return;
       tbody.innerHTML = '';
@@ -12870,7 +13769,18 @@ var misExpandedManagers = new Set();
         }
       }
 
-      // 1. Accumulate active callers' targets and caller counts
+      // 1. Calculate Branch Targets strictly from canonical active managers (zero double-counting)
+      getCanonicalActiveManagers().forEach(mgr => {
+        let b = mgr.branch || getBranchForManager(mgr.name);
+        if (!b || nonBranchNames.has(b)) b = 'JOGESHWARI';
+        b = b.toUpperCase().trim();
+        if (!branchData[b]) {
+          branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
+        }
+        branchData[b].target += getAssignedManagerTarget(mgr.name);
+      });
+
+      // Accumulate active caller counts per branch
       const activeOfficers = (typeof getAuthoritativeOfficersList === 'function' ? getAuthoritativeOfficersList() : getAllCompanyOfficersReadOnly()).filter(o => !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf);
       activeOfficers.forEach(off => {
         if (isUserDeleted(off.manager)) return;
@@ -12880,8 +13790,6 @@ var misExpandedManagers = new Set();
         if (!branchData[b]) {
           branchData[b] = { branch: b, target: 0, aoy: 0, today: 0, total: 0, balance: 0, count: 0 };
         }
-        const t = (Number(off.target) || 0);
-        branchData[b].target += t;
         branchData[b].count += 1;
       });
 
@@ -12935,7 +13843,7 @@ var misExpandedManagers = new Set();
         const aoy = bItem.aoy;
         const today = bItem.today;
         const total = aoy + today;
-        const balance = target - total;
+        const balance = Math.max(0, target - total);
         const callers = bItem.count || 0;
         let achievedPct = 0;
         if (target > 0) {
@@ -12977,6 +13885,7 @@ var misExpandedManagers = new Set();
       }).join('');
 
       const overallAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+      const finalBranchBalance = Math.max(0, sumTarget - sumTotal);
 
       if (tfoot) {
         tfoot.innerHTML = `
@@ -12986,7 +13895,7 @@ var misExpandedManagers = new Set();
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${finalBranchBalance.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${overallAchieved}%</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumCallers} Callers</td>
           </tr>
@@ -13116,55 +14025,33 @@ var misExpandedManagers = new Set();
       }
 
       const managersMap = {};
-      const seenMgrNames = new Set();
       const mgrOnly = isManagerOnlyView();
       const myMgrName = getCurrentManagerIdentifier();
       const myMgrKey = mgrOnly ? resolveManagerUserKey(myMgrName) : '';
 
-      // 1. Populate ALL active users whose role is strictly MANAGER (company-wide collection summary)
-      for (const k in USER_CREDENTIALS) {
-        if (isUserDeleted(k)) continue;
-        const u = USER_CREDENTIALS[k];
-        if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
-        const role = (u.role || 'MANAGER').toUpperCase();
-        if (role !== 'MANAGER') continue;
-
-        const mName = u.name || k;
-        const mLower = mName.toLowerCase().trim();
-        if (mLower.includes('backend') || mLower.includes('management') || mLower.includes('admin')) continue;
-        const mUpper = mName.toUpperCase().trim();
-        if (seenMgrNames.has(mUpper)) continue;
-        seenMgrNames.add(mUpper);
-        const branch = (u.branch || u.agency || 'JOGESHWARI').toUpperCase();
-        managersMap[k] = {
-          key: k,
-          name: mName,
-          branch: branch,
-          target: 0,
+      // 1. Populate ALL canonical active managers (single source of truth across all tabs & KPIs)
+      getCanonicalActiveManagers().forEach(m => {
+        managersMap[m.key] = {
+          key: m.key,
+          name: m.name,
+          branch: m.branch,
+          target: getAssignedManagerTarget(m.name),
           aoy: 0,
           today: 0,
           total: 0,
           balance: 0,
           callers: []
         };
-      }
+      });
 
-      // Collect non-manager identity names to strictly exclude from Manager Wise Collection
-      const nonManagerNames = new Set();
-      for (const k in USER_CREDENTIALS) {
-        const u = USER_CREDENTIALS[k];
-        const r = (u.role || 'MANAGER').toUpperCase();
-        if (r !== 'MANAGER') {
-          if (u.name) nonManagerNames.add(u.name.toLowerCase().trim());
-          if (u.username) nonManagerNames.add(u.username.toLowerCase().trim());
-          nonManagerNames.add(k.toLowerCase().trim());
-        }
-      }
-
-      // Also ensure any manager named in company-wide callers exists (never skip any caller)
+      // 2. Accumulate caller collections and caller counts into their canonical manager
       getAllCompanyOfficersReadOnly().forEach(off => {
         let offMgr = (off.manager || '').trim();
-        if (isUserDeleted(offMgr)) return; // Strictly skip deleted managers!
+        if (isUserDeleted(offMgr)) return;
+        if (!offMgr || NON_MANAGER_TARGET_NAMES.has(offMgr.toUpperCase())) {
+          const canMgr = typeof getCallerCanonicalManager === 'function' ? getCallerCanonicalManager(off.name, '') : '';
+          if (canMgr) offMgr = canMgr;
+        }
 
         let foundKey = null;
         for (const mk in managersMap) {
@@ -13177,32 +14064,22 @@ var misExpandedManagers = new Set();
           const rk = resolveManagerUserKey(offMgr);
           if (rk && managersMap[rk]) foundKey = rk;
         }
-        if (!foundKey) {
-          const b = getBranchForManager(offMgr) || 'JOGESHWARI';
-          const defaultKey = `mgr_${b.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
-          if (!managersMap[defaultKey]) {
-            managersMap[defaultKey] = {
-              key: defaultKey,
-              name: (offMgr && !nonManagerNames.has(offMgr.toLowerCase())) ? offMgr : `${b} GENERAL`,
-              branch: b,
-              target: 0,
-              aoy: 0,
-              today: 0,
-              total: 0,
-              balance: 0,
-              callers: []
-            };
+        if (!foundKey && offMgr) {
+          const canonMgr = canonicalizeManagerTargetName(offMgr);
+          for (const mk in managersMap) {
+            if (managersMap[mk].name === canonMgr) {
+              foundKey = mk;
+              break;
+            }
           }
-          foundKey = defaultKey;
         }
+        if (!foundKey) return;
 
         const isExited = isCallerExited(off);
-        const t = isExited ? 0 : (Number(off.target) || 0);
         const a = Number(off.aoy) || 0;
         const td = Number(off.today) || 0;
         const tot = Number(off.total) || (a + td);
 
-        managersMap[foundKey].target += t;
         managersMap[foundKey].aoy += a;
         managersMap[foundKey].today += td;
         managersMap[foundKey].total += tot;
@@ -13215,8 +14092,7 @@ var misExpandedManagers = new Set();
       let sumTarget = 0, sumAoy = 0, sumToday = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
 
       tbody.innerHTML = mgrList.map((mItem, idx) => {
-        const assignedTarget = (typeof getAssignedManagerTarget === 'function') ? getAssignedManagerTarget(mItem.name) : 0;
-        const target = assignedTarget > 0 ? assignedTarget : mItem.target;
+        const target = getAssignedManagerTarget(mItem.name);
         const aoy = mItem.aoy;
         const today = mItem.today;
         const total = aoy + today;
@@ -13255,7 +14131,7 @@ var misExpandedManagers = new Set();
               <span>Restricted</span>
             </button>`;
 
-        const targetEditCell = isOwnMgr
+        const targetEditCell = (isOwnMgr && currentRole !== 'MANAGEMENT')
           ? `<td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-bold text-slate-900 text-xs sm:text-[13px] hover:text-indigo-700 cursor-pointer" onclick="event.stopPropagation(); openManagerTargetModal('${escHtml(mItem.name).replace(/'/g, "\\'")}')" title="Click to update manager target">
               <div class="inline-flex items-center gap-1 justify-center">
                 <span>${target.toLocaleString('en-IN')}</span>
@@ -13293,6 +14169,7 @@ var misExpandedManagers = new Set();
       }).join('');
 
       const overallAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
+      const finalMgrBalance = Math.max(0, sumTarget - sumTotal);
 
       if (tfoot) {
         tfoot.innerHTML = `
@@ -13302,7 +14179,7 @@ var misExpandedManagers = new Set();
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${finalMgrBalance.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${overallAchieved}%</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumCallers} Callers</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] mis-action-col"></td>
@@ -13648,11 +14525,16 @@ var misExpandedManagers = new Set();
         const mgrEl = document.getElementById('manager-progress');
 
         const branches = {};
+        const canonicalMgrs = getCanonicalActiveManagers();
+        canonicalMgrs.forEach(m => {
+          const b = m.branch || getBranchForManager(m.name);
+          if (!branches[b]) branches[b] = { target: 0, total: 0 };
+          branches[b].target += getAssignedManagerTarget(m.name);
+        });
         leaderboardOfficers.forEach(off => {
           if (isOfficerTombstoned(off) || isUserDeleted(off.manager)) return;
           const b = getBranchForManager(off.manager);
           if (!branches[b]) branches[b] = { target: 0, total: 0 };
-          branches[b].target += Number(off.target) || 0;
           branches[b].total += Number(off.total) || 0;
         });
         const bList = Object.entries(branches).map(([name, v]) => ({ name, ...v, pct: v.target > 0 ? Math.round(v.total / v.target * 100) : 0 }))
@@ -13663,19 +14545,14 @@ var misExpandedManagers = new Set();
             : `<div class="empty"><b>No branch numbers yet</b>Branch totals appear when managers add callers.</div>`;
         }
 
-        const mList = [];
-        for (const k in USER_CREDENTIALS) {
-          if (isUserDeleted(k)) continue;
-          const u = USER_CREDENTIALS[k];
-          if (isUserDeleted(u.name) || isUserDeleted(u.username)) continue;
-          const role = (u.role || 'MANAGER').toUpperCase();
-          if (role !== 'MANAGER') continue;
-          const callers = leaderboardOfficers.filter(o => isOfficerUnderManager(o, u.name || k));
-          const tar = callers.reduce((s, o) => s + (Number(o.target) || 0), 0);
-          const tot = callers.reduce((s, o) => s + (Number(o.total) || 0), 0);
+        const mList = canonicalMgrs.map(m => {
+          const callers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerName(o.name) && !o.isManagerSelf && isOfficerUnderManager(o, m.name));
+          const allMgrOfficers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, m.name));
+          const tar = getAssignedManagerTarget(m.name);
+          const tot = allMgrOfficers.reduce((s, o) => s + (Number(o.total) || 0), 0);
           const pct = tar > 0 ? Math.round(tot / tar * 100) : 0;
-          mList.push({ key: k, name: u.name || k, branch: u.branch || u.agency || 'JOGESHWARI', count: callers.length, target: tar, total: tot, pct });
-        }
+          return { key: m.key, name: m.name, branch: m.branch, count: callers.length, target: tar, total: tot, pct };
+        });
         mList.sort((a, b) => b.pct - a.pct || b.total - a.total);
 
         if (mgrEl) {
