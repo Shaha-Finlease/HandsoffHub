@@ -5159,6 +5159,7 @@ const CANONICAL_CALLER_DIRECTORY = {
     // INITIALIZATION & DOM READY
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof purgeStaleDuplicatePaidRecords === 'function') purgeStaleDuplicatePaidRecords();
       autoMigrateAnuradhaToSubhashree();
       if (typeof initManagerAssignedTargets === 'function') initManagerAssignedTargets();
       if (typeof initSdlmOctoberCache === 'function') initSdlmOctoberCache();
@@ -6554,6 +6555,39 @@ const CANONICAL_CALLER_DIRECTORY = {
     // Note: Authoritative autoMigrateAnuradhaToSubhashree is defined at line ~3629.
 
     // --- Cloud Sync for Paid File Records (Per-Manager Isolated Storage) ---
+    
+    // ==============================================================
+    // PURGE STALE DUPLICATE PAID RECORDS (PERMANENT DEDUPLICATION SAFEGUARD)
+    // ==============================================================
+    function purgeStaleDuplicatePaidRecords() {
+      const staleDupIds = new Set(['1794030440981', '1793796569722', '1793796323483', '1793795974364']);
+      if (typeof paidFileRecords !== 'undefined' && Array.isArray(paidFileRecords)) {
+        paidFileRecords = paidFileRecords.filter(r => !r || !staleDupIds.has(String(r.id)));
+        paidFileRecords.forEach(r => {
+          if (r && String(r.id) === '1794980604542') r.amount = 10000;
+        });
+      }
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.includes('paid_file_records') || k.includes('shaha_company_view') || k.includes('shaha_bank_tx_cache'))) {
+            try {
+              const val = JSON.parse(localStorage.getItem(k));
+              if (Array.isArray(val)) {
+                const cleaned = val.filter(r => !r || !staleDupIds.has(String(r.id)));
+                cleaned.forEach(r => {
+                  if (r && String(r.id) === '1794980604542') r.amount = 10000;
+                });
+                localStorage.setItem(k, JSON.stringify(cleaned));
+              } else if (val && typeof val === 'object' && k.includes('manager_totals_cache')) {
+                localStorage.removeItem(k);
+              }
+            } catch(e) {}
+          }
+        }
+      } catch(e) {}
+    }
+
     async function loadPaidFileFromCloud() {
       const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
       let loaded = false;
@@ -6584,7 +6618,15 @@ const CANONICAL_CALLER_DIRECTORY = {
             if (!error && data && data.length > 0 && data[0].narration) {
               const cloudRecords = JSON.parse(data[0].narration);
               if (Array.isArray(cloudRecords)) {
-                const merged = [...paidFileRecords]; const idxById = new Map(); merged.forEach((m, i) => { const k = String(m.id); if (!idxById.has(k)) idxById.set(k, i); }); cloudRecords.forEach(cRec => { if (!cRec || deletedPaidRecordIds.has(String(cRec.id))) return; const idx = idxById.has(String(cRec.id)) ? idxById.get(String(cRec.id)) : -1; if (idx >= 0) { const keepOfficer = (merged[idx].officer && merged[idx].officer_locked) ? merged[idx].officer : (cRec.officer || merged[idx].officer); merged[idx] = { ...cRec, ...merged[idx], officer: keepOfficer, officer_locked: true }; } else { idxById.set(String(cRec.id), merged.length); merged.push({ ...cRec, officer_locked: true }); } }); paidFileRecords = merged.filter(r => !deletedPaidRecordIds.has(String(r.id)));
+                const localMap = new Map();
+                (paidFileRecords || []).forEach(m => { if (m && m.id) localMap.set(String(m.id), m); });
+                paidFileRecords = cloudRecords.map(cRec => {
+                  if (!cRec || deletedPaidRecordIds.has(String(cRec.id))) return null;
+                  const loc = localMap.get(String(cRec.id));
+                  const keepOfficer = (loc && loc.officer && loc.officer_locked) ? loc.officer : (cRec.officer || (loc ? loc.officer : ''));
+                  return { ...cRec, officer: keepOfficer, officer_locked: !!(loc && loc.officer_locked) || !!cRec.officer_locked };
+                }).filter(Boolean);
+                if (typeof purgeStaleDuplicatePaidRecords === 'function') purgeStaleDuplicatePaidRecords();
                 if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
                 localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
                 loaded = true;
@@ -12747,6 +12789,7 @@ const CANONICAL_CALLER_DIRECTORY = {
     }
 
     function _renderTotalCollectionTab() {
+      if (typeof purgeStaleDuplicatePaidRecords === 'function') purgeStaleDuplicatePaidRecords();
       const top3Grid = document.getElementById('total-top3-grid');
       const pfTbodyCheck = document.getElementById('total-portfolio-tbody');
       if (!pfTbodyCheck && !top3Grid) return;
