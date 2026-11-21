@@ -1442,7 +1442,21 @@
     html [class^="bg-indigo-7"], html [class*=" bg-indigo-7"], html [class^="bg-indigo-8"], html [class*=" bg-indigo-8"] { background-color: var(--accent) !important; color: var(--accent-ink) !important; }
     html [class*="border-purple-"], html [class*="border-violet-"], html [class*="border-indigo-"] { border-color: var(--line-strong) !important; }
     html [class*="ring-indigo-"], html [class*="ring-purple-"] { --tw-ring-color: var(--line-strong) !important; }
-  </style>
+  
+    /* Permanently hide all October Upload buttons across all user roles */
+    .btn-upload-oct-admin,
+    #btn-side-upload-oct,
+    #btn-total-upload-oct,
+    #btn-paid-upload-oct,
+    #btn-sdlm-comp-upload-oct,
+    #sdlm-comp-upload-hint,
+    #sdlm-manage-modal {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+    
+</style>
   <!-- Tailwind v3.4.17, pre-built (replaces the slow live CDN compiler). Rebuild if you add new Tailwind classes. -->
   <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.\!container{width:100%!important}.container{width:100%}@media (min-width:640px){.\!container{max-width:640px!important}.container{max-width:640px}}@media (min-width:768px){.\!container{max-width:768px!important}.container{max-width:768px}}@media (min-width:1024px){.\!container{max-width:1024px!important}.container{max-width:1024px}}@media (min-width:1280px){.\!container{max-width:1280px!important}.container{max-width:1280px}}@media (min-width:1536px){.\!container{max-width:1536px!important}.container{max-width:1536px}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.visible{visibility:visible}.collapse{visibility:collapse}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.bottom-5{bottom:1.25rem}.left-0{left:0}.left-3{left:.75rem}.right-0{right:0}.right-5{right:1.25rem}.top-0{top:0}.top-2{top:.5rem}.z-10{z-index:10}.z-50{z-index:50}.z-\[1000\]{z-index:1000}.z-\[9999\]{z-index:9999}.z-\[999\]{z-index:999}.mx-auto{margin-left:auto;margin-right:auto}.my-auto{margin-top:auto;margin-bottom:auto}.mb-0\.5{margin-bottom:.125rem}.mb-1{margin-bottom:.25rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.ml-auto{margin-left:auto}.mr-1{margin-right:.25rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.\!grid{display:grid!important}.grid{display:grid}.hidden{display:none}.h-1{height:.25rem}.h-1\.5{height:.375rem}.h-10{height:2.5rem}.h-12{height:3rem}.h-2{height:.5rem}.h-2\.5{height:.625rem}.h-3{height:.75rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-full{height:100%}.max-h-36{max-height:9rem}.max-h-\[90vh\]{max-height:90vh}.max-h-\[92vh\]{max-height:92vh}.min-h-screen{min-height:100vh}.w-1\.5{width:.375rem}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-16{width:4rem}.w-2{width:.5rem}.w-2\.5{width:.625rem}.w-20{width:5rem}.w-24{width:6rem}.w-28{width:7rem}.w-3{width:.75rem}.w-3\.5{width:.875rem}.w-32{width:8rem}.w-36{width:9rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-\[18px\]{width:18px}.w-full{width:100%}.min-w-0{min-width:0}.min-w-\[140px\]{min-width:140px}.min-w-\[200px\]{min-width:200px}.min-w-\[240px\]{min-width:240px}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-\[140px\]{max-width:140px}.max-w-\[220px\]{max-width:220px}.max-w-full{max-width:100%}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.max-w-xl{max-width:36rem}.max-w-xs{max-width:20rem}.flex-1{flex:1 1 0%}.flex-shrink{flex-shrink:1}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.-translate-y-full{--tw-translate-y:-100%}.-translate-y-full,.translate-x-0{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.translate-x-0{--tw-translate-x:0px}.translate-x-full{--tw-translate-x:100%}.translate-x-full,.translate-y-0{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.translate-y-0{--tw-translate-y:0px}.translate-y-2{--tw-translate-y:0.5rem}.scale-150,.translate-y-2{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-150{--tw-scale-x:1.5;--tw-scale-y:1.5}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes ping{75%,to{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0,0,.2,1) infinite}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}@keyframes spin{to{transform:rotate(1turn)}}.animate-spin{animation:spin 1s linear infinite}.cursor-not-allowed{cursor:not-allowed}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}.resize{resize:both}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.place-items-center{place-items:center}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.space-y-0\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.125rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.125rem*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-2\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.625rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.625rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-3\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.875rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.875rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.divide-y>:not([hidden])~:not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px*(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px*var(--tw-divide-y-reverse))}.divide-slate-200>:not([hidden])~:not([hidden]){--tw-divide-opacity:1;border-color:rgb(226 232 240/var(--tw-divide-opacity,1))}.divide-slate-300>:not([hidden])~:not([hidden]){--tw-divide-opacity:1;border-color:rgb(203 213 225/var(--tw-divide-opacity,1))}.overflow-auto{overflow:auto}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.text-wrap{text-wrap:wrap}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-\[10px\]{border-radius:10px}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-t-2{border-top-width:2px}.border-\[\#174375\]{--tw-border-opacity:1;border-color:rgb(23 67 117/var(--tw-border-opacity,1))}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138/var(--tw-border-opacity,1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77/var(--tw-border-opacity,1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254/var(--tw-border-opacity,1))}.border-blue-200\/90{border-color:rgba(191,219,254,.9)}.border-blue-300{--tw-border-opacity:1;border-color:rgb(147 197 253/var(--tw-border-opacity,1))}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235/var(--tw-border-opacity,1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208/var(--tw-border-opacity,1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183/var(--tw-border-opacity,1))}.border-emerald-700{--tw-border-opacity:1;border-color:rgb(4 120 87/var(--tw-border-opacity,1))}.border-indigo-100{--tw-border-opacity:1;border-color:rgb(224 231 255/var(--tw-border-opacity,1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254/var(--tw-border-opacity,1))}.border-purple-200{--tw-border-opacity:1;border-color:rgb(233 213 255/var(--tw-border-opacity,1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211/var(--tw-border-opacity,1))}.border-rose-300{--tw-border-opacity:1;border-color:rgb(253 164 175/var(--tw-border-opacity,1))}.border-rose-500\/20{border-color:rgba(244,63,94,.2)}.border-rose-700{--tw-border-opacity:1;border-color:rgb(190 18 60/var(--tw-border-opacity,1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249/var(--tw-border-opacity,1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240/var(--tw-border-opacity,1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225/var(--tw-border-opacity,1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85/var(--tw-border-opacity,1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59/var(--tw-border-opacity,1))}.border-white\/20{border-color:hsla(0,0%,100%,.2)}.bg-\[\#174375\]{--tw-bg-opacity:1;background-color:rgb(23 67 117/var(--tw-bg-opacity,1))}.bg-\[\#25D366\]{--tw-bg-opacity:1;background-color:rgb(37 211 102/var(--tw-bg-opacity,1))}.bg-\[\#25D366\]\/20{background-color:rgba(37,211,102,.2)}.bg-\[\#d9e1f2\]{--tw-bg-opacity:1;background-color:rgb(217 225 242/var(--tw-bg-opacity,1))}.bg-\[\#f2f2f2\]{--tw-bg-opacity:1;background-color:rgb(242 242 242/var(--tw-bg-opacity,1))}.bg-\[\#f8fafc\]{--tw-bg-opacity:1;background-color:rgb(248 250 252/var(--tw-bg-opacity,1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199/var(--tw-bg-opacity,1))}.bg-amber-200{--tw-bg-opacity:1;background-color:rgb(253 230 138/var(--tw-bg-opacity,1))}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(251 191 36/var(--tw-bg-opacity,1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235/var(--tw-bg-opacity,1))}.bg-amber-50\/70{background-color:rgba(255,251,235,.7)}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11/var(--tw-bg-opacity,1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254/var(--tw-bg-opacity,1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-50\/60{background-color:rgba(239,246,255,.6)}.bg-blue-50\/70{background-color:rgba(239,246,255,.7)}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246/var(--tw-bg-opacity,1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-blue-700{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.bg-cyan-50{--tw-bg-opacity:1;background-color:rgb(236 254 255/var(--tw-bg-opacity,1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229/var(--tw-bg-opacity,1))}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153/var(--tw-bg-opacity,1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245/var(--tw-bg-opacity,1))}.bg-emerald-50\/70{background-color:rgba(236,253,245,.7)}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129/var(--tw-bg-opacity,1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105/var(--tw-bg-opacity,1))}.bg-emerald-700{--tw-bg-opacity:1;background-color:rgb(4 120 87/var(--tw-bg-opacity,1))}.bg-emerald-900{--tw-bg-opacity:1;background-color:rgb(6 78 59/var(--tw-bg-opacity,1))}.bg-emerald-900\/90{background-color:rgba(6,78,59,.9)}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255/var(--tw-bg-opacity,1))}.bg-indigo-50\/60{background-color:rgba(238,242,255,.6)}.bg-indigo-700{--tw-bg-opacity:1;background-color:rgb(67 56 202/var(--tw-bg-opacity,1))}.bg-purple-50\/70{background-color:rgba(250,245,255,.7)}.bg-rose-100{--tw-bg-opacity:1;background-color:rgb(255 228 230/var(--tw-bg-opacity,1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242/var(--tw-bg-opacity,1))}.bg-rose-50\/30{background-color:rgba(255,241,242,.3)}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(244 63 94/var(--tw-bg-opacity,1))}.bg-rose-500\/10{background-color:rgba(244,63,94,.1)}.bg-rose-600{--tw-bg-opacity:1;background-color:rgb(225 29 72/var(--tw-bg-opacity,1))}.bg-rose-900{--tw-bg-opacity:1;background-color:rgb(136 19 55/var(--tw-bg-opacity,1))}.bg-rose-900\/90{background-color:rgba(136,19,55,.9)}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249/var(--tw-bg-opacity,1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240/var(--tw-bg-opacity,1))}.bg-slate-300{--tw-bg-opacity:1;background-color:rgb(203 213 225/var(--tw-bg-opacity,1))}.bg-slate-400{--tw-bg-opacity:1;background-color:rgb(148 163 184/var(--tw-bg-opacity,1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252/var(--tw-bg-opacity,1))}.bg-slate-50\/50{background-color:rgba(248,250,252,.5)}.bg-slate-50\/60{background-color:rgba(248,250,252,.6)}.bg-slate-50\/80{background-color:rgba(248,250,252,.8)}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85/var(--tw-bg-opacity,1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59/var(--tw-bg-opacity,1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42/var(--tw-bg-opacity,1))}.bg-slate-900\/90{background-color:rgba(15,23,42,.9)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23/var(--tw-bg-opacity,1))}.bg-slate-950\/60{background-color:rgba(2,6,23,.6)}.bg-slate-950\/70{background-color:rgba(2,6,23,.7)}.bg-slate-950\/75{background-color:rgba(2,6,23,.75)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-stops))}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgba(37,99,235,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-blue-700{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgba(29,78,216,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-rose-600{--tw-gradient-from:#e11d48 var(--tw-gradient-from-position);--tw-gradient-to:rgba(225,29,72,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.via-indigo-700{--tw-gradient-to:rgba(67,56,202,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#4338ca var(--tw-gradient-via-position),var(--tw-gradient-to)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-purple-700{--tw-gradient-to:#7e22ce var(--tw-gradient-to-position)}.to-rose-700{--tw-gradient-to:#be123c var(--tw-gradient-to-position)}.p-1{padding:.25rem}.p-1\.5{padding:.375rem}.p-10{padding:2.5rem}.p-2{padding:.5rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-0\.5{padding-left:.125rem;padding-right:.125rem}.px-1{padding-left:.25rem;padding-right:.25rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0{padding-top:0;padding-bottom:0}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.pb-1{padding-bottom:.25rem}.pb-3{padding-bottom:.75rem}.pl-3{padding-left:.75rem}.pl-7{padding-left:1.75rem}.pr-1{padding-right:.25rem}.pr-3{padding-right:.75rem}.pt-1{padding-top:.25rem}.pt-2{padding-top:.5rem}.pt-3{padding-top:.75rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.align-\[-3px\]{vertical-align:-3px}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-wider{letter-spacing:.05em}.text-\[\#174375\]{--tw-text-opacity:1;color:rgb(23 67 117/var(--tw-text-opacity,1))}.text-\[\#25D366\]{--tw-text-opacity:1;color:rgb(37 211 102/var(--tw-text-opacity,1))}.text-\[\#ffeb3b\]{--tw-text-opacity:1;color:rgb(255 235 59/var(--tw-text-opacity,1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77/var(--tw-text-opacity,1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14/var(--tw-text-opacity,1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15/var(--tw-text-opacity,1))}.text-amber-950{--tw-text-opacity:1;color:rgb(69 26 3/var(--tw-text-opacity,1))}.text-blue-100{--tw-text-opacity:1;color:rgb(219 234 254/var(--tw-text-opacity,1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216/var(--tw-text-opacity,1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity,1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138/var(--tw-text-opacity,1))}.text-emerald-100{--tw-text-opacity:1;color:rgb(209 250 229/var(--tw-text-opacity,1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105/var(--tw-text-opacity,1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87/var(--tw-text-opacity,1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70/var(--tw-text-opacity,1))}.text-emerald-900{--tw-text-opacity:1;color:rgb(6 78 59/var(--tw-text-opacity,1))}.text-indigo-500{--tw-text-opacity:1;color:rgb(99 102 241/var(--tw-text-opacity,1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229/var(--tw-text-opacity,1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202/var(--tw-text-opacity,1))}.text-indigo-900{--tw-text-opacity:1;color:rgb(49 46 129/var(--tw-text-opacity,1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234/var(--tw-text-opacity,1))}.text-purple-900{--tw-text-opacity:1;color:rgb(88 28 135/var(--tw-text-opacity,1))}.text-rose-100{--tw-text-opacity:1;color:rgb(255 228 230/var(--tw-text-opacity,1))}.text-rose-400{--tw-text-opacity:1;color:rgb(251 113 133/var(--tw-text-opacity,1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72/var(--tw-text-opacity,1))}.text-rose-700{--tw-text-opacity:1;color:rgb(190 18 60/var(--tw-text-opacity,1))}.text-rose-800{--tw-text-opacity:1;color:rgb(159 18 57/var(--tw-text-opacity,1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105/var(--tw-text-opacity,1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85/var(--tw-text-opacity,1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59/var(--tw-text-opacity,1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-100{opacity:1}.opacity-60{opacity:.6}.opacity-70{opacity:.7}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.shadow-md,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-rose-600\/30{--tw-shadow-color:rgba(225,29,72,.3);--tw-shadow:var(--tw-shadow-colored)}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.backdrop-blur-md,.backdrop-blur-sm{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-300{transition-duration:.3s}.ease-out{transition-timing-function:cubic-bezier(0,0,.2,1)}.hover\:border-blue-300:hover{--tw-border-opacity:1;border-color:rgb(147 197 253/var(--tw-border-opacity,1))}.hover\:bg-\[\#0f2e52\]:hover{--tw-bg-opacity:1;background-color:rgb(15 46 82/var(--tw-bg-opacity,1))}.hover\:bg-\[\#1faa4b\]:hover{--tw-bg-opacity:1;background-color:rgb(31 170 75/var(--tw-bg-opacity,1))}.hover\:bg-blue-100:hover{--tw-bg-opacity:1;background-color:rgb(219 234 254/var(--tw-bg-opacity,1))}.hover\:bg-blue-50:hover{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.hover\:bg-blue-50\/40:hover{background-color:rgba(239,246,255,.4)}.hover\:bg-blue-50\/50:hover{background-color:rgba(239,246,255,.5)}.hover\:bg-blue-50\/70:hover{background-color:rgba(239,246,255,.7)}.hover\:bg-blue-800:hover{--tw-bg-opacity:1;background-color:rgb(30 64 175/var(--tw-bg-opacity,1))}.hover\:bg-cyan-50\/50:hover{background-color:rgba(236,254,255,.5)}.hover\:bg-emerald-100:hover{--tw-bg-opacity:1;background-color:rgb(209 250 229/var(--tw-bg-opacity,1))}.hover\:bg-emerald-50\/40:hover{background-color:rgba(236,253,245,.4)}.hover\:bg-emerald-600:hover{--tw-bg-opacity:1;background-color:rgb(5 150 105/var(--tw-bg-opacity,1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87/var(--tw-bg-opacity,1))}.hover\:bg-emerald-800:hover{--tw-bg-opacity:1;background-color:rgb(6 95 70/var(--tw-bg-opacity,1))}.hover\:bg-indigo-50\/40:hover{background-color:rgba(238,242,255,.4)}.hover\:bg-indigo-800:hover{--tw-bg-opacity:1;background-color:rgb(55 48 163/var(--tw-bg-opacity,1))}.hover\:bg-rose-100:hover{--tw-bg-opacity:1;background-color:rgb(255 228 230/var(--tw-bg-opacity,1))}.hover\:bg-rose-700:hover{--tw-bg-opacity:1;background-color:rgb(190 18 60/var(--tw-bg-opacity,1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249/var(--tw-bg-opacity,1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240/var(--tw-bg-opacity,1))}.hover\:bg-slate-300:hover{--tw-bg-opacity:1;background-color:rgb(203 213 225/var(--tw-bg-opacity,1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252/var(--tw-bg-opacity,1))}.hover\:bg-slate-700:hover{--tw-bg-opacity:1;background-color:rgb(51 65 85/var(--tw-bg-opacity,1))}.hover\:bg-white:hover{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.hover\:from-blue-700:hover{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgba(29,78,216,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:from-rose-500:hover{--tw-gradient-from:#f43f5e var(--tw-gradient-from-position);--tw-gradient-to:rgba(244,63,94,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:to-indigo-700:hover{--tw-gradient-to:#4338ca var(--tw-gradient-to-position)}.hover\:to-rose-600:hover{--tw-gradient-to:#e11d48 var(--tw-gradient-to-position)}.hover\:text-blue-800:hover{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity,1))}.hover\:text-blue-900:hover{--tw-text-opacity:1;color:rgb(30 58 138/var(--tw-text-opacity,1))}.hover\:text-indigo-700:hover{--tw-text-opacity:1;color:rgb(67 56 202/var(--tw-text-opacity,1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85/var(--tw-text-opacity,1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-1:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.focus\:ring-1:focus,.focus\:ring-2:focus{box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.focus\:ring-blue-600:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(37 99 235/var(--tw-ring-opacity,1))}.focus\:ring-emerald-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(16 185 129/var(--tw-ring-opacity,1))}.focus\:ring-indigo-600:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(79 70 229/var(--tw-ring-opacity,1))}.focus\:ring-purple-600:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(147 51 234/var(--tw-ring-opacity,1))}.focus\:ring-rose-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(244 63 94/var(--tw-ring-opacity,1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216/var(--tw-text-opacity,1))}.group:hover .group-hover\:opacity-100{opacity:1}@media (min-width:640px){.sm\:col-span-2{grid-column:span 2/span 2}.sm\:col-span-4{grid-column:span 4/span 4}.sm\:col-span-5{grid-column:span 5/span 5}.sm\:block{display:block}.sm\:inline-flex{display:inline-flex}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:p-8{padding:2rem}.sm\:text-\[13px\]{font-size:13px}.sm\:text-sm{font-size:.875rem;line-height:1.25rem}}@media (min-width:768px){.md\:col-span-3{grid-column:span 3/span 3}.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:1024px){.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.lg\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}.lg\:grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}}</style>
 </head>
@@ -1478,7 +1492,7 @@
       <button onclick="switchTab('branch-collection')" id="tab-branch-collection" class="nav-item tab-btn-inactive"><i data-lucide="building-2"></i><span>Branch wise</span></button>
       <button onclick="switchTab('manager-collection')" id="tab-manager-collection" class="nav-item tab-btn-inactive"><i data-lucide="users"></i><span>Manager wise</span></button>
       <button onclick="switchTab('sdlm-comparison')" id="tab-sdlm-comparison" class="nav-item tab-btn-inactive"><i data-lucide="scale"></i><span>SDLM Comparison</span></button>
-      <button onclick="openSdlmManageModal()" id="btn-side-upload-oct" class="nav-item tab-btn-inactive btn-upload-oct-admin admin-view" style="display: none !important;" title="Upload October Month Collection File / SDLM Data"><i data-lucide="upload-cloud"></i><span>Upload Oct File</span></button>
+      
       <button onclick="switchTab('caller-targets')" id="tab-caller-targets" class="nav-item tab-btn-inactive"><i data-lucide="target"></i><span>Manager &amp; Caller Targets</span></button>
       <button onclick="switchTab('day-graph')" id="tab-day-graph" class="nav-item tab-btn-inactive"><i data-lucide="line-chart"></i><span>Day wise graph</span></button>
       <button onclick="switchTab('mis-report')" id="tab-mis-report" class="nav-item tab-btn-inactive">
@@ -1734,9 +1748,7 @@
               <p class="text-xs mt-1" style="color: var(--ink-3);">Overall 1–31 totals, Top 3 achievers, portfolio-wise, and bank-wise performance breakdown.</p>
             </div>
             <div class="actions flex flex-wrap items-center gap-2">
-              <button id="btn-total-upload-oct" onclick="openSdlmManageModal()" class="btn btn-upload-oct-admin admin-view" style="display: none !important;" title="Upload October Month Collection File / SDLM Data">
-                <i data-lucide="upload-cloud"></i><span>Upload Oct File</span>
-              </button>
+              
               <button onclick="handleAppRefresh()" class="btn" title="Refresh Live Numbers">
                 <i data-lucide="refresh-cw"></i><span>Refresh</span>
               </button>
@@ -1815,7 +1827,7 @@
               <table>
                 <thead>
                   <tr>
-                    <th class="w-12">Sr. No</th>
+                    <th class="w-12 text-center font-bold">Rank</th>
                     <th class="l">Portfolio</th>
                     <th>Managers</th>
                     <th>Cases</th>
@@ -1952,7 +1964,7 @@
               <p>Customer payments received and verified. Export uses the official PAID DATA format.</p>
             </div>
             <div class="actions">
-              <button id="btn-paid-upload-oct" onclick="openSdlmManageModal()" class="btn btn-upload-oct-admin admin-view" style="display: none !important;" title="Upload October Month Collection File / SDLM Data"><i data-lucide="upload-cloud"></i><span>Upload Oct File</span></button>
+              
               <button onclick="savePaidFileToCloud(true)" class="btn btn-ghost"><i data-lucide="cloud-upload"></i>Save to cloud</button>
               <button onclick="exportPaidFileExcel()" class="btn"><i data-lucide="download"></i>Export .xlsx</button>
               <button onclick="openPaidCaseModal()" class="btn btn-primary"><i data-lucide="plus"></i>Add paid case</button>
@@ -1960,7 +1972,7 @@
           </div>
 
           <div class="card" style="padding: 16px; margin-bottom: 16px">
-            <div id="paid-filters-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 text-xs">
+            <div id="paid-filters-container" class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs items-end">
               <label class="field">
                 <span>Search</span>
                 <div class="control-icon">
@@ -1974,6 +1986,12 @@
                   <option value="">All Recovery Officers</option>
                 </select>
               </label>
+              <label id="filter-box-manager" class="admin-only-filter field">
+                <span>Manager</span>
+                <select id="paid-filter-manager" onchange="handlePaidManagerFilterChange()" class="control">
+                  <option value="">All Managers</option>
+                </select>
+              </label>
               <label id="filter-box-bank" class="field">
                 <span>Bank</span>
                 <select id="paid-filter-bank" onchange="renderPaidFileTable()" class="control">
@@ -1983,18 +2001,18 @@
                   <option value="RAZORPAY">Razorpay</option>
                 </select>
               </label>
-              <label id="filter-box-manager" class="admin-only-filter field">
-                <span>Manager</span>
-                <select id="paid-filter-manager" onchange="handlePaidManagerFilterChange()" class="control">
-                  <option value="">All Managers</option>
-                </select>
-              </label>
               <label id="filter-box-date" class="field">
                 <span>Date</span>
                 <input type="date" id="paid-filter-custom-date" onchange="renderPaidFileTable()" class="control mt-1 hidden" style="display:none; padding: 4px 8px; font-size: 11px;"><select id="paid-filter-date" onchange="handlePaidDateFilterChange(this.value)" class="control">
                   <option value="all">All Dates</option>
-                  <option value="today">Today's Payments</option>
-                  <option value="month">Current Month (MTD)</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="font-bold text-blue-700">Month</span>
+                <select id="paid-filter-month" onchange="handlePaidMonthFilterChange()" class="control font-bold text-blue-800 bg-blue-50/50 border-blue-200">
+                  <option value="CURRENT" selected>November 2026 (Current Active)</option>
+                  <option value="OCTOBER">October 2026 (Historical Audit)</option>
+                  <option value="ALL">All Months (Consolidated)</option>
                 </select>
               </label>
             </div>
@@ -2103,7 +2121,7 @@
               <table>
                 <thead>
                   <tr>
-                    <th class="w-12">Sr. No</th>
+                    <th class="w-12">Rank</th>
                     <th class="l">Manager</th>
                     <th>Branch</th>
                     <th>Target</th>
@@ -2141,9 +2159,7 @@
                 <i data-lucide="calendar"></i>Today:
                 <input type="text" id="sdlm-comp-today-date-input" value="19-Nov-2026" onchange="setGlobalAppDate(this.value, 'sdlm-comp')" oninput="setGlobalAppDate(this.value, 'sdlm-comp')" class="w-28 num font-bold text-center">
               </label>
-              <button id="btn-sdlm-comp-upload-oct" onclick="openSdlmManageModal()" class="btn btn-primary btn-upload-oct-admin admin-view" style="display: none !important;" title="Upload October Month Collection File / Manage SDLM Benchmarks">
-                <i data-lucide="upload-cloud"></i><span>Upload Oct File</span>
-              </button>
+              
               <button onclick="handleAppRefresh()" class="btn" title="Refresh Live Data">
                 <i data-lucide="refresh-cw"></i><span>Refresh</span>
               </button>
@@ -2166,7 +2182,7 @@
             <div class="card kpi text-center kpi-hero shadow-xs cursor-pointer transition hover:shadow-md" onclick="handleSdlmCardClick()" style="border-color: rgba(217, 119, 6, 0.45); background: linear-gradient(180deg, rgba(217, 119, 6, 0.04) 0%, transparent 100%);" title="SDLM Benchmark Collection">
               <div class="kpi-top"><span class="font-bold text-amber-900">SDLM Benchmark</span><span id="sdlm-comp-sdlm-cases-chip" class="chip" style="background: rgba(217, 119, 6, 0.15); color: #b45309; font-weight: 800;">30 Cases</span></div>
               <div id="sdlm-comp-sdlm-val" class="kpi-value num text-center font-black" style="color: #b45309;">₹5,33,501</div>
-              <div class="kpi-foot text-center justify-center"><span>Benchmark: <b id="sdlm-comp-sdlm-date-lbl" class="num font-semibold text-slate-700">19-Oct-2026</b> <span id="sdlm-comp-upload-hint">&bull; <span class="text-amber-800 font-bold underline">Click to Upload</span></span></span></div>
+              <div class="kpi-foot text-center justify-center"><span>Benchmark: <b id="sdlm-comp-sdlm-date-lbl" class="num font-semibold text-slate-700">19-Oct-2026</b> </span></div>
             </div>
 
             <!-- 3. VARIANCE / DIFFERENCE -->
@@ -4117,6 +4133,230 @@
 
     // --- Paid File Records Storage (100% Fresh Clean Slate - 0 Records) ---
     let paidFileRecords = [];
+    let octoberPaidFileRecords = [];
+    let isOctoberPaidLoading = false;
+
+    function syncSdlmFromOctoberPaidRecords() {
+      const recs = (typeof octoberPaidFileRecords !== 'undefined' && Array.isArray(octoberPaidFileRecords) && octoberPaidFileRecords.length > 0)
+        ? octoberPaidFileRecords
+        : null;
+      if (!recs) return;
+
+      const BRANCH_MAP = {
+        'SUBHASHREE': 'BANGALORE',
+        'SMITA JAGTAP': 'WORLI',
+        'POONAM I': 'AGENCY',
+        'SAROJ': 'SAROJ',
+        'AMBUJ TRIPATHI': 'JOGESHWARI',
+        'OMKAR SINGH': 'JOGESHWARI',
+        'SHRAVANTHI P': 'JOGESHWARI',
+        'SHWETA SINGH': 'JOGESHWARI',
+        'ADITI GAWADE': 'JOGESHWARI',
+        'CUSTOMER SERVICE': 'JOGESHWARI'
+      };
+
+      const daysMap = {};
+      for (let d = 1; d <= 31; d++) {
+        const dStr = `${String(d).padStart(2, '0')}-Oct-2026`;
+        daysMap[dStr] = {
+          date: dStr,
+          dayNum: d,
+          amount: 0,
+          total: 0,
+          cases: 0,
+          managers: {},
+          callers: {},
+          branches: {},
+          isZeroCollection: true
+        };
+      }
+
+      recs.forEach(r => {
+        if (!r || !r.pay_date) return;
+        const p = parseDateParts(r.pay_date);
+        if (!p || p.m !== 10 || p.d < 1 || p.d > 31) return;
+        const dStr = `${String(p.d).padStart(2, '0')}-Oct-2026`;
+        const dm = daysMap[dStr];
+        if (!dm) return;
+
+        const amt = Number(r.amount) || 0;
+        if (amt === 0) return;
+        const caseDelta = amt < 0 ? -1 : 1;
+
+        dm.amount += amt;
+        dm.total += amt;
+        dm.cases += caseDelta;
+        if (dm.amount > 0) dm.isZeroCollection = false;
+
+        let mgr = String(r.manager || '').trim().toUpperCase();
+        if (mgr === 'ANURADHA') mgr = 'SUBHASHREE';
+        let caller = String(r.officer || '').trim().toUpperCase();
+        if (['AMBIKA', 'GOPAL', 'VENU'].some(k => caller.includes(k))) {
+          mgr = 'SUBHASHREE';
+        }
+
+        if (mgr) {
+          if (!dm.managers[mgr]) dm.managers[mgr] = { amount: 0, total: 0, cases: 0 };
+          dm.managers[mgr].amount += amt;
+          dm.managers[mgr].total += amt;
+          dm.managers[mgr].cases += caseDelta;
+        }
+
+        if (caller) {
+          if (!dm.callers[caller]) dm.callers[caller] = { amount: 0, total: 0, cases: 0, manager: mgr };
+          dm.callers[caller].amount += amt;
+          dm.callers[caller].total += amt;
+          dm.callers[caller].cases += caseDelta;
+        }
+
+        const branch = BRANCH_MAP[mgr] || (typeof getBranchForManager === 'function' ? getBranchForManager(mgr || caller) : 'JOGESHWARI');
+        if (!dm.branches[branch]) dm.branches[branch] = { amount: 0, total: 0, cases: 0 };
+        dm.branches[branch].amount += amt;
+        dm.branches[branch].total += amt;
+        dm.branches[branch].cases += caseDelta;
+      });
+
+      const updatedSdlm = {
+        _version: (typeof SDLM_CACHE_VERSION !== 'undefined') ? SDLM_CACHE_VERSION : 'SDLM_V20261121_OCTOBER_PAYMENTS_V18',
+        _source: 'OCTOBER_PAID_DATA_AUTO',
+        _isUserUploaded: true,
+        _calculated_at: new Date().toISOString()
+      };
+
+      let mtdAmt = 0;
+      let mtdCases = 0;
+      const mtdManagers = {};
+      const mtdCallers = {};
+      const mtdBranches = {};
+
+      for (let d = 1; d <= 31; d++) {
+        const dStr = `${String(d).padStart(2, '0')}-Oct-2026`;
+        const dm = daysMap[dStr];
+
+        mtdAmt += dm.amount;
+        mtdCases += dm.cases;
+
+        for (const m in dm.managers) {
+          if (!mtdManagers[m]) mtdManagers[m] = { amount: 0, total: 0, cases: 0, mtd_cases: 0 };
+          mtdManagers[m].amount += dm.managers[m].amount;
+          mtdManagers[m].total += dm.managers[m].total;
+          mtdManagers[m].cases += dm.managers[m].cases;
+          mtdManagers[m].mtd_cases += dm.managers[m].cases;
+        }
+
+        for (const c in dm.callers) {
+          if (!mtdCallers[c]) mtdCallers[c] = { amount: 0, total: 0, cases: 0, manager: dm.callers[c].manager };
+          mtdCallers[c].amount += dm.callers[c].amount;
+          mtdCallers[c].total += dm.callers[c].total;
+          mtdCallers[c].cases += dm.callers[c].cases;
+        }
+
+        for (const b in dm.branches) {
+          if (!mtdBranches[b]) mtdBranches[b] = { amount: 0, total: 0, cases: 0 };
+          mtdBranches[b].amount += dm.branches[b].amount;
+          mtdBranches[b].total += dm.branches[b].total;
+          mtdBranches[b].cases += dm.branches[b].cases;
+        }
+
+        updatedSdlm[dStr + '_SINGLE'] = {
+          date: dStr,
+          amount: dm.amount,
+          total: dm.amount,
+          cases: dm.cases,
+          managers: JSON.parse(JSON.stringify(dm.managers)),
+          callers: JSON.parse(JSON.stringify(dm.callers)),
+          branches: JSON.parse(JSON.stringify(dm.branches)),
+          isZeroCollection: dm.isZeroCollection,
+          source: 'october_paid_data'
+        };
+
+        updatedSdlm[dStr + '_MTD'] = {
+          date: dStr,
+          amount: mtdAmt,
+          total: mtdAmt,
+          cases: mtdCases,
+          managers: JSON.parse(JSON.stringify(mtdManagers)),
+          callers: JSON.parse(JSON.stringify(mtdCallers)),
+          branches: JSON.parse(JSON.stringify(mtdBranches)),
+          source: 'october_paid_data'
+        };
+
+        updatedSdlm[dStr] = updatedSdlm[dStr + '_MTD'];
+      }
+
+      SDLM_DAILY_DATA = updatedSdlm;
+      try {
+        localStorage.setItem('shaha_sdlm_october_data_v1', JSON.stringify(SDLM_DAILY_DATA));
+        localStorage.setItem('shaha_sdlm_uploaded_excel_backup_v1', JSON.stringify(SDLM_DAILY_DATA));
+      } catch(e) {}
+    }
+
+    async function loadOctoberPaidFileRecords() {
+      if (Array.isArray(octoberPaidFileRecords) && octoberPaidFileRecords.length > 0) {
+        syncSdlmFromOctoberPaidRecords();
+        return octoberPaidFileRecords;
+      }
+      try {
+        const cached = localStorage.getItem('shaha_paid_file_records_october_2026');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            octoberPaidFileRecords = parsed;
+            syncSdlmFromOctoberPaidRecords();
+          }
+        }
+      } catch(e) {}
+
+      if (supabaseClient) {
+        try {
+          isOctoberPaidLoading = true;
+          const { data, error } = await supabaseClient
+            .from('bank_transactions')
+            .select('narration')
+            .eq('ref_no', 'SYS_PAID_RECORDS_OCTOBER_2026')
+            .order('id', { ascending: false })
+            .limit(1);
+
+          if (!error && data && data.length > 0 && data[0].narration) {
+            const list = JSON.parse(data[0].narration);
+            if (Array.isArray(list)) {
+              list.forEach(r => {
+                if (r) {
+                  r.isLocked = true;
+                  r.officer_locked = true;
+                }
+              });
+              octoberPaidFileRecords = list;
+              syncSdlmFromOctoberPaidRecords();
+              try {
+                localStorage.setItem('shaha_paid_file_records_october_2026', JSON.stringify(octoberPaidFileRecords));
+              } catch(e) {}
+            }
+          }
+        } catch(e) {
+          console.warn('Failed to load October paid records:', e);
+        } finally {
+          isOctoberPaidLoading = false;
+        }
+      }
+      return octoberPaidFileRecords;
+    }
+
+    async function handlePaidMonthFilterChange() {
+      const mSel = document.getElementById('paid-filter-month');
+      const val = mSel ? mSel.value : 'CURRENT';
+      if (val === 'OCTOBER' || val === 'ALL') {
+        if (!octoberPaidFileRecords || octoberPaidFileRecords.length === 0) {
+          const tbody = document.getElementById('paid-file-tbody');
+          if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500 font-bold"><div class="inline-flex items-center gap-2"><span>Loading October Records...</span></div></td></tr>`;
+          }
+          await loadOctoberPaidFileRecords();
+        }
+      }
+      window.__paidShowAll = false;
+      renderPaidFileTable();
+    }
 
     // --- Recovery Officers Authoritative Template (Exact 73 Callers · ₹1,83,65,655 Locked Baseline) ---
     const SEED_OFFICERS = [
@@ -4215,7 +4455,30 @@
     ];
 
     // Canonical Employee Code & Official Manager Master Directory (Derived from company emp_code_mapping.json)
-    const CANONICAL_CALLER_DIRECTORY = {
+        // Clean Paid File: Strictly Current Month (November 2026). Historical October collection belongs to SDLM benchmark, not Paid Data.
+    function purgeOctoberPaidRecordsFromMemoryAndLocal() {
+      if (typeof paidFileRecords === 'undefined' || !Array.isArray(paidFileRecords)) return;
+      const initialLen = paidFileRecords.length;
+      paidFileRecords = paidFileRecords.filter(r => {
+        if (!r || !r.pay_date) return true;
+        const p = parseDateParts(r.pay_date);
+        return !(p && p.m === 10);
+      });
+      if (paidFileRecords.length !== initialLen) {
+        try {
+          if (typeof getPaidFileStorageKeys === 'function') {
+            const { localKey } = getPaidFileStorageKeys();
+            if (localKey) localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+          }
+          localStorage.setItem('shaha_paid_file_records_v1', JSON.stringify(paidFileRecords));
+          const subRecs = paidFileRecords.filter(r => r && String(r.manager || '').toUpperCase().includes('SUBHASHREE'));
+          localStorage.setItem('shaha_paid_file_records_subhashree', JSON.stringify(subRecs));
+        } catch(e) {}
+      }
+    }
+    try { purgeOctoberPaidRecordsFromMemoryAndLocal(); } catch(e) {}
+
+const CANONICAL_CALLER_DIRECTORY = {
       // WORLI (SMITA JAGTAP) - Clean canonical callers without duplicate cards
       "ANKITA BAVASKAR": { manager: "SMITA JAGTAP", emp: "100548", doj: "01-Nov-2025", branch: "WORLI", aliases: ["ANKITA BAWASKAR", "ANKITA"] },
       "ANKITA BAWASKAR": { manager: "SMITA JAGTAP", emp: "100548", doj: "01-Nov-2025", branch: "WORLI", canonical: "ANKITA BAVASKAR" },
@@ -6382,6 +6645,7 @@
                 try {
                   let rowMgr = '';
                   const pMatch = (row.ref_no || '').match(/^SYS_PAID_RECORDS_(.+)$/i);
+                  if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026') return; // Strict partition isolation for historical October data
                   if (pMatch) {
                     const mk = pMatch[1].toLowerCase();
                     const rk = USER_CREDENTIALS[mk] ? mk : resolveManagerUserKey(mk.replace(/_/g, ' '));
@@ -6436,6 +6700,7 @@
         }
       }
 
+      if (typeof purgeOctoberPaidRecordsFromMemoryAndLocal === 'function') purgeOctoberPaidRecordsFromMemoryAndLocal();
       if (currentTab === 'paid-file') renderPaidFileTable(); // hidden tab renders on switchTab
       populateOfficerDropdowns();
       syncLiveCollectionFromPaidFile(false);
@@ -6573,6 +6838,7 @@
             // Partitions with no records left are not in byManager. Remove deleted records from them too.
             const { data: otherRows } = await supabaseClient.from('bank_transactions').select('id, ref_no, narration').like('ref_no', 'SYS_PAID_RECORDS_%');
             for (const row of (otherRows || [])) {
+              if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026') continue;
               if (byManager[row.ref_no.replace('SYS_PAID_RECORDS_', '')]) continue;
               let list = [];
               try { list = JSON.parse(row.narration) || []; } catch(e) { continue; }
@@ -9015,25 +9281,25 @@
     // 1. Single-Day Benchmark: strictly that single day's collection (used in Today's Collection tab & SDLM Comparison)
     // 2. MTD Cumulative Benchmark: 1 to Till Date (1 to 19 Oct = ₹64,56,473; seamlessly continuous across Days 1–31)
     // ==============================================================
-    const SDLM_CACHE_VERSION = 'SDLM_V20261120_DATEWISE_REPORT_V16';
+    const SDLM_CACHE_VERSION = 'SDLM_V20261121_OCTOBER_PAYMENTS_V18';
 
     const SDLM_BRANCH_RATIOS = {
-      'JOGESHWARI': 4152273 / 6456473,
+      'JOGESHWARI': 4240723 / 6456473,
       'WORLI': 1634547 / 6456473,
       'AGENCY': 519203 / 6456473,
-      'BANGALORE': 88450 / 6456473,
+      'BANGALORE': 0,
       'SAROJ': 62000 / 6456473
     };
 
     const SDLM_MGR_RATIOS = {
-      'AMBUJ TRIPATHI': 1848873 / 6456473,
+      'AMBUJ TRIPATHI': 1937323 / 6456473,
       'SMITA JAGTAP': 1634547 / 6456473,
       'SHRAVANTHI P': 1170208 / 6456473,
       'ADITI GAWADE': 754328 / 6456473,
       'POONAM I': 519203 / 6456473,
       'OMKAR SINGH': 274395 / 6456473,
       'SHWETA SINGH': 104469 / 6456473,
-      'SUBHASHREE': 88450 / 6456473,
+      'SUBHASHREE': 0,
       'SAROJ': 62000 / 6456473,
       'CUSTOMER SERVICE': 0
     };
@@ -9045,22 +9311,22 @@
       cases: 30,
       label: '19-Oct Single Day',
       managers: {
-        'AMBUJ TRIPATHI': { amount: 151644, total: 151644, cases: 4 },
+        'AMBUJ TRIPATHI': { amount: 160144, total: 160144, cases: 4 },
         'SMITA JAGTAP': { amount: 136055, total: 136055, cases: 6 },
         'SHRAVANTHI P': { amount: 96000, total: 96000, cases: 2 },
         'ADITI GAWADE': { amount: 61483, total: 61483, cases: 5 },
         'POONAM I': { amount: 42902, total: 42902, cases: 6 },
         'OMKAR SINGH': { amount: 21917, total: 21917, cases: 4 },
         'SHWETA SINGH': { amount: 8500, total: 8500, cases: 2 },
-        'SUBHASHREE': { amount: 8500, total: 8500, cases: 1 },
+        'SUBHASHREE': { amount: 0, total: 0, cases: 0 },
         'SAROJ': { amount: 6500, total: 6500, cases: 1 },
         'CUSTOMER SERVICE': { amount: 0, total: 0, cases: 0 }
       },
       branches: {
-        'JOGESHWARI': { amount: 339544, total: 339544, cases: 17 },
+        'JOGESHWARI': { amount: 348044, total: 348044, cases: 17 },
         'WORLI': { amount: 136055, total: 136055, cases: 6 },
         'AGENCY': { amount: 42902, total: 42902, cases: 6 },
-        'BANGALORE': { amount: 8500, total: 8500, cases: 1 },
+        'BANGALORE': { amount: 0, total: 0, cases: 0 },
         'SAROJ': { amount: 6500, total: 6500, cases: 1 }
       }
     };
@@ -9072,22 +9338,22 @@
       cases: 360,
       label: '1–19 Oct MTD',
       managers: {
-        'AMBUJ TRIPATHI': { amount: 1848873, total: 1848873, cases: 46, mtd_cases: 46 },
+        'AMBUJ TRIPATHI': { amount: 1937323, total: 1937323, cases: 46, mtd_cases: 46 },
         'SMITA JAGTAP': { amount: 1634547, total: 1634547, cases: 72, mtd_cases: 72 },
         'SHRAVANTHI P': { amount: 1170208, total: 1170208, cases: 23, mtd_cases: 23 },
         'ADITI GAWADE': { amount: 754328, total: 754328, cases: 70, mtd_cases: 70 },
         'POONAM I': { amount: 519203, total: 519203, cases: 72, mtd_cases: 72 },
         'OMKAR SINGH': { amount: 274395, total: 274395, cases: 45, mtd_cases: 45 },
         'SHWETA SINGH': { amount: 104469, total: 104469, cases: 22, mtd_cases: 22 },
-        'SUBHASHREE': { amount: 88450, total: 88450, cases: 6, mtd_cases: 6 },
+        'SUBHASHREE': { amount: 0, total: 0, cases: 0, mtd_cases: 0 },
         'SAROJ': { amount: 62000, total: 62000, cases: 4, mtd_cases: 4 },
         'CUSTOMER SERVICE': { amount: 0, total: 0, cases: 0, mtd_cases: 0 }
       },
       branches: {
-        'JOGESHWARI': { amount: 4152273, total: 4152273, cases: 206 },
+        'JOGESHWARI': { amount: 4240723, total: 4240723, cases: 206 },
         'WORLI': { amount: 1634547, total: 1634547, cases: 72 },
         'AGENCY': { amount: 519203, total: 519203, cases: 72 },
-        'BANGALORE': { amount: 88450, total: 88450, cases: 6 },
+        'BANGALORE': { amount: 0, total: 0, cases: 0 },
         'SAROJ': { amount: 62000, total: 62000, cases: 4 }
       }
     };
@@ -9114,18 +9380,18 @@
       17: 267616,
       18: 0,      // Sunday - Zero Collection
       19: 533501, // Benchmark Day
-      20: 342500,
-      21: 338000,
-      22: 355000,
-      23: 340000,
-      24: 348000,
-      25: 0,      // Sunday - Zero Collection
-      26: 360000,
-      27: 352000,
-      28: 365000,
-      29: 370000,
-      30: 385000,
-      31: 410000
+      20: 88601,
+      21: 346123,
+      22: 1113118,
+      23: 601316,
+      24: 262493,
+      25: 142244,
+      26: 570032,
+      27: 848998,
+      28: 369559,
+      29: 714504,
+      30: 1204274,
+      31: 1085663
     };
 
     const SDLM_OCTOBER_DEFAULT_DAY_CASES = {
@@ -9148,18 +9414,18 @@
       17: 16,
       18: 0,      // Sunday
       19: 30,     // Benchmark Day
-      20: 19,
+      20: 7,
       21: 19,
-      22: 20,
-      23: 19,
+      22: 37,
+      23: 32,
       24: 20,
-      25: 0,      // Sunday
-      26: 21,
-      27: 20,
-      28: 21,
-      29: 21,
-      30: 22,
-      31: 23
+      25: 12,
+      26: 44,
+      27: 28,
+      28: 22,
+      29: 49,
+      30: 71,
+      31: 101
     };
 
     function computeSdlmMtdTotalForDate(dateStr) {
@@ -9318,7 +9584,7 @@
           const sarojAmt = Number(b['SAROJ'] ? (b['SAROJ'].amount || b['SAROJ'].total) : 0) || 0;
           const jogAmt = Number(b['JOGESHWARI'] ? (b['JOGESHWARI'].amount || b['JOGESHWARI'].total) : 0) || 0;
 
-          if (totalAmt > 0 && (bangAmt <= 0 || sarojAmt <= 0 || jogAmt <= 0 || !b['WORLI'] || !b['AGENCY'] || (jogAmt / totalAmt) >= 0.648)) {
+          if (totalAmt > 0 && (sarojAmt <= 0 || jogAmt <= 0 || !b['WORLI'] || !b['AGENCY'] || (jogAmt / totalAmt) >= 0.665)) {
             entry.branches = computeAuthoritativeSdlmBranches(totalAmt, totalCases);
             healed = true;
           }
@@ -9334,11 +9600,111 @@
           const srgAmt = Number(m['SAROJ'] ? (m['SAROJ'].amount || m['SAROJ'].total) : 0) || 0;
           const ambujAmt = Number(m['AMBUJ TRIPATHI'] ? (m['AMBUJ TRIPATHI'].amount || m['AMBUJ TRIPATHI'].total) : 0) || 0;
 
-          if (totalAmt > 0 && (subAmt <= 0 || srgAmt <= 0 || ambujAmt <= 0 || !m['SMITA JAGTAP'] || (ambujAmt / totalAmt) >= 0.295)) {
+          if (totalAmt > 0 && (srgAmt <= 0 || ambujAmt <= 0 || !m['SMITA JAGTAP'] || (ambujAmt / totalAmt) >= 0.315)) {
             entry.managers = computeAuthoritativeSdlmManagers(totalAmt, totalCases, isSingle);
             healed = true;
           }
         }
+      }
+
+      // Enforce zero-collection for Bangalore & Subhashree on Days 1 to 26 (No transactions existed before 27-Oct in Handsoff Oct 2026.xlsx)
+      for (let d = 1; d <= 26; d++) {
+        const dStr = `${String(d).padStart(2, '0')}-Oct-2026`;
+        [dStr, dStr + '_SINGLE', dStr + '_MTD'].forEach(k => {
+          if (dataObj[k]) {
+            if (dataObj[k].managers) {
+              dataObj[k].managers['SUBHASHREE'] = { amount: 0, total: 0, cases: 0, mtd_cases: 0 };
+            }
+            if (dataObj[k].branches) {
+              dataObj[k].branches['BANGALORE'] = { amount: 0, total: 0, cases: 0 };
+            }
+            if (dataObj[k].callers) {
+              dataObj[k].callers['AMBIKA M T'] = { amount: 0, total: 0, cases: 0, manager: 'SUBHASHREE', emp: '100653' };
+              dataObj[k].callers['GOPAL KUMAR SHARMA'] = { amount: 0, total: 0, cases: 0, manager: 'SUBHASHREE', emp: '100652' };
+              dataObj[k].callers['VENUGOPALA RAJE URS S'] = { amount: 0, total: 0, cases: 0, manager: 'SUBHASHREE', emp: '100651' };
+            }
+          }
+        });
+      }
+
+      // Authoritative Bangalore (Subhashree) benchmarks for 27, 28, 31 Oct from Handsoff Oct 2026.xlsx
+      ['27-Oct-2026_SINGLE', '27-Oct-2026'].forEach(k => {
+        if (dataObj[k]) {
+          dataObj[k].managers = dataObj[k].managers || {};
+          dataObj[k].managers['SUBHASHREE'] = { amount: 67000, total: 67000, cases: 2 };
+          dataObj[k].branches = dataObj[k].branches || {};
+          dataObj[k].branches['BANGALORE'] = { amount: 67000, total: 67000, cases: 2 };
+          dataObj[k].callers = dataObj[k].callers || {};
+          dataObj[k].callers['AMBIKA M T'] = { amount: 67000, total: 67000, cases: 2, manager: 'SUBHASHREE', emp: '100653' };
+        }
+      });
+      ['28-Oct-2026_SINGLE', '28-Oct-2026'].forEach(k => {
+        if (dataObj[k]) {
+          dataObj[k].managers = dataObj[k].managers || {};
+          dataObj[k].managers['SUBHASHREE'] = { amount: 48980, total: 48980, cases: 2 };
+          dataObj[k].branches = dataObj[k].branches || {};
+          dataObj[k].branches['BANGALORE'] = { amount: 48980, total: 48980, cases: 2 };
+          dataObj[k].callers = dataObj[k].callers || {};
+          dataObj[k].callers['GOPAL KUMAR SHARMA'] = { amount: 35000, total: 35000, cases: 1, manager: 'SUBHASHREE', emp: '100652' };
+          dataObj[k].callers['VENUGOPALA RAJE URS S'] = { amount: 13980, total: 13980, cases: 1, manager: 'SUBHASHREE', emp: '100651' };
+        }
+      });
+      ['29-Oct-2026_SINGLE', '29-Oct-2026', '30-Oct-2026_SINGLE', '30-Oct-2026'].forEach(k => {
+        if (dataObj[k]) {
+          if (dataObj[k].managers) dataObj[k].managers['SUBHASHREE'] = { amount: 0, total: 0, cases: 0 };
+          if (dataObj[k].branches) dataObj[k].branches['BANGALORE'] = { amount: 0, total: 0, cases: 0 };
+        }
+      });
+      ['31-Oct-2026_SINGLE', '31-Oct-2026'].forEach(k => {
+        if (dataObj[k]) {
+          dataObj[k].managers = dataObj[k].managers || {};
+          dataObj[k].managers['SUBHASHREE'] = { amount: 9000, total: 9000, cases: 1 };
+          dataObj[k].branches = dataObj[k].branches || {};
+          dataObj[k].branches['BANGALORE'] = { amount: 9000, total: 9000, cases: 1 };
+          dataObj[k].callers = dataObj[k].callers || {};
+          dataObj[k].callers['AMBIKA M T'] = { amount: 9000, total: 9000, cases: 1, manager: 'SUBHASHREE', emp: '100653' };
+        }
+      });
+
+      if (dataObj['27-Oct-2026_MTD']) {
+        dataObj['27-Oct-2026_MTD'].managers = dataObj['27-Oct-2026_MTD'].managers || {};
+        dataObj['27-Oct-2026_MTD'].managers['SUBHASHREE'] = { amount: 67000, total: 67000, cases: 2, mtd_cases: 2 };
+        dataObj['27-Oct-2026_MTD'].branches = dataObj['27-Oct-2026_MTD'].branches || {};
+        dataObj['27-Oct-2026_MTD'].branches['BANGALORE'] = { amount: 67000, total: 67000, cases: 2 };
+        dataObj['27-Oct-2026_MTD'].callers = dataObj['27-Oct-2026_MTD'].callers || {};
+        dataObj['27-Oct-2026_MTD'].callers['AMBIKA M T'] = { amount: 67000, total: 67000, cases: 2, manager: 'SUBHASHREE', emp: '100653' };
+      }
+      if (dataObj['28-Oct-2026_MTD']) {
+        dataObj['28-Oct-2026_MTD'].managers = dataObj['28-Oct-2026_MTD'].managers || {};
+        dataObj['28-Oct-2026_MTD'].managers['SUBHASHREE'] = { amount: 115980, total: 115980, cases: 4, mtd_cases: 4 };
+        dataObj['28-Oct-2026_MTD'].branches = dataObj['28-Oct-2026_MTD'].branches || {};
+        dataObj['28-Oct-2026_MTD'].branches['BANGALORE'] = { amount: 115980, total: 115980, cases: 4 };
+        dataObj['28-Oct-2026_MTD'].callers = dataObj['28-Oct-2026_MTD'].callers || {};
+        dataObj['28-Oct-2026_MTD'].callers['AMBIKA M T'] = { amount: 67000, total: 67000, cases: 2, manager: 'SUBHASHREE', emp: '100653' };
+        dataObj['28-Oct-2026_MTD'].callers['GOPAL KUMAR SHARMA'] = { amount: 35000, total: 35000, cases: 1, manager: 'SUBHASHREE', emp: '100652' };
+        dataObj['28-Oct-2026_MTD'].callers['VENUGOPALA RAJE URS S'] = { amount: 13980, total: 13980, cases: 1, manager: 'SUBHASHREE', emp: '100651' };
+      }
+      ['29-Oct-2026_MTD', '30-Oct-2026_MTD'].forEach(k => {
+        if (dataObj[k]) {
+          dataObj[k].managers = dataObj[k].managers || {};
+          dataObj[k].managers['SUBHASHREE'] = { amount: 115980, total: 115980, cases: 4, mtd_cases: 4 };
+          dataObj[k].branches = dataObj[k].branches || {};
+          dataObj[k].branches['BANGALORE'] = { amount: 115980, total: 115980, cases: 4 };
+          dataObj[k].callers = dataObj[k].callers || {};
+          dataObj[k].callers['AMBIKA M T'] = { amount: 67000, total: 67000, cases: 2, manager: 'SUBHASHREE', emp: '100653' };
+          dataObj[k].callers['GOPAL KUMAR SHARMA'] = { amount: 35000, total: 35000, cases: 1, manager: 'SUBHASHREE', emp: '100652' };
+          dataObj[k].callers['VENUGOPALA RAJE URS S'] = { amount: 13980, total: 13980, cases: 1, manager: 'SUBHASHREE', emp: '100651' };
+        }
+      });
+      if (dataObj['31-Oct-2026_MTD']) {
+        dataObj['31-Oct-2026_MTD'].managers = dataObj['31-Oct-2026_MTD'].managers || {};
+        dataObj['31-Oct-2026_MTD'].managers['SUBHASHREE'] = { amount: 124980, total: 124980, cases: 5, mtd_cases: 5 };
+        dataObj['31-Oct-2026_MTD'].branches = dataObj['31-Oct-2026_MTD'].branches || {};
+        dataObj['31-Oct-2026_MTD'].branches['BANGALORE'] = { amount: 124980, total: 124980, cases: 5 };
+        dataObj['31-Oct-2026_MTD'].callers = dataObj['31-Oct-2026_MTD'].callers || {};
+        dataObj['31-Oct-2026_MTD'].callers['AMBIKA M T'] = { amount: 76000, total: 76000, cases: 3, manager: 'SUBHASHREE', emp: '100653' };
+        dataObj['31-Oct-2026_MTD'].callers['GOPAL KUMAR SHARMA'] = { amount: 35000, total: 35000, cases: 1, manager: 'SUBHASHREE', emp: '100652' };
+        dataObj['31-Oct-2026_MTD'].callers['VENUGOPALA RAJE URS S'] = { amount: 13980, total: 13980, cases: 1, manager: 'SUBHASHREE', emp: '100651' };
       }
 
       dataObj._version = SDLM_CACHE_VERSION;
@@ -9597,16 +9963,43 @@
       const pTarget = parseDateParts(sdlmDateStr);
       const day = (pTarget && pTarget.d >= 1 && pTarget.d <= 31) ? pTarget.d : 20;
 
+      // Authoritative Bangalore (Subhashree) benchmarks for October from Handsoff Oct 2026.xlsx
+      if (canonMgr === 'SUBHASHREE') {
+        if (isSingleDayOnly) {
+          if (day === 27) return { amount: 67000, cases: 2 };
+          if (day === 28) return { amount: 48980, cases: 2 };
+          if (day === 31) return { amount: 9000, cases: 1 };
+          return { amount: 0, cases: 0 };
+        } else {
+          if (day >= 31) return { amount: 124980, cases: 5 };
+          if (day >= 28) return { amount: 115980, cases: 4 };
+          if (day >= 27) return { amount: 67000, cases: 2 };
+          return { amount: 0, cases: 0 };
+        }
+      }
+
       // 1. Direct lookup in entry managers
       const lookupKey = isSingleDayOnly ? (sdlmDateStr + '_SINGLE') : (sdlmDateStr + '_MTD');
       const entry = (SDLM_DAILY_DATA && SDLM_DAILY_DATA[lookupKey]) ? SDLM_DAILY_DATA[lookupKey] : (SDLM_DAILY_DATA ? SDLM_DAILY_DATA[sdlmDateStr] : null);
       if (entry && entry.managers) {
-        const hit = entry.managers[canonMgr] || entry.managers[cleanMgr];
+        let hit = entry.managers[canonMgr] || entry.managers[cleanMgr];
+        if (!hit) {
+          for (const [mk, mv] of Object.entries(entry.managers)) {
+            const mkClean = String(mk).trim().toUpperCase();
+            if (mkClean === canonMgr || mkClean === cleanMgr ||
+                (typeof isOfficerMatch === 'function' && isOfficerMatch({ manager: mkClean }, canonMgr))) {
+              hit = mv;
+              break;
+            }
+          }
+        }
         if (hit) {
           const mAmt = Number(hit.amount !== undefined ? hit.amount : hit.total) || 0;
           const mCases = Number(hit.cases !== undefined ? hit.cases : hit.mtd_cases) || 0;
           return { amount: mAmt, cases: mCases };
         }
+        // Authoritative: When real October data exists with managers map, any unlisted manager collected strictly 0
+        return { amount: 0, cases: 0 };
       }
 
       if (isSingleDayOnly) {
@@ -9654,6 +10047,21 @@
       const pTarget = parseDateParts(sdlmDateStr);
       const day = (pTarget && pTarget.d >= 1 && pTarget.d <= 31) ? pTarget.d : 20;
 
+      // Authoritative Bangalore benchmarks for October from Handsoff Oct 2026.xlsx
+      if (targetBranch === 'BANGALORE') {
+        if (isSingleDayOnly) {
+          if (day === 27) return { amount: 67000, cases: 2 };
+          if (day === 28) return { amount: 48980, cases: 2 };
+          if (day === 31) return { amount: 9000, cases: 1 };
+          return { amount: 0, cases: 0 };
+        } else {
+          if (day >= 31) return { amount: 124980, cases: 5 };
+          if (day >= 28) return { amount: 115980, cases: 4 };
+          if (day >= 27) return { amount: 67000, cases: 2 };
+          return { amount: 0, cases: 0 };
+        }
+      }
+
       // 1. Direct lookup in entry branches
       const lookupKey = isSingleDayOnly ? (sdlmDateStr + '_SINGLE') : (sdlmDateStr + '_MTD');
       const entry = (SDLM_DAILY_DATA && SDLM_DAILY_DATA[lookupKey]) ? SDLM_DAILY_DATA[lookupKey] : (SDLM_DAILY_DATA ? SDLM_DAILY_DATA[sdlmDateStr] : null);
@@ -9664,6 +10072,8 @@
           const bCases = Number(hit.cases) || 0;
           return { amount: bAmt, cases: bCases };
         }
+        // Authoritative: When real October data exists with branches map, any unlisted branch collected strictly 0
+        return { amount: 0, cases: 0 };
       }
 
       if (isSingleDayOnly) {
@@ -9703,13 +10113,47 @@
       const canonCaller = (typeof formatCallerDisplayName === 'function' ? formatCallerDisplayName(cClean) : cClean).toUpperCase().trim();
       const canonMgr = mgrName ? (typeof canonicalizeManagerTargetName === 'function' ? canonicalizeManagerTargetName(mgrName) : String(mgrName).trim().toUpperCase()) : '';
 
+      // Direct authoritative check for Bangalore (Subhashree) callers October 2026 transactions from Handsoff Oct 2026.xlsx
+      const pTarget = parseDateParts(sdlmDateStr);
+      if (pTarget && pTarget.m === 10) {
+        if (canonCaller === 'AMBIKA M T' || cClean.includes('AMBIKA')) {
+          if (isSingleDayOnly) {
+            if (pTarget.d === 27) return { amount: 67000, cases: 2 };
+            if (pTarget.d === 31) return { amount: 9000, cases: 1 };
+            return { amount: 0, cases: 0 };
+          } else {
+            if (pTarget.d >= 31) return { amount: 76000, cases: 3 };
+            if (pTarget.d >= 27) return { amount: 67000, cases: 2 };
+            return { amount: 0, cases: 0 };
+          }
+        } else if (canonCaller === 'VENUGOPALA RAJE URS S' || cClean.includes('VENUGOPALA') || cClean.includes('VENU')) {
+          if (isSingleDayOnly) {
+            if (pTarget.d === 28) return { amount: 13980, cases: 1 };
+            return { amount: 0, cases: 0 };
+          } else {
+            if (pTarget.d >= 28) return { amount: 13980, cases: 1 };
+            return { amount: 0, cases: 0 };
+          }
+        } else if (canonCaller === 'GOPAL KUMAR SHARMA' || (cClean.includes('GOPAL') && !cClean.includes('VENU'))) {
+          if (isSingleDayOnly) {
+            if (pTarget.d === 28) return { amount: 35000, cases: 1 };
+            return { amount: 0, cases: 0 };
+          } else {
+            if (pTarget.d >= 28) return { amount: 35000, cases: 1 };
+            return { amount: 0, cases: 0 };
+          }
+        } else if (canonMgr === 'SUBHASHREE' || canonMgr === 'ANURADHA') {
+          if (pTarget.d < 27) return { amount: 0, cases: 0 };
+        }
+      }
+
       if (!SDLM_DAILY_DATA || Object.keys(SDLM_DAILY_DATA).length === 0) {
         initSdlmOctoberCache();
       }
 
       // 1. Direct lookup in SDLM_DAILY_DATA callers (Single Day or MTD)
       const lookupKeys = isSingleDayOnly
-        ? [sdlmDateStr + '_SINGLE', sdlmDateStr]
+        ? [sdlmDateStr + '_SINGLE']
         : [sdlmDateStr + '_MTD', sdlmDateStr];
 
       for (const lk of lookupKeys) {
@@ -9726,29 +10170,34 @@
         }
       }
 
-      // 2. Direct lookup in paidFileRecords if October transactions exist
-      if (Array.isArray(paidFileRecords) && paidFileRecords.length > 0) {
+      // 2. Direct lookup in octoberPaidFileRecords or paidFileRecords
+      const allOctPaid = (typeof octoberPaidFileRecords !== 'undefined' && Array.isArray(octoberPaidFileRecords) && octoberPaidFileRecords.length > 0)
+        ? octoberPaidFileRecords
+        : (Array.isArray(paidFileRecords) ? paidFileRecords : []);
+      if (Array.isArray(allOctPaid) && allOctPaid.length > 0) {
         const pTarget = parseDateParts(sdlmDateStr);
         const targetDay = (pTarget && pTarget.m === 10) ? pTarget.d : null;
         let sum = 0, cases = 0;
         let foundPaid = false;
 
-        paidFileRecords.forEach(r => {
+        allOctPaid.forEach(r => {
           if (!r || isRecordTombstoned(r)) return;
           const pR = parseDateParts(r.pay_date);
           if (!pR || pR.m !== 10) return;
           if (isSingleDayOnly ? (pR.d === targetDay) : (targetDay ? (pR.d >= 1 && pR.d <= targetDay) : isSameDate(r.pay_date, sdlmDateStr))) {
+            const rAmt = Number(r.amount) || 0;
             if (r.splits && Array.isArray(r.splits)) {
               r.splits.forEach(sp => {
                 if (sp && isOfficerMatch({ name: cClean }, sp.officer)) {
-                  sum += (Number(sp.amount) || 0);
-                  cases += 1;
+                  const spAmt = Number(sp.amount) || 0;
+                  sum += spAmt;
+                  cases += (spAmt < 0 ? -1 : 1);
                   foundPaid = true;
                 }
               });
             } else if (isOfficerMatch({ name: cClean }, r.officer)) {
-              sum += (Number(r.amount) || 0);
-              cases += 1;
+              sum += rAmt;
+              cases += (rAmt < 0 ? -1 : 1);
               foundPaid = true;
             }
           }
@@ -9758,25 +10207,37 @@
         }
       }
 
-      // 3. Seamless Target-Proportional Fallback based on Manager's Authoritative SDLM Benchmark
+      // Single Day benchmark: If not found on that single day, the caller collected strictly 0!
+      if (isSingleDayOnly) {
+        return { amount: 0, cases: 0 };
+      }
+
+      // If real October file is loaded, callers with 0 transactions in October strictly have 0 SDLM!
+      const hasRealOctData = Boolean(
+        SDLM_DAILY_DATA && (
+          SDLM_DAILY_DATA._isUserUploaded ||
+          SDLM_DAILY_DATA._source === 'EXCEL_IMPORT' ||
+          !!SDLM_DAILY_DATA['01-Oct-2026_MTD']
+        )
+      );
+      if (hasRealOctData) {
+        return { amount: 0, cases: 0 };
+      }
+
+      // 3. Fallback: Only for purely synthetic simulation mode when NO real October data exists
       let effectiveMgr = canonMgr;
       if (!effectiveMgr) {
         effectiveMgr = typeof getCallerCanonicalManager === 'function' ? getCallerCanonicalManager(cClean) : '';
       }
-      const roOfficers = _sdlmReadOnlyOfficers();
       if (!effectiveMgr) {
-        const offHit = roOfficers.list.find(o => o && isOfficerMatch(o, cClean));
+        const offHit = getAllCompanyOfficersReadOnly().find(o => o && isOfficerMatch(o, cClean));
         if (offHit && offHit.manager) effectiveMgr = offHit.manager;
       }
 
       if (effectiveMgr) {
         const mgrSdlm = getSdlmForManager(sdlmDateStr, effectiveMgr, isSingleDayOnly);
         if (mgrSdlm && mgrSdlm.amount > 0) {
-          let teamCallers = roOfficers.team.get(effectiveMgr);
-          if (!teamCallers) {
-            teamCallers = roOfficers.list.filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerEntityRow(o) && isOfficerUnderManager(o, effectiveMgr));
-            roOfficers.team.set(effectiveMgr, teamCallers);
-          }
+          const teamCallers = getAllCompanyOfficersReadOnly().filter(o => !isOfficerTombstoned(o) && !isCallerExited(o) && !isManagerEntityRow(o) && isOfficerUnderManager(o, effectiveMgr));
           if (teamCallers.length > 0) {
             const totalTeamTarget = teamCallers.reduce((s, c) => s + (Number(c.target) || 0), 0);
             const thisCaller = teamCallers.find(c => isOfficerMatch(c, cClean));
@@ -9794,20 +10255,6 @@
       }
 
       return { amount: 0, cases: 0 };
-    }
-
-    // Speed fix: getSdlmCallerBenchmark runs once for each caller row and only reads this list.
-    // Keep one copy for the current task. Build it again when the callers, the view, the users or the delete lists change.
-    var _sdlmRoCache = null;
-    function _sdlmReadOnlyOfficers() {
-      const c = _sdlmRoCache;
-      if (c && c.lb === leaderboardOfficers && c.n === leaderboardOfficers.length && c.cv === companyView &&
-          c.uc === USER_CREDENTIALS && c.du === deletedUserKeys.size && c.dof === deletedOfficerKeys.size) return c;
-      const v = { lb: leaderboardOfficers, n: leaderboardOfficers.length, cv: companyView, uc: USER_CREDENTIALS,
-                  du: deletedUserKeys.size, dof: deletedOfficerKeys.size, list: getAllCompanyOfficersReadOnly(), team: new Map() };
-      _sdlmRoCache = v;
-      queueMicrotask(() => { if (_sdlmRoCache === v) _sdlmRoCache = null; });
-      return v;
     }
 
     function getSdlmForCaller(sdlmDateStr, callerName, mgrName = '', isSingleDayOnly = false) {
@@ -10688,12 +11135,23 @@
       const mgrList = Object.values(managersMap);
       mgrList.sort((a, b) => (b.today - a.today) || a.name.localeCompare(b.name));
 
+      // ✅ Manager view: show ONLY the logged-in manager's row
+      const displayMgrList = isMgrViewer
+        ? mgrList.filter(m => {
+            const n = (m.name || '').toUpperCase().trim();
+            const k = (m.key || '').toUpperCase().trim();
+            const myN = (myMgrName || '').toUpperCase().trim();
+            const myK = (myMgrKey || '').toUpperCase().trim();
+            return n === myN || k === myK || n.includes(myN) || myN.includes(n);
+          })
+        : mgrList;
+
       let grandTodayAmt = 0;
       let grandSdlmAmt = 0;
       let grandTodayCases = 0;
       let grandSdlmCases = 0;
 
-      mgrTbody.innerHTML = mgrList.map((mItem, idx) => {
+      mgrTbody.innerHTML = displayMgrList.map((mItem, idx) => {
         const todayAmt = mItem.today;
         const mSdlm = getSdlmForManager(sdlmDateStr, mItem.name, true);
         const sdlmAmt = mSdlm.amount || 0;
@@ -10734,7 +11192,7 @@
       if (mgrTfoot) {
         mgrTfoot.innerHTML = `
           <tr style="background: var(--raised-2); border-top: 2px solid var(--line-strong);">
-            <td colspan="3" class="p-2.5 text-center font-black uppercase tracking-wider" style="color: #000000 !important; font-size: 13px;">TOTAL (${mgrList.length} Managers)</td>
+            <td colspan="3" class="p-2.5 text-center font-black uppercase tracking-wider" style="color: #000000 !important; font-size: 13px;">TOTAL (${displayMgrList.length} Manager${displayMgrList.length !== 1 ? "s" : ""})</td>
             <td class="p-2.5 text-right font-mono font-black" style="color: #000000 !important; font-size: 13px;">${formatCurrency(grandTodayAmt)}</td>
             <td class="p-2.5 text-right font-mono font-black" style="color: #000000 !important; font-size: 13px;">${formatCurrency(grandSdlmAmt)}</td>
             <td class="p-2.5 text-right font-mono font-black" style="color: #000000 !important; font-size: 13px;">${grandDiffSign}${formatCurrency(grandDiffAmt)}</td>
@@ -10752,14 +11210,19 @@
         branchMap[b] = { branch: b, today: 0, todayCases: todayCasesByBranch[b] || 0 };
       });
 
-      // Sum branch today amounts from managers
-      mgrList.forEach(m => {
+      // Sum branch today amounts from managers (use displayMgrList for manager-scoped view)
+      displayMgrList.forEach(m => {
         let b = (m.branch || getBranchForManager(m.name) || 'JOGESHWARI').toUpperCase().trim();
         if (!branchMap[b]) branchMap[b] = { branch: b, today: 0, todayCases: todayCasesByBranch[b] || 0 };
         branchMap[b].today += m.today;
       });
 
-      const branchList = Object.values(branchMap);
+      // ✅ Manager view: only show that manager's branch; remove empty branches
+      let branchList = Object.values(branchMap);
+      if (isMgrViewer) {
+        branchList = branchList.filter(b => b.today > 0 || b.todayCases > 0 ||
+          displayMgrList.some(m => (m.branch || '').toUpperCase().trim() === b.branch));
+      }
       branchList.sort((a, b) => (b.today - a.today) || a.branch.localeCompare(b.branch));
 
       let bGrandToday = 0, bGrandSdlm = 0, bGrandTodayCases = 0, bGrandSdlmCases = 0;
@@ -10767,8 +11230,14 @@
       branchTbody.innerHTML = branchList.map((bItem, idx) => {
         const todayAmt = bItem.today;
         const bSdlm = getSdlmForBranch(sdlmDateStr, bItem.branch, true);
-        const sdlmAmt = bSdlm.amount || 0;
-        const sdlmCases = bSdlm.cases || 0;
+        const sdlmAmt = isMgrViewer
+          ? displayMgrList.filter(m => (m.branch || getBranchForManager(m.name) || 'JOGESHWARI').toUpperCase().trim() === bItem.branch)
+              .reduce((s, m) => s + (getSdlmForManager(sdlmDateStr, m.name, true).amount || 0), 0)
+          : (bSdlm.amount || 0);
+        const sdlmCases = isMgrViewer
+          ? displayMgrList.filter(m => (m.branch || getBranchForManager(m.name) || 'JOGESHWARI').toUpperCase().trim() === bItem.branch)
+              .reduce((s, m) => s + (getSdlmForManager(sdlmDateStr, m.name, true).cases || 0), 0)
+          : (bSdlm.cases || 0);
         const todayCases = bItem.todayCases || (todayAmt > 0 ? 1 : 0);
 
         const diffAmt = todayAmt - sdlmAmt;
@@ -10847,7 +11316,7 @@
       renderSdlmDaywiseComparison(todayDateStr, sdlmDateStr, isMgrViewer, myMgrName);
 
       // 5. RENDER SDLM VISUAL COMPARISON CHARTS (MANAGERS, BEAT/BELOW PIE, TOP 10 CALLERS)
-      renderSdlmVisualCharts(todayDateStr, sdlmDateStr, isMgrViewer, myMgrName, mgrList);
+      renderSdlmVisualCharts(todayDateStr, sdlmDateStr, isMgrViewer, myMgrName, displayMgrList);
 
       safeCreateIcons();
     }
@@ -14806,7 +15275,7 @@
           el.style.setProperty('display', 'none', 'important');
         });
         if (filtersGrid) {
-          filtersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs';
+          filtersGrid.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs items-end';
         }
       } else {
         adminFilters.forEach(el => {
@@ -14815,7 +15284,7 @@
           el.style.setProperty('display', el.classList.contains('inline-field') ? 'inline-flex' : 'block', 'important');
         });
         if (filtersGrid) {
-          filtersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 text-xs';
+          filtersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs items-end';
         }
       }
 
@@ -14908,7 +15377,12 @@
       const isAdm = (roleUpper === 'ADMIN' || roleUpper === 'MANAGEMENT' || roleUpper === 'BACKEND');
       let targetModalMgr = '';
       if (editId !== null) {
-        const item = paidFileRecords.find(r => r.id === editId);
+        const item = (typeof paidFileRecords !== 'undefined' ? paidFileRecords.find(r => r.id === editId) : null) ||
+                     (typeof octoberPaidFileRecords !== 'undefined' ? octoberPaidFileRecords.find(r => r.id === editId) : null);
+        if (item && (item.isLocked || (item.pay_date && item.pay_date.toLowerCase().includes('oct')))) {
+          showToast('Audited past month record is locked and cannot be edited.', 'warning');
+          return;
+        }
         if (item) {
           targetModalMgr = item.manager || item.locked_manager || '';
           const offUp = String(item.officer || '').toUpperCase().trim();
@@ -15372,8 +15846,17 @@
       const badgeTotal = document.getElementById('paid-badge-total');
       if (!tbody) return;
 
-      if (Array.isArray(paidFileRecords)) {
-        paidFileRecords.forEach(r => {
+      const monthFilter = document.getElementById('paid-filter-month') ? document.getElementById('paid-filter-month').value : 'CURRENT';
+      let activePaidRecords = paidFileRecords;
+      if (monthFilter === 'OCTOBER') {
+        activePaidRecords = (typeof octoberPaidFileRecords !== 'undefined' && Array.isArray(octoberPaidFileRecords)) ? octoberPaidFileRecords : [];
+      } else if (monthFilter === 'ALL') {
+        const octList = (typeof octoberPaidFileRecords !== 'undefined' && Array.isArray(octoberPaidFileRecords)) ? octoberPaidFileRecords : [];
+        activePaidRecords = [...paidFileRecords, ...octList];
+      }
+
+      if (Array.isArray(activePaidRecords)) {
+        activePaidRecords.forEach(r => {
           if (!r) return;
           const m = String(r.manager || '').toUpperCase().trim();
           const off = String(r.officer || '').toUpperCase().trim();
@@ -15402,7 +15885,7 @@
       const yestStr = `${String(yestDate.getDate()).padStart(2, '0')}-${monthsList[yestDate.getMonth()]}-${yestDate.getFullYear()}`;
 
       const myManagerName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
-      const myOwnedRecords = isAdm ? paidFileRecords : paidFileRecords.filter(r => isRecordOwnedByManager(r, myManagerName));
+      const myOwnedRecords = isAdm ? activePaidRecords : activePaidRecords.filter(r => isRecordOwnedByManager(r, myManagerName));
 
       // STRICT MIS CALLER FILTER: Only cases whose callers are active in Daily MIS appear in Paid Data
       // The result depends only on the caller name, so keep one result for each name in this render.
@@ -15432,6 +15915,9 @@
 
       const myMisRecords = myOwnedRecords.filter(r => {
         if (!isAdm && !isRecordOwnedByManager(r, myManagerName)) return false;
+        if (monthFilter === 'OCTOBER' || r.isLocked || (r.pay_date && r.pay_date.toLowerCase().includes('oct'))) {
+          return true;
+        }
         if (r.splits && Array.isArray(r.splits) && r.splits.length > 0) {
           return r.splits.some(s => s && isCallerInDailyMis(s.officer, r.manager));
         }
@@ -15564,10 +16050,17 @@
             <td class="p-2.5 border-r border-slate-200 font-bold text-amber-700"><span class="inline-flex items-center gap-1.5" title="Caller locked to this case">${LOCK_SVG}<span>${escHtml(r.officer || '-')}</span></span></td>
             <td class="p-2.5 border-r border-slate-200 font-bold text-slate-700">${escHtml(dispMgr)}</td>
             ${isMgmtReadOnly ? '' : `<td class="p-2.5 text-center paid-action-col">
-              <button onclick="openPaidCaseModal(${escHtml(JSON.stringify(r.id))})" class="px-3 py-1 bg-slate-100 hover:bg-blue-100 text-blue-700 rounded border border-slate-300 font-bold transition inline-flex items-center justify-center gap-1 text-xs" title="Edit">
-                ${EDIT_SVG}
-                <span>Edit</span>
-              </button>
+              ${(r.isLocked || (r.pay_date && r.pay_date.toLowerCase().includes('oct')) || monthFilter === 'OCTOBER') ? `
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed inline-flex items-center gap-1" title="Past month audited record is locked">
+                  ${LOCK_SVG}
+                  <span>Locked</span>
+                </span>
+              ` : `
+                <button onclick="openPaidCaseModal(${escHtml(JSON.stringify(r.id))})" class="px-3 py-1 bg-slate-100 hover:bg-blue-100 text-blue-700 rounded border border-slate-300 font-bold transition inline-flex items-center justify-center gap-1 text-xs" title="Edit">
+                  ${EDIT_SVG}
+                  <span>Edit</span>
+                </button>
+              `}
             </td>`}
           </tr>
         `;
@@ -16600,14 +17093,19 @@
         return true;
       });
 
-      // Deduplicate callers by canonical manager + clean caller name
+      // Deduplicate callers by canonical manager + clean caller name / emp_code
       const dedupLeaderboard = new Map();
       leaderboardOfficers.forEach(o => {
         if (!o || !o.name) return;
         const mk = getManagerStorageKey(o.manager || '');
-        const cName = String(o.name || '').toUpperCase().trim();
-        const key = `${mk}_${cName}`;
+        const normName = String(o.name || '').replace(/\s+/g, ' ').trim().toUpperCase();
+        const canonName = typeof formatCallerDisplayName === 'function' ? formatCallerDisplayName(normName).replace(/\s+/g, ' ').toUpperCase() : normName;
+        const empCode = o.emp_code ? String(o.emp_code).trim() : '';
+        const key = empCode ? `${mk}_emp_${empCode}` : `${mk}_${canonName}`;
         if (!dedupLeaderboard.has(key)) {
+          if (canonName && canonName !== normName && !isManagerEntityRow(o)) {
+            o.name = canonName;
+          }
           dedupLeaderboard.set(key, o);
         } else {
           const existing = dedupLeaderboard.get(key);
@@ -17059,7 +17557,7 @@ var misExpandedManagers = new Set();
         sumProjection += Number(o.projection) || 0;
       });
 
-      if (currentRole === 'MANAGER' && sumSdlm === 0) {
+      if (currentRole === 'MANAGER') {
         const myName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
         if (myName) {
           const mSdlm = getSdlmForManager(sdlmDateStr, myName);
@@ -17070,11 +17568,15 @@ var misExpandedManagers = new Set();
       if (tfoot) {
         let avgAchieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
         const totalDrr = computeMisDrr(sumBalance, drrDaysRemaining);
+        const authoritativeCoSdlm = (currentRole !== 'MANAGER' && typeof getSdlmCumulativeMtdCollection === 'function')
+          ? getSdlmCumulativeMtdCollection(sdlmDateStr).amount
+          : sumSdlm;
+        const displayMisFootSdlm = authoritativeCoSdlm > sumSdlm ? authoritativeCoSdlm : sumSdlm;
         tfoot.innerHTML = `
           <tr class="bg-[#174375] text-white">
             <td colspan="3" class="py-2.5 px-3 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTarget.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumSdlm.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${displayMisFootSdlm.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-2 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
@@ -19691,8 +20193,19 @@ var misExpandedManagers = new Set();
         }
       }
 
+      // Auto-sort strictly by Achieved %: Largest to Smallest (Descending)
+      const getMgrAchievedPct = m => {
+        const t = Number(m.target) || 0;
+        const tot = Number(m.total) || 0;
+        return t > 0 ? Math.round((tot / t) * 100) : (tot > 0 ? 100 : 0);
+      };
+
       const mgrList = Object.values(managersMap);
-      mgrList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.name.localeCompare(b.name));
+      mgrList.sort((a, b) => {
+        const achA = getMgrAchievedPct(a);
+        const achB = getMgrAchievedPct(b);
+        return (achB - achA) || (b.total - a.total) || a.name.localeCompare(b.name);
+      });
 
       const sdlmDateStr = getSameDayLastMonthDate(todayDateStr);
       let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
@@ -19751,7 +20264,7 @@ var misExpandedManagers = new Set();
 
         return `
           <tr class="${rowCls}" ${rowClickAttr}>
-            <td class="py-2.5 px-2 text-center border border-slate-300 font-normal bg-[#d9e1f2] text-slate-700 text-xs sm:text-[13px]">${idx + 1}</td>
+            <td class="py-2.5 px-2 text-center border border-slate-300 font-bold bg-[#d9e1f2] text-slate-800 text-xs sm:text-[13px]">${idx + 1}</td>
             <td class="py-2.5 px-4 text-left border border-slate-300 font-medium text-blue-900 bg-blue-50/60 text-xs sm:text-[13px] uppercase">
               <div class="flex items-center gap-2">
                 <span class="w-6 h-6 rounded-md bg-blue-700 text-white flex items-center justify-center font-medium text-[10px] shadow-xs">${escHtml(mItem.name.charAt(0))}</span>
@@ -19782,11 +20295,15 @@ var misExpandedManagers = new Set();
       const finalMgrBalance = Math.max(0, sumTarget - sumTotal);
 
       if (tfoot) {
+        const authoritativeCoSdlm = (typeof getSdlmCumulativeMtdCollection === 'function')
+          ? getSdlmCumulativeMtdCollection(sdlmDateStr).amount
+          : sumSdlm;
+        const displayMgrFootSdlm = authoritativeCoSdlm > sumSdlm ? authoritativeCoSdlm : sumSdlm;
         tfoot.innerHTML = `
           <tr class="bg-[#174375] text-white">
             <td colspan="3" class="py-2.5 px-4 text-center border border-[#174375] text-[#ffeb3b] font-black tracking-wider uppercase text-xs sm:text-sm">TOTAL</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTarget.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumSdlm.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${displayMgrFootSdlm.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumAoy.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
@@ -19934,6 +20451,8 @@ var misExpandedManagers = new Set();
 
         // Dedicated Manager Direct Recovery Row (clearly marked as Manager Direct, NOT a caller, 0 effect on caller count)
         managerSelfRows.forEach(mSelf => {
+          const mSelfSdlmAmt = (typeof getSdlmForCaller === 'function') ? getSdlmForCaller(sdlmDateStr, mSelf.name, mgrName, false) : 0;
+          if (mSelfSdlmAmt > 0) sumDrawerSdlm += mSelfSdlmAmt;
           const tr = document.createElement('tr');
           tr.className = 'bg-amber-50/70 border-t-2 border-amber-300 text-amber-950 font-normal';
           tr.innerHTML = `
@@ -19942,7 +20461,7 @@ var misExpandedManagers = new Set();
               <span class="inline-flex items-center gap-1 font-normal">${escHtml(formatCallerDisplayName(mSelf.name))} <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 font-normal">(Manager Direct)</span></span>
             </td>
             <td class="p-2 text-center border-r border-amber-200 font-mono-num text-slate-400">—</td>
-            <td class="p-2 text-center border-r border-amber-200 font-mono-num text-slate-400">—</td>
+            <td class="p-2 text-center border-r border-amber-200 font-mono-num font-normal text-amber-800 bg-amber-50/30" title="SDLM MTD Benchmark: ₹${mSelfSdlmAmt.toLocaleString('en-IN')}">${mSelfSdlmAmt > 0 ? mSelfSdlmAmt.toLocaleString('en-IN') : '—'}</td>
             <td class="p-2 text-center border-r border-amber-200 font-mono-num font-normal text-emerald-700">${Number(mSelf.today).toLocaleString('en-IN')}</td>
             <td class="p-2 text-center border-r border-amber-200 font-mono-num font-normal text-amber-900">${Number(mSelf.total).toLocaleString('en-IN')}</td>
             <td class="p-2 text-center border-r border-amber-200 font-mono-num text-slate-400">—</td>
@@ -19952,7 +20471,7 @@ var misExpandedManagers = new Set();
           tbody.appendChild(tr);
         });
 
-        if (sumDrawerSdlm === 0 && mgrSdlm.amount > 0) {
+        if (mgrSdlm && mgrSdlm.amount > 0 && (sumDrawerSdlm === 0 || sumDrawerSdlm < mgrSdlm.amount)) {
           sumDrawerSdlm = mgrSdlm.amount;
         }
 
@@ -19998,7 +20517,7 @@ var misExpandedManagers = new Set();
       const periodInput = document.getElementById('leaderboard-period-input');
       const period = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
-      const headers = ['Sr. NO', 'MANAGER', 'BRANCH', 'TARGET', 'SDLM', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%', 'CALLERS'];
+      const headers = ['RANK', 'MANAGER', 'BRANCH', 'TARGET', 'SDLM', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%', 'CALLERS'];
       const rows = [headers];
 
       const tbody = document.getElementById('manager-collection-tbody');
