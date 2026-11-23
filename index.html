@@ -1134,10 +1134,10 @@
     /* Manager & Portfolio Slide Drawers Table Unbold & Normal Weight Restoration */
     #manager-slide-drawer .sheet table,
     #portfolio-managers-drawer .sheet table {
-      font-weight: 400 !important;
+      font-weight: 400;
     }
-    #manager-slide-drawer .sheet thead th,
-    #portfolio-managers-drawer .sheet thead th,
+    
+    /* LIGHT MODE STYLES FOR DRAWERS */
     :root[data-theme="light"] #manager-slide-drawer .sheet thead th,
     :root[data-theme="light"] #portfolio-managers-drawer .sheet thead th,
     :root[data-theme="light"] body.theme-white #manager-slide-drawer .sheet thead th,
@@ -1150,14 +1150,6 @@
       background: var(--raised) !important;
       padding: 9px 8px !important;
     }
-    #manager-slide-drawer .sheet tbody tr,
-    #portfolio-managers-drawer .sheet tbody tr {
-      font-weight: 400 !important;
-    }
-    #manager-slide-drawer .sheet tbody td,
-    #manager-slide-drawer .sheet table tbody td,
-    #portfolio-managers-drawer .sheet tbody td,
-    #portfolio-managers-drawer .sheet table tbody td,
     :root[data-theme="light"] #manager-slide-drawer .sheet tbody td,
     :root[data-theme="light"] #manager-slide-drawer .sheet table tbody td,
     :root[data-theme="light"] #portfolio-managers-drawer .sheet tbody td,
@@ -1170,31 +1162,6 @@
       font-weight: 400 !important;
       font-size: 12px !important;
     }
-    #manager-slide-drawer .sheet tbody td *,
-    #portfolio-managers-drawer .sheet tbody td *,
-    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td *,
-    :root[data-theme="light"] #portfolio-managers-drawer .sheet tbody td *,
-    :root[data-theme="light"] body.theme-white #manager-slide-drawer .sheet tbody td *,
-    :root[data-theme="light"] body.theme-white #portfolio-managers-drawer .sheet tbody td * {
-      font-weight: 400 !important;
-    }
-    #manager-slide-drawer .sheet tbody td.font-bold,
-    #manager-slide-drawer .sheet tbody td.font-extrabold,
-    #manager-slide-drawer .sheet tbody td.font-black,
-    #manager-slide-drawer .sheet tbody td.font-semibold,
-    #manager-slide-drawer .sheet tbody td .font-bold,
-    #manager-slide-drawer .sheet tbody td .font-extrabold,
-    #manager-slide-drawer .sheet tbody td .font-black,
-    #portfolio-managers-drawer .sheet tbody td.font-bold,
-    #portfolio-managers-drawer .sheet tbody td.font-extrabold,
-    #portfolio-managers-drawer .sheet tbody td.font-black,
-    #portfolio-managers-drawer .sheet tbody td .font-bold,
-    #portfolio-managers-drawer .sheet tbody td .font-extrabold,
-    #portfolio-managers-drawer .sheet tbody td .font-black {
-      font-weight: 400 !important;
-    }
-    #manager-slide-drawer .sheet tbody td:first-child,
-    #portfolio-managers-drawer .sheet tbody td:first-child,
     :root[data-theme="light"] #manager-slide-drawer .sheet tbody td:first-child,
     :root[data-theme="light"] #portfolio-managers-drawer .sheet tbody td:first-child,
     :root[data-theme="light"] body.theme-white #manager-slide-drawer .sheet tbody td:first-child,
@@ -1202,39 +1169,186 @@
       color: #64748b !important;
       font-weight: 500 !important;
     }
-    #manager-slide-drawer .sheet tbody td:nth-child(2),
-    #portfolio-managers-drawer .sheet tbody td:nth-child(2),
     :root[data-theme="light"] #manager-slide-drawer .sheet tbody td:nth-child(2),
     :root[data-theme="light"] #portfolio-managers-drawer .sheet tbody td:nth-child(2),
     :root[data-theme="light"] body.theme-white #manager-slide-drawer .sheet tbody td:nth-child(2),
     :root[data-theme="light"] body.theme-white #portfolio-managers-drawer .sheet tbody td:nth-child(2) {
       color: #0f172a !important;
-      font-weight: 500 !important;
+      font-weight: 600 !important;
     }
-    #manager-slide-drawer .sheet tbody td.text-emerald-700,
-    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td.text-emerald-700 {
+    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td.text-emerald-700,
+    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td.text-emerald-700 * {
       color: #15803d !important;
-      font-weight: 400 !important;
     }
-    #manager-slide-drawer .sheet tbody td.text-rose-700,
-    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td.text-rose-700 {
+    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td.text-rose-700,
+    :root[data-theme="light"] #manager-slide-drawer .sheet tbody td.text-rose-700 * {
       color: #be123c !important;
-      font-weight: 400 !important;
     }
+
+    /* DARK MODE STYLES FOR DRAWERS (CRISP, HIGH-CONTRAST & PROPERLY VISIBLE) */
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet thead th,
+    :root:not([data-theme="light"]) #portfolio-managers-drawer .sheet thead th,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet thead th,
+    :root[data-theme="dark"] #portfolio-managers-drawer .sheet thead th {
+      color: #cbd5e1 !important;
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      letter-spacing: .03em !important;
+      text-transform: uppercase !important;
+      background: #1c1c1a !important;
+      border-bottom: 1px solid #333330 !important;
+      padding: 9px 8px !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td,
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet table tbody td,
+    :root:not([data-theme="light"]) #portfolio-managers-drawer .sheet tbody td,
+    :root:not([data-theme="light"]) #portfolio-managers-drawer .sheet table tbody td,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet table tbody td,
+    :root[data-theme="dark"] #portfolio-managers-drawer .sheet tbody td,
+    :root[data-theme="dark"] #portfolio-managers-drawer .sheet table tbody td {
+      color: #f1f5f9 !important;
+      font-weight: 400 !important;
+      font-size: 12px !important;
+      border-color: #2a2a27 !important;
+      background: transparent !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody tr:nth-child(even),
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody tr:nth-child(even) {
+      background: #181816 !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody tr:hover,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody tr:hover {
+      background: #262623 !important;
+    }
+    /* CALLER NAME: PURE WHITE BOLD IN DARK MODE */
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td:nth-child(2),
+    :root:not([data-theme="light"]) #portfolio-managers-drawer .sheet tbody td:nth-child(2),
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td:nth-child(2),
+    :root[data-theme="dark"] #portfolio-managers-drawer .sheet tbody td:nth-child(2) {
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      background: transparent !important;
+    }
+    /* RANK # IN DARK MODE */
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td:first-child,
+    :root:not([data-theme="light"]) #portfolio-managers-drawer .sheet tbody td:first-child,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td:first-child,
+    :root[data-theme="dark"] #portfolio-managers-drawer .sheet tbody td:first-child {
+      color: #94a3b8 !important;
+      font-weight: 600 !important;
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+    /* SDLM IN DARK MODE */
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td:nth-child(4),
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td:nth-child(4) {
+      color: #fbbf24 !important;
+      background: rgba(251, 191, 36, 0.08) !important;
+    }
+    /* TODAY (EMERALD) IN DARK MODE */
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td.text-emerald-700,
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td.text-emerald-700 *,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td.text-emerald-700,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td.text-emerald-700 * {
+      color: #4ade80 !important;
+      font-weight: 600 !important;
+    }
+    /* BALANCE (ROSE) IN DARK MODE */
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td.text-rose-700,
+    :root:not([data-theme="light"]) #manager-slide-drawer .sheet tbody td.text-rose-700 *,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td.text-rose-700,
+    :root[data-theme="dark"] #manager-slide-drawer .sheet tbody td.text-rose-700 * {
+      color: #f87171 !important;
+      font-weight: 600 !important;
+    }
+    /* TOP STRIP KPIS IN DARK MODE */
+    :root:not([data-theme="light"]) #manager-slide-drawer .card-sub,
+    :root:not([data-theme="light"]) #portfolio-managers-drawer .card-sub,
+    :root[data-theme="dark"] #manager-slide-drawer .card-sub,
+    :root[data-theme="dark"] #portfolio-managers-drawer .card-sub {
+      color: #94a3b8 !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-count,
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-target,
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-today,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-count,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-target,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-today {
+      color: #f8fafc !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-sdlm,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-sdlm {
+      color: #fbbf24 !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-collection,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-collection {
+      color: #4ade80 !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-balance,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-balance {
+      color: #f87171 !important;
+    }
+    :root:not([data-theme="light"]) #manager-slide-drawer #drawer-kpi-achieved,
+    :root[data-theme="dark"] #manager-slide-drawer #drawer-kpi-achieved {
+      color: #fb923c !important;
+    }
+
     #manager-slide-drawer .sheet tfoot tr,
     #portfolio-managers-drawer .sheet tfoot tr {
       background: #174375 !important;
       color: #ffffff !important;
     }
     #manager-slide-drawer .sheet tfoot td,
-    #portfolio-managers-drawer .sheet tfoot td,
-    :root[data-theme="light"] #manager-slide-drawer .sheet tfoot td,
-    :root[data-theme="light"] #portfolio-managers-drawer .sheet tfoot td,
-    :root[data-theme="light"] body.theme-white #manager-slide-drawer .sheet tfoot td,
-    :root[data-theme="light"] body.theme-white #portfolio-managers-drawer .sheet tfoot td {
+    #portfolio-managers-drawer .sheet tfoot td {
       color: #ffffff !important;
       font-weight: 600 !important;
       font-size: 12px !important;
+    }
+
+    
+    /* SDLM COMPARISON TABLES: LIGHT & DARK MODE SUPPORT */
+    :root[data-theme="light"] #sdlm-comp-mgr-tbody td,
+    :root[data-theme="light"] #sdlm-comp-branch-tbody td,
+    :root[data-theme="light"] #sdlm-comp-mgr-tfoot td,
+    :root[data-theme="light"] #sdlm-comp-branch-tfoot td,
+    :root[data-theme="light"] .sdlm-table th,
+    :root[data-theme="light"] #sdlm-comp-today-date-input {
+      color: #000000 !important;
+    }
+
+    :root:not([data-theme="light"]) #sdlm-comp-mgr-tbody td,
+    :root[data-theme="dark"] #sdlm-comp-mgr-tbody td,
+    :root:not([data-theme="light"]) #sdlm-comp-branch-tbody td,
+    :root[data-theme="dark"] #sdlm-comp-branch-tbody td,
+    :root:not([data-theme="light"]) #sdlm-comp-mgr-tfoot td,
+    :root[data-theme="dark"] #sdlm-comp-mgr-tfoot td,
+    :root:not([data-theme="light"]) #sdlm-comp-branch-tfoot td,
+    :root[data-theme="dark"] #sdlm-comp-branch-tfoot td,
+    :root:not([data-theme="light"]) .sdlm-table th,
+    :root[data-theme="dark"] .sdlm-table th,
+    :root:not([data-theme="light"]) #sdlm-comp-today-date-input,
+    :root[data-theme="dark"] #sdlm-comp-today-date-input {
+      color: #f8fafc !important;
+    }
+
+    :root:not([data-theme="light"]) #sdlm-comp-mgr-tbody tr:nth-child(even),
+    :root[data-theme="dark"] #sdlm-comp-mgr-tbody tr:nth-child(even),
+    :root:not([data-theme="light"]) #sdlm-comp-branch-tbody tr:nth-child(even),
+    :root[data-theme="dark"] #sdlm-comp-branch-tbody tr:nth-child(even) {
+      background: #181816 !important;
+    }
+
+    :root:not([data-theme="light"]) #sdlm-comp-mgr-tbody tr:hover,
+    :root[data-theme="dark"] #sdlm-comp-mgr-tbody tr:hover,
+    :root:not([data-theme="light"]) #sdlm-comp-branch-tbody tr:hover,
+    :root[data-theme="dark"] #sdlm-comp-branch-tbody tr:hover {
+      background: #262623 !important;
+    }
+
+    :root:not([data-theme="light"]) td.bg-amber-50\/40,
+    :root[data-theme="dark"] td.bg-amber-50\/40 {
+      background: rgba(245, 158, 11, 0.08) !important;
+      color: #fbbf24 !important;
     }
 
     /* Generic data tables (paid data, users) */
@@ -1517,9 +1631,9 @@
         <button onclick="handleAppRefresh()" id="btn-nav-refresh" title="Reload all data from the server" class="nav-item">
           <i id="icon-nav-refresh" data-lucide="refresh-cw"></i><span>Refresh data</span>
         </button>
-        <button onclick="openSupabaseModal()" id="btn-supabase-config" title="Cloud database settings" class="hidden nav-item">
+        <button onclick="openGoogleSheetModal()" id="btn-supabase-config" title="Google Sheet cloud database settings" class="nav-item">
           <span class="w-[18px] grid place-items-center"><span id="supabase-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span></span>
-          <span id="supabase-status-text">Cloud DB</span>
+          <span id="supabase-status-text">Sheet DB</span>
         </button>
 
         <div id="auth-user-bar" class="user-card">
@@ -2100,6 +2214,10 @@
             </div>
             <div class="actions">
               <span class="pill"><i data-lucide="calendar"></i><span id="mgr-summary-date" class="num">--</span></span>
+              <!-- Auto Sort Indicator & Reset Button -->
+              <button id="btn-mgr-auto-sort" onclick="resetManagerAutoSort()" class="btn text-xs font-bold transition flex items-center gap-1.5" title="Reset to Default Auto Sort: Achieved % (Largest to Smallest)">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i><span id="mgr-auto-sort-btn-text">Auto Sort: Achieved % ▼</span>
+              </button>
               <button id="btn-mgr-wise-update-target" onclick="openManagerTargetModal()" class="btn" title="Update Manager Assigned Targets">
                 <i data-lucide="edit-3"></i><span>Update Manager Target</span>
               </button>
@@ -2124,13 +2242,48 @@
                     <th class="w-12">Rank</th>
                     <th class="l">Manager</th>
                     <th>Branch</th>
-                    <th>Target</th>
-                    <th class="text-center font-bold text-amber-900 bg-amber-50/60" title="Same Day Last Month (SDLM MTD Collection)">SDLM</th>
-                    <th>AOY / MTD</th>
-                    <th>Today</th>
-                    <th>Total</th>
-                    <th>Balance</th>
-                    <th>Achieved</th>
+                    <th id="th-mgr-target" onclick="handleManagerTableSort('target')" class="cursor-pointer select-none hover:bg-slate-200/80 transition" title="Click to sort by Target (Largest to Smallest / Smallest to Largest)">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>Target</span>
+                        <span id="mgr-sort-icon-target" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-sdlm" onclick="handleManagerTableSort('sdlm')" class="cursor-pointer select-none text-center font-bold text-amber-900 bg-amber-50/60 hover:bg-amber-100/80 transition" title="Same Day Last Month (SDLM MTD Collection) - Click to sort">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>SDLM</span>
+                        <span id="mgr-sort-icon-sdlm" class="text-[10px] text-amber-700 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-aoy" onclick="handleManagerTableSort('aoy')" class="cursor-pointer select-none hover:bg-slate-200/80 transition" title="Click to sort by AOY / MTD">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>AOY / MTD</span>
+                        <span id="mgr-sort-icon-aoy" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-today" onclick="handleManagerTableSort('today')" class="cursor-pointer select-none hover:bg-slate-200/80 transition" title="Click to sort by Today">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>Today</span>
+                        <span id="mgr-sort-icon-today" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-total" onclick="handleManagerTableSort('total')" class="cursor-pointer select-none hover:bg-slate-200/80 transition" title="Click to sort by Total (Largest to Smallest / Smallest to Largest)">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>Total</span>
+                        <span id="mgr-sort-icon-total" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-balance" onclick="handleManagerTableSort('balance')" class="cursor-pointer select-none hover:bg-slate-200/80 transition" title="Click to sort by Balance (Largest to Smallest / Smallest to Largest)">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>Balance</span>
+                        <span id="mgr-sort-icon-balance" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-achieved" onclick="handleManagerTableSort('achieved')" class="cursor-pointer select-none hover:bg-slate-200/80 transition font-black" title="Click to sort by Achieved % (Default Auto Sort)">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>Achieved</span>
+                        <span id="mgr-sort-icon-achieved" class="text-xs font-black text-blue-700 ml-1 inline-block">▼</span>
+                      </div>
+                    </th>
                     <th>Callers</th>
                     <th class="mis-action-col"><span class="sr-only">Open</span></th>
                   </tr>
@@ -2289,16 +2442,16 @@
             <div class="overflow-x-auto">
               <table class="dtable w-full text-xs text-left">
                 <thead>
-                  <tr style="color: #000000 !important;">
-                    <th class="p-2.5 text-center w-12 font-extrabold" style="color: #000000 !important;">#</th>
-                    <th class="p-2.5 font-extrabold" style="color: #000000 !important;">Manager</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">Branch</th>
-                    <th class="p-2.5 text-right font-extrabold" style="color: #000000 !important;">Today (₹)</th>
-                    <th class="p-2.5 text-right font-extrabold bg-amber-50/70" style="color: #000000 !important;">SDLM (₹)</th>
-                    <th class="p-2.5 text-right font-extrabold" style="color: #000000 !important;">Difference (₹)</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">Growth %</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">Today Cases</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">SDLM Cases</th>
+                  <tr class="sdlm-table-header">
+                    <th class="p-2.5 text-center w-12 font-extrabold" >#</th>
+                    <th class="p-2.5 font-extrabold" >Manager</th>
+                    <th class="p-2.5 text-center font-extrabold" >Branch</th>
+                    <th class="p-2.5 text-right font-extrabold" >Today (₹)</th>
+                    <th class="p-2.5 text-right font-extrabold bg-amber-50/70" >SDLM (₹)</th>
+                    <th class="p-2.5 text-right font-extrabold" >Difference (₹)</th>
+                    <th class="p-2.5 text-center font-extrabold" >Growth %</th>
+                    <th class="p-2.5 text-center font-extrabold" >Today Cases</th>
+                    <th class="p-2.5 text-center font-extrabold" >SDLM Cases</th>
                   </tr>
                 </thead>
                 <tbody id="sdlm-comp-mgr-tbody"></tbody>
@@ -2321,15 +2474,15 @@
             <div class="overflow-x-auto">
               <table class="dtable w-full text-xs text-left">
                 <thead>
-                  <tr style="color: #000000 !important;">
-                    <th class="p-2.5 text-center w-12 font-extrabold" style="color: #000000 !important;">#</th>
-                    <th class="p-2.5 font-extrabold" style="color: #000000 !important;">Branch</th>
-                    <th class="p-2.5 text-right font-extrabold" style="color: #000000 !important;">Today (₹)</th>
-                    <th class="p-2.5 text-right font-extrabold bg-amber-50/70" style="color: #000000 !important;">SDLM (₹)</th>
-                    <th class="p-2.5 text-right font-extrabold" style="color: #000000 !important;">Difference (₹)</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">Growth %</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">Today Cases</th>
-                    <th class="p-2.5 text-center font-extrabold" style="color: #000000 !important;">SDLM Cases</th>
+                  <tr class="sdlm-table-header">
+                    <th class="p-2.5 text-center w-12 font-extrabold" >#</th>
+                    <th class="p-2.5 font-extrabold" >Branch</th>
+                    <th class="p-2.5 text-right font-extrabold" >Today (₹)</th>
+                    <th class="p-2.5 text-right font-extrabold bg-amber-50/70" >SDLM (₹)</th>
+                    <th class="p-2.5 text-right font-extrabold" >Difference (₹)</th>
+                    <th class="p-2.5 text-center font-extrabold" >Growth %</th>
+                    <th class="p-2.5 text-center font-extrabold" >Today Cases</th>
+                    <th class="p-2.5 text-center font-extrabold" >SDLM Cases</th>
                   </tr>
                 </thead>
                 <tbody id="sdlm-comp-branch-tbody"></tbody>
@@ -3651,6 +3804,68 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- MODAL: GOOGLE SHEETS CLOUD DATABASE CONFIG -->
+  <!-- ========================================== -->
+  <div id="google-sheet-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-lg w-full rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-emerald-600"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900">Google Sheet Cloud Database</h3>
+            <p class="text-xs text-slate-500">Free, unlimited cloud sync via Google Apps Script Web App.</p>
+          </div>
+        </div>
+        <button onclick="closeGoogleSheetModal()" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Google Apps Script Web App URL *</label>
+          <input type="url" id="gsheet-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+          <p class="text-[11px] text-slate-400 mt-1">Deploy Apps Script as Web App (Execute as: Me, Access: Anyone) and paste URL here.</p>
+        </div>
+
+        <div id="gsheet-status-box" class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="gsheet-modal-indicator" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+            <span id="gsheet-modal-status-text" class="font-medium text-slate-700">Checking connection...</span>
+          </div>
+          <button type="button" onclick="testGoogleSheetConnection()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-md text-[11px] font-bold text-slate-700 shadow-2xs transition cursor-pointer">
+            Test Ping
+          </button>
+        </div>
+
+        <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200 text-[11px] text-emerald-900 space-y-1.5">
+          <div class="font-bold flex items-center gap-1.5 text-emerald-800">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Google Sheet Cloud Storage Active</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-emerald-700">
+            <li>No database size limits (Unlimited Google Drive space).</li>
+            <li>All manager collections, paid files &amp; targets stay live.</li>
+            <li>Automatic background heartbeat keeps all devices synchronized.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+        <button type="button" onclick="closeGoogleSheetModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition cursor-pointer">Cancel</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="saveGoogleSheetConfig()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Save &amp; Connect</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md pointer-events-none"></div>
 
@@ -3735,7 +3950,15 @@
     }
 
     // --- System Defaults & Configurations ---
+    // Helper to get clean unique customer/case identifier from a paid record
+    function getRecordCustomerId(r) {
+      if (!r) return '';
+      const cid = String(r.cust_id || r.customer_id || r.loan_no || r.cust_name || r.id || '').trim().toUpperCase();
+      return cid;
+    }
+
     const APP_BUILD_ID = "BUILD_20261120_160000";
+    const DEFAULT_GOOGLE_SHEET_URL = ''; // Paste your deployed Google Apps Script Web App URL here
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
     const SESSION_INACTIVITY_LIMIT_MS = 8 * 60 * 60 * 1000; // 8 Hours (Full Shift Active Session)
@@ -5888,6 +6111,8 @@ const CANONICAL_CALLER_DIRECTORY = {
           renderBranchWiseCollection();
         } else if (currentTab === 'manager-collection' && typeof renderManagerWiseCollection === 'function') {
           renderManagerWiseCollection();
+        } else if (currentTab === 'sdlm-comparison' && typeof renderSdlmComparisonTab === 'function') {
+          renderSdlmComparisonTab();
         } else if (currentTab === 'caller-targets' && typeof renderCallerTargetsTab === 'function') {
           renderCallerTargetsTab();
         } else if (currentTab === 'day-graph' && typeof renderDayGraphTab === 'function') {
@@ -5943,12 +6168,297 @@ const CANONICAL_CALLER_DIRECTORY = {
       window.addEventListener('focus', throttledFocusRefresh);
     }
 
+    // ==========================================
+    // GOOGLE SHEETS LIVE CLOUD DATABASE ADAPTER
+    // ==========================================
+    function createGoogleSheetClient(webAppUrl) {
+      const cleanUrl = String(webAppUrl || '').trim();
+
+      return {
+        from(table) {
+          const state = {
+            table: table || 'bank_transactions',
+            action: 'select',
+            eqField: null,
+            eqVal: null,
+            likeField: null,
+            likeVal: null,
+            inField: null,
+            inList: null,
+            limitNum: null,
+            payload: null
+          };
+
+          const qb = {
+            select(cols = '*') {
+              state.action = 'select';
+              return qb;
+            },
+            eq(col, val) {
+              state.eqField = col;
+              state.eqVal = String(val);
+              return qb;
+            },
+            like(col, pattern) {
+              state.likeField = col;
+              state.likeVal = String(pattern).replace(/%/g, '');
+              return qb;
+            },
+            in(col, list) {
+              state.inField = col;
+              state.inList = Array.isArray(list) ? list : [list];
+              return qb;
+            },
+            order(col, opts) {
+              return qb;
+            },
+            limit(num) {
+              state.limitNum = num;
+              return qb;
+            },
+            insert(records) {
+              state.action = 'insert';
+              state.payload = records;
+              return qb;
+            },
+            update(fields) {
+              state.action = 'update';
+              state.payload = fields;
+              return qb;
+            },
+            upsert(records) {
+              state.action = 'upsert';
+              state.payload = records;
+              return qb;
+            },
+            delete() {
+              state.action = 'delete';
+              return qb;
+            },
+            then(onOk, onErr) {
+              return executeGoogleSheetQuery(cleanUrl, state).then(onOk, onErr);
+            }
+          };
+
+          return qb;
+        },
+
+        channel(channelName) {
+          return {
+            on(event, filter, callback) {
+              return this;
+            },
+            subscribe(callback) {
+              if (typeof callback === 'function') {
+                setTimeout(() => callback('SUBSCRIBED'), 30);
+              }
+              return this;
+            }
+          };
+        },
+
+        removeChannel() {
+          // No-op
+        }
+      };
+    }
+
+    async function executeGoogleSheetQuery(url, state) {
+      if (!url) {
+        return { data: null, error: new Error('Google Sheet Web App URL is not set.') };
+      }
+
+      try {
+        if (state.action === 'select') {
+          const queryParams = new URLSearchParams();
+          if (state.eqField === 'ref_no' && state.eqVal) {
+            queryParams.set('action', 'get');
+            queryParams.set('ref_no', state.eqVal);
+          } else if (state.eqField === 'id' && state.eqVal) {
+            queryParams.set('action', 'get');
+            queryParams.set('ref_no', state.eqVal);
+          } else if (state.likeField === 'ref_no' && state.likeVal) {
+            queryParams.set('action', 'like');
+            queryParams.set('pattern', state.likeVal);
+          } else if (state.inField === 'ref_no' && state.inList && state.inList.length > 0) {
+            queryParams.set('action', 'heartbeat');
+            queryParams.set('keys', state.inList.join(','));
+          } else {
+            queryParams.set('action', 'all');
+          }
+
+          const fetchUrl = url + (url.includes('?') ? '&' : '?') + queryParams.toString();
+          const res = await fetch(fetchUrl, { method: 'GET', redirect: 'follow' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          const json = await res.json();
+          let data = Array.isArray(json.data) ? json.data : [];
+
+          // Standardize rows so that id === ref_no and narration is present
+          data = data.map(row => {
+            const rNo = row.ref_no || row.id || '';
+            return {
+              id: rNo,
+              ref_no: rNo,
+              narration: row.narration || '',
+              updated_at: row.updated_at || new Date().toISOString(),
+              amount: row.amount || 0,
+              bank_name: row.bank_name || 'SYSTEM'
+            };
+          });
+
+          if (state.limitNum && data.length > state.limitNum) {
+            data = data.slice(0, state.limitNum);
+          }
+
+          return { data, error: null };
+        } else if (state.action === 'insert' || state.action === 'update' || state.action === 'upsert') {
+          let refNo = (state.eqField === 'ref_no' || state.eqField === 'id') ? state.eqVal : '';
+          let narration = '';
+          let amount = 0;
+          let updatedAt = new Date().toISOString();
+
+          if (Array.isArray(state.payload) && state.payload.length > 0) {
+            const first = state.payload[0] || {};
+            refNo = first.ref_no || refNo;
+            narration = first.narration || '';
+            amount = first.amount || 0;
+            if (first.updated_at) updatedAt = first.updated_at;
+          } else if (state.payload && typeof state.payload === 'object') {
+            if (state.payload.ref_no) refNo = state.payload.ref_no;
+            if (state.payload.narration !== undefined) narration = state.payload.narration;
+            if (state.payload.amount !== undefined) amount = state.payload.amount;
+            if (state.payload.updated_at) updatedAt = state.payload.updated_at;
+          }
+
+          if (!refNo && state.eqVal) {
+            refNo = state.eqVal;
+          }
+
+          const postBody = {
+            action: 'save',
+            ref_no: refNo,
+            narration: typeof narration === 'string' ? narration : JSON.stringify(narration),
+            amount: amount,
+            updated_at: updatedAt
+          };
+
+          // Using text/plain so CORS preflight OPTIONS is NOT sent by browser
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(postBody),
+            redirect: 'follow'
+          });
+
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          const json = await res.json();
+          if (json && json.status === 'error') {
+            throw new Error(json.message || 'Google Sheet save error');
+          }
+
+          if (typeof notifyOtherSystemsLocal === 'function' && refNo) {
+            notifyOtherSystemsLocal(refNo);
+          }
+
+          return { data: [{ id: refNo, ref_no: refNo, narration: postBody.narration, updated_at: updatedAt }], error: null };
+        }
+
+        return { data: [], error: null };
+      } catch (err) {
+        console.error('[Google Sheet DB Error]', err);
+        return { data: null, error: err };
+      }
+    }
+
+    function openGoogleSheetModal() {
+      const modal = document.getElementById('google-sheet-modal');
+      const input = document.getElementById('gsheet-url-input');
+      if (!modal) return;
+      const currentUrl = localStorage.getItem('google_sheet_url') || DEFAULT_GOOGLE_SHEET_URL || '';
+      if (input) input.value = currentUrl;
+      modal.classList.remove('hidden');
+      testGoogleSheetConnection();
+      safeCreateIcons(modal);
+    }
+
+    function closeGoogleSheetModal() {
+      const modal = document.getElementById('google-sheet-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    var openSupabaseModal = openGoogleSheetModal;
+
+    async function testGoogleSheetConnection() {
+      const input = document.getElementById('gsheet-url-input');
+      const ind = document.getElementById('gsheet-modal-indicator');
+      const txt = document.getElementById('gsheet-modal-status-text');
+      const url = (input ? input.value.trim() : '') || localStorage.getItem('google_sheet_url') || DEFAULT_GOOGLE_SHEET_URL;
+
+      if (!url) {
+        if (ind) ind.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+        if (txt) txt.innerText = 'No Web App URL configured yet.';
+        return;
+      }
+
+      if (ind) ind.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
+      if (txt) txt.innerText = 'Testing connection...';
+
+      try {
+        const pingUrl = url + (url.includes('?') ? '&' : '?') + 'action=heartbeat';
+        const res = await fetch(pingUrl, { method: 'GET', redirect: 'follow' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json && json.status === 'success') {
+          const count = Array.isArray(json.data) ? json.data.length : 0;
+          if (ind) ind.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+          if (txt) txt.innerText = `Connected! ${count} database keys found.`;
+        } else {
+          throw new Error(json.message || 'Invalid response');
+        }
+      } catch(err) {
+        if (ind) ind.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+        if (txt) txt.innerText = `Connection failed: ${err.message}`;
+      }
+    }
+
+    async function saveGoogleSheetConfig() {
+      const input = document.getElementById('gsheet-url-input');
+      const url = input ? input.value.trim() : '';
+      if (!url) {
+        showToast('Please enter your Google Apps Script Web App URL.', 'error');
+        return;
+      }
+      localStorage.setItem('google_sheet_url', url);
+      initSupabase();
+      closeGoogleSheetModal();
+      showToast('Google Sheet Web App URL connected! Synchronizing live...', 'success');
+      if (typeof handleAppRefresh === 'function') {
+        handleAppRefresh(false);
+      }
+    }
+
     function initSupabase() {
+      const gsheetUrl = localStorage.getItem('google_sheet_url') || DEFAULT_GOOGLE_SHEET_URL;
       const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
       const key = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
       const indicator = document.getElementById('supabase-indicator');
       const text = document.getElementById('supabase-status-text');
 
+      // 1. Primary Storage: Google Sheets Web App (Zero storage limits, 100% free)
+      if (gsheetUrl) {
+        try {
+          supabaseClient = makeCloudWritesThrow(createGoogleSheetClient(gsheetUrl));
+          if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+          if (text) text.innerText = 'Google Sheet: Active';
+          initRealtimeSync();
+          startServerHeartbeat();
+          return;
+        } catch (e) {
+          console.error('Failed to init Google Sheet client:', e);
+        }
+      }
+
+      // 2. Fallback Storage: Supabase (Legacy)
       if (url && key && window.supabase) {
         try {
           supabaseClient = makeCloudWritesThrow(window.supabase.createClient(url, key));
@@ -5956,11 +6466,16 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (text) text.innerText = 'Live Sync: Active';
           initRealtimeSync();
           startServerHeartbeat();
+          return;
         } catch (e) {
           if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
           if (text) text.innerText = 'Cloud DB: Error';
+          return;
         }
       }
+
+      if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+      if (text) text.innerText = 'Sheet DB: Connect';
     }
 
     // supabase-js returns { error } and does not throw. Make failed writes throw,
@@ -6837,7 +7352,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           try {
             const byManager = {};
             paidFileRecords.forEach(r => {
-              const mgrKey = getManagerStorageKey(r.manager); const altKey = (r.manager || 'admin').toLowerCase().replace(/[^a-z0-9]/g, '_'); if (altKey && !byManager[altKey]) byManager[altKey] = []; if (altKey) byManager[altKey].push(r);
+              const mgrKey = getManagerStorageKey(r.manager);
               if (!byManager[mgrKey]) byManager[mgrKey] = [];
               byManager[mgrKey].push(r);
             });
@@ -11113,19 +11628,28 @@ const CANONICAL_CALLER_DIRECTORY = {
       const myMgrName = getCurrentManagerIdentifier();
       const myMgrKey = isMgrViewer ? resolveManagerUserKey(myMgrName) : '';
 
-      // Count cases today per manager and branch
+      // Count unique customer cases today per manager and branch (deduplicating multiple payments for same customer)
       const allRecs = Array.isArray(paidFileRecords) ? paidFileRecords : [];
       const todayPaidRecs = allRecs.filter(r => r && !isRecordTombstoned(r) && isSameDate(r.pay_date, todayDateStr));
-      const todayCasesByMgr = {};
-      const todayCasesByBranch = {};
+      const todayCustsByMgr = {};
+      const todayCustsByBranch = {};
       todayPaidRecs.forEach(r => {
+        const cid = (typeof getRecordCustomerId === 'function') ? getRecordCustomerId(r) : String(r.cust_id || r.customer_id || r.cust_name || r.id || '').trim().toUpperCase();
+        if (!cid) return;
         let m = String(r.manager || r.officer || '').toUpperCase().trim();
         if (m === 'ANURADHA') m = 'SUBHASHREE';
         const canonM = (typeof canonicalizeManagerTargetName === 'function') ? canonicalizeManagerTargetName(m) : m;
-        todayCasesByMgr[canonM] = (todayCasesByMgr[canonM] || 0) + 1;
+        if (!todayCustsByMgr[canonM]) todayCustsByMgr[canonM] = new Set();
+        todayCustsByMgr[canonM].add(cid);
+
         let b = (getBranchForManager(canonM) || 'JOGESHWARI').toUpperCase().trim();
-        todayCasesByBranch[b] = (todayCasesByBranch[b] || 0) + 1;
+        if (!todayCustsByBranch[b]) todayCustsByBranch[b] = new Set();
+        todayCustsByBranch[b].add(cid);
       });
+      const todayCasesByMgr = {};
+      for (const k in todayCustsByMgr) todayCasesByMgr[k] = todayCustsByMgr[k].size;
+      const todayCasesByBranch = {};
+      for (const k in todayCustsByBranch) todayCasesByBranch[k] = todayCustsByBranch[k].size;
 
       // 1. MANAGER-WISE SDLM BREAKDOWN
       const managersMap = {};
@@ -11214,15 +11738,15 @@ const CANONICAL_CALLER_DIRECTORY = {
 
         return `
           <tr class="${rowCls}">
-            <td class="p-2.5 text-center font-bold w-12" style="color: #000000 !important;">${idx + 1}</td>
-            <td class="p-2.5 font-extrabold" style="color: #000000 !important;">${escHtml(mItem.name)}</td>
-            <td class="p-2.5 text-center font-bold" style="color: #000000 !important;">${escHtml(mItem.branch)}</td>
-            <td class="p-2.5 text-right font-mono font-black" style="color: #000000 !important;">${formatCurrency(todayAmt)}</td>
-            <td class="p-2.5 text-right font-mono font-black bg-amber-50/40" style="color: #000000 !important;">${formatCurrency(sdlmAmt)}</td>
+            <td class="p-2.5 text-center font-bold w-12" >${idx + 1}</td>
+            <td class="p-2.5 font-extrabold" >${escHtml(mItem.name)}</td>
+            <td class="p-2.5 text-center font-bold" >${escHtml(mItem.branch)}</td>
+            <td class="p-2.5 text-right font-mono font-black" >${formatCurrency(todayAmt)}</td>
+            <td class="p-2.5 text-right font-mono font-black bg-amber-50/40" >${formatCurrency(sdlmAmt)}</td>
             <td class="p-2.5 text-right font-mono ${diffCls}">${diffSign}${formatCurrency(diffAmt)}</td>
             <td class="p-2.5 text-center font-mono font-bold ${growthPct >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${diffSign}${growthPct}%</td>
-            <td class="p-2.5 text-center font-bold" style="color: #000000 !important;">${todayCases}</td>
-            <td class="p-2.5 text-center font-bold bg-amber-50/40" style="color: #000000 !important;">${sdlmCases}</td>
+            <td class="p-2.5 text-center font-bold" >${todayCases}</td>
+            <td class="p-2.5 text-center font-bold bg-amber-50/40" >${sdlmCases}</td>
           </tr>
         `;
       }).join('');
@@ -11230,6 +11754,14 @@ const CANONICAL_CALLER_DIRECTORY = {
       const grandDiffAmt = grandTodayAmt - grandSdlmAmt;
       const grandGrowthPct = grandSdlmAmt > 0 ? Math.round((grandDiffAmt / grandSdlmAmt) * 100) : (grandTodayAmt > 0 ? 100 : 0);
       const grandDiffSign = grandDiffAmt >= 0 ? '+' : '';
+
+      // Compute unique customer count across all displayed managers for grand total
+      const allDisplayedMgrCusts = new Set();
+      displayMgrList.forEach(mItem => {
+        const cSet = todayCustsByMgr[mItem.name];
+        if (cSet) cSet.forEach(c => allDisplayedMgrCusts.add(c));
+      });
+      if (allDisplayedMgrCusts.size > 0) grandTodayCases = allDisplayedMgrCusts.size;
 
       if (mgrTfoot) {
         mgrTfoot.innerHTML = `
@@ -11296,14 +11828,14 @@ const CANONICAL_CALLER_DIRECTORY = {
 
         return `
           <tr class="${rowCls}">
-            <td class="p-2.5 text-center font-bold w-12" style="color: #000000 !important;">${idx + 1}</td>
-            <td class="p-2.5 font-extrabold" style="color: #000000 !important;">${escHtml(bItem.branch)}</td>
-            <td class="p-2.5 text-right font-mono font-black" style="color: #000000 !important;">${formatCurrency(todayAmt)}</td>
-            <td class="p-2.5 text-right font-mono font-black bg-amber-50/40" style="color: #000000 !important;">${formatCurrency(sdlmAmt)}</td>
+            <td class="p-2.5 text-center font-bold w-12" >${idx + 1}</td>
+            <td class="p-2.5 font-extrabold" >${escHtml(bItem.branch)}</td>
+            <td class="p-2.5 text-right font-mono font-black" >${formatCurrency(todayAmt)}</td>
+            <td class="p-2.5 text-right font-mono font-black bg-amber-50/40" >${formatCurrency(sdlmAmt)}</td>
             <td class="p-2.5 text-right font-mono ${diffCls}">${diffSign}${formatCurrency(diffAmt)}</td>
             <td class="p-2.5 text-center font-mono font-bold ${growthPct >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${diffSign}${growthPct}%</td>
-            <td class="p-2.5 text-center font-bold" style="color: #000000 !important;">${todayCases}</td>
-            <td class="p-2.5 text-center font-bold bg-amber-50/40" style="color: #000000 !important;">${sdlmCases}</td>
+            <td class="p-2.5 text-center font-bold" >${todayCases}</td>
+            <td class="p-2.5 text-center font-bold bg-amber-50/40" >${sdlmCases}</td>
           </tr>
         `;
       }).join('');
@@ -11311,6 +11843,13 @@ const CANONICAL_CALLER_DIRECTORY = {
       const bGrandDiff = bGrandToday - bGrandSdlm;
       const bGrandGrowth = bGrandSdlm > 0 ? Math.round((bGrandDiff / bGrandSdlm) * 100) : (bGrandToday > 0 ? 100 : 0);
       const bGrandDiffSign = bGrandDiff >= 0 ? '+' : '';
+
+      const allDisplayedBranchCusts = new Set();
+      branchList.forEach(bItem => {
+        const cSet = todayCustsByBranch[bItem.branch];
+        if (cSet) cSet.forEach(c => allDisplayedBranchCusts.add(c));
+      });
+      if (allDisplayedBranchCusts.size > 0) bGrandTodayCases = allDisplayedBranchCusts.size;
 
       if (branchTfoot) {
         branchTfoot.innerHTML = `
@@ -11993,8 +12532,8 @@ const CANONICAL_CALLER_DIRECTORY = {
 
           return `
             <tr class="${rowCls}">
-              <td class="p-2.5 text-center font-bold w-12" style="color: #000000 !important;">${idx + 1}</td>
-              <td class="p-2.5 font-extrabold" style="color: #000000 !important;">
+              <td class="p-2.5 text-center font-bold w-12" >${idx + 1}</td>
+              <td class="p-2.5 font-extrabold" >
                 <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-black" style="background: ${dw.badgeBg}; color: ${dw.badgeColor};">
                   ${escHtml(dw.name)}
                 </span>
@@ -12015,8 +12554,8 @@ const CANONICAL_CALLER_DIRECTORY = {
               </td>
               <td class="p-2.5 text-right font-mono ${diffCls}">${diffSign}${formatCurrency(diffAmt)}</td>
               <td class="p-2.5 text-center font-mono font-bold ${growthPct >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${diffSign}${growthPct}%</td>
-              <td class="p-2.5 text-center font-mono font-bold" style="color: #000000 !important;">${curCases}</td>
-              <td class="p-2.5 text-center font-mono font-bold bg-amber-50/40" style="color: #000000 !important;">${sdlmCases}</td>
+              <td class="p-2.5 text-center font-mono font-bold" >${curCases}</td>
+              <td class="p-2.5 text-center font-mono font-bold bg-amber-50/40" >${sdlmCases}</td>
             </tr>
           `;
         }).join('');
@@ -12383,21 +12922,26 @@ const CANONICAL_CALLER_DIRECTORY = {
       const casesByCaller = {};
       activeTodayCallers.forEach(o => {
         const k = officerIdentityKey(o);
-        let cnt = 0;
+        const seenCusts = new Set();
         todayRecs.forEach(r => {
+          const cid = (typeof getRecordCustomerId === 'function') ? getRecordCustomerId(r) : String(r.cust_id || r.customer_id || r.cust_name || r.id || '').trim().toUpperCase();
+          if (!cid) return;
           if (r.splits && r.splits.length > 0) {
-            if (r.splits.some(sp => isOfficerMatch(o, sp.officer))) cnt += 1;
+            if (r.splits.some(sp => isOfficerMatch(o, sp.officer))) seenCusts.add(cid);
           } else if (isOfficerMatch(o, r.officer)) {
-            cnt += 1;
+            seenCusts.add(cid);
           }
         });
-        casesByCaller[k] = cnt;
+        casesByCaller[k] = seenCusts.size;
+        casesByCaller[String(o.name || '').toUpperCase().trim()] = seenCusts.size;
       });
 
       const todayEl = document.getElementById('today-tab-today-val');
       if (todayEl) todayEl.innerText = formatCurrency(todayAmt);
+      const todayUniqueCusts = new Set(todayRecs.map(r => (typeof getRecordCustomerId === 'function' ? getRecordCustomerId(r) : (r.cust_id || r.id))).filter(Boolean));
+      const todayUniqueCasesCount = todayUniqueCusts.size;
       const todayCountEl = document.getElementById('today-tab-today-count-chip');
-      if (todayCountEl) todayCountEl.innerText = `${todayRecs.length} ${todayRecs.length === 1 ? 'Case' : 'Cases'}`;
+      if (todayCountEl) todayCountEl.innerText = `${todayUniqueCasesCount} ${todayUniqueCasesCount === 1 ? 'Case' : 'Cases'}`;
       const todayDateEl = document.getElementById('today-tab-today-date');
       if (todayDateEl) todayDateEl.innerText = todayStr;
       const dateBadge = document.getElementById('today-tab-date-badge');
@@ -12451,7 +12995,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       const activeVal = document.getElementById('today-tab-active-val');
       if (activeVal) activeVal.innerText = String(activeTodayPureCallers.length);
       const avgEl = document.getElementById('today-tab-avg-case');
-      const avgPerCase = todayRecs.length > 0 ? Math.round(todayAmt / todayRecs.length) : 0;
+      const avgPerCase = todayUniqueCasesCount > 0 ? Math.round(todayAmt / todayUniqueCasesCount) : 0;
       if (avgEl) avgEl.innerText = `Avg: ${formatCurrency(avgPerCase)} / case`;
 
       const eligibleTopCallers = activeTodayCallers.filter(o => !isTop5ExcludedManagerOrAgency(o));
@@ -13134,14 +13678,19 @@ const CANONICAL_CALLER_DIRECTORY = {
         const isMtd = !isToday && isMtdDateBeforeToday(r.pay_date, periodStr);
         if (!isToday && !isMtd) return;
         const amt = Number(r.amount) || 0;
+        const cid = (typeof getRecordCustomerId === 'function') ? getRecordCustomerId(r) : (r.cust_id || r.id);
         const bucket = ensurePfBucket(r.portfolio || 'OTHER');
-        bucket.cases += 1;
+        if (!bucket.custSet) bucket.custSet = new Set();
+        if (cid) bucket.custSet.add(cid);
+        bucket.cases = bucket.custSet.size;
         if (isToday) bucket.today += amt;
         else bucket.mtd += amt;
         bucket.total += amt;
 
         const bankBucket = ensureBankBucket(r.bank || 'OTHER');
-        bankBucket.cases += 1;
+        if (!bankBucket.custSet) bankBucket.custSet = new Set();
+        if (cid) bankBucket.custSet.add(cid);
+        bankBucket.cases = bankBucket.custSet.size;
         if (isToday) bankBucket.today += amt;
         else bankBucket.mtd += amt;
         bankBucket.total += amt;
@@ -13165,7 +13714,9 @@ const CANONICAL_CALLER_DIRECTORY = {
           }
           const mEntry = bucket.managersMap[mc.key];
           mEntry.hasPaidData = true;
-          mEntry.cases += mc.cases;
+          if (!mEntry.custSet) mEntry.custSet = new Set();
+          if (cid) mEntry.custSet.add(cid);
+          mEntry.cases = mEntry.custSet.size;
           if (isToday) mEntry.today += mc.amount;
           else mEntry.mtd += mc.amount;
           mEntry.total += mc.amount;
@@ -13939,7 +14490,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       const selectedFilterMgr = (isGlobalViewer && mgrSelect) ? mgrSelect.value.trim() : (isGlobalViewer ? '' : myMgr);
       const searchQ = (document.getElementById('today-callers-search') ? document.getElementById('today-callers-search').value : '').toLowerCase().trim();
 
-      // Aggregate today's collection by caller
+      // Aggregate today's collection by caller (unique customer cases per caller)
       const callerAgg = {};
       let totalTodayAmt = 0;
       let totalCasesCount = 0;
@@ -13948,6 +14499,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (!r || isRecordTombstoned(r)) return;
         const rAmt = Number(r.amount) || 0;
         if (!(rAmt > 0)) return;
+        const cid = (typeof getRecordCustomerId === 'function') ? getRecordCustomerId(r) : String(r.cust_id || r.customer_id || r.cust_name || r.id || '').trim().toUpperCase();
 
         if (r.splits && Array.isArray(r.splits) && r.splits.length > 0) {
           r.splits.forEach(sp => {
@@ -13964,15 +14516,16 @@ const CANONICAL_CALLER_DIRECTORY = {
                 manager: spMgr,
                 branch: spBranch,
                 cases: 0,
+                seenCusts: new Set(),
                 amount: 0,
                 records: []
               };
             }
-            callerAgg[spName].cases += 1;
+            if (cid) callerAgg[spName].seenCusts.add(cid);
+            callerAgg[spName].cases = callerAgg[spName].seenCusts.size || 1;
             callerAgg[spName].amount += spAmt;
             callerAgg[spName].records.push({ ...r, caller_amount: spAmt, is_split: true, split_pct: sp.pct });
             totalTodayAmt += spAmt;
-            totalCasesCount += 1;
           });
         } else {
           const rawOff = String(r.officer || '').trim().toUpperCase();
@@ -13986,15 +14539,16 @@ const CANONICAL_CALLER_DIRECTORY = {
               manager: rMgr,
               branch: rBranch,
               cases: 0,
+              seenCusts: new Set(),
               amount: 0,
               records: []
             };
           }
-          callerAgg[rawOff].cases += 1;
+          if (cid) callerAgg[rawOff].seenCusts.add(cid);
+          callerAgg[rawOff].cases = callerAgg[rawOff].seenCusts.size || 1;
           callerAgg[rawOff].amount += rAmt;
           callerAgg[rawOff].records.push({ ...r, caller_amount: rAmt, is_split: false });
           totalTodayAmt += rAmt;
-          totalCasesCount += 1;
         }
       });
 
@@ -14167,7 +14721,14 @@ const CANONICAL_CALLER_DIRECTORY = {
         return String(r.officer || '').trim().toUpperCase() === callerClean;
       });
 
-      if (badge) badge.innerText = `Total: ${records.length} ${records.length === 1 ? 'Case' : 'Cases'}`;
+      const uniqueCustCount = new Set(records.map(r => (typeof getRecordCustomerId === 'function' ? getRecordCustomerId(r) : (r.cust_id || r.id))).filter(Boolean)).size;
+      if (badge) {
+        if (uniqueCustCount > 0 && uniqueCustCount !== records.length) {
+          badge.innerText = `Total: ${uniqueCustCount} ${uniqueCustCount === 1 ? 'Case' : 'Cases'} (${records.length} Transactions)`;
+        } else {
+          badge.innerText = `Total: ${records.length} ${records.length === 1 ? 'Case' : 'Cases'}`;
+        }
+      }
 
       if (!records || records.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No transactions recorded for ${escHtml(callerClean)} today.</td></tr>`;
@@ -14205,7 +14766,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           <tr>
             <td colspan="5" class="py-2.5 px-3 text-right font-black uppercase tracking-wider">Total Collection:</td>
             <td class="py-2.5 px-3 text-right font-mono font-black text-emerald-800 text-sm">₹${sumAmt.toLocaleString('en-IN')}</td>
-            <td class="py-2.5 px-3 text-slate-500 text-xs">${records.length} ${records.length === 1 ? 'Case' : 'Cases'}</td>
+            <td class="py-2.5 px-3 text-slate-500 text-xs">${uniqueCustCount} ${uniqueCustCount === 1 ? 'Case' : 'Cases'}${uniqueCustCount !== records.length ? ` (${records.length} txns)` : ''}</td>
           </tr>
         `;
       }
@@ -16131,7 +16692,10 @@ const CANONICAL_CALLER_DIRECTORY = {
           <tr class="bg-slate-100 text-slate-800">
             <td colspan="5" class="p-3 text-right font-black uppercase tracking-wider">Filtered Total Collection:</td>
             <td class="p-3 font-mono-num font-black text-right text-emerald-800 text-sm">₹${sumAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-            <td colspan="${isMgmtReadOnly ? 5 : 6}" class="p-3 text-slate-500 font-medium">Across ${filtered.length} paid cases</td>
+            <td colspan="${isMgmtReadOnly ? 5 : 6}" class="p-3 text-slate-500 font-medium">${(() => {
+              const uCnt = new Set(filtered.map(r => (typeof getRecordCustomerId === 'function' ? getRecordCustomerId(r) : (r.cust_id || r.id))).filter(Boolean)).size;
+              return uCnt !== filtered.length ? `Across ${uCnt} unique cases (${filtered.length} transactions)` : `Across ${filtered.length} paid cases`;
+            })()}</td>
           </tr>
         `;
       }
@@ -20117,6 +20681,38 @@ var misExpandedManagers = new Set();
       return c1 === c2 || c1.replace(/\s/g, '') === c2.replace(/\s/g, '') || c1.includes(c2) || c2.includes(c1);
     }
 
+    
+    // ==============================================================
+    // MANAGER WISE COLLECTION SUMMARY: MANUAL & AUTO SORT CONTROLLER
+    // ==============================================================
+    window.__mgrSortCol = window.__mgrSortCol || 'achieved';
+    window.__mgrSortDir = window.__mgrSortDir || 'desc';
+    window.__mgrSortManual = !!window.__mgrSortManual;
+
+    function handleManagerTableSort(col) {
+      if (!col) return;
+      if (window.__mgrSortCol === col) {
+        // Toggle direction between desc (largest to smallest) and asc (smallest to largest)
+        window.__mgrSortDir = (window.__mgrSortDir === 'desc') ? 'asc' : 'desc';
+      } else {
+        window.__mgrSortCol = col;
+        window.__mgrSortDir = 'desc'; // Default to largest to smallest on new column click
+      }
+      // If user toggles achieved back to desc, it's effectively default auto-sort
+      window.__mgrSortManual = (window.__mgrSortCol !== 'achieved' || window.__mgrSortDir !== 'desc');
+      renderManagerWiseCollection();
+    }
+
+    function resetManagerAutoSort() {
+      window.__mgrSortCol = 'achieved';
+      window.__mgrSortDir = 'desc';
+      window.__mgrSortManual = false;
+      renderManagerWiseCollection();
+      if (typeof showToast === 'function') {
+        showToast('Manager Summary auto-sorted by Achieved % (Largest to Smallest)', 'info');
+      }
+    }
+
     function renderManagerWiseCollection() {
       return withCompanyView(() => _renderManagerWiseCollection());
     }
@@ -20236,29 +20832,14 @@ var misExpandedManagers = new Set();
         }
       }
 
-      // Auto-sort strictly by Achieved %: Largest to Smallest (Descending)
-      const getMgrAchievedPct = m => {
-        const t = Number(m.target) || 0;
-        const tot = Number(m.total) || 0;
-        return t > 0 ? Math.round((tot / t) * 100) : (tot > 0 ? 100 : 0);
-      };
-
-      const mgrList = Object.values(managersMap);
-      mgrList.sort((a, b) => {
-        const achA = getMgrAchievedPct(a);
-        const achB = getMgrAchievedPct(b);
-        return (achB - achA) || (b.total - a.total) || a.name.localeCompare(b.name);
-      });
-
+      // Pre-calculate target, sdlm, total, balance and achieved % for each manager
       const sdlmDateStr = getSameDayLastMonthDate(todayDateStr);
-      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
-
-      tbody.innerHTML = mgrList.map((mItem, idx) => {
+      const mgrList = Object.values(managersMap).map(mItem => {
         const target = getAssignedManagerTarget(mItem.name);
-        const aoy = mItem.aoy;
-        const today = mItem.today;
+        const aoy = Number(mItem.aoy) || 0;
+        const today = Number(mItem.today) || 0;
         const mSdlm = getSdlmForManager(sdlmDateStr, mItem.name);
-        const sdlmAmt = mSdlm.amount;
+        const sdlmAmt = Number(mSdlm.amount) || 0;
         const total = aoy + today;
         const balance = Math.max(0, target - total);
         let achievedPct = 0;
@@ -20267,6 +20848,60 @@ var misExpandedManagers = new Set();
         } else if (total > 0) {
           achievedPct = 0;
         }
+        return {
+          ...mItem,
+          target,
+          aoy,
+          today,
+          sdlmAmt,
+          total,
+          balance,
+          achievedPct
+        };
+      });
+
+      // Default Auto-Sort is Achieved % (Descending: Largest to Smallest)
+      // When user clicks a header (TARGET, SDLM, TOTAL, BALANCE, ACHIEVED), manual sorting takes effect
+      const sortCol = window.__mgrSortCol || 'achieved';
+      const sortDir = window.__mgrSortDir || 'desc';
+      const isAsc = (sortDir === 'asc');
+
+      mgrList.sort((a, b) => {
+        let valA = 0;
+        let valB = 0;
+        switch (sortCol) {
+          case 'target':
+            valA = a.target; valB = b.target; break;
+          case 'sdlm':
+            valA = a.sdlmAmt; valB = b.sdlmAmt; break;
+          case 'aoy':
+            valA = a.aoy; valB = b.aoy; break;
+          case 'today':
+            valA = a.today; valB = b.today; break;
+          case 'total':
+            valA = a.total; valB = b.total; break;
+          case 'balance':
+            valA = a.balance; valB = b.balance; break;
+          case 'achieved':
+          default:
+            valA = a.achievedPct; valB = b.achievedPct; break;
+        }
+        if (valA !== valB) {
+          return isAsc ? (valA - valB) : (valB - valA);
+        }
+        return (b.total - a.total) || a.name.localeCompare(b.name);
+      });
+
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
+
+      tbody.innerHTML = mgrList.map((mItem, idx) => {
+        const target = mItem.target;
+        const aoy = mItem.aoy;
+        const today = mItem.today;
+        const sdlmAmt = mItem.sdlmAmt;
+        const total = mItem.total;
+        const balance = mItem.balance;
+        const achievedPct = mItem.achievedPct;
 
         sumTarget += target;
         sumAoy += aoy;
@@ -20358,7 +20993,44 @@ var misExpandedManagers = new Set();
         `;
       }
 
-      safeCreateIcons();
+
+      // Update sort indicators on headers
+      const sortCols = ['target', 'sdlm', 'aoy', 'today', 'total', 'balance', 'achieved'];
+      sortCols.forEach(c => {
+        const iconEl = document.getElementById(`mgr-sort-icon-${c}`);
+        const thEl = document.getElementById(`th-mgr-${c}`);
+        if (iconEl) {
+          if (c === sortCol) {
+            iconEl.innerHTML = isAsc ? '▲' : '▼';
+            iconEl.className = 'text-xs font-black text-blue-700 ml-1 inline-block';
+            if (thEl) {
+              thEl.classList.add('bg-blue-100/70', 'font-black');
+            }
+          } else {
+            iconEl.innerHTML = '↕';
+            iconEl.className = 'text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60';
+            if (thEl) {
+              thEl.classList.remove('bg-blue-100/70', 'font-black');
+            }
+          }
+        }
+      });
+
+      // Update Auto-Sort button state
+      const autoSortBtn = document.getElementById('btn-mgr-auto-sort');
+      const autoSortTxt = document.getElementById('mgr-auto-sort-btn-text');
+      if (autoSortBtn && autoSortTxt) {
+        if (!window.__mgrSortManual && sortCol === 'achieved' && sortDir === 'desc') {
+          autoSortTxt.innerHTML = 'Auto Sort: Achieved % <span class="text-emerald-700 font-black">▼ Active</span>';
+          autoSortBtn.className = 'btn text-xs font-bold transition flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border-emerald-300';
+        } else {
+          const colLabel = sortCol === 'sdlm' ? 'SDLM' : (sortCol.charAt(0).toUpperCase() + sortCol.slice(1));
+          autoSortTxt.innerHTML = `Manual Sort: ${colLabel} ${isAsc ? '▲' : '▼'} · <span class="underline font-bold text-blue-700">Reset Auto Sort</span>`;
+          autoSortBtn.className = 'btn text-xs font-bold transition flex items-center gap-1.5 bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100';
+        }
+      }
+
+            safeCreateIcons();
     }
 
     function openManagerSlideDrawer(mgrKey) {
