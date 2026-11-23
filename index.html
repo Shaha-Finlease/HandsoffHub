@@ -13419,11 +13419,11 @@ const CANONICAL_CALLER_DIRECTORY = {
       const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
       setTxt('total-tab-callers-val', String(activeList.length));
       setTxt('total-tab-total-val', formatCurrency(sumTotal));
-      // TODAY KPI Card displays strictly INH (In-House) collection today (excluding Agency & Saroj)
-      setTxt('total-tab-today-val', formatCurrency(inhSumToday));
+      // OVERALL SUMMARY: Today card displays OVERALL collection today (all branches, managers, agencies, unclaimed)
+      setTxt('total-tab-today-val', formatCurrency(sumToday));
       const todayValEl = document.getElementById('total-tab-today-val');
       if (todayValEl) {
-        todayValEl.title = `INH Live Today: ${formatCurrency(inhSumToday)}${sumToday > inhSumToday ? ` (Total incl. Agency/Saroj: ${formatCurrency(sumToday)})` : ''}`;
+        todayValEl.title = `Overall Live Today: ${formatCurrency(sumToday)}${sumToday > inhSumToday ? ` (INH: ${formatCurrency(inhSumToday)}, Agency/Saroj: ${formatCurrency(sumToday - inhSumToday)})` : ''}`;
       }
       setTxt('total-tab-ach-chip', `${overallAch}% Ach`);
 
@@ -13498,7 +13498,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       // 1. TOP CALLER ON TODAY'S COLLECTION (For the "Today" Live KPI Card Footer)
       // Strictly In-House (INH) callers only — Agency (Poonam I / Sheth) and Saroj are completely excluded!
       const topTodayCallers = pureCallersList
-        .filter(o => !isTop5ExcludedManagerOrAgency(o) && !isAgencyOrSaroj(o) && (Number(o.today) || 0) > 0)
+        .filter(o => isInHouseCaller(o) && !isTop5ExcludedManagerOrAgency(o) && !isAgencyOrSaroj(o) && (Number(o.today) || 0) > 0)
         .sort((a, b) => (Number(b.today) || 0) - (Number(a.today) || 0) || (Number(b.total) || 0) - (Number(a.total) || 0));
       const topTodayCaller = topTodayCallers[0] || null;
 
@@ -13811,7 +13811,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         const grandDrr = typeof computeMisDrr === 'function' ? computeMisDrr(grandBal, drrDays) : Math.round(grandBal / Math.max(1, drrDays));
         setTxt('total-tab-total-val', formatCurrency(pfGrandTotal));
 
-        // Strictly INH Today collection from portfolios (excluding Agency & Saroj)
+        // In Overall Summary: Today card displays OVERALL collection today
         let pfInhToday = 0;
         pfList.forEach(p => {
           (p.managersList || []).forEach(m => {
@@ -13823,14 +13823,15 @@ const CANONICAL_CALLER_DIRECTORY = {
           });
         });
         const finalInhToday = pfInhToday > 0 ? pfInhToday : inhSumToday;
-        setTxt('total-tab-today-val', formatCurrency(finalInhToday));
+        const finalOverallToday = pfGrandToday > 0 ? pfGrandToday : sumToday;
+        setTxt('total-tab-today-val', formatCurrency(finalOverallToday));
         const todayValEl = document.getElementById('total-tab-today-val');
         if (todayValEl) {
-          todayValEl.title = `INH Live Today: ${formatCurrency(finalInhToday)}${pfGrandToday > finalInhToday ? ` (Total incl. Agency/Saroj: ${formatCurrency(pfGrandToday)})` : ''}`;
+          todayValEl.title = `Overall Live Today: ${formatCurrency(finalOverallToday)}${finalOverallToday > finalInhToday ? ` (INH: ${formatCurrency(finalInhToday)}, Agency/Saroj: ${formatCurrency(finalOverallToday - finalInhToday)})` : ''}`;
         }
 
         setTxt('total-tab-ach-chip', `${grandAch}% Achieved`);
-        setTxt('total-tab-mtd-today-split', `${formatCurrency(pfGrandMtd)} + ${formatCurrency(finalInhToday)}`);
+        setTxt('total-tab-mtd-today-split', `${formatCurrency(pfGrandMtd)} + ${formatCurrency(finalOverallToday)}`);
         setTxt('total-tab-target-val', formatCurrency(sumTarget));
         setTxt('total-tab-mtd-val', formatCurrency(pfGrandMtd));
         setTxt('total-tab-balance-val', formatCurrency(grandBal));
@@ -13838,7 +13839,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         setTxt('total-tab-ach-val', `${grandAch}%`);
         const totalAchBar = document.getElementById('total-tab-ach-bar');
         if (totalAchBar) totalAchBar.style.width = `${Math.min(100, Math.max(0, grandAch))}%`;
-        setTxt('total-tab-today-foot', `Today: ${formatCurrency(finalInhToday)}`);
+        setTxt('total-tab-today-foot', `Today: ${formatCurrency(finalOverallToday)}`);
       }
 
       // 3. BANK WISE COLLECTION BREAKDOWN (FROM LIVE PAID DATA)
