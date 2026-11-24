@@ -5043,8 +5043,8 @@ const CANONICAL_CALLER_DIRECTORY = {
       officersList.forEach(o => {
         if (!o || !o.name) return;
         // Explicit caller name correction: Smita's team ANKITA BAWASKAR -> ANKITA BAVASKAR
-        const uName = String(o.name || '').toUpperCase().trim();
-        if (uName === 'ANKITA BAWASKAR' || uName === 'ANKITA BAWASAKAR') {
+        const uName = String(o.name || '').replace(/\s+/g, ' ').toUpperCase().trim();
+        if (uName === 'ANKITA BAWASKAR' || uName === 'ANKITA BAWASAKAR' || uName === 'ANKITA BAVASKAR') {
           o.name = 'ANKITA BAVASKAR';
           if (!o.aliases) o.aliases = 'ANKITA BAWASKAR,ANKITA';
           else if (!o.aliases.toUpperCase().includes('ANKITA BAWASKAR')) o.aliases += ',ANKITA BAWASKAR';
@@ -9319,7 +9319,7 @@ const CANONICAL_CALLER_DIRECTORY = {
 
       } else {
         // SUPER ADMIN: Load authoritative master copy SYS_LEADERBOARD_MIS & merge manager partitions
-        const normOffKey = (o) => `${String((o && o.manager) || '').toUpperCase().trim()}_${String((o && o.name) || '').toUpperCase().trim()}`;
+        const normOffKey = (o) => `${String((o && o.manager) || '').replace(/\s+/g, ' ').toUpperCase().trim()}_${String((o && o.name) || '').replace(/\s+/g, ' ').toUpperCase().trim()}`;
 
         if (supabaseClient) {
           try {
