@@ -1443,13 +1443,23 @@
     body.manager-view #btn-sdlm-comp-upload-oct,
     body.manager-view #sdlm-manage-modal,
     body.manager-view #sdlm-comp-upload-hint,
+    body.manager-view .admin-only-holiday-btn,
+    body.manager-view #btn-mgr-holiday-list,
+    body.manager-view #btn-today-holiday-list,
+    body.manager-view #btn-mis-holiday-list,
+    body.manager-view #holiday-manager-modal,
     body:not([data-role="ADMIN"]) .btn-upload-oct-admin,
     body:not([data-role="ADMIN"]) #btn-side-upload-oct,
     body:not([data-role="ADMIN"]) #btn-total-upload-oct,
     body:not([data-role="ADMIN"]) #btn-paid-upload-oct,
     body:not([data-role="ADMIN"]) #btn-sdlm-comp-upload-oct,
     body:not([data-role="ADMIN"]) #sdlm-manage-modal,
-    body:not([data-role="ADMIN"]) #sdlm-comp-upload-hint {
+    body:not([data-role="ADMIN"]) #sdlm-comp-upload-hint,
+    body:not([data-role="ADMIN"]) .admin-only-holiday-btn,
+    body:not([data-role="ADMIN"]) #btn-mgr-holiday-list,
+    body:not([data-role="ADMIN"]) #btn-today-holiday-list,
+    body:not([data-role="ADMIN"]) #btn-mis-holiday-list,
+    body:not([data-role="ADMIN"]) #holiday-manager-modal {
       display: none !important;
       visibility: hidden !important;
       pointer-events: none !important;
@@ -1769,8 +1779,21 @@
                   </div>
                   <p class="text-xs" style="color: var(--ink-3);">Today's target projection committed by each manager vs live collection collected.</p>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <span class="chip text-xs font-mono" id="today-tab-proj-summary-badge">0 Managers</span>
+                  <!-- DRR Settings Pill (Today Tab) -->
+                  <div class="inline-flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 bg-white shadow-2xs text-xs" title="DRR Calculation Controls: Set Working Days & Holidays manually or use Auto">
+                    <span class="inline-flex items-center gap-1 font-bold text-slate-700 ml-1">
+                      <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i>DRR:
+                    </span>
+                    <label class="inline-flex items-center gap-1 font-medium text-slate-600" title="Remaining Working Days for DRR (Sundays & holidays excluded)">
+                      <span>Working Days</span>
+                      <input type="number" id="today-drr-working-days-input" min="1" max="31" class="w-11 text-center font-bold font-mono text-xs py-0.5 border border-slate-300 rounded bg-slate-100 text-slate-800 cursor-default" readonly title="Auto-calculated working days remaining">
+                    </label>
+                    <button type="button" id="btn-today-holiday-list" onclick="openHolidayManagerModal()" class="admin-only-holiday-btn px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition cursor-pointer flex items-center gap-1" title="Manage holiday dates &amp; Sundays list (Admin Only)">
+                      <i data-lucide="calendar-off" class="w-3.5 h-3.5"></i><span>Holiday List</span>
+                    </button>
+                  </div>
                   <button id="btn-today-table-update-proj" onclick="openTodayProjectionModal()" class="btn text-xs py-1 px-3">
                     <i data-lucide="target" class="w-3.5 h-3.5"></i><span>Update My Projection</span>
                   </button>
@@ -1783,6 +1806,7 @@
                       <th class="p-2.5 text-center w-12">#</th>
                       <th class="p-2.5">Manager</th>
                       <th class="p-2.5 text-center">Branch</th>
+                      <th class="p-2.5 text-right font-bold" style="color: #b45309;" title="Daily Run Rate needed to achieve Monthly Target">DRR (₹)</th>
                       <th class="p-2.5 text-right font-bold" style="color: #174375;">Today Projection (₹)</th>
                       <th class="p-2.5 text-right font-bold" style="color: var(--good);">Today Collected (₹)</th>
                       <th class="p-2.5 text-right font-bold" style="color: var(--bad);">Balance / Gap (₹)</th>
@@ -2002,11 +2026,13 @@
                 <i data-lucide="calendar"></i>Date
                 <input type="text" id="leaderboard-period-input" value="--" onchange="setGlobalAppDate(this.value, 'leaderboard')" oninput="setGlobalAppDate(this.value, 'leaderboard')" class="w-28 num">
               </label>
-              <label class="inline-field" title="Holidays remaining this month: DRR Days = (Total Days - Date) - Holidays + 1">
-                <i data-lucide="calendar-off"></i>Holidays
-                <input type="number" id="mis-holidays-input" min="0" max="31" value="0" onchange="onMisHolidaysChange()" oninput="onMisHolidaysChange()" class="w-14 num text-center">
-                <span id="mis-drr-days-badge" class="chip text-[11px] num" style="margin-left: 2px;">--d</span>
-              </label>
+              <div class="inline-field font-medium text-slate-700" title="Auto-calculated Remaining DRR Working Days">
+                <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i>DRR Days:
+                <span id="mis-drr-days-badge" class="chip text-[11px] num font-bold ml-1 text-slate-800 bg-amber-50 border border-amber-200">--d</span>
+              </div>
+              <button type="button" id="btn-mis-holiday-list" onclick="openHolidayManagerModal()" class="admin-only-holiday-btn inline-field hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer" title="Manage Monthly Holiday Dates List (Admin Only)">
+                <i data-lucide="calendar-off"></i>Holiday List
+              </button>
               <label class="inline-field"><i data-lucide="search"></i>Search <input type="text" id="mis-filter-search" oninput="debouncedMisSearch()" placeholder="Search caller..." class="w-32 text-xs font-semibold px-2 py-0.5 rounded bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600"></label><label id="mis-mgr-filter-wrap" class="admin-only-filter inline-field">
                 <i data-lucide="user-check"></i>Manager
                 <select id="mis-filter-manager" onchange="renderLeaderboardMIS()">
@@ -2214,6 +2240,19 @@
             </div>
             <div class="actions">
               <span class="pill"><i data-lucide="calendar"></i><span id="mgr-summary-date" class="num">--</span></span>
+              <!-- DRR Manual / Auto Settings (Working Days & Total Holidays) -->
+              <div class="inline-flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 bg-white shadow-2xs text-xs" title="DRR Calculation Controls: Set Working Days & Holidays manually or use Auto">
+                <span class="inline-flex items-center gap-1 font-bold text-slate-700 ml-1">
+                  <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i>DRR:
+                </span>
+                <label class="inline-flex items-center gap-1 font-medium text-slate-600" title="Remaining Working Days for DRR (Sundays & holidays excluded)">
+                  <span>Working Days</span>
+                  <input type="number" id="mgr-drr-working-days-input" min="1" max="31" class="w-11 text-center font-bold font-mono text-xs py-0.5 border border-slate-300 rounded bg-slate-100 text-slate-800 cursor-default" readonly title="Auto-calculated working days remaining">
+                </label>
+                <button type="button" id="btn-mgr-holiday-list" onclick="openHolidayManagerModal()" class="admin-only-holiday-btn px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition cursor-pointer flex items-center gap-1" title="Manage holiday dates &amp; Sundays list (Admin Only)">
+                  <i data-lucide="calendar-off" class="w-3.5 h-3.5"></i><span>Holiday List</span>
+                </button>
+              </div>
               <!-- Auto Sort Indicator & Reset Button -->
               <button id="btn-mgr-auto-sort" onclick="resetManagerAutoSort()" class="btn text-xs font-bold transition flex items-center gap-1.5" title="Reset to Default Auto Sort: Achieved % (Largest to Smallest)">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i><span id="mgr-auto-sort-btn-text">Auto Sort: Achieved % ▼</span>
@@ -2276,6 +2315,12 @@
                       <div class="inline-flex items-center gap-1 justify-center w-full">
                         <span>Balance</span>
                         <span id="mgr-sort-icon-balance" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
+                      </div>
+                    </th>
+                    <th id="th-mgr-drr" onclick="handleManagerTableSort('drr')" class="cursor-pointer select-none hover:bg-slate-200/80 transition font-bold" style="color: #b45309;" title="Daily Run Rate needed to achieve Monthly Target (Working Days basis, Sundays excluded) - Click to sort">
+                      <div class="inline-flex items-center gap-1 justify-center w-full">
+                        <span>DRR</span>
+                        <span id="mgr-sort-icon-drr" class="text-[10px] text-slate-400 font-normal ml-1 inline-block opacity-60">↕</span>
                       </div>
                     </th>
                     <th id="th-mgr-achieved" onclick="handleManagerTableSort('achieved')" class="cursor-pointer select-none hover:bg-slate-200/80 transition font-black" title="Click to sort by Achieved % (Default Auto Sort)">
@@ -2916,6 +2961,72 @@
         </div>
 
       </main>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: MANAGE HOLIDAY DATES                -->
+  <!-- ========================================== -->
+  <div id="holiday-manager-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-md w-full rounded-2xl border border-slate-200 shadow-2xl p-5 space-y-4 max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center font-bold">
+            <i data-lucide="calendar-off" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Monthly Off-Days &amp; Holiday List</h3>
+            <p class="text-[11px] text-slate-500">Sundays &amp; Holiday dates list. Passed dates auto-delete ho jayengi.</p>
+          </div>
+        </div>
+        <button onclick="closeHolidayManagerModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Summary KPI Grid -->
+      <div class="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
+        <div class="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs">
+          <span class="block text-[10px] text-slate-500 font-semibold uppercase">Pending Sundays</span>
+          <span id="holiday-modal-sundays-count" class="text-sm font-extrabold text-amber-700">0 Sun</span>
+        </div>
+        <div class="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs">
+          <span class="block text-[10px] text-slate-500 font-semibold uppercase">Pending Holidays</span>
+          <span id="holiday-modal-holidays-count" class="text-sm font-extrabold text-rose-700">0 Hol</span>
+        </div>
+        <div class="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs">
+          <span class="block text-[10px] text-slate-500 font-semibold uppercase">Working Days Left</span>
+          <span id="holiday-modal-net-days-count" class="text-sm font-extrabold text-emerald-700">1 Day</span>
+        </div>
+      </div>
+
+      <!-- Add Date Form -->
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+        <span class="text-xs font-bold text-slate-700 block">Add Holiday Date:</span>
+        <div class="flex items-center gap-2">
+          <input type="date" id="holiday-modal-date-input" class="flex-1 text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <input type="text" id="holiday-modal-name-input" placeholder="Name (e.g. Festival)" class="flex-1 text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600">
+          <button type="button" onclick="addHolidayFromModal()" class="btn btn-primary text-xs py-1.5 px-3 font-bold whitespace-nowrap">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Current Month Summary -->
+      <div class="flex items-center justify-between text-xs px-1">
+        <span class="font-bold text-slate-700">Upcoming Off-Days for <span id="holiday-modal-month-name" class="text-blue-700 font-extrabold">--</span>:</span>
+        <span id="holiday-modal-summary-chip" class="chip text-[11px] bg-rose-50 text-rose-800 border border-rose-200 font-bold">0 Upcoming</span>
+      </div>
+
+      <!-- Holidays List -->
+      <div id="holiday-modal-list" class="overflow-y-auto max-h-56 space-y-1.5 pr-1 text-xs">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-200 pt-3 text-[11px] text-slate-500">
+        <span>* Passed dates auto-delete hongi &amp; remaining days se DRR divide hoga.</span>
+        <button type="button" onclick="closeHolidayManagerModal()" class="btn px-4 py-1.5 text-xs font-bold">Done</button>
+      </div>
     </div>
   </div>
 
@@ -4931,6 +5042,14 @@ const CANONICAL_CALLER_DIRECTORY = {
       let changed = false;
       officersList.forEach(o => {
         if (!o || !o.name) return;
+        // Explicit caller name correction: Smita's team ANKITA BAWASKAR -> ANKITA BAVASKAR
+        const uName = String(o.name || '').toUpperCase().trim();
+        if (uName === 'ANKITA BAWASKAR' || uName === 'ANKITA BAWASAKAR') {
+          o.name = 'ANKITA BAVASKAR';
+          if (!o.aliases) o.aliases = 'ANKITA BAWASKAR,ANKITA';
+          else if (!o.aliases.toUpperCase().includes('ANKITA BAWASKAR')) o.aliases += ',ANKITA BAWASKAR';
+          changed = true;
+        }
         if (o.joining_date && typeof formatHrDateDisplay === 'function') {
           const normDoj = formatHrDateDisplay(o.joining_date);
           if (normDoj && normDoj !== o.joining_date) {
@@ -7587,6 +7706,12 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (existsIdx < 0) {
             const clone = Object.assign({}, p);
             delete clone._pinnedAt;
+            // Pinned callers must NEVER inject stale hardcoded collections
+            clone.aoy = 0;
+            clone.today = 0;
+            clone.total = 0;
+            clone.baseline_aoy = 0;
+            clone.baseline_today = 0;
             targetList.push(clone);
             changed = true;
           } else {
@@ -8069,12 +8194,12 @@ const CANONICAL_CALLER_DIRECTORY = {
     // Synchronized live via Supabase 'SYS_MANAGER_ASSIGNED_TARGETS'
     // ==============================================================
     const DEFAULT_MANAGER_ASSIGNED_TARGETS = {
-      'AMBUJ TRIPATHI': 3454704,
+      'AMBUJ TRIPATHI': 2777104,
       'SMITA JAGTAP': 3027037,
-      'POONAM I': 2900000,
-      'SHRAVANTHI P': 2343255,
+      'POONAM I': 1800000,
+      'SHRAVANTHI P': 2134255,
       'OMKAR SINGH': 1986336,
-      'ADITI GAWADE': 1697088,
+      'ADITI GAWADE': 1804994,
       'SHWETA SINGH': 1406715,
       'CUSTOMER SERVICE': 800000,
       'SAROJ': 500000,
@@ -10406,6 +10531,27 @@ const CANONICAL_CALLER_DIRECTORY = {
           btn.style.setProperty('display', btn.classList.contains('nav-item') ? 'flex' : 'inline-flex', 'important');
         }
       });
+
+      // Holiday Manager Admin-Only Visibility Gate
+      const holidayBtns = document.querySelectorAll('.admin-only-holiday-btn, #btn-mgr-holiday-list, #btn-today-holiday-list, #btn-mis-holiday-list');
+      holidayBtns.forEach(btn => {
+        if (!btn) return;
+        if (!isAdm) {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+          btn.style.setProperty('visibility', 'hidden', 'important');
+          btn.style.setProperty('pointer-events', 'none', 'important');
+        } else {
+          btn.classList.remove('hidden');
+          btn.style.removeProperty('pointer-events');
+          btn.style.removeProperty('visibility');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        }
+      });
+      const hModal = document.getElementById('holiday-manager-modal');
+      if (hModal && !isAdm) {
+        hModal.classList.add('hidden');
+      }
       const sdlmCard = document.getElementById('total-tab-sdlm-card');
       if (sdlmCard) {
         if (!isAdm) {
@@ -13047,9 +13193,11 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
       }
 
+      const drrDaysRemaining = (typeof getMisDrrDaysRemaining === 'function') ? getMisDrrDaysRemaining() : 1;
       let grandProjection = 0;
       let grandTodayCollected = 0;
       let grandMonthTarget = 0;
+      let grandDrr = 0;
 
       const mgrRowsData = managersList.map(mgr => {
         const projData = getTodayProjectionForManager(todayStr, mgr.name);
@@ -13057,6 +13205,8 @@ const CANONICAL_CALLER_DIRECTORY = {
 
         let mgrTodayCollected = 0;
         let callerTargetSum = 0;
+        let callerTotalSum = 0;
+        let callerAoySum = 0;
         allOfficersForCollection.forEach(o => {
           if (isOfficerUnderManager(o, mgr.name)) {
             mgrTodayCollected += (Number(o.today) || 0);
@@ -13065,6 +13215,8 @@ const CANONICAL_CALLER_DIRECTORY = {
         allOfficers.forEach(o => {
           if (isOfficerUnderManager(o, mgr.name)) {
             callerTargetSum += (Number(o.target) || 0);
+            callerTotalSum += (Number(o.total) || 0);
+            callerAoySum += (Number(o.aoy) || 0);
           }
         });
 
@@ -13091,13 +13243,22 @@ const CANONICAL_CALLER_DIRECTORY = {
         });
 
         // Authoritative sync from full paid records so Senior Management, Admin & Managers always see exact Today Collected for every manager
+        let mgrMonthTotal = callerTotalSum;
         if (authoritativeTodayMgrTotals) {
           const rk = resolveManagerUserKey(mgr.name) || resolveManagerUserKey(mgr.key) || getManagerStorageKey(mgr.name);
           const myKey = isManagerOnlyView() ? resolveManagerUserKey(getCurrentManagerIdentifier()) : '';
           if (rk && (!myKey || rk !== myKey) && authoritativeTodayMgrTotals[rk]) {
             mgrTodayCollected = Number(authoritativeTodayMgrTotals[rk].today) || 0;
+            const authAoy = Number(authoritativeTodayMgrTotals[rk].aoy) || 0;
+            mgrMonthTotal = authAoy + mgrTodayCollected;
           }
         }
+        if (mgrMonthTotal < callerAoySum + mgrTodayCollected) {
+          mgrMonthTotal = callerAoySum + mgrTodayCollected;
+        }
+
+        const mgrMonthBalance = Math.max(0, mgrTarget - mgrMonthTotal);
+        const mgrDrr = typeof computeMisDrr === 'function' ? computeMisDrr(mgrMonthBalance, drrDaysRemaining) : Math.round(mgrMonthBalance / Math.max(1, drrDaysRemaining));
 
         const gap = Math.max(0, projAmount - mgrTodayCollected);
         const achPct = projAmount > 0 ? Math.round((mgrTodayCollected / projAmount) * 100) : (mgrTodayCollected > 0 ? 100 : 0);
@@ -13105,12 +13266,16 @@ const CANONICAL_CALLER_DIRECTORY = {
         grandProjection += projAmount;
         grandTodayCollected += mgrTodayCollected;
         grandMonthTarget += mgrTarget;
+        grandDrr += mgrDrr;
 
         return {
           ...mgr,
           target: mgrTarget,
           projection: projAmount,
           collected: mgrTodayCollected,
+          monthTotal: mgrMonthTotal,
+          balance: mgrMonthBalance,
+          drr: mgrDrr,
           gap: gap,
           achieved: achPct,
           notes: projData.notes || '',
@@ -13270,6 +13435,9 @@ const CANONICAL_CALLER_DIRECTORY = {
                     <span>${escHtml(m.branch)}</span>
                   </span>
                 </td>
+                <td class="p-2.5 text-right font-mono num font-black text-sm" style="color: #b45309;" title="DRR Needed: ${formatCurrency(m.drr)} / day (Month Balance: ${formatCurrency(m.balance)} · ${drrDaysRemaining}d remaining)">
+                  ${m.drr > 0 ? formatCurrency(m.drr) : '<span class="text-slate-400 font-normal text-xs">₹0</span>'}
+                </td>
                 <td class="p-2.5 text-right font-mono num font-black text-sm" style="color: #174375;">
                   ${m.projection > 0 ? formatCurrency(m.projection) : '<span class="text-slate-400 font-normal text-xs">₹0 <i class="text-[10px]">(Not set)</i></span>'}
                 </td>
@@ -13299,6 +13467,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         projTfoot.innerHTML = `
           <tr style="background: var(--raised-2); border-top: 2px solid var(--line); color: var(--ink);">
             <td colspan="3" class="p-2.5 text-left font-black uppercase tracking-wider" style="color: var(--ink);">GRAND TOTAL (${mgrRowsData.length} MANAGERS)</td>
+            <td class="p-2.5 text-right font-mono num font-black text-sm" style="color: #b45309;" title="Company Total DRR Needed: ${drrDaysRemaining} days remaining">${formatCurrency(grandDrr)}</td>
             <td class="p-2.5 text-right font-mono num font-black text-sm" style="color: #174375;">${formatCurrency(grandProjection)}</td>
             <td class="p-2.5 text-right font-mono num font-black text-sm" style="color: var(--good);">${formatCurrency(grandTodayCollected)}</td>
             <td class="p-2.5 text-right font-mono num font-bold text-sm" style="color: ${grandGap === 0 && grandProjection > 0 ? 'var(--good)' : 'var(--bad)'};">${formatCurrency(grandGap)}</td>
@@ -16518,15 +16687,10 @@ const CANONICAL_CALLER_DIRECTORY = {
         });
       };
 
+      // 100% INTEGRITY: Paid records belong to customer transactions and must never be hidden
       const myMisRecords = myOwnedRecords.filter(r => {
         if (!isAdm && !isRecordOwnedByManager(r, myManagerName)) return false;
-        if (monthFilter === 'OCTOBER' || r.isLocked || (r.pay_date && r.pay_date.toLowerCase().includes('oct'))) {
-          return true;
-        }
-        if (r.splits && Array.isArray(r.splits) && r.splits.length > 0) {
-          return r.splits.some(s => s && isCallerInDailyMis(s.officer, r.manager));
-        }
-        return isCallerInDailyMis(r.officer, r.manager);
+        return true;
       });
 
       const filtered = myMisRecords.filter(r => {
@@ -16625,6 +16789,9 @@ const CANONICAL_CALLER_DIRECTORY = {
         return;
       }
 
+      // 100% EXACT SUM: Sum all filtered records so Paid Data footer always matches Daily MIS
+      sumAmount = filtered.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+
       const isMgmtReadOnly = (currentRole === 'MANAGEMENT');
       const shouldLimit = !q && !window.__paidShowAll && filtered.length > 200;
       const displayRows = shouldLimit ? filtered.slice(0, 150) : filtered;
@@ -16633,7 +16800,6 @@ const CANONICAL_CALLER_DIRECTORY = {
       const EDIT_SVG = `<svg class="w-3.5 h-3.5 inline shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`;
 
       let rowsHtml = displayRows.map((r, idx) => {
-        sumAmount += Number(r.amount) || 0;
         let dispMgr = String(r.manager || '-').trim();
         const offUp = String(r.officer || '').toUpperCase().trim();
         if (dispMgr.toUpperCase() === 'ANURADHA' || ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => offUp.includes(k))) {
@@ -17582,6 +17748,13 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (mStr) _preloadedMasterMis = JSON.parse(mStr);
       } catch(e) {}
 
+      // Reset live collection before calculating to guarantee 100% reflection of Paid Data
+      leaderboardOfficers.forEach(off => {
+        off.today = 0;
+        off.aoy = 0;
+        off.total = 0;
+      });
+
       // Ensure callers referenced in paid data (including splits) exist in leaderboardOfficers so they never go missing from Daily MIS
       const ensurePaidCaller = (rawName, rawMgr) => {
         let cleanName = String(rawName || '').trim().toUpperCase();
@@ -17593,7 +17766,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (!cleanName || ['--', 'N/A', 'NA', 'NONE', 'UNASSIGNED', 'NULL'].includes(cleanName)) {
           cleanName = `DIRECT (${canonicalMgr})`;
         }
-        if (cleanName.includes(' / ') || isUserDeleted(cleanName)) return;
+        if (isUserDeleted(cleanName)) return;
         if (isOfficerTombstoned({ name: cleanName, manager: canonicalMgr })) return;
         const exists = leaderboardOfficers.some(o => (isOfficerMatch(o, cleanName) || ((o.name || '').toUpperCase().trim() === cleanName)) && (!canonicalMgr || canonicalMgr === 'GENERAL' || isOfficerUnderManager(o, canonicalMgr)));
         if (!exists) {
@@ -17602,8 +17775,6 @@ const CANONICAL_CALLER_DIRECTORY = {
             const hit = _preloadedMasterMis.find(m => m && isOfficerMatch(m, cleanName) && isOfficerUnderManager(m, canonicalMgr));
             if (hit && Number(hit.target) > 0) {
               foundTarget = Number(hit.target);
-              foundAoy = Number(hit.baseline_aoy) || 0;
-              foundToday = Number(hit.baseline_today) || 0;
             }
           }
           if (!foundTarget && typeof SEED_OFFICERS !== 'undefined' && Array.isArray(SEED_OFFICERS)) {
@@ -17614,10 +17785,10 @@ const CANONICAL_CALLER_DIRECTORY = {
             name: cleanName,
             aliases: cleanName.includes('DIRECT') ? `${cleanName},--,N/A,NA,NONE,UNASSIGNED,NULL` : cleanName,
             target: foundTarget,
-            baseline_aoy: foundAoy,
-            aoy: foundAoy,
-            baseline_today: foundToday,
-            today: foundToday,
+            baseline_aoy: 0,
+            aoy: 0,
+            baseline_today: 0,
+            today: 0,
             projection: 0,
             total: 0,
             balance: 0,
@@ -17644,14 +17815,53 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
       });
 
-      // computeCallerCollection counts only this month up to the report date, so skip all other records once here.
+      // Filter month records across entire month so no payment is ever omitted
       const _tp = parseDateParts(todayDateStr);
-      const monthRecords = _tp ? recordsToUse.filter(r => { const p = r && parseDateParts(r.pay_date); return p && p.y === _tp.y && p.m === _tp.m && p.d <= _tp.d; }) : recordsToUse;
+      const monthRecords = _tp ? recordsToUse.filter(r => { const p = r && parseDateParts(r.pay_date); return p && p.y === _tp.y && p.m === _tp.m; }) : recordsToUse;
       const monthIndex = buildCallerRecordIndex(monthRecords);
+      const matchedRecordIds = new Set();
       leaderboardOfficers.forEach(off => {
-        const c = computeCallerCollection(off, callerCandidateRecords(off, monthRecords, monthIndex), todayDateStr);
+        const candidateRecs = callerCandidateRecords(off, monthRecords, monthIndex);
+        const c = computeCallerCollection(off, candidateRecs, todayDateStr);
         off.today = c.today;
         off.aoy = c.aoy;
+        off.total = c.today + c.aoy;
+        candidateRecs.forEach(cr => { if (cr && cr.id) matchedRecordIds.add(String(cr.id)); });
+      });
+
+      // 100% MATHEMATICAL RECONCILIATION: Any unmatched record is attributed to manager's DIRECT row
+      monthRecords.forEach(r => {
+        if (!r || !r.id || matchedRecordIds.has(String(r.id))) return;
+        const rawMgr = r.manager || 'GENERAL';
+        const rk = resolveManagerUserKey(rawMgr);
+        const canonicalMgr = (rk && USER_CREDENTIALS[rk] && USER_CREDENTIALS[rk].name) ? USER_CREDENTIALS[rk].name.toUpperCase() : String(rawMgr).toUpperCase().trim();
+        let directCaller = leaderboardOfficers.find(o => o.name === `DIRECT (${canonicalMgr})` && isOfficerUnderManager(o, canonicalMgr));
+        if (!directCaller) {
+          directCaller = {
+            name: `DIRECT (${canonicalMgr})`,
+            aliases: `DIRECT (${canonicalMgr}),--,N/A,NA,NONE,UNASSIGNED,NULL`,
+            target: 0,
+            baseline_aoy: 0,
+            aoy: 0,
+            baseline_today: 0,
+            today: 0,
+            projection: 0,
+            total: 0,
+            balance: 0,
+            achieved: 0,
+            rank: leaderboardOfficers.length + 1,
+            manager: canonicalMgr
+          };
+          leaderboardOfficers.push(directCaller);
+        }
+        const amt = Number(r.amount) || 0;
+        const p = parseDateParts(r.pay_date);
+        if (p && _tp && p.d === _tp.d && p.m === _tp.m && p.y === _tp.y) {
+          directCaller.today = (Number(directCaller.today) || 0) + amt;
+        } else {
+          directCaller.aoy = (Number(directCaller.aoy) || 0) + amt;
+        }
+        directCaller.total = (Number(directCaller.aoy) || 0) + (Number(directCaller.today) || 0);
       });
 
       calculateLeaderboard();
@@ -17898,14 +18108,10 @@ var misExpandedManagers = new Set();
       renderLeaderboardMIS();
     }
 
-    function onMisHolidaysChange() {
-      const el = document.getElementById('mis-holidays-input');
-      const val = Math.max(0, Math.min(31, parseInt(el ? el.value : 0, 10) || 0));
-      try { localStorage.setItem('shaha_mis_holidays_v1', String(val)); } catch(e) {}
-      renderLeaderboardMIS();
-    }
-
-    function getMisDrrDaysRemaining() {
+    // ==============================================================
+    // DATE-WISE HOLIDAY MANAGER & AUTO-TRACKING ENGINE
+    // ==============================================================
+    function getActivePeriodParts() {
       const periodEl = document.getElementById('leaderboard-period-input');
       const periodStr = periodEl ? periodEl.value.trim() : '';
       const p = periodStr ? parseDateParts(periodStr) : null;
@@ -17913,24 +18119,403 @@ var misExpandedManagers = new Set();
       const now = new Date();
       const y = validP ? p.y : now.getFullYear();
       const m = validP ? p.m : (now.getMonth() + 1);
-      const todayDate = validP ? p.d : now.getDate();
-      const totalDaysInMonth = new Date(y, m, 0).getDate();
-      const holEl = document.getElementById('mis-holidays-input');
-      if (holEl && !window.__misHolidaysInitDone) {
-        window.__misHolidaysInitDone = true;
-        try {
-          const savedHol = localStorage.getItem('shaha_mis_holidays_v1');
-          if (savedHol !== null) holEl.value = String(Math.max(0, parseInt(savedHol, 10) || 0));
-        } catch(e) {}
+      const d = validP ? p.d : now.getDate();
+      const ymd = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      return { y, m, d, ymd, totalDaysInMonth: new Date(y, m, 0).getDate() };
+    }
+
+    function cleanPastHolidayDates(targetYmd) {
+      try {
+        const raw = localStorage.getItem('shaha_holiday_dates_v2');
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        const ymd = targetYmd || getActivePeriodParts().ymd;
+        // Keep ONLY dates >= today (passed dates are auto-deleted)
+        const activeList = parsed.filter(h => h && h.date && h.date >= ymd);
+        if (activeList.length !== parsed.length) {
+          localStorage.setItem('shaha_holiday_dates_v2', JSON.stringify(activeList));
+        }
+        return activeList;
+      } catch(e) {
+        return [];
       }
-      const holidays = Math.max(0, parseInt(holEl ? holEl.value : 0, 10) || 0);
-      const remaining = Math.max(1, (totalDaysInMonth - todayDate) - holidays + 1);
-      const badge = document.getElementById('mis-drr-days-badge');
-      if (badge) {
-        badge.innerText = `${remaining}d`;
-        badge.title = `(${totalDaysInMonth} - ${todayDate}) - ${holidays} + 1 = ${remaining} working days remaining`;
+    }
+
+    function getSavedHolidayDates(shouldClean = true) {
+      if (shouldClean) {
+        return cleanPastHolidayDates();
       }
-      return remaining;
+      try {
+        const raw = localStorage.getItem('shaha_holiday_dates_v2');
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list)) return list;
+        }
+      } catch(e) {}
+      return [];
+    }
+
+    function saveHolidayDates(list) {
+      try {
+        localStorage.setItem('shaha_holiday_dates_v2', JSON.stringify(list || []));
+      } catch(e) {}
+    }
+
+    function getUpcomingHolidaysCount(todayDate, monthNum, yearNum) {
+      const all = getSavedHolidayDates(true);
+      let count = 0;
+      all.forEach(h => {
+        if (!h || !h.date) return;
+        const parts = h.date.split('-');
+        if (parts.length === 3) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10);
+          const d = parseInt(parts[2], 10);
+          if (y === yearNum && m === monthNum) {
+            const dt = new Date(y, m - 1, d);
+            const isSunday = (dt.getDay() === 0);
+            const isUpcoming = (d >= todayDate);
+            if (isUpcoming && !isSunday) {
+              count++;
+            }
+          }
+        }
+      });
+      return count;
+    }
+
+    function openHolidayManagerModal() {
+      const role = String(currentRole || (currentUser && currentUser.role) || document.body.dataset.role || 'MANAGER').toUpperCase();
+      if (role !== 'ADMIN') {
+        showToast('Holiday list sirf Admin update kar sakta hai.', 'warning');
+        return;
+      }
+      const modal = document.getElementById('holiday-manager-modal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+
+      const info = getActivePeriodParts();
+      const dateInp = document.getElementById('holiday-modal-date-input');
+      if (dateInp) {
+        dateInp.min = info.ymd;
+        if (!dateInp.value || dateInp.value < info.ymd) {
+          dateInp.value = info.ymd;
+        }
+      }
+
+      renderHolidayModalList();
+      if (typeof safeCreateIcons === 'function') safeCreateIcons();
+    }
+
+    function closeHolidayManagerModal() {
+      const modal = document.getElementById('holiday-manager-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function addHolidayFromModal() {
+      const role = String(currentRole || (currentUser && currentUser.role) || document.body.dataset.role || 'MANAGER').toUpperCase();
+      if (role !== 'ADMIN') {
+        showToast('Holiday list sirf Admin update kar sakta hai.', 'warning');
+        return;
+      }
+      const dateInp = document.getElementById('holiday-modal-date-input');
+      const nameInp = document.getElementById('holiday-modal-name-input');
+      const dVal = dateInp ? dateInp.value.trim() : '';
+      const nVal = nameInp ? nameInp.value.trim() : '';
+
+      if (!dVal) {
+        showToast('Please select a valid holiday date.', 'warning');
+        return;
+      }
+
+      const info = getActivePeriodParts();
+      if (dVal < info.ymd) {
+        showToast('Past dates cannot be added. System only tracks pending dates.', 'warning');
+        return;
+      }
+
+      const parts = dVal.split('-');
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      const d = parseInt(parts[2], 10);
+      const dt = new Date(y, m - 1, d);
+      const isSunday = (dt.getDay() === 0);
+
+      const all = getSavedHolidayDates(true);
+      if (all.some(h => h.date === dVal)) {
+        showToast('This date is already added in the holiday list!', 'warning');
+        return;
+      }
+
+      all.push({
+        date: dVal,
+        name: nVal || (isSunday ? 'Sunday Weekly Off' : 'Holiday')
+      });
+      all.sort((a, b) => a.date.localeCompare(b.date));
+      saveHolidayDates(all);
+
+      if (nameInp) nameInp.value = '';
+      renderHolidayModalList();
+      refreshAllDrrViews();
+      if (isSunday) {
+        showToast(`Added ${dVal} (Sunday is already auto-excluded from working days).`, 'info');
+      } else {
+        showToast(`Holiday date ${dVal} added! Net working days updated.`, 'success');
+      }
+      if (typeof safeCreateIcons === 'function') safeCreateIcons();
+    }
+
+    function deleteHolidayDate(dVal) {
+      const role = String(currentRole || (currentUser && currentUser.role) || document.body.dataset.role || 'MANAGER').toUpperCase();
+      if (role !== 'ADMIN') {
+        showToast('Holiday list sirf Admin update kar sakta hai.', 'warning');
+        return;
+      }
+      let all = getSavedHolidayDates(true);
+      all = all.filter(h => h.date !== dVal);
+      saveHolidayDates(all);
+      renderHolidayModalList();
+      refreshAllDrrViews();
+      showToast('Holiday removed.', 'info');
+      if (typeof safeCreateIcons === 'function') safeCreateIcons();
+    }
+
+    function renderHolidayModalList() {
+      const listContainer = document.getElementById('holiday-modal-list');
+      const monthTitle = document.getElementById('holiday-modal-month-name');
+      const chipEl = document.getElementById('holiday-modal-summary-chip');
+      const sunCountEl = document.getElementById('holiday-modal-sundays-count');
+      const holCountEl = document.getElementById('holiday-modal-holidays-count');
+      const netDaysEl = document.getElementById('holiday-modal-net-days-count');
+      if (!listContainer) return;
+
+      const info = getActivePeriodParts();
+      const curY = info.y;
+      const curM = info.m;
+      const curD = info.d;
+      const totalDaysInMonth = info.totalDaysInMonth;
+
+      const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      if (monthTitle) monthTitle.innerText = `${monthNames[curM]} ${curY}`;
+
+      // 1. Gather all pending Sundays of the month (>= curD)
+      const pendingSundays = [];
+      for (let day = curD; day <= totalDaysInMonth; day++) {
+        const dt = new Date(curY, curM - 1, day);
+        if (dt.getDay() === 0) {
+          const ymd = `${curY}-${String(curM).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          pendingSundays.push({
+            date: ymd,
+            day: day,
+            dt: dt,
+            name: 'Sunday (Weekly Off)',
+            isSunday: true,
+            isCustom: false
+          });
+        }
+      }
+
+      // 2. Gather user-added custom holidays for this month (>= curD)
+      const allSaved = getSavedHolidayDates(true); // Automatically purges past dates
+      const pendingUserHolidays = [];
+      allSaved.forEach(h => {
+        if (!h || !h.date) return;
+        const parts = h.date.split('-');
+        if (parts.length === 3 && parseInt(parts[0], 10) === curY && parseInt(parts[1], 10) === curM) {
+          const day = parseInt(parts[2], 10);
+          if (day >= curD) {
+            const dt = new Date(curY, curM - 1, day);
+            const isSun = (dt.getDay() === 0);
+            pendingUserHolidays.push({
+              date: h.date,
+              day: day,
+              dt: dt,
+              name: h.name || (isSun ? 'Sunday Weekly Off' : 'Holiday'),
+              isSunday: isSun,
+              isCustom: true
+            });
+          }
+        }
+      });
+
+      // 3. Merge into unified chronological list (Sundays + Holidays)
+      const unifiedMap = new Map();
+      pendingSundays.forEach(s => {
+        unifiedMap.set(s.date, { ...s });
+      });
+
+      pendingUserHolidays.forEach(h => {
+        if (unifiedMap.has(h.date)) {
+          const existing = unifiedMap.get(h.date);
+          if (h.name && h.name !== 'Holiday' && !h.name.toLowerCase().includes('sunday')) {
+            existing.name = `Sunday · ${h.name}`;
+          }
+          existing.isCustom = true;
+        } else {
+          unifiedMap.set(h.date, { ...h });
+        }
+      });
+
+      const offDaysList = Array.from(unifiedMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+
+      // 4. Calculate Net Remaining Working Days
+      const pendingCalendarDays = Math.max(1, totalDaysInMonth - curD + 1);
+      const sundaysCount = pendingSundays.length;
+      const holidaysCount = pendingUserHolidays.filter(h => !h.isSunday).length;
+      const netWorkingDays = Math.max(1, pendingCalendarDays - sundaysCount - holidaysCount);
+
+      // 5. Update Modal Header Summaries
+      if (sunCountEl) sunCountEl.innerText = `${sundaysCount} Sun`;
+      if (holCountEl) holCountEl.innerText = `${holidaysCount} Hol`;
+      if (netDaysEl) netDaysEl.innerText = `${netWorkingDays} Day${netWorkingDays !== 1 ? 's' : ''}`;
+      if (chipEl) {
+        chipEl.innerText = `${offDaysList.length} Off Days`;
+        chipEl.className = offDaysList.length > 0
+          ? 'chip text-[11px] bg-rose-50 text-rose-800 border border-rose-200 font-bold'
+          : 'chip text-[11px] bg-slate-100 text-slate-600 font-bold';
+      }
+
+      // 6. Render Off-Days List (Sundays + Custom Holidays)
+      if (offDaysList.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            <i data-lucide="calendar" class="w-6 h-6 mx-auto mb-1 opacity-50"></i>
+            <span>No upcoming off-days or holidays in this month.</span>
+            <p class="text-[10px] text-slate-400 mt-0.5">All remaining days are active working days.</p>
+          </div>
+        `;
+      } else {
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        listContainer.innerHTML = offDaysList.map(item => {
+          const isToday = (item.day === curD);
+          const dayName = dayNames[item.dt.getDay()];
+          const displayDate = `${String(item.day).padStart(2, '0')}-${monthNames[curM].slice(0, 3)}-${curY} (${dayName})`;
+
+          let badgeHtml = '';
+          if (item.isSunday) {
+            badgeHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Sunday (Weekly Off)</span>';
+          } else {
+            badgeHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">Holiday (-1 Day)</span>';
+          }
+
+          let actionBtn = '';
+          if (item.isCustom) {
+            actionBtn = `
+              <button type="button" onclick="deleteHolidayDate('${escHtml(item.date)}')" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition cursor-pointer" title="Delete holiday">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            `;
+          } else {
+            actionBtn = `
+              <span class="text-slate-300 p-1 flex items-center gap-0.5 text-[10px] font-semibold text-slate-400" title="Automatic calendar weekly off">
+                <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
+              </span>
+            `;
+          }
+
+          return `
+            <div class="flex items-center justify-between p-2 rounded-xl border transition ${item.isSunday ? 'bg-amber-50/40 border-amber-200/70' : 'bg-rose-50/40 border-rose-200/70'}">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${item.isSunday ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-rose-100 text-rose-800 border border-rose-200'}">
+                  <i data-lucide="${item.isSunday ? 'calendar' : 'calendar-off'}" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-slate-800 text-xs">${escHtml(displayDate)}</span>
+                    ${isToday ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">Today</span>' : ''}
+                  </div>
+                  <span class="text-[11px] text-slate-500">${escHtml(item.name)}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                ${badgeHtml}
+                ${actionBtn}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (typeof safeCreateIcons === 'function') safeCreateIcons();
+    }
+
+    function getMisDrrSettings() {
+      // Auto-purge any stale manual mode override so calculations stay 100% automated
+      try {
+        if (localStorage.getItem('shaha_drr_mode_v2') === 'manual') {
+          localStorage.removeItem('shaha_drr_mode_v2');
+          localStorage.removeItem('shaha_drr_manual_days_v2');
+        }
+      } catch(e) {}
+      return { mode: 'auto', manualDays: 0 };
+    }
+
+    function updateAllDrrSettingsUi(mode, currentDays, holidays, autoDays, sundaysCount) {
+      const setInp = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && document.activeElement !== el) el.value = val;
+      };
+
+      setInp('mgr-drr-working-days-input', currentDays);
+      setInp('today-drr-working-days-input', currentDays);
+
+      const setBadge = (id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerText = `${currentDays}d`;
+          el.title = `${autoDays} working days (${sundaysCount} Sundays excluded)${holidays > 0 ? ` - ${holidays} holidays` : ''} = ${currentDays}d remaining`;
+        }
+      };
+
+      setBadge('mis-drr-days-badge');
+    }
+
+    function onDrrWorkingDaysChange(val) {
+      refreshAllDrrViews();
+    }
+
+    function toggleDrrMode() {
+      refreshAllDrrViews();
+    }
+
+    function refreshAllDrrViews() {
+      if (typeof _renderManagerWiseCollection === 'function') _renderManagerWiseCollection();
+      if (typeof renderTodayCollectionTab === 'function') renderTodayCollectionTab();
+      if (typeof renderLeaderboardMIS === 'function') renderLeaderboardMIS();
+      if (typeof _renderTotalCollectionTab === 'function') _renderTotalCollectionTab();
+    }
+
+    function getMisDrrDaysRemaining() {
+      const settings = getMisDrrSettings();
+      const info = getActivePeriodParts();
+      const y = info.y;
+      const m = info.m;
+      const todayDate = info.d;
+      const totalDaysInMonth = info.totalDaysInMonth;
+      const pendingCalendarDays = Math.max(1, totalDaysInMonth - todayDate + 1);
+
+      // 1. Pending Sundays (automatically excluded)
+      let sundaysCount = 0;
+      for (let day = todayDate; day <= totalDaysInMonth; day++) {
+        const dt = new Date(y, m - 1, day);
+        if (dt.getDay() === 0) sundaysCount++;
+      }
+
+      // 2. Pending Holidays (from saved Holiday List, excluding Sundays, and past dates auto-cleaned)
+      const holidays = getUpcomingHolidaysCount(todayDate, m, y);
+
+      // 3. Compute Net Working Days: Pending Calendar Days - Sundays - Holidays
+      const autoWorkingDays = Math.max(1, pendingCalendarDays - sundaysCount);
+      let netDays = 1;
+      if (settings.mode === 'manual' && settings.manualDays > 0) {
+        netDays = Math.max(1, settings.manualDays);
+      } else {
+        netDays = Math.max(1, pendingCalendarDays - sundaysCount - holidays);
+      }
+
+      updateAllDrrSettingsUi(settings.mode, netDays, holidays, autoWorkingDays, sundaysCount);
+      return netDays;
     }
 
     function computeMisDrr(balance, daysRemaining) {
@@ -17943,6 +18528,16 @@ var misExpandedManagers = new Set();
       const tbody = document.getElementById('leaderboard-tbody');
       const tfoot = document.getElementById('leaderboard-tfoot');
       if (!tbody) return;
+
+      // Always sync freshly from Paid Data so Daily MIS is 100% identical
+      if (typeof syncLiveCollectionFromPaidFile === 'function' && !window.__inMisSync) {
+        window.__inMisSync = true;
+        try {
+          syncLiveCollectionFromPaidFile(false, false);
+        } catch(e) {} finally {
+          window.__inMisSync = false;
+        }
+      }
 
       calculateLeaderboard();
       const drrDaysRemaining = getMisDrrDaysRemaining();
@@ -17993,7 +18588,7 @@ var misExpandedManagers = new Set();
       const statusFilterEl = document.getElementById('mis-status-filter');
       const statusFilter = statusFilterEl ? statusFilterEl.value : 'ACTIVE';
       if (statusFilter === 'ACTIVE') {
-        displayList = displayList.filter(o => !isCallerExited(o));
+        displayList = displayList.filter(o => !isCallerExited(o) || (Number(o.total) > 0));
       } else if (statusFilter === 'EXITED') {
         displayList = displayList.filter(o => isCallerExited(o));
       }
@@ -18122,12 +18717,22 @@ var misExpandedManagers = new Set();
           g.target += Number(o.target) || 0; g.aoy += Number(o.aoy) || 0; g.today += Number(o.today) || 0;
           g.total += Number(o.total) || 0; g.balance += Number(o.balance) || 0; g.projection += Number(o.projection) || 0;
         });
-        const gl = Object.values(groups).map(g => Object.assign(g, { ach: g.target > 0 ? Math.round(g.total / g.target * 100) : 0 }))
-          .sort((x, y) => y.ach - x.ach || y.total - x.total);
+        const gl = Object.values(groups).map(g => {
+          const assignedTarget = typeof getAssignedManagerTarget === 'function' ? getAssignedManagerTarget(g.key) : 0;
+          const effectiveTarget = assignedTarget > 0 ? assignedTarget : g.target;
+          const effectiveBal = Math.max(0, effectiveTarget - g.total);
+          const mgrDrr = computeMisDrr(effectiveBal, drrDaysRemaining);
+          const effectiveAch = effectiveTarget > 0 ? Math.round((g.total / effectiveTarget) * 100) : 0;
+          return Object.assign(g, {
+            effectiveTarget,
+            effectiveBal,
+            mgrDrr,
+            ach: effectiveAch
+          });
+        }).sort((x, y) => y.ach - x.ach || y.total - x.total);
         const td = 'py-2 px-2 text-center border border-slate-300 font-mono-num font-black text-xs sm:text-[13px]';
         gl.forEach((g, gi) => {
           const open = misExpandedManagers.has(g.key);
-          const mgrDrr = computeMisDrr(g.balance, drrDaysRemaining);
           const mgrSdlm = getSdlmForManager(sdlmDateStr, g.key);
           const mgrSdlmAmt = mgrSdlm.amount;
           sumSdlm += mgrSdlmAmt;
@@ -18138,13 +18743,13 @@ var misExpandedManagers = new Set();
                 <i data-lucide="${open ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 inline-block align-[-3px] mr-1"></i>${escHtml(g.key)}
                 <span class="chip ml-2" style="font-size: 11px; text-transform: none;">${g.list.length} ${g.list.length === 1 ? 'caller' : 'callers'}</span>
               </td>
-              <td class="${td}">${g.target.toLocaleString('en-IN')}</td>
+              <td class="${td}">${g.effectiveTarget.toLocaleString('en-IN')}</td>
               <td class="${td} text-amber-800 bg-amber-50/40" title="Same Day Last Month (${sdlmDateStr} MTD): ${mgrSdlmAmt.toLocaleString('en-IN')}">${mgrSdlmAmt.toLocaleString('en-IN')}</td>
               <td class="${td}">${g.aoy.toLocaleString('en-IN')}</td>
               <td class="${td} ${g.today > 0 ? 'amt-today' : 'amt-zero'}">${g.today.toLocaleString('en-IN')}</td>
               <td class="${td}">${g.total.toLocaleString('en-IN')}</td>
-              <td class="${td} text-rose-700">${g.balance.toLocaleString('en-IN')}</td>
-              <td class="${td} text-amber-700" title="${drrDaysRemaining} days remaining">${mgrDrr.toLocaleString('en-IN')}</td>
+              <td class="${td} text-rose-700">${g.effectiveBal.toLocaleString('en-IN')}</td>
+              <td class="${td} text-amber-700" title="${drrDaysRemaining} days remaining (Sundays excluded)">${g.mgrDrr.toLocaleString('en-IN')}</td>
               <td class="${td}">${g.projection.toLocaleString('en-IN')}</td>
               <td class="${td}" style="${getAchievedBgColor(g.ach)}">${g.ach}%</td>
               <td class="${td}">${rankBadge(gi + 1)}</td>
@@ -20387,6 +20992,7 @@ var misExpandedManagers = new Set();
 
       const periodInput = document.getElementById('leaderboard-period-input');
       const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
+      const drrDaysRemaining = typeof getMisDrrDaysRemaining === 'function' ? getMisDrrDaysRemaining() : 1;
       if (dateEl) dateEl.innerText = todayDateStr;
       if (titleEl) titleEl.innerText = `Branch Wise Collection Summary - ${todayDateStr}`;
 
@@ -20516,7 +21122,7 @@ var misExpandedManagers = new Set();
       branchesList.sort((a, b) => (b.today - a.today) || (b.total - a.total) || a.branch.localeCompare(b.branch));
 
       const sdlmDateStr = getSameDayLastMonthDate(todayDateStr);
-      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumDrr = 0, sumCallers = 0;
 
       tbody.innerHTML = branchesList.map((bItem, idx) => {
         const target = bItem.target;
@@ -20835,6 +21441,7 @@ var misExpandedManagers = new Set();
 
       // Pre-calculate target, sdlm, total, balance and achieved % for each manager
       const sdlmDateStr = getSameDayLastMonthDate(todayDateStr);
+      const drrDaysRemaining = typeof getMisDrrDaysRemaining === 'function' ? getMisDrrDaysRemaining() : 1;
       const mgrList = Object.values(managersMap).map(mItem => {
         const target = getAssignedManagerTarget(mItem.name);
         const aoy = Number(mItem.aoy) || 0;
@@ -20843,6 +21450,7 @@ var misExpandedManagers = new Set();
         const sdlmAmt = Number(mSdlm.amount) || 0;
         const total = aoy + today;
         const balance = Math.max(0, target - total);
+        const drr = (typeof computeMisDrr === 'function') ? computeMisDrr(balance, drrDaysRemaining) : Math.round(balance / Math.max(1, drrDaysRemaining));
         let achievedPct = 0;
         if (target > 0) {
           achievedPct = Math.round((total / target) * 100);
@@ -20857,6 +21465,7 @@ var misExpandedManagers = new Set();
           sdlmAmt,
           total,
           balance,
+          drr,
           achievedPct
         };
       });
@@ -20883,6 +21492,8 @@ var misExpandedManagers = new Set();
             valA = a.total; valB = b.total; break;
           case 'balance':
             valA = a.balance; valB = b.balance; break;
+          case 'drr':
+            valA = a.drr; valB = b.drr; break;
           case 'achieved':
           default:
             valA = a.achievedPct; valB = b.achievedPct; break;
@@ -20893,7 +21504,7 @@ var misExpandedManagers = new Set();
         return (b.total - a.total) || a.name.localeCompare(b.name);
       });
 
-      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumCallers = 0;
+      let sumTarget = 0, sumAoy = 0, sumToday = 0, sumSdlm = 0, sumTotal = 0, sumBalance = 0, sumDrr = 0, sumCallers = 0;
 
       tbody.innerHTML = mgrList.map((mItem, idx) => {
         const target = mItem.target;
@@ -20902,6 +21513,7 @@ var misExpandedManagers = new Set();
         const sdlmAmt = mItem.sdlmAmt;
         const total = mItem.total;
         const balance = mItem.balance;
+        const drr = mItem.drr;
         const achievedPct = mItem.achievedPct;
 
         sumTarget += target;
@@ -20910,6 +21522,7 @@ var misExpandedManagers = new Set();
         sumSdlm += sdlmAmt;
         sumTotal += total;
         sumBalance += balance;
+        sumDrr += drr;
         sumCallers += mItem.callers.length;
 
         const isOwnMgr = !mgrOnly || (myMgrKey && resolveManagerUserKey(mItem.key) === myMgrKey) || isOfficerUnderManager({ manager: mItem.name }, myMgrName);
@@ -20959,6 +21572,7 @@ var misExpandedManagers = new Set();
             <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-normal text-emerald-700 text-xs sm:text-[13px]">${today.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-normal text-slate-800 text-xs sm:text-[13px]">${total.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-normal text-rose-700 text-xs sm:text-[13px]">${balance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-bold text-amber-700 text-xs sm:text-[13px] bg-amber-50/20" title="${drrDaysRemaining} working days remaining">${drr.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-slate-300 font-mono-num font-normal text-xs sm:text-[13px]" style="${achievedStyle}">${achievedPct}%</td>
             <td class="py-2.5 px-3 text-center border border-slate-300 font-normal text-blue-800 text-xs sm:text-[13px]">
               <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium shadow-2xs">${mItem.callers.length} Callers</span>
@@ -20987,6 +21601,7 @@ var misExpandedManagers = new Set();
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumToday.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumTotal.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${finalMgrBalance.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumDrr.toLocaleString('en-IN')}</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${overallAchieved}%</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] font-mono-num text-[#ffeb3b]">${sumCallers} Callers</td>
             <td class="py-2.5 px-3 text-center border border-[#174375] mis-action-col"></td>
@@ -20996,7 +21611,7 @@ var misExpandedManagers = new Set();
 
 
       // Update sort indicators on headers
-      const sortCols = ['target', 'sdlm', 'aoy', 'today', 'total', 'balance', 'achieved'];
+      const sortCols = ['target', 'sdlm', 'aoy', 'today', 'total', 'balance', 'drr', 'achieved'];
       sortCols.forEach(c => {
         const iconEl = document.getElementById(`mgr-sort-icon-${c}`);
         const thEl = document.getElementById(`th-mgr-${c}`);
@@ -21101,8 +21716,10 @@ var misExpandedManagers = new Set();
         sumTotal += Number(c.total) || 0;
       });
 
-      const achieved = sumTarget > 0 ? Math.round((sumTotal / sumTarget) * 100) : 0;
-      const sumBalance = Math.max(0, sumTarget - sumTotal);
+      const assignedTarget = (typeof getAssignedManagerTarget === 'function') ? getAssignedManagerTarget(mgrName) : 0;
+      const effectiveTarget = assignedTarget > 0 ? assignedTarget : sumTarget;
+      const achieved = effectiveTarget > 0 ? Math.round((sumTotal / effectiveTarget) * 100) : 0;
+      const sumBalance = Math.max(0, effectiveTarget - sumTotal);
 
       const periodInput = document.getElementById('leaderboard-period-input');
       const todayDateStr = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
@@ -21110,7 +21727,7 @@ var misExpandedManagers = new Set();
       const mgrSdlm = getSdlmForManager(sdlmDateStr, mgrName, false);
 
       document.getElementById('drawer-kpi-count').innerText = pureDrawerCallersCount;
-      document.getElementById('drawer-kpi-target').innerText = '₹' + sumTarget.toLocaleString('en-IN');
+      document.getElementById('drawer-kpi-target').innerText = '₹' + effectiveTarget.toLocaleString('en-IN');
       const drawerColEl = document.getElementById('drawer-kpi-collection');
       if (drawerColEl) drawerColEl.innerText = '₹' + sumTotal.toLocaleString('en-IN');
       document.getElementById('drawer-kpi-today').innerText = '₹' + sumToday.toLocaleString('en-IN');
@@ -21233,7 +21850,7 @@ var misExpandedManagers = new Set();
       const periodInput = document.getElementById('leaderboard-period-input');
       const period = (periodInput && periodInput.value.trim()) ? periodInput.value.trim() : getTodayFormattedStr();
 
-      const headers = ['RANK', 'MANAGER', 'BRANCH', 'TARGET', 'SDLM', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', '%', 'CALLERS'];
+      const headers = ['RANK', 'MANAGER', 'BRANCH', 'TARGET', 'SDLM', 'AOY / MTD', 'TODAY', 'TOTAL', 'BALANCE', 'DRR', '%', 'CALLERS'];
       const rows = [headers];
 
       const tbody = document.getElementById('manager-collection-tbody');
@@ -21242,7 +21859,7 @@ var misExpandedManagers = new Set();
 
       trs.forEach(tr => {
         const tds = tr.querySelectorAll('td');
-        if (tds.length >= 11) {
+        if (tds.length >= 12) {
           rows.push([
             tds[0].innerText.trim(),
             tds[1].innerText.trim(),
@@ -21253,8 +21870,9 @@ var misExpandedManagers = new Set();
             tds[6].innerText.trim().replace(/,/g, ''),
             tds[7].innerText.trim().replace(/,/g, ''),
             tds[8].innerText.trim().replace(/,/g, ''),
-            tds[9].innerText.trim(),
-            tds[10].innerText.trim()
+            tds[9].innerText.trim().replace(/,/g, ''),
+            tds[10].innerText.trim(),
+            tds[11].innerText.trim()
           ]);
         }
       });
@@ -21262,7 +21880,7 @@ var misExpandedManagers = new Set();
       const tfoot = document.getElementById('manager-collection-tfoot');
       if (tfoot) {
         const ftds = tfoot.querySelectorAll('td');
-        if (ftds.length >= 9) {
+        if (ftds.length >= 10) {
           rows.push([
             'TOTAL',
             '',
@@ -21273,8 +21891,9 @@ var misExpandedManagers = new Set();
             ftds[4].innerText.trim().replace(/,/g, ''),
             ftds[5].innerText.trim().replace(/,/g, ''),
             ftds[6].innerText.trim().replace(/,/g, ''),
-            ftds[7].innerText.trim(),
-            ftds[8].innerText.trim()
+            ftds[7].innerText.trim().replace(/,/g, ''),
+            ftds[8].innerText.trim(),
+            ftds[9].innerText.trim()
           ]);
         }
       }
