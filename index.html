@@ -2999,6 +2999,43 @@
               </table>
             </div>
           </div>
+
+          <!-- Security & Audit Log Viewer (Admin Only - No IP Address) -->
+          <div class="card overflow-hidden mt-6" style="margin-top: 24px;">
+            <div class="card-h flex items-center justify-between" style="padding-bottom: 14px; border-bottom: 1px solid var(--line)">
+              <div>
+                <h2 class="card-title flex items-center gap-2">
+                  <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600"></i>
+                  Security &amp; Audit Logs (Device &amp; Activity Tracking)
+                </h2>
+                <span class="card-sub">Live audit trail of all logins, active devices, and critical actions across all branches.</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="renderSecurityAuditLogsTable(true)" class="btn btn-ghost text-xs font-bold">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+                </button>
+              </div>
+            </div>
+            <div class="table-scroll" style="max-height: 400px; overflow-y: auto;">
+              <table class="dtable text-xs">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Event / Action</th>
+                    <th>Device &amp; OS</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody id="security-audit-tbody">
+                  <tr>
+                    <td colspan="6" class="p-4 text-center text-slate-400">Loading audit records...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
       </main>
@@ -4101,6 +4138,331 @@
       }, 150);
     }
 
+    // ==========================================
+    // 🛡️ CYBERSECURITY SHIELD: ANTI-INSPECT, TAMPER GUARD & AUDIT LOGS
+    // ==========================================
+    (function initSecurityShield() {
+      // 1. Right Click Prevention
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      }, { capture: true });
+
+      // 2. Keyboard Inspection Shortcuts Prevention (F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S)
+      document.addEventListener('keydown', function(e) {
+        const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+        if (e.key === 'F12' || e.keyCode === 123) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+        if (isCmdOrCtrl && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+        if (isCmdOrCtrl && ['U', 'u', 'S', 's'].includes(e.key)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }, { capture: true });
+
+      // 3. Console Security Notice
+      try {
+        console.log('%cSTOP! SECURITY NOTICE', 'color: #dc2626; font-size: 24px; font-weight: 900; -webkit-text-stroke: 1px black;');
+        console.log('%cThis is a protected enterprise financial portal. Unauthorized access, inspection, or script injection is prohibited and logged.', 'color: #475569; font-size: 13px; font-weight: bold;');
+      } catch (e) {}
+
+      // 4. DevTools Detection & Tamper Alert
+      let devtoolsDetected = false;
+      setInterval(() => {
+        const threshold = 160;
+        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        if (widthThreshold || heightThreshold) {
+          if (!devtoolsDetected) {
+            devtoolsDetected = true;
+            if (typeof logSecurityAuditEvent === 'function') {
+              logSecurityAuditEvent('DEVTOOLS_INSPECT_DETECTED', 'DevTools window opened');
+            }
+          }
+        } else {
+          devtoolsDetected = false;
+        }
+      }, 1500);
+    })();
+
+    // Client Device Detector (Privacy-preserving: No IP Address)
+    function getClientDeviceInfo() {
+      const ua = navigator.userAgent || '';
+      let os = 'Unknown OS';
+      if (/windows phone/i.test(ua)) os = 'Windows Phone';
+      else if (/win(dows|11|10|8|7)/i.test(ua)) os = 'Windows PC';
+      else if (/android/i.test(ua)) os = 'Android Mobile';
+      else if (/ipad|tablet/i.test(ua)) os = 'Tablet';
+      else if (/iphone|ipod/i.test(ua)) os = 'iPhone';
+      else if (/macintosh|mac os x/i.test(ua)) os = 'Mac OS';
+      else if (/linux/i.test(ua)) os = 'Linux PC';
+
+      let browser = 'Unknown Browser';
+      if (/edg/i.test(ua)) browser = 'Microsoft Edge';
+      else if (/opr\//i.test(ua)) browser = 'Opera';
+      else if (/chrome|crios/i.test(ua)) browser = 'Google Chrome';
+      else if (/firefox|fxios/i.test(ua)) browser = 'Mozilla Firefox';
+      else if (/safari/i.test(ua)) browser = 'Apple Safari';
+
+      const isMobile = /mobile|android|iphone|ipad/i.test(ua) || (window.innerWidth <= 768);
+      const deviceType = isMobile ? 'Mobile' : 'Desktop';
+      const screenSize = `${window.screen.width || window.innerWidth}x${window.screen.height || window.innerHeight}`;
+
+      return {
+        os,
+        browser,
+        deviceType,
+        screenSize,
+        summary: `${deviceType} (${os} • ${browser})`
+      };
+    }
+
+    async function sha256Hex(str) {
+      try {
+        const enc = new TextEncoder().encode(str);
+        const hash = await crypto.subtle.digest('SHA-256', enc);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) {
+          h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+        }
+        return 'fb_' + Math.abs(h).toString(16);
+      }
+    }
+
+    const PORTAL_SESSION_SALT = 'SHAHA_ENTERPRISE_PORTAL_SECURE_SALT_v2026';
+
+    async function computeSessionSignature(session) {
+      if (!session) return '';
+      const payload = `${session.key}|${session.username}|${session.role}|${session.login_time}|${PORTAL_SESSION_SALT}`;
+      return await sha256Hex(payload);
+    }
+
+    async function verifySessionSignature(session) {
+      if (!session || !session.signature) return false;
+      const expected = await computeSessionSignature(session);
+      return session.signature === expected;
+    }
+
+    async function logSecurityAuditEvent(action, details = '', userOverride = null) {
+      const u = userOverride || currentUser;
+      const dev = getClientDeviceInfo();
+      const now = new Date();
+      const event = {
+        id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        timestamp: now.toISOString(),
+        displayTime: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
+        username: u ? (u.username || u.key || 'UNKNOWN') : 'ANONYMOUS',
+        name: u ? (u.name || 'Anonymous User') : 'Anonymous User',
+        role: u ? (u.role || 'GUEST') : 'GUEST',
+        action: action,
+        details: details,
+        device: dev.summary,
+        screen: dev.screenSize
+      };
+
+      try {
+        let localLogs = JSON.parse(localStorage.getItem('shaha_security_audit_logs_v1') || '[]');
+        localLogs.unshift(event);
+        if (localLogs.length > 300) localLogs = localLogs.slice(0, 300);
+        localStorage.setItem('shaha_security_audit_logs_v1', JSON.stringify(localLogs));
+      } catch(e) {}
+
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('id, narration')
+            .eq('ref_no', 'SYS_SECURITY_AUDIT_LOGS')
+            .order('id', { ascending: false })
+            .limit(1);
+
+          if (data && data.length > 0) {
+            let cloudLogs = [];
+            try { cloudLogs = JSON.parse(data[0].narration) || []; } catch(e) {}
+            if (!Array.isArray(cloudLogs)) cloudLogs = [];
+            cloudLogs.unshift(event);
+            if (cloudLogs.length > 500) cloudLogs = cloudLogs.slice(0, 500);
+            await supabaseClient
+              .from('bank_transactions')
+              .update({
+                narration: JSON.stringify(cloudLogs),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', data[0].id);
+          }
+        } catch(e) {}
+      }
+
+      if (typeof renderSecurityAuditLogsTable === 'function') {
+        renderSecurityAuditLogsTable();
+      }
+    }
+
+    let _activeSessionToken = null;
+    let _concurrentCheckInterval = null;
+
+    async function registerActiveUserSession(username) {
+      const token = 'tok_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      _activeSessionToken = token;
+      const dev = getClientDeviceInfo();
+      const uKey = String(username).toLowerCase().trim();
+
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from('bank_transactions')
+            .select('id, narration')
+            .eq('ref_no', 'SYS_ACTIVE_USER_SESSIONS')
+            .order('id', { ascending: false })
+            .limit(1);
+
+          if (data && data.length > 0) {
+            let sessions = {};
+            try { sessions = JSON.parse(data[0].narration) || {}; } catch(e) {}
+            sessions[uKey] = {
+              token: token,
+              device: dev.summary,
+              login_time: new Date().toISOString()
+            };
+            await supabaseClient
+              .from('bank_transactions')
+              .update({
+                narration: JSON.stringify(sessions),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', data[0].id);
+          }
+        } catch(e) {}
+      }
+      return token;
+    }
+
+    async function checkConcurrentSession() {
+      if (!currentUser || !_activeSessionToken || !supabaseClient) return true;
+      const uKey = String(currentUser.username || currentUser.key || '').toLowerCase().trim();
+      if (!uKey) return true;
+
+      try {
+        const { data } = await supabaseClient
+          .from('bank_transactions')
+          .select('narration')
+          .eq('ref_no', 'SYS_ACTIVE_USER_SESSIONS')
+          .order('id', { ascending: false })
+          .limit(1);
+
+        if (data && data.length > 0 && data[0].narration) {
+          const sessions = JSON.parse(data[0].narration) || {};
+          const active = sessions[uKey];
+          if (active && active.token && active.token !== _activeSessionToken) {
+            logSecurityAuditEvent('CONCURRENT_LOGOUT', `Logged out because user logged in from ${active.device}`);
+            handleLogoutSilent();
+            showConcurrentLoginModal(active.device);
+            return false;
+          }
+        }
+      } catch(e) {}
+      return true;
+    }
+
+    function startConcurrentSessionMonitor() {
+      if (_concurrentCheckInterval) clearInterval(_concurrentCheckInterval);
+      _concurrentCheckInterval = setInterval(() => {
+        checkConcurrentSession();
+      }, 15000);
+    }
+
+    function showConcurrentLoginModal(otherDevice) {
+      if (document.getElementById('modal-concurrent-logout')) return;
+      const modal = document.createElement('div');
+      modal.id = 'modal-concurrent-logout';
+      modal.className = 'fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4';
+      modal.innerHTML = `
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-rose-500 text-center animate-in fade-in zoom-in-95 duration-200">
+          <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          </div>
+          <h3 class="text-lg font-black text-slate-900 mb-2">Session Terminated</h3>
+          <p class="text-sm text-slate-600 mb-3">
+            Your account was just logged in from another device:
+          </p>
+          <div class="p-3 bg-rose-50 text-rose-800 font-bold text-xs rounded-xl border border-rose-200 mb-4">
+            ${escHtml(otherDevice || 'Another Device / Browser')}
+          </div>
+          <p class="text-[11px] text-slate-400 mb-6">
+            For security, multiple concurrent logins with the same account are blocked.
+          </p>
+          <button onclick="document.getElementById('modal-concurrent-logout').remove(); showLogin();" class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition">
+            Sign In Again
+          </button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      safeCreateIcons();
+    }
+
+    async function renderSecurityAuditLogsTable(forceCloud = false) {
+      const tbody = document.getElementById('security-audit-tbody');
+      if (!tbody) return;
+
+      let logs = [];
+      try {
+        logs = JSON.parse(localStorage.getItem('shaha_security_audit_logs_v1') || '[]');
+      } catch(e) {}
+
+      if (forceCloud || logs.length === 0) {
+        if (supabaseClient) {
+          try {
+            const { data } = await supabaseClient
+              .from('bank_transactions')
+              .select('narration')
+              .eq('ref_no', 'SYS_SECURITY_AUDIT_LOGS')
+              .order('id', { ascending: false })
+              .limit(1);
+            if (data && data.length > 0 && data[0].narration) {
+              logs = JSON.parse(data[0].narration) || [];
+              try { localStorage.setItem('shaha_security_audit_logs_v1', JSON.stringify(logs)); } catch(e) {}
+            }
+          } catch(e) {}
+        }
+      }
+
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">No security audit logs recorded yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.slice(0, 100).map((log, idx) => {
+        const timeStr = log.displayTime || (log.timestamp ? new Date(log.timestamp).toLocaleString('en-IN') : '-');
+        const actionBadge = log.action === 'LOGIN' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">LOGIN</span>' :
+          (log.action === 'LOGOUT' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">LOGOUT</span>' :
+          (log.action === 'CONCURRENT_LOGOUT' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">DEVICE CONFLICT</span>' :
+          (log.action === 'DEVTOOLS_INSPECT_DETECTED' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">INSPECT ALERT</span>' :
+          `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">${escHtml(log.action)}</span>`)));
+
+        return `
+          <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+            <td class="p-2.5 font-mono text-[11px] text-slate-600 whitespace-nowrap">${escHtml(timeStr)}</td>
+            <td class="p-2.5 font-bold text-slate-800">${escHtml(log.name || log.username || '-')}</td>
+            <td class="p-2.5 text-[11px] font-semibold text-slate-600">${escHtml(log.role || '-')}</td>
+            <td class="p-2.5">${actionBadge}</td>
+            <td class="p-2.5 text-[11px] text-slate-700">${escHtml(log.device || '-')}</td>
+            <td class="p-2.5 text-[11px] text-slate-600">${escHtml(log.details || '-')}</td>
+          </tr>
+        `;
+      }).join('');
+      safeCreateIcons();
+    }
+
     // --- System Defaults & Configurations ---
     // Helper to get clean unique customer/case identifier from a paid record
     function getRecordCustomerId(r) {
@@ -4132,19 +4494,19 @@
 
     // --- User Credentials (Admin & Managers) ---
     const DEFAULT_INITIAL_CREDENTIALS = {
-      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'ALL', agency: 'HEAD OFFICE', pin: 'admin123', accepted_pins: ['admin123', 'admin', 'ADMIN@123'], username: 'admin' },
-      'management': { name: 'Senior Management', role: 'MANAGEMENT', branch: 'ALL', agency: 'HQ', pin: '123', accepted_pins: ['123', 'shaha', 'shaha123', 'SHAHA@123', 'management123'], username: 'SHAHA' },
-      'backend': { name: 'Backend Operations Team', role: 'BACKEND', branch: 'ALL', agency: 'OPS', pin: 'back123', accepted_pins: ['back123', 'backend123', 'BACKEND@123', 'backend', 'background', 'background123', 'BACKGROUND@123', '123'], username: 'backend' },
-      'ambuj': { name: 'AMBUJ TRIPATHI', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'AMBUJ@123', accepted_pins: ['AMBUJ@123', 'ambuj123', 'ambuj'], username: 'AMBUJ', has_mis_access: true },
-      'shravanthi': { name: 'SHRAVANTHI P', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'SHRAVANTHI@123', accepted_pins: ['SHRAVANTHI@123', 'shravanthi123', 'shravanthi'], username: 'SHRAVANTHI', has_mis_access: true },
-      'shweta': { name: 'SHWETA SINGH', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'SHWETA@123', accepted_pins: ['SHWETA@123', 'shweta123', 'shweta'], username: 'SHWETA', has_mis_access: true },
-      'omkar': { name: 'OMKAR SINGH', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'OMKAR@123', accepted_pins: ['OMKAR@123', 'omkar123', 'omkar'], username: 'OMKAR', has_mis_access: true },
-      'aditi': { name: 'ADITI GAWADE', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'ADITI@123', accepted_pins: ['ADITI@123', 'aditi123', 'aditi'], username: 'ADITI', has_mis_access: true },
-      'poonam': { name: 'POONAM I', role: 'MANAGER', branch: 'AGENCY', agency: 'AGENCY', pin: 'POONAM@123', accepted_pins: ['POONAM@123', 'poonam123', 'poonam'], username: 'POONAM', has_mis_access: true },
-      'smita': { name: 'SMITA JAGTAP', role: 'MANAGER', branch: 'WORLI', agency: 'WORLI', pin: 'SMITA@123', accepted_pins: ['SMITA@123', 'smita123', 'smita'], username: 'SMITA', has_mis_access: true },
-      'saroj': { name: 'SAROJ', role: 'MANAGER', branch: 'SAROJ', agency: 'SAROJ', pin: 'SAROJ@123', accepted_pins: ['SAROJ@123', 'saroj123', 'saroj'], username: 'SAROJ', has_mis_access: true },
-      'customerservice': { name: 'CUSTOMER SERVICE', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: 'CS@123', accepted_pins: ['CS@123', 'cs123', 'CUSTOMERSERVICE@123', 'customerservice123', 'cs'], username: 'CUSTOMERSERVICE', has_mis_access: true },
-      'subhashree': { name: 'SUBHASHREE', role: 'MANAGER', branch: 'BANGALORE', agency: 'BANGALORE', pin: 'SUBHASHREE@123', accepted_pins: ['SUBHASHREE@123', 'BLR@123', 'ANURADHA@123', 'subhashree123', 'blr123', 'anuradha123'], username: 'SUBHASHREE', has_mis_access: true }
+      'admin': { name: 'Admin / Ops Head', role: 'ADMIN', branch: 'ALL', agency: 'HEAD OFFICE', pin: '••••••••', pin_hashes: ["240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9", "5b40171489659251097e7790fc2f1892e2183a72546fe1df283d07865db9149c", "7676aaafb027c825bd9abab78b234070e702752f625b752e55e55b48e607e358", "78a72bcb9c0f3714c0924cf037d407ec7ee513ac20c42df073db98e318d3a979", "835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be", "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"], username: 'admin' },
+      'management': { name: 'Senior Management', role: 'MANAGEMENT', branch: 'ALL', agency: 'HQ', pin: '••••••••', pin_hashes: ["0bfc0f9f9076a131be972238677c3aa4aabae246da3c6101b13215b88af5d678", "302bd28cab461e0029167f61503b088287482e3f8a5538b191a22b2886c45e12", "37e807ed8f26ee592a46e1b64f5f3808e8507c50d634941bfcee14bc0e6a0302", "43f27b735e15f32048c2818aa8775b00d0fb1bcf5bf512d2b15b5d44d383ccff", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3", "d91cade87a5710231eb1e2611eb0b8cdc49b280bf4d4646f60c0a4de5f0ad273", "ee65ee5c5f792ef44258adb94379b8e00b6c2ad490fe17bbd64bc47ffb49c472", "f82b6d706fce78afde79858e9efbdccdeddf1183ece7857bf07062ead93e2d59"], username: 'SHAHA' },
+      'backend': { name: 'Backend Operations Team', role: 'BACKEND', branch: 'ALL', agency: 'OPS', pin: '••••••••', pin_hashes: ["10e08a419e850eba1ebba18fdd28eb7ec1b7e8baa9bcc3b973e2b8891ec726be", "3a4267242502fd78bfafb38bf474d9f29120c5d5f185d5bc024079a2578f9a2d", "89b91df19d9d75d4cf36d9033d0789e7ecae0c233160c3be0d56e81027ab965a", "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3", "c19193c7db392ea29fa5b2e8f43f5d66f0f30781333ff81798ce8964a9744963", "d4e0928798160ade9131e8695e5a5d1b4f33a87469ad59e19965de59f43711a5", "e384bb3000b19cac47ea8151b551371505d40d94e4f73c204553a75a936f52df", "e5a35fff0751308f7a066d2239cdf1d89a3f173b0e0e465190ea0b17be17260d", "ee49da81f17049040ce7fd58e9fceb019b3889024d121e93e3a72e26044ec68e", "fa91af5e0fd01d5a7ce2fa87908d73c0dbc59d93de55b8c79242eb7b00ffe16c"], username: 'backend' },
+      'ambuj': { name: 'AMBUJ TRIPATHI', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: '••••••••', pin_hashes: ["263083151f8c61bd817de4f1c9a497490520adeec0f41291e465795b9140c20d", "2c135ea1ba3cc5e252f5e59080f2b4edb72d4eba4fe4579d4766690a0458f589", "2c3a0f70ea74cfbcf577889e9c6ed0558fdf0eebfca7c0fa72eab2c5025dc19f", "9da33ebf1d4ad0a5c2b7b3c7062257fb45edb0ab2a93364ac0edc686cafd4713", "a318f21add1ef4c324a8eb53e7e9f6f34258c5ed3388ebbb28316ff975851eac", "b4ab8f8dbc1c98b88e1d022253ad639b2917d7146189f25fffa423502306013a"], username: 'AMBUJ', has_mis_access: true },
+      'shravanthi': { name: 'SHRAVANTHI P', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: '••••••••', pin_hashes: ["069028e4dd4f5a2fd4a0ffb1a72aa076bae69a7eb0b663de9cd9ba9ff04cee65", "157f043240a27d135c0ae7719ab3292ae085c7208f712feb31db69d0ef7b4195", "2d38acd53853777dd02727b5136385d8fb21868cfa66c81265c54e8c61942567", "66fcce17b2479d53f0f9a3f6423ed0bde61f46bb6a1879036286254298467adf", "6b3929eddda348b99ed40a08ede61628086693f7e1672cb5e48160e7bf5c448c", "cf301a1f45e6c824955b52a9aa74edf180556a9caa3c4e9e2629bc6b40ac6551"], username: 'SHRAVANTHI', has_mis_access: true },
+      'shweta': { name: 'SHWETA SINGH', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: '••••••••', pin_hashes: ["06a8a975d84008f1584f836de69f3e7a20132fb75eb760acecdc78ef25826353", "3db44f7e76585935faccc98beba1c52226e2834879e4ce2537d3dd06e4b30686", "6a85d736a79a0277282ca339dd8e4156dd40b4ecdabffd4a3f5a31e859551f99", "9932e13e63b3c2ca72ee5c4984a29ace2b24fd8c62d2192d4e5fb48d8a60cf39", "b24330399e0c50e93747f6371dfc72559b87312cf533a030c39cdadeb7df31f9", "eba2391859bb22ecf59b855b4769465b335780b3028df0ed9edaafe1040952b0"], username: 'SHWETA', has_mis_access: true },
+      'omkar': { name: 'OMKAR SINGH', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: '••••••••', pin_hashes: ["37028839aea3b5b27f75fafdcfda3915998d6535f598a16478b57f43f01d5c16", "385e352f30d14f5ef86d60f79a6b2e4e1121cea6be1f452169c85505a2dccd1c", "52829b43a88d11754597a6ed7cb83efa446728227acb44d08bb19aa55a5a7753", "5f792a579d0290ad667965b4b22508b594b642d62c0d4315cdcf2df64871377d", "70cb4896944759f6152fd353d972abe9dc6ee0d806fa87aabef7a0a2af5bf520", "c6b6a00058d4da60c6d2017e97fd59e82a6af51ab7f03fcb3ae35b0be8281650"], username: 'OMKAR', has_mis_access: true },
+      'aditi': { name: 'ADITI GAWADE', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: '••••••••', pin_hashes: ["247fe0c957281578248e6742c79fe1bf86a7243c2142e0370b3c91c339e64b3c", "a0394e8f2b0cc7a67573efa8eb2f72b0b2711421b0159fd8ff81ea63f2096247", "ac9ce47cfa5863b657bf0352325fd7fd5179702a4642d21308b7607080001dbd", "baaa7b85f524891099576021cece61abb60cbf3a4b21cb58025c2a6287aa3493", "d3b8d1b7fda5e9247fabe433390582707444b35546a8959b3c52a04eb2f40207", "dcd83e6b91975333c89fa31c37d5c752ee35268059492ccbf34522cd20ceaee2"], username: 'ADITI', has_mis_access: true },
+      'poonam': { name: 'POONAM I', role: 'MANAGER', branch: 'AGENCY', agency: 'AGENCY', pin: '••••••••', pin_hashes: ["1750674e38d7e65f8a000ffe6eb7aef194f02aa39d76e82d7f9414b1499e8fae", "41c3f4e0dade0b5111c9569e01e1faba3b840c6676ef72ee01745cbbd65f9c26", "452bda04735bbe3e547badb627706036b7a4a895dde1d50b8066c9b733cafd78", "85ebb080c8e200239a95e856613241b386b7640e5f33789f591b8879540edf0b", "88f8d54e931dea8b02acb100d989a6f1f14a745b7f343a4edf145d65cc62cc65", "ae8e87ffbaff1f401ddf7691e563037d9c791de2bb17e3ce77e873dbec155b5f"], username: 'POONAM', has_mis_access: true },
+      'smita': { name: 'SMITA JAGTAP', role: 'MANAGER', branch: 'WORLI', agency: 'WORLI', pin: '••••••••', pin_hashes: ["1fe4b8f36f04203ebf7278530b21283f4ece3bf64bc5aa02deacf1a063393113", "670bef1ec9582bdc21c216e76dce4032a4558680e79c958d99a4379045d2f7af", "99fe1c8fd3aca9f9f3fb5c13c14cf832d4e6a67128e48c99c788fc5c00071071", "e41ed1aabc52c88af50532208fc3180a76d5af7e85df1ac19f2ea71d3cf8edaf", "f6b7387645a0bca30a337004da544bda5465b83ccded97cddb4789771213fbbb", "f72f4178958f005790a4b8e3e4a9f744efe5a3adfbcf9010055015cafd8860a7"], username: 'SMITA', has_mis_access: true },
+      'saroj': { name: 'SAROJ', role: 'MANAGER', branch: 'SAROJ', agency: 'SAROJ', pin: '••••••••', pin_hashes: ["1a32f51f4676703f489e138b7f553f183428a161610d5694baf164065cbfbfb6", "341a7f106532861d853aacbf93dc2344dff641cf7a37cb58c2bd63617dfeb7bd", "57310f012534523c60b64362448b577546a72eefb4255d062cfc413a005f067a", "6e460686ee59f14a57ac5b179f611689cf4caac2afb266cf5a1c583f90b48120", "76deac110821ac35789596d95a5c6ae37505c85469bc44aadaf34c69d5f2f0b9", "8da2cca477d2970e68fa594746b214f802b884ae4a883c4cb2682c803a4a1876"], username: 'SAROJ', has_mis_access: true },
+      'customerservice': { name: 'CUSTOMER SERVICE', role: 'MANAGER', branch: 'JOGESHWARI', agency: 'JOGESHWARI', pin: '••••••••', pin_hashes: ["10877aabedf58472c836c7e5612a611b4caa810b41d80333dab043e0d51955a1", "195c468776d93e0dee784916f1a829ade2a625257cb05cfb54ba7d990c9ba03c", "27d1a810609f9daeb7ed0a568172b1c4d4b07053047cebf37c5283a6e9d1d732", "3a22ef4d24956d59cc29ab7830c590dee924d345708278860fe21f23a0bd2147", "3b8b91c75627bee566dcb88f4805901b20a3eab2520bcff8d26c87157a035026", "492281605e8d7f929349d540176a1950f8f895797c4c78f846c80f1460dd0512", "8757f3a798ad0554fd82fff30ef2c38f88bde235c6e6909db2554e8562285a58", "c3683517539a2452f7890cd9ec8eb330d8465673140d8abc89a82e5a1329d696"], username: 'CUSTOMERSERVICE', has_mis_access: true },
+      'subhashree': { name: 'SUBHASHREE', role: 'MANAGER', branch: 'BANGALORE', agency: 'BANGALORE', pin: '••••••••', pin_hashes: ["2f3ad24badd66ae8a47ef6f795c5521157da57ba71147b3277c854afa442721d", "502072bb3ae6a1e22a4113ac0563467c0843b023c82c76812bcd582799a59202", "51207add657e375bd04a7252e4474964289c0bbd43160f4680022b473893db42", "65469e5f9aa2d7dfb05cc0f0e9123d2ad1bc7be304f7ac212e6674f059b9a66b", "740770fbead904b443496c7fd2a44d3bb693949a9849d0f7a5dc88465b1d2978", "75a91198fbffcf3a86bd5995864a09208f00b330c90d46069be7df21066da842", "a2c52b83031bf2c69c271714b07fb7ab99ecf6a64801144eac582d1593775f7d", "c207ab120a48357ffe129b690186b3e3ebc3461316b231701c523e16ae8050ec", "ed2a4c949c7f6a787f620735a9dacf9618c370221157487ac0a9fe36b1f34d30"], username: 'SUBHASHREE', has_mis_access: true }
     };
 
     // Role-Based Access Control (RBAC) Permissions Matrix
@@ -9922,6 +10284,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (role === 'ADMIN') {
             syncCredentialsWithCloud().then(() => renderUserManagerTable()).catch(console.error);
             renderUserManagerTable();
+            if (typeof renderSecurityAuditLogsTable === 'function') renderSecurityAuditLogsTable();
           }
         }
       } catch (tabErr) {
@@ -15644,12 +16007,24 @@ const CANONICAL_CALLER_DIRECTORY = {
             try { localStorage.setItem('shaha_portal_session_v4', JSON.stringify(session)); } catch(e) {}
           }
           if (session && session.key && session.last_active) {
+            // Cryptographic session verification (Anti-Console Tampering)
+            const isSigValid = await verifySessionSignature(session);
+            if (!isSigValid) {
+              console.warn('Tampered or invalid session detected.');
+              localStorage.removeItem('shaha_portal_session_v4');
+              showLogin();
+              showToast('Security Alert: Invalid session signature. Please sign in.', 'error');
+              return;
+            }
             if (now - session.last_active < SESSION_INACTIVITY_LIMIT_MS) {
               session.last_active = now;
+              session.signature = await computeSessionSignature(session);
               localStorage.setItem('shaha_portal_session_v4', JSON.stringify(session));
+              _activeSessionToken = session.token || null;
               applyUserSession(session);
               showPortal();
               startSessionInactivityMonitor();
+              startConcurrentSessionMonitor();
 
               // Instant cache hydration: Portal displays immediately with zero delay
               const { localKey: authLocalKey } = getLeaderboardStorageKeys();
@@ -15952,72 +16327,38 @@ const CANONICAL_CALLER_DIRECTORY = {
           USER_CREDENTIALS[matchedKey] = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS[matchedKey] || meta);
         }
 
-        // Multi-tolerant password verification (Case-insensitive & symbols-tolerant)
+        // SHA-256 Cryptographic Password Verification
         const enteredPassRaw = passInput.trim();
         const enteredPassLower = enteredPassRaw.toLowerCase();
         const enteredPassClean = enteredPassLower.replace(/[^a-z0-9]/g, '');
 
-        const validPins = new Set();
-        if (meta && meta.pin) validPins.add(String(meta.pin).trim().toLowerCase());
-        if (DEFAULT_INITIAL_CREDENTIALS[matchedKey] && DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin) {
-          validPins.add(String(DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin).trim().toLowerCase());
+        const rawHash = await sha256Hex(enteredPassRaw);
+        const lowerHash = await sha256Hex(enteredPassLower);
+        const cleanHash = await sha256Hex(enteredPassClean);
+
+        const validHashes = new Set();
+        if (meta && Array.isArray(meta.pin_hashes)) {
+          meta.pin_hashes.forEach(h => validHashes.add(h));
+        }
+        if (DEFAULT_INITIAL_CREDENTIALS[matchedKey] && Array.isArray(DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin_hashes)) {
+          DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin_hashes.forEach(h => validHashes.add(h));
+        }
+        if (meta && meta.pin && meta.pin !== '••••••••') {
+          validHashes.add(await sha256Hex(meta.pin));
+          validHashes.add(await sha256Hex(meta.pin.toLowerCase()));
+          validHashes.add(await sha256Hex(meta.pin.toLowerCase().replace(/[^a-z0-9]/g, '')));
         }
         if (meta && Array.isArray(meta.accepted_pins)) {
-          meta.accepted_pins.forEach(p => validPins.add(String(p).trim().toLowerCase()));
-        }
-        if (DEFAULT_INITIAL_CREDENTIALS[matchedKey] && Array.isArray(DEFAULT_INITIAL_CREDENTIALS[matchedKey].accepted_pins)) {
-          DEFAULT_INITIAL_CREDENTIALS[matchedKey].accepted_pins.forEach(p => validPins.add(String(p).trim().toLowerCase()));
-        }
-
-        // Guaranteed standard role & manager pins:
-        if (matchedKey === 'subhashree') {
-          validPins.add('subhashree@123');
-          validPins.add('blr@123');
-          validPins.add('anuradha@123');
-          validPins.add('subhashree123');
-          validPins.add('blr123');
-          validPins.add('anuradha123');
-        } else if (matchedKey === 'customerservice') {
-          validPins.add('cs@123');
-          validPins.add('customerservice@123');
-          validPins.add('cs123');
-          validPins.add('cs');
-        } else if (matchedKey === 'management') {
-          validPins.add('123');
-          validPins.add('shaha');
-          validPins.add('shaha123');
-          validPins.add('shaha@123');
-          validPins.add('management123');
-        } else if (matchedKey === 'admin') {
-          validPins.add('admin123');
-          validPins.add('admin');
-          validPins.add('admin@123');
-        } else if (matchedKey === 'backend') {
-          validPins.add('back123');
-          validPins.add('backend123');
-          validPins.add('backend@123');
-          validPins.add('backend');
-          validPins.add('background');
-          validPins.add('background123');
-          validPins.add('background@123');
-          validPins.add('123');
-        } else {
-          validPins.add(`${matchedKey}@123`);
-          validPins.add(`${matchedKey}123`);
-          validPins.add(matchedKey);
-        }
-
-        let passOk = false;
-        for (const vp of validPins) {
-          if (!vp) continue;
-          const vpClean = vp.replace(/[^a-z0-9]/g, '');
-          if (enteredPassLower === vp || enteredPassClean === vpClean || enteredPassRaw === vp) {
-            passOk = true;
-            break;
+          for (const ap of meta.accepted_pins) {
+            validHashes.add(await sha256Hex(ap));
+            validHashes.add(await sha256Hex(ap.toLowerCase()));
           }
         }
 
+        const passOk = validHashes.has(rawHash) || validHashes.has(lowerHash) || validHashes.has(cleanHash);
+
         if (!passOk) {
+          logSecurityAuditEvent('FAILED_LOGIN_ATTEMPT', `Failed login attempt for username: ${rawInput}`);
           showLoginError('Incorrect Password. Please check your password and try again.');
           return;
         }
@@ -16026,6 +16367,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (btnLabel) btnLabel.innerText = 'Sign In to Portal';
 
         const now = Date.now();
+        const activeToken = await registerActiveUserSession(meta.username || matchedKey);
         const sessionObj = {
           key: matchedKey,
           username: meta.username || matchedKey,
@@ -16033,15 +16375,19 @@ const CANONICAL_CALLER_DIRECTORY = {
           role: meta.role,
           agency: meta.agency,
           has_mis_access: meta.has_mis_access === true,
+          token: activeToken,
           login_time: now,
           last_active: now
         };
+        sessionObj.signature = await computeSessionSignature(sessionObj);
 
         localStorage.setItem('shaha_portal_session_v4', JSON.stringify(sessionObj));
         applyUserSession(sessionObj);
         startSessionInactivityMonitor();
+        startConcurrentSessionMonitor();
         showPortal();
         showToast(`Welcome back, ${meta.name}!`, 'success');
+        logSecurityAuditEvent('LOGIN', 'Signed in successfully');
 
         // Fast instant cached hydration so user never waits for UI
         const { localKey: loginLocalKey } = getLeaderboardStorageKeys();
@@ -16230,6 +16576,9 @@ const CANONICAL_CALLER_DIRECTORY = {
 
     function confirmLogoutAction() {
       closeLogoutConfirmModal();
+      logSecurityAuditEvent('LOGOUT', 'User signed out manually');
+      if (_concurrentCheckInterval) clearInterval(_concurrentCheckInterval);
+      _activeSessionToken = null;
       handleLogoutSilent();
       showToast('Signed out successfully.', 'info');
     }
