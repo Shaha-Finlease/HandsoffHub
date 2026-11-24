@@ -372,6 +372,41 @@
     .page-head p { color: var(--ink-3); font-size: 14px; margin-top: 4px; max-width: 70ch; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
+    /* Manager Collection Single-Line Compact Toolbar (Full-Width Justified) */
+    #content-manager-collection .actions {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      flex-wrap: nowrap !important;
+      gap: 8px !important;
+      overflow-x: auto !important;
+      scrollbar-width: none;
+    }
+    #content-manager-collection .actions::-webkit-scrollbar {
+      display: none;
+    }
+    #content-manager-collection .actions .btn,
+    #content-manager-collection .actions .pill {
+      height: 32px !important;
+      padding: 0 7.5px !important;
+      font-size: 11px !important;
+      gap: 4px !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+    }
+    #content-manager-collection .actions .btn svg,
+    #content-manager-collection .actions .pill svg {
+      width: 13px !important;
+      height: 13px !important;
+    }
+    #content-manager-collection .actions #mgr-drr-working-days-input {
+      width: 28px !important;
+      padding: 1px 2px !important;
+      font-size: 11px !important;
+    }
+
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
     .card-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 0; }
     .card-title { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
@@ -574,40 +609,40 @@
     }
     .kpi-value .cur { color: var(--accent); margin-right: 1px; }
 
-    /* ===== TODAY TAB 5-KPI METRIC ROW (Generous spacing, crisp borders, zero congestion) ===== */
+    /* ===== TODAY TAB 5-KPI METRIC ROW (Strict Single Horizontal Line Across Desktop/Laptop) ===== */
     .today-5kpis {
       display: grid !important;
       grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 20px !important;
-      margin-bottom: 28px !important;
+      gap: clamp(8px, 1.2vw, 18px) !important;
+      margin-bottom: 24px !important;
       width: 100% !important;
     }
-    @media (max-width: 1360px) {
+    @media (max-width: 900px) {
       .today-5kpis {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 18px !important;
+        gap: 12px !important;
       }
     }
-    @media (max-width: 860px) {
+    @media (max-width: 640px) {
       .today-5kpis {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 16px !important;
+        gap: 10px !important;
       }
     }
-    @media (max-width: 540px) {
+    @media (max-width: 480px) {
       .today-5kpis {
         grid-template-columns: 1fr !important;
-        gap: 14px !important;
+        gap: 10px !important;
       }
     }
     .today-5kpis > .card.kpi {
-      padding: 22px 18px !important;
-      border-radius: 16px !important;
+      padding: clamp(14px, 1.3vw, 20px) clamp(10px, 1vw, 16px) !important;
+      border-radius: 14px !important;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
       margin: 0 !important;
       min-width: 0 !important;
       border-width: 1.5px !important;
-      min-height: 128px !important;
+      min-height: 112px !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
@@ -621,42 +656,40 @@
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
-      gap: 6px !important;
+      gap: 2px !important;
       width: 100% !important;
-      min-height: 26px !important;
-      flex-wrap: wrap !important;
+      min-height: 22px !important;
+      flex-wrap: nowrap !important;
     }
     .today-5kpis .kpi-top span:first-child {
-      font-size: 13px !important;
+      font-size: 11px !important;
       font-weight: 700 !important;
-      white-space: normal !important;
-      line-height: 1.25 !important;
+      letter-spacing: -0.01em !important;
+      white-space: nowrap !important;
+      line-height: 1.2 !important;
       text-align: left !important;
       flex: 1 1 auto !important;
       min-width: 0 !important;
-      overflow: visible !important;
-      text-overflow: clip !important;
-      word-break: normal !important;
     }
     .today-5kpis .kpi-top .chip {
       flex-shrink: 0 !important;
       white-space: nowrap !important;
-      font-size: 10.5px !important;
+      font-size: 9px !important;
       font-weight: 800 !important;
-      padding: 2.5px 8px !important;
+      padding: 1.5px 5px !important;
       border-radius: 6px !important;
     }
     .today-5kpis .kpi-value {
-      font-size: clamp(22px, 1.9vw, 30px) !important;
+      font-size: clamp(18px, 1.6vw, 28px) !important;
       font-weight: 900 !important;
-      margin: 10px 0 8px 0 !important;
+      margin: 6px 0 4px 0 !important;
       text-align: center !important;
       width: 100% !important;
     }
     .today-5kpis .kpi-foot {
-      font-size: 11.5px !important;
+      font-size: clamp(10px, 0.8vw, 11.5px) !important;
       white-space: normal !important;
-      line-height: 1.35 !important;
+      line-height: 1.25 !important;
       text-align: center !important;
       justify-content: center !important;
       width: 100% !important;
@@ -2233,38 +2266,46 @@
         <!-- MANAGERS (ADMIN)                             -->
         <!-- ============================================ -->
         <div id="content-manager-collection" class="hidden">
-          <div class="page-head">
-            <div>
-              <h1>Managers</h1>
-              <p>Select a manager row to see the callers and their numbers.</p>
+          <div class="page-head !flex-col !items-start gap-2.5 mb-3">
+            <div class="flex items-center justify-between w-full">
+              <div>
+                <h1>Managers</h1>
+                <p>Select a manager row to see the callers and their numbers.</p>
+              </div>
             </div>
             <div class="actions">
-              <span class="pill"><i data-lucide="calendar"></i><span id="mgr-summary-date" class="num">--</span></span>
-              <!-- DRR Manual / Auto Settings (Working Days & Total Holidays) -->
-              <div class="inline-flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 bg-white shadow-2xs text-xs" title="DRR Calculation Controls: Set Working Days & Holidays manually or use Auto">
-                <span class="inline-flex items-center gap-1 font-bold text-slate-700 ml-1">
-                  <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i>DRR:
-                </span>
-                <label class="inline-flex items-center gap-1 font-medium text-slate-600" title="Remaining Working Days for DRR (Sundays & holidays excluded)">
-                  <span>Working Days</span>
-                  <input type="number" id="mgr-drr-working-days-input" min="1" max="31" class="w-11 text-center font-bold font-mono text-xs py-0.5 border border-slate-300 rounded bg-slate-100 text-slate-800 cursor-default" readonly title="Auto-calculated working days remaining">
-                </label>
-                <button type="button" id="btn-mgr-holiday-list" onclick="openHolidayManagerModal()" class="admin-only-holiday-btn px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition cursor-pointer flex items-center gap-1" title="Manage holiday dates &amp; Sundays list (Admin Only)">
-                  <i data-lucide="calendar-off" class="w-3.5 h-3.5"></i><span>Holiday List</span>
-                </button>
+              <!-- Left info badges: Date & DRR -->
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <span class="pill text-xs py-1 px-2.5 h-8 gap-1.5 whitespace-nowrap"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span id="mgr-summary-date" class="num font-semibold">--</span></span>
+                <!-- DRR Manual / Auto Settings (Working Days & Total Holidays) -->
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 h-8 rounded-lg border border-slate-200 bg-white shadow-2xs text-xs whitespace-nowrap" title="DRR Calculation Controls: Set Working Days & Holidays manually or use Auto">
+                  <span class="inline-flex items-center gap-1 font-bold text-slate-700">
+                    <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i>DRR:
+                  </span>
+                  <label class="inline-flex items-center gap-1 font-medium text-slate-600" title="Remaining Working Days for DRR (Sundays & holidays excluded)">
+                    <span>Working Days</span>
+                    <input type="number" id="mgr-drr-working-days-input" min="1" max="31" class="w-8 text-center font-bold font-mono text-xs py-0.5 border border-slate-300 rounded bg-slate-100 text-slate-800 cursor-default" readonly title="Auto-calculated working days remaining">
+                  </label>
+                  <button type="button" id="btn-mgr-holiday-list" onclick="openHolidayManagerModal()" class="admin-only-holiday-btn px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition cursor-pointer flex items-center gap-1" title="Manage holiday dates &amp; Sundays list (Admin Only)">
+                    <i data-lucide="calendar-off" class="w-3.5 h-3.5"></i><span>Holiday List</span>
+                  </button>
+                </div>
               </div>
-              <!-- Auto Sort Indicator & Reset Button -->
-              <button id="btn-mgr-auto-sort" onclick="resetManagerAutoSort()" class="btn text-xs font-bold transition flex items-center gap-1.5" title="Reset to Default Auto Sort: Achieved % (Largest to Smallest)">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i><span id="mgr-auto-sort-btn-text">Auto Sort: Achieved % ▼</span>
-              </button>
-              <button id="btn-mgr-wise-update-target" onclick="openManagerTargetModal()" class="btn" title="Update Manager Assigned Targets">
-                <i data-lucide="edit-3"></i><span>Update Manager Target</span>
-              </button>
-              <button id="btn-mgr-wise-update-proj" onclick="openTodayProjectionModal()" class="btn" title="Update today's projection for managers">
-                <i data-lucide="target"></i><span>Update Today's Projection</span>
-              </button>
-              <button onclick="exportManagerCollectionExcel()" class="btn"><i data-lucide="download"></i>Export .xlsx</button>
-              <button onclick="captureManagerTableImage()" class="btn btn-primary"><i data-lucide="send"></i>Share on WhatsApp</button>
+              <!-- Right action buttons -->
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <!-- Auto Sort Indicator & Reset Button -->
+                <button id="btn-mgr-auto-sort" onclick="resetManagerAutoSort()" class="btn text-xs font-bold transition flex items-center gap-1.5 h-8 px-2.5 whitespace-nowrap" title="Reset to Default Auto Sort: Achieved % (Largest to Smallest)">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i><span id="mgr-auto-sort-btn-text">Auto Sort: Achieved % ▼</span>
+                </button>
+                <button id="btn-mgr-wise-update-target" onclick="openManagerTargetModal()" class="btn" title="Update Manager Assigned Targets">
+                  <i data-lucide="edit-3"></i><span>Update Manager Target</span>
+                </button>
+                <button id="btn-mgr-wise-update-proj" onclick="openTodayProjectionModal()" class="btn" title="Update today's projection for managers">
+                  <i data-lucide="target"></i><span>Today's Projection</span>
+                </button>
+                <button onclick="exportManagerCollectionExcel()" class="btn"><i data-lucide="download"></i><span>Export .xlsx</span></button>
+                <button onclick="captureManagerTableImage()" class="btn btn-primary"><i data-lucide="send"></i><span>Share on WhatsApp</span></button>
+              </div>
             </div>
           </div>
 
@@ -4290,6 +4331,9 @@
 
     function formatCallerDisplayName(name) {
       const s = String(name || '').trim();
+      if (/^CREDIT\s*TRINGLE\s*AGENCY$/i.test(s) || /^CREDIT\s*TRINGLE$/i.test(s) || /^CREDIT\s*TRIANGLE\s*AGENCY$/i.test(s)) {
+        return 'CREDIT TRAINGLE AGENCY';
+      }
       return /^CUSTOMER\s*SERVICE\s*\(SELF\)$/i.test(s) ? 'CUSTOMER SERVICE' : s;
     }
 
@@ -4525,6 +4569,9 @@
         let mgr = String(r.manager || '').trim().toUpperCase();
         if (mgr === 'ANURADHA') mgr = 'SUBHASHREE';
         let caller = String(r.officer || '').trim().toUpperCase();
+        if (caller === 'CREDIT TRINGLE AGENCY' || caller === 'CREDIT TRINGLE' || caller === 'CREDIT TRIANGLE' || caller === 'CREDIT TRIANGLE AGENCY') {
+          caller = 'CREDIT TRAINGLE AGENCY';
+        }
         if (['AMBIKA', 'GOPAL', 'VENU'].some(k => caller.includes(k))) {
           mgr = 'SUBHASHREE';
         }
@@ -4635,6 +4682,18 @@
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length > 0) {
+            parsed.forEach(r => {
+              if (r) {
+                const off = String(r.officer || '').toUpperCase().trim();
+                if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
+                  r.officer = 'CREDIT TRAINGLE AGENCY';
+                }
+                const loff = String(r.locked_officer || '').toUpperCase().trim();
+                if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
+                  r.locked_officer = 'CREDIT TRAINGLE AGENCY';
+                }
+              }
+            });
             octoberPaidFileRecords = parsed;
             syncSdlmFromOctoberPaidRecords();
           }
@@ -4658,6 +4717,14 @@
                 if (r) {
                   r.isLocked = true;
                   r.officer_locked = true;
+                  const off = String(r.officer || '').toUpperCase().trim();
+                  if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
+                    r.officer = 'CREDIT TRAINGLE AGENCY';
+                  }
+                  const loff = String(r.locked_officer || '').toUpperCase().trim();
+                  if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
+                    r.locked_officer = 'CREDIT TRAINGLE AGENCY';
+                  }
                 }
               });
               octoberPaidFileRecords = list;
@@ -4782,7 +4849,7 @@
 
       // 10. POONAM I (5 Callers/Agencies, Target: ₹29,00,000, Branch: AGENCY)
       { name: 'SHETH ENTRPRISES', manager: 'POONAM I', target: 1000000, branch: 'AGENCY', emp_code: 'AG002', joining_date: '01-Jan-2024', status: 'Active', aliases: 'SHETH,SHETH ENTERPRISES' },
-      { name: 'CREDIT TRINGLE AGENCY', manager: 'POONAM I', target: 1200000, branch: 'AGENCY', emp_code: 'AG001', joining_date: '01-Jan-2024', status: 'Active', aliases: 'CREDIT TRIANGLE,CREDIT TRAINGLE,CREDITTRIANGLE' },
+      { name: 'CREDIT TRAINGLE AGENCY', manager: 'POONAM I', target: 1200000, branch: 'AGENCY', emp_code: 'AG001', joining_date: '01-Jan-2024', status: 'Active', aliases: 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE,CREDITTRIANGLE' },
       { name: 'KP ASSOCIATE 2U', manager: 'POONAM I', target: 200000, branch: 'AGENCY', emp_code: 'AG004', joining_date: '01-Jan-2024', status: 'Active', aliases: 'KP,KP ASSOCIATE' },
       { name: 'SCUBE AGENCY', manager: 'POONAM I', target: 500000, branch: 'AGENCY', emp_code: 'AG003', joining_date: '01-Jan-2024', status: 'Active', aliases: 'SCUBE' },
       { name: 'KAMAL INFINITY', manager: 'POONAM I', target: 0, branch: 'AGENCY', emp_code: 'AG006', joining_date: '01-Jan-2024', status: 'Active' },
@@ -5012,10 +5079,12 @@ const CANONICAL_CALLER_DIRECTORY = {
       "SHETH ENTRPRISES": { manager: "POONAM I", emp: "AG002", doj: "01-01-2024", branch: "AGENCY", aliases: ["SHETH", "SHETH ENTERPRISES"] },
       "SHETH": { manager: "POONAM I", emp: "AG002", doj: "01-01-2024", branch: "AGENCY", canonical: "SHETH ENTRPRISES" },
       "SHETH ENTERPRISES": { manager: "POONAM I", emp: "AG002", doj: "01-01-2024", branch: "AGENCY", canonical: "SHETH ENTRPRISES" },
-      "CREDIT TRINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", aliases: ["CREDIT TRIANGLE", "CREDIT TRAINGLE", "CREDITTRIANGLE"] },
-      "CREDIT TRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRINGLE AGENCY" },
-      "CREDIT TRAINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRINGLE AGENCY" },
-      "CREDITTRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRINGLE AGENCY" },
+      "CREDIT TRAINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", aliases: ["CREDIT TRINGLE AGENCY", "CREDIT TRINGLE", "CREDIT TRIANGLE", "CREDIT TRAINGLE", "CREDITTRIANGLE"] },
+      "CREDIT TRINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
+      "CREDIT TRINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
+      "CREDIT TRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
+      "CREDIT TRAINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
+      "CREDITTRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
       "KP ASSOCIATE 2U": { manager: "POONAM I", emp: "AG004", doj: "01-01-2024", branch: "AGENCY", aliases: ["KP", "KP ASSOCIATE"] },
       "KP": { manager: "POONAM I", emp: "AG004", doj: "01-01-2024", branch: "AGENCY", canonical: "KP ASSOCIATE 2U" },
       "KP ASSOCIATE": { manager: "POONAM I", emp: "AG004", doj: "01-01-2024", branch: "AGENCY", canonical: "KP ASSOCIATE 2U" },
@@ -5048,6 +5117,13 @@ const CANONICAL_CALLER_DIRECTORY = {
           o.name = 'ANKITA BAVASKAR';
           if (!o.aliases) o.aliases = 'ANKITA BAWASKAR,ANKITA';
           else if (!o.aliases.toUpperCase().includes('ANKITA BAWASKAR')) o.aliases += ',ANKITA BAWASKAR';
+          changed = true;
+        }
+        // Explicit agency name correction: Poonam's team CREDIT TRINGLE AGENCY -> CREDIT TRAINGLE AGENCY
+        if (uName === 'CREDIT TRINGLE AGENCY' || uName === 'CREDIT TRINGLE' || uName === 'CREDIT TRIANGLE' || uName === 'CREDIT TRIANGLE AGENCY') {
+          o.name = 'CREDIT TRAINGLE AGENCY';
+          if (!o.aliases) o.aliases = 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE';
+          else if (!o.aliases.toUpperCase().includes('CREDIT TRINGLE AGENCY')) o.aliases += ',CREDIT TRINGLE AGENCY';
           changed = true;
         }
         if (o.joining_date && typeof formatHrDateDisplay === 'function') {
@@ -5269,10 +5345,19 @@ const CANONICAL_CALLER_DIRECTORY = {
           const m = String(r.manager || '').toUpperCase().trim();
           const lm = String(r.locked_manager || '').toUpperCase().trim();
           const off = String(r.officer || '').toUpperCase().trim();
+          const loff = String(r.locked_officer || '').toUpperCase().trim();
           const isBlrCaller = ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => off.includes(k));
           if (m === 'ANURADHA' || lm === 'ANURADHA' || isBlrCaller) {
             r.manager = 'SUBHASHREE';
             r.locked_manager = 'SUBHASHREE';
+            paidUpdated = true;
+          }
+          if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
+            r.officer = 'CREDIT TRAINGLE AGENCY';
+            paidUpdated = true;
+          }
+          if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
+            r.locked_officer = 'CREDIT TRAINGLE AGENCY';
             paidUpdated = true;
           }
           if (r.splits && Array.isArray(r.splits)) {
@@ -5304,10 +5389,21 @@ const CANONICAL_CALLER_DIRECTORY = {
                       const m = String(r.manager || '').toUpperCase().trim();
                       const lm = String(r.locked_manager || '').toUpperCase().trim();
                       const off = String(r.officer || '').toUpperCase().trim();
+                      const loff = String(r.locked_officer || '').toUpperCase().trim();
                       const isBlrCaller = ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => off.includes(k));
                       if (m === 'ANURADHA' || lm === 'ANURADHA' || isBlrCaller) {
                         r.manager = 'SUBHASHREE';
                         r.locked_manager = 'SUBHASHREE';
+                        partUpdated = true;
+                        paidUpdated = true;
+                      }
+                      if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
+                        r.officer = 'CREDIT TRAINGLE AGENCY';
+                        partUpdated = true;
+                        paidUpdated = true;
+                      }
+                      if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
+                        r.locked_officer = 'CREDIT TRAINGLE AGENCY';
                         partUpdated = true;
                         paidUpdated = true;
                       }
@@ -5340,6 +5436,20 @@ const CANONICAL_CALLER_DIRECTORY = {
             } catch(e) {}
             localStorage.removeItem('shaha_paid_file_records_anuradha');
           }
+          try {
+            const pinStr = localStorage.getItem('shaha_added_callers_pin_v1');
+            if (pinStr && pinStr.includes('TRINGLE')) {
+              localStorage.setItem('shaha_added_callers_pin_v1', pinStr.replace(/CREDIT\s*TRINGLE\s*AGENCY/g, 'CREDIT TRAINGLE AGENCY'));
+            }
+            const regStr = localStorage.getItem('shaha_officer_target_registry_v1');
+            if (regStr && regStr.includes('TRINGLE')) {
+              localStorage.setItem('shaha_officer_target_registry_v1', regStr.replace(/CREDIT\s*TRINGLE\s*AGENCY/g, 'CREDIT TRAINGLE AGENCY'));
+            }
+            const octStr = localStorage.getItem('shaha_paid_file_records_october_2026');
+            if (octStr && octStr.includes('TRINGLE')) {
+              localStorage.setItem('shaha_paid_file_records_october_2026', octStr.replace(/CREDIT\s*TRINGLE\s*AGENCY/g, 'CREDIT TRAINGLE AGENCY'));
+            }
+          } catch(e) {}
         } catch(e) {}
 
         // 5. Migrate leaderboard callers (in memory & localStorage across all partitions)
@@ -5357,6 +5467,11 @@ const CANONICAL_CALLER_DIRECTORY = {
             o.name = 'SUBHASHREE';
             o.manager = 'SUBHASHREE';
             if (o.aliases) o.aliases = 'SUBHASHREE';
+            misUpdated = true;
+          }
+          if (oName === 'CREDIT TRINGLE AGENCY' || oName === 'CREDIT TRINGLE' || oName === 'CREDIT TRIANGLE' || oName === 'CREDIT TRIANGLE AGENCY') {
+            o.name = 'CREDIT TRAINGLE AGENCY';
+            if (!o.aliases) o.aliases = 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE';
             misUpdated = true;
           }
         };
@@ -5389,6 +5504,12 @@ const CANONICAL_CALLER_DIRECTORY = {
                         o.name = 'SUBHASHREE';
                         o.manager = 'SUBHASHREE';
                         if (o.aliases) o.aliases = 'SUBHASHREE';
+                        misPartUpdated = true;
+                        misUpdated = true;
+                      }
+                      if (oName === 'CREDIT TRINGLE AGENCY' || oName === 'CREDIT TRINGLE' || oName === 'CREDIT TRIANGLE' || oName === 'CREDIT TRIANGLE AGENCY') {
+                        o.name = 'CREDIT TRAINGLE AGENCY';
+                        if (!o.aliases) o.aliases = 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE';
                         misPartUpdated = true;
                         misUpdated = true;
                       }
@@ -10214,6 +10335,18 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (!entry || typeof entry !== 'object' || key.startsWith('_')) continue;
         const isSingle = key.endsWith('_SINGLE');
         const entryIsUploaded = Boolean(entry.isUserUploaded || entry.updated_by === 'EXCEL_IMPORT' || isUserUploaded);
+
+        // Auto-heal CREDIT TRAINGLE AGENCY in callers dictionary
+        if (entry.callers && typeof entry.callers === 'object') {
+          for (const [cKey, cVal] of Object.entries(entry.callers)) {
+            const cKeyUpper = cKey.toUpperCase().trim();
+            if (cKeyUpper === 'CREDIT TRINGLE AGENCY' || cKeyUpper === 'CREDIT TRINGLE' || cKeyUpper === 'CREDIT TRIANGLE' || cKeyUpper === 'CREDIT TRIANGLE AGENCY') {
+              entry.callers['CREDIT TRAINGLE AGENCY'] = cVal;
+              entry.callers['CREDIT TRINGLE AGENCY'] = cVal;
+              healed = true;
+            }
+          }
+        }
         
         // Zero-collection protection: if marked zero or has amount 0, DO NOT force positive amount!
         if (entry.isZeroCollection || (entry.amount === 0 && entry.total === 0)) {
@@ -10864,6 +10997,11 @@ const CANONICAL_CALLER_DIRECTORY = {
           const callers = SDLM_DAILY_DATA[lk].callers;
           if (callers[cClean]) return { amount: Number(callers[cClean].amount || callers[cClean].total) || 0, cases: Number(callers[cClean].cases) || 0 };
           if (callers[canonCaller]) return { amount: Number(callers[canonCaller].amount || callers[canonCaller].total) || 0, cases: Number(callers[canonCaller].cases) || 0 };
+          const isCt = (cClean.includes('CREDIT') && (cClean.includes('TRAINGLE') || cClean.includes('TRINGLE') || cClean.includes('TRIANGLE')));
+          if (isCt) {
+            const hit = callers['CREDIT TRAINGLE AGENCY'] || callers['CREDIT TRINGLE AGENCY'] || callers['CREDIT TRIANGLE AGENCY'] || callers['CREDIT TRINGLE'];
+            if (hit) return { amount: Number(hit.amount || hit.total) || 0, cases: Number(hit.cases) || 0 };
+          }
           for (const [k, v] of Object.entries(callers)) {
             const kUp = String(k).toUpperCase().trim();
             if (isOfficerMatch({ name: kUp }, cClean) || isOfficerMatch({ name: cClean }, kUp)) {
@@ -12839,9 +12977,11 @@ const CANONICAL_CALLER_DIRECTORY = {
       const badgeEl = document.getElementById('sdlm-top-callers-badge');
       if (!host) return;
 
+      const isAgencyMgr = myMgrName && (myMgrName.toUpperCase().includes('POONAM') || myMgrName.toUpperCase().includes('AGENCY'));
       const callers = (leaderboardOfficers || []).filter(o => {
         if (!o || isOfficerTombstoned(o) || isCallerExited(o) || isManagerName(o.name)) return false;
-        if (isTop5ExcludedManagerOrAgency(o) || isAgencyOrSaroj(o)) return false;
+        if (!isMgrViewer && (isTop5ExcludedManagerOrAgency(o) || isAgencyOrSaroj(o))) return false;
+        if (isMgrViewer && !isAgencyMgr && (isTop5ExcludedManagerOrAgency(o) || isAgencyOrSaroj(o))) return false;
         if (isMgrViewer && myMgrName && !isCallerBelongingToManager(o, myMgrName)) return false;
         return true;
       });
@@ -17196,6 +17336,11 @@ const CANONICAL_CALLER_DIRECTORY = {
       const candWithoutParen = clean(String(candidateName).replace(/\([^)]*\)/g, ''));
       if (candWithoutParen && (offClean === candWithoutParen || (offWithoutSelf && offWithoutSelf === candWithoutParen))) return true;
       if (offWithoutSelf && offWithoutSelf === candClean) return true;
+
+      // Credit Triangle alias rule (covers TRAINGLE, TRINGLE, TRIANGLE):
+      const isOffCT = (offClean.includes('TRINGLE') || offClean.includes('TRAINGLE') || offClean.includes('TRIANGLE')) && offClean.includes('CREDIT');
+      const isCandCT = (candClean.includes('TRINGLE') || candClean.includes('TRAINGLE') || candClean.includes('TRIANGLE')) && candClean.includes('CREDIT');
+      if (isOffCT && isCandCT) return true;
 
       if (officer.aliases) {
         const aliasList = String(officer.aliases).split(',').map(a => clean(a)).filter(Boolean);
@@ -21638,11 +21783,11 @@ var misExpandedManagers = new Set();
       if (autoSortBtn && autoSortTxt) {
         if (!window.__mgrSortManual && sortCol === 'achieved' && sortDir === 'desc') {
           autoSortTxt.innerHTML = 'Auto Sort: Achieved % <span class="text-emerald-700 font-black">▼ Active</span>';
-          autoSortBtn.className = 'btn text-xs font-bold transition flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border-emerald-300';
+          autoSortBtn.className = 'btn text-xs font-bold transition flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border-emerald-300 h-8 px-2.5 whitespace-nowrap';
         } else {
           const colLabel = sortCol === 'sdlm' ? 'SDLM' : (sortCol.charAt(0).toUpperCase() + sortCol.slice(1));
           autoSortTxt.innerHTML = `Manual Sort: ${colLabel} ${isAsc ? '▲' : '▼'} · <span class="underline font-bold text-blue-700">Reset Auto Sort</span>`;
-          autoSortBtn.className = 'btn text-xs font-bold transition flex items-center gap-1.5 bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100';
+          autoSortBtn.className = 'btn text-xs font-bold transition flex items-center gap-1.5 bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 h-8 px-2.5 whitespace-nowrap';
         }
       }
 
