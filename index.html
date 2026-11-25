@@ -3000,44 +3000,6 @@
             </div>
           </div>
 
-          <!-- Security & Audit Log Viewer (Admin Only - No IP Address) -->
-          <div class="card overflow-hidden mt-6" style="margin-top: 24px;">
-            <div class="card-h flex items-center justify-between" style="padding-bottom: 14px; border-bottom: 1px solid var(--line)">
-              <div>
-                <h2 class="card-title flex items-center gap-2">
-                  <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600"></i>
-                  Security &amp; Audit Logs (Device &amp; Activity Tracking)
-                </h2>
-                <span class="card-sub">Live audit trail of all logins, active devices, and critical actions across all branches.</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="renderSecurityAuditLogsTable(true)" class="btn btn-ghost text-xs font-bold">
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
-                </button>
-              </div>
-            </div>
-            <div class="table-scroll" style="max-height: 400px; overflow-y: auto;">
-              <table class="dtable text-xs">
-                <thead>
-                  <tr>
-                    <th>Timestamp</th>
-                    <th>User</th>
-                    <th>Branch</th>
-                    <th>Location (City, State)</th>
-                    <th>Device &amp; OS</th>
-                    <th>Security Status</th>
-                    <th>Event / Action</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody id="security-audit-tbody">
-                  <tr>
-                    <td colspan="8" class="p-4 text-center text-slate-400">Loading audit records with location...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
 
       </main>
@@ -4176,152 +4138,7 @@
         console.log('%cThis is a protected enterprise financial portal. Unauthorized access, inspection, or script injection is prohibited and logged.', 'color: #475569; font-size: 13px; font-weight: bold;');
       } catch (e) {}
 
-      // 4. DevTools Detection & Tamper Alert
-      let devtoolsDetected = false;
-      setInterval(() => {
-        const threshold = 160;
-        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-        if (widthThreshold || heightThreshold) {
-          if (!devtoolsDetected) {
-            devtoolsDetected = true;
-            if (typeof logSecurityAuditEvent === 'function') {
-              logSecurityAuditEvent('DEVTOOLS_INSPECT_DETECTED', 'DevTools window opened');
-            }
-          }
-        } else {
-          devtoolsDetected = false;
-        }
-      }, 1500);
     })();
-
-        let _cachedGeoLocation = null;
-
-    // 📍 GPS / High-Accuracy Device Geolocation (Exact Suburb/Area in Mumbai)
-    async function getDeviceGpsCoordinates(timeoutMs = 2500) {
-      if (typeof window === 'undefined' || !navigator || !navigator.geolocation) return null;
-      return new Promise((resolve) => {
-        let finished = false;
-        const timer = setTimeout(() => {
-          if (!finished) { finished = true; resolve(null); }
-        }, timeoutMs);
-        try {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              if (!finished) {
-                finished = true;
-                clearTimeout(timer);
-                resolve({
-                  lat: pos.coords.latitude,
-                  lng: pos.coords.longitude,
-                  accuracy: pos.coords.accuracy
-                });
-              }
-            },
-            (err) => {
-              if (!finished) {
-                finished = true;
-                clearTimeout(timer);
-                resolve(null);
-              }
-            },
-            { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 60000 }
-          );
-        } catch(e) {
-          if (!finished) { finished = true; clearTimeout(timer); resolve(null); }
-        }
-      });
-    }
-
-    // 🌐 HYBRID GEOLOCATION ENGINE: GPS High-Accuracy + Silent IP Geolocation Fallback
-    async function fetchClientLocation() {
-      if (_cachedGeoLocation) return _cachedGeoLocation;
-
-      // 1. Try High-Accuracy GPS Geolocation first (Exact Mumbai Area / Suburb)
-      try {
-        const coords = await getDeviceGpsCoordinates(2500);
-        if (coords && coords.lat && coords.lng) {
-          // Reverse-geocoding via BigDataCloud (fast, CORS-enabled, reliable)
-          try {
-            const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.lat}&longitude=${coords.lng}&localityLanguage=en`;
-            const bdcRes = await Promise.race([
-              fetch(bdcUrl).then(r => r.json()),
-              new Promise((_, rej) => setTimeout(() => rej('timeout'), 2000))
-            ]);
-            if (bdcRes) {
-              const subArea = bdcRes.locality || '';
-              const mainCity = bdcRes.city || 'Mumbai';
-              const post = bdcRes.postcode ? ` (${bdcRes.postcode})` : '';
-              const state = bdcRes.principalSubdivision || 'Maharashtra';
-              const locStr = subArea && subArea !== mainCity ? `${subArea}, ${mainCity}${post}` : `${mainCity}, ${state}${post}`;
-              _cachedGeoLocation = {
-                city: mainCity,
-                region: state,
-                suburb: subArea,
-                location: locStr,
-                mapsUrl: `https://www.google.com/maps?q=${coords.lat.toFixed(5)},${coords.lng.toFixed(5)}`,
-                isGps: true
-              };
-              return _cachedGeoLocation;
-            }
-          } catch(e) {}
-        }
-      } catch (e) {}
-
-      // 2. Silent IP Geolocation Fallback (Fast, zero popups: City & State level)
-      try {
-        const res = await Promise.race([
-          fetch('https://get.geojs.io/v1/ip/geo.json').then(r => r.json()),
-          new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
-        ]);
-        if (res && (res.city || res.region)) {
-          const city = res.city || '';
-          const region = res.region || '';
-          const locStr = [city, region].filter(Boolean).join(', ');
-          _cachedGeoLocation = {
-            city: city,
-            region: region,
-            suburb: '',
-            location: locStr || 'India',
-            mapsUrl: '',
-            isGps: false
-          };
-          return _cachedGeoLocation;
-        }
-      } catch (e) {}
-
-      try {
-        const res2 = await Promise.race([
-          fetch('https://ipwho.is/').then(r => r.json()),
-          new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
-        ]);
-        if (res2 && res2.success !== false && (res2.city || res2.region)) {
-          const city = res2.city || '';
-          const region = res2.region || '';
-          const locStr = [city, region].filter(Boolean).join(', ');
-          _cachedGeoLocation = {
-            city: city,
-            region: region,
-            suburb: '',
-            location: locStr || 'India',
-            mapsUrl: '',
-            isGps: false
-          };
-          return _cachedGeoLocation;
-        }
-      } catch (e) {}
-
-      _cachedGeoLocation = {
-        city: '',
-        region: '',
-        suburb: '',
-        location: 'Location Unavailable',
-        mapsUrl: '',
-        isGps: false
-      };
-      return _cachedGeoLocation;
-    }
-
 
     // Client Device Detector (Privacy-preserving: No IP Address)
     function getClientDeviceInfo() {
@@ -4383,90 +4200,6 @@
       return session.signature === expected;
     }
 
-    async function logSecurityAuditEvent(action, details = '', userOverride = null) {
-      const u = userOverride || currentUser;
-      const dev = getClientDeviceInfo();
-      let loc = { location: 'Location Pending', city: '', region: '' };
-      try {
-        loc = await fetchClientLocation();
-      } catch(e) {}
-
-      // Assigned Branch vs Geolocation Region Check (Intrusion / Fraud Prevention)
-      const uBranch = u ? String(u.branch || u.agency || '').toUpperCase().trim() : '';
-      let isMismatch = false;
-      let mismatchReason = '';
-
-      if (loc && loc.region) {
-        const regUp = loc.region.toUpperCase();
-        if (uBranch === 'BANGALORE' && !regUp.includes('KARNATAKA')) {
-          isMismatch = true;
-          mismatchReason = `Location Mismatch: Logged in from ${loc.location}, expected Karnataka (Bangalore Branch)`;
-        } else if ((uBranch === 'JOGESHWARI' || uBranch === 'WORLI' || uBranch === 'AGENCY' || uBranch === 'SAROJ') && !regUp.includes('MAHARASHTRA')) {
-          isMismatch = true;
-          mismatchReason = `Location Mismatch: Logged in from ${loc.location}, expected Maharashtra (${uBranch} Branch)`;
-        }
-      }
-
-      const now = new Date();
-      const event = {
-        id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-        timestamp: now.toISOString(),
-        displayTime: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
-        username: u ? (u.username || u.key || 'UNKNOWN') : 'ANONYMOUS',
-        name: u ? (u.name || 'Anonymous User') : 'Anonymous User',
-        role: u ? (u.role || 'GUEST') : 'GUEST',
-        branch: uBranch || 'HEAD OFFICE',
-        action: action,
-        details: details,
-        location: loc ? loc.location : 'Location Unavailable',
-        city: loc ? loc.city : '',
-        region: loc ? loc.region : '',
-        mapsUrl: loc ? (loc.mapsUrl || '') : '',
-        isGps: loc ? Boolean(loc.isGps) : false,
-        isMismatch: isMismatch,
-        mismatchReason: mismatchReason,
-        device: dev.summary,
-        screen: dev.screenSize
-      };
-
-      try {
-        let localLogs = JSON.parse(localStorage.getItem('shaha_security_audit_logs_v1') || '[]');
-        localLogs.unshift(event);
-        if (localLogs.length > 300) localLogs = localLogs.slice(0, 300);
-        localStorage.setItem('shaha_security_audit_logs_v1', JSON.stringify(localLogs));
-      } catch(e) {}
-
-      if (supabaseClient) {
-        try {
-          const { data } = await supabaseClient
-            .from('bank_transactions')
-            .select('id, narration')
-            .eq('ref_no', 'SYS_SECURITY_AUDIT_LOGS')
-            .order('id', { ascending: false })
-            .limit(1);
-
-          if (data && data.length > 0) {
-            let cloudLogs = [];
-            try { cloudLogs = JSON.parse(data[0].narration) || []; } catch(e) {}
-            if (!Array.isArray(cloudLogs)) cloudLogs = [];
-            cloudLogs.unshift(event);
-            if (cloudLogs.length > 500) cloudLogs = cloudLogs.slice(0, 500);
-            await supabaseClient
-              .from('bank_transactions')
-              .update({
-                narration: JSON.stringify(cloudLogs),
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', data[0].id);
-          }
-        } catch(e) {}
-      }
-
-      if (typeof renderSecurityAuditLogsTable === 'function') {
-        renderSecurityAuditLogsTable();
-      }
-    }
-
     let _activeSessionToken = null;
     let _concurrentCheckInterval = null;
 
@@ -4474,8 +4207,6 @@
       const token = 'tok_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       _activeSessionToken = token;
       const dev = getClientDeviceInfo();
-      let loc = { location: 'Location Pending' };
-      try { loc = await fetchClientLocation(); } catch(e) {}
       const uKey = String(username).toLowerCase().trim();
 
       if (supabaseClient) {
@@ -4493,9 +4224,6 @@
             sessions[uKey] = {
               token: token,
               device: dev.summary,
-              location: loc ? loc.location : 'Location Pending',
-              mapsUrl: loc ? (loc.mapsUrl || '') : '',
-              isGps: loc ? Boolean(loc.isGps) : false,
               login_time: new Date().toISOString()
             };
             await supabaseClient
@@ -4528,7 +4256,6 @@
           const sessions = JSON.parse(data[0].narration) || {};
           const active = sessions[uKey];
           if (active && active.token && active.token !== _activeSessionToken) {
-            logSecurityAuditEvent('CONCURRENT_LOGOUT', `Logged out because user logged in from ${active.device}`);
             handleLogoutSilent();
             showConcurrentLoginModal(active.device);
             return false;
@@ -4541,8 +4268,9 @@
     function startConcurrentSessionMonitor() {
       if (_concurrentCheckInterval) clearInterval(_concurrentCheckInterval);
       _concurrentCheckInterval = setInterval(() => {
+        if (document.hidden) return;
         checkConcurrentSession();
-      }, 15000);
+      }, 60000);
     }
 
     function showConcurrentLoginModal(otherDevice) {
@@ -4574,81 +4302,6 @@
       safeCreateIcons();
     }
 
-    window.renderSecurityAuditLogsTable = async function renderSecurityAuditLogsTable(forceCloud = false) {
-      const tbody = document.getElementById('security-audit-tbody');
-      if (!tbody) return;
-
-      let logs = [];
-      try {
-        logs = JSON.parse(localStorage.getItem('shaha_security_audit_logs_v1') || '[]');
-      } catch(e) {}
-
-      if (forceCloud || logs.length === 0) {
-        if (supabaseClient) {
-          try {
-            const { data } = await supabaseClient
-              .from('bank_transactions')
-              .select('narration')
-              .eq('ref_no', 'SYS_SECURITY_AUDIT_LOGS')
-              .order('id', { ascending: false })
-              .limit(1);
-            if (data && data.length > 0 && data[0].narration) {
-              logs = JSON.parse(data[0].narration) || [];
-              try { localStorage.setItem('shaha_security_audit_logs_v1', JSON.stringify(logs)); } catch(e) {}
-            }
-          } catch(e) {}
-        }
-      }
-
-      if (!logs || logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No security audit logs recorded yet.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = logs.slice(0, 100).map((log, idx) => {
-        const timeStr = log.displayTime || (log.timestamp ? new Date(log.timestamp).toLocaleString('en-IN') : '-');
-        const actionBadge = log.action === 'LOGIN' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">LOGIN</span>' :
-          (log.action === 'LOGOUT' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">LOGOUT</span>' :
-          (log.action === 'CONCURRENT_LOGOUT' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">DEVICE CONFLICT</span>' :
-          (log.action === 'DEVTOOLS_INSPECT_DETECTED' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">INSPECT ALERT</span>' :
-          `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">${escHtml(log.action)}</span>`)));
-
-        const isMismatch = Boolean(log.isMismatch);
-        const mapLink = log.mapsUrl
-          ? `<a href="${escHtml(log.mapsUrl)}" target="_blank" rel="noopener noreferrer" class="ml-1.5 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded text-[10px] font-bold border border-blue-200 transition-colors" title="Exact GPS coordinates - Open Google Maps"><svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> Map</a>`
-          : '';
-        const gpsIndicator = log.isGps
-          ? `<span class="px-1 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 ml-1 border border-emerald-300" title="High-precision GPS Pinpoint">GPS</span>`
-          : '';
-
-        const locBadge = isMismatch
-          ? `<div class="flex items-center flex-wrap gap-1"><span class="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="${escHtml(log.mismatchReason || 'Unusual location')}"><svg class="w-3.5 h-3.5 text-rose-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> ${escHtml(log.location || 'Unknown')}</span>${gpsIndicator}${mapLink}</div>`
-          : `<div class="flex items-center flex-wrap gap-1"><span class="inline-flex items-center gap-1 font-semibold text-slate-800"><svg class="w-3.5 h-3.5 text-slate-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> ${escHtml(log.location || 'Location Pending')}</span>${gpsIndicator}${mapLink}</div>`;
-
-        const secStatusBadge = isMismatch
-          ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">🚨 UNUSUAL LOCATION</span>`
-          : (log.action === 'CONCURRENT_LOGOUT'
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-800 border border-red-300">🚨 MULTI-LOGIN BLOCKED</span>`
-            : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ Authorized</span>`);
-
-        const rowBg = isMismatch ? 'bg-rose-50/40 hover:bg-rose-50/70' : 'hover:bg-slate-50';
-
-        return `
-          <tr class="${rowBg} border-b border-slate-100 transition-colors">
-            <td class="p-2.5 font-mono text-[11px] text-slate-600 whitespace-nowrap">${escHtml(timeStr)}</td>
-            <td class="p-2.5 font-bold text-slate-900">${escHtml(log.name || log.username || '-')}</td>
-            <td class="p-2.5 text-[11px] font-semibold text-slate-600">${escHtml(log.branch || '-')}</td>
-            <td class="p-2.5 text-xs">${locBadge}</td>
-            <td class="p-2.5 text-[11px] text-slate-700">${escHtml(log.device || '-')}</td>
-            <td class="p-2.5">${secStatusBadge}</td>
-            <td class="p-2.5">${actionBadge}</td>
-            <td class="p-2.5 text-[11px] text-slate-600">${escHtml(log.details || '-')}</td>
-          </tr>
-        `;
-      }).join('');
-      safeCreateIcons();
-    }
-
     // --- System Defaults & Configurations ---
     // Helper to get clean unique customer/case identifier from a paid record
     function getRecordCustomerId(r) {
@@ -4657,7 +4310,7 @@
       return cid;
     }
 
-    const APP_BUILD_ID = "BUILD_20261120_160000";
+    const APP_BUILD_ID = "BUILD_20261125_160000";
     const DEFAULT_GOOGLE_SHEET_URL = ''; // Paste your deployed Google Apps Script Web App URL here
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
@@ -6803,6 +6456,9 @@ const CANONICAL_CALLER_DIRECTORY = {
     }
 
     function initRealtimeSync() {
+      // Off: realtime sent each full row (large narration JSON) to every open browser on every write.
+      // The 10-minute heartbeat (startServerHeartbeat) finds changes with small id/updated_at reads.
+      return;
       if (!supabaseClient) return;
       if (realtimeChannel) {
         try { supabaseClient.removeChannel(realtimeChannel); } catch(e) {}
@@ -6838,7 +6494,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       heartbeatTimer = setInterval(async () => {
         if (document.hidden) return; // Save CPU when tab is hidden/backgrounded
         await checkServerForUpdates();
-      }, 20000); // 20-second background heartbeat (lag-free, prevents network congestion)
+      }, 600000); // 10-minute change check (small id/updated_at read)
     }
 
     async function checkServerForUpdates() {
@@ -7303,7 +6959,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       // 2. Fallback Storage: Supabase (Legacy)
       if (url && key && window.supabase) {
         try {
-          supabaseClient = makeCloudWritesThrow(window.supabase.createClient(url, key));
+          supabaseClient = makeCloudWritesThrow(window.supabase.createClient(url, key, { global: { fetch: egressSavingFetch } }));
           if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
           if (text) text.innerText = 'Live Sync: Active';
           initRealtimeSync();
@@ -7318,6 +6974,77 @@ const CANONICAL_CALLER_DIRECTORY = {
 
       if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
       if (text) text.innerText = 'Sheet DB: Connect';
+    }
+
+    // Egress saver: a read that returns narration first asks for only id + updated_at of the
+    // same rows. Unchanged rows come from the cache; only changed rows are downloaded.
+    // The cache is also kept in IndexedDB, so a page reload or a new login does not
+    // download unchanged data again.
+    const _narrationCache = new Map();
+    const _cacheDb = new Promise(res => {
+      try {
+        const r = indexedDB.open('shaha_egress_cache', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('c');
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => res(null);
+      } catch (e) { res(null); }
+    });
+    async function _cacheGet(k) {
+      if (_narrationCache.has(k)) return _narrationCache.get(k);
+      const db = await _cacheDb;
+      if (!db) return null;
+      return new Promise(res => {
+        try {
+          const q = db.transaction('c').objectStore('c').get(k);
+          q.onsuccess = () => { if (q.result) _narrationCache.set(k, q.result); res(q.result || null); };
+          q.onerror = () => res(null);
+        } catch (e) { res(null); }
+      });
+    }
+    async function _cacheSet(k, v) {
+      _narrationCache.set(k, v);
+      const db = await _cacheDb;
+      if (db) { try { db.transaction('c', 'readwrite').objectStore('c').put(v, k); } catch (e) {} }
+    }
+    async function egressSavingFetch(input, init) {
+      const url = typeof input === 'string' ? input : input.url;
+      const method = ((init && init.method) || 'GET').toUpperCase();
+      if (method !== 'GET' || !url.includes('/rest/v1/bank_transactions?')) return fetch(input, init);
+      const u = new URL(url);
+      const sel = u.searchParams.get('select') || '*';
+      if (sel !== '*' && !sel.includes('narration')) return fetch(input, init);
+      // Rows are cached one by one (key: select + row id). Only rows whose updated_at changed are downloaded.
+      try {
+        const addId = sel !== '*' && !sel.split(',').includes('id');
+        u.searchParams.set('select', 'id,updated_at');
+        const probe = await fetch(u.toString(), init);
+        if (!probe.ok) return fetch(input, init);
+        const meta = await probe.json();
+        const cached = await Promise.all(meta.map(m => _cacheGet(sel + '|' + m.id)));
+        const need = meta.filter((m, i) => !cached[i] || cached[i].u !== m.updated_at);
+        if (need.length) {
+          const f = new URL(url);
+          if (addId) f.searchParams.set('select', sel + ',id');
+          if (need.length < meta.length) {
+            f.search = '';
+            f.searchParams.set('select', addId ? sel + ',id' : sel);
+            f.searchParams.set('id', 'in.(' + need.map(m => m.id).join(',') + ')');
+          }
+          const res = await fetch(f.toString(), init);
+          if (!res.ok) return fetch(input, init);
+          const byId = new Map((await res.json()).map(r => [r.id, r]));
+          for (const m of need) {
+            const r = byId.get(m.id);
+            if (!r) return fetch(input, init); // row changed between the two reads: use a plain read
+            if (addId) delete r.id;
+            const entry = { u: m.updated_at, row: r };
+            cached[meta.indexOf(m)] = entry;
+            await _cacheSet(sel + '|' + m.id, entry);
+          }
+        }
+        return new Response(JSON.stringify(cached.map(c => c.row)), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      } catch (e) {}
+      return fetch(input, init);
     }
 
     // supabase-js returns { error } and does not throw. Make failed writes throw,
@@ -7535,7 +7262,7 @@ const CANONICAL_CALLER_DIRECTORY = {
     // AUTOMATIC 25-SECOND SMART BACKGROUND REFRESH CONTROLLER
     // ==============================================================
     let autoRefreshTimer = null;
-    const AUTO_REFRESH_INTERVAL_MS = 60000; // 60-second smart background refresh (ultra smooth & zero lag)
+    const AUTO_REFRESH_INTERVAL_MS = 1800000; // 30-minute safety refresh; the 10-minute heartbeat finds changes first
     let isAppRefreshInProgress = false;
 
     // --- Instant Comprehensive Live Server Refresh ---
@@ -8725,8 +8452,16 @@ const CANONICAL_CALLER_DIRECTORY = {
             const pinTs = Math.max(Number(p._pinnedAt) || 0, Number(p._managerUpdatedAt) || 0, Number(p._adminUpdatedAt) || 0, Number(p.updatedAt) || 0);
 
             // DUAL TOP AUTHORITY: Both Admin and Manager have Top Authority for callers.
-            // If the pin has fresher authoritative data (pinTs >= curTs or pin has lock), apply it to cur.
-            if (pinTs >= curTs || pinIsMgrLocked || pinIsAdminLocked || (!curIsAdminLocked && !curIsMgrLocked)) {
+            // If cur has fresher authoritative edit (curTs > pinTs), cur is authoritative and updates the pin.
+            if (curTs > pinTs) {
+              if (cur.target !== undefined && !isNaN(Number(cur.target)) && Number(cur.target) > 0) {
+                p.target = Number(cur.target);
+                p._pinnedAt = curTs;
+                p._adminUpdatedAt = cur._adminUpdatedAt || p._adminUpdatedAt;
+                p._managerUpdatedAt = cur._managerUpdatedAt || p._managerUpdatedAt;
+                p._updatedBy = cur._updatedBy || p._updatedBy;
+              }
+            } else if (pinTs >= curTs || pinIsMgrLocked || pinIsAdminLocked || (!curIsAdminLocked && !curIsMgrLocked)) {
               if (p.target !== undefined && !isNaN(Number(p.target)) && Number(p.target) > 0) {
                 if (Number(cur.target) !== Number(p.target)) {
                   cur.target = Number(p.target);
@@ -8909,15 +8644,31 @@ const CANONICAL_CALLER_DIRECTORY = {
       const numTarget = Math.max(0, Number(newTarget) || 0);
       const mKey = getManagerStorageKey(managerName || '');
       const key = `${mKey}_${cleanName}`;
-      const existingOff = callerObj || (Array.isArray(leaderboardOfficers) ? leaderboardOfficers.find(o => String(o.name || '').toUpperCase().trim() === cleanName && (!managerName || isOfficerUnderManager(o, managerName))) : null);
+      const existingOff = callerObj || (Array.isArray(leaderboardOfficers) ? (leaderboardOfficers.find(o => String(o.name || '').toUpperCase().trim() === cleanName && (!managerName || isOfficerUnderManager(o, managerName))) || leaderboardOfficers.find(o => String(o.name || '').toUpperCase().trim() === cleanName)) : null);
       const isAdminActor = (currentRole === 'ADMIN' || updatedBy === 'ADMIN');
       const isMgrActor = (currentRole === 'MANAGER' || (updatedBy && updatedBy !== 'ADMIN' && updatedBy !== 'MASTER_BASELINE_NOV2026'));
       const activeMgrName = (currentUser ? (currentUser.name || currentUser.username) : managerName) || managerName || '';
       const nowTs = Date.now();
 
+      const targetOff = callerObj || existingOff;
+      if (targetOff) {
+        targetOff.target = numTarget;
+        if (isAdminActor) {
+          targetOff._adminLocked = true;
+          targetOff._authoritativeLocked = true;
+          targetOff._updatedBy = 'ADMIN';
+          targetOff._adminUpdatedAt = nowTs;
+        } else if (isMgrActor) {
+          targetOff._managerLocked = true;
+          targetOff._authoritativeLocked = true;
+          targetOff._updatedBy = activeMgrName || updatedBy;
+          targetOff._managerUpdatedAt = nowTs;
+        }
+      }
+
       const entry = {
         name: cleanName,
-        manager: managerName || (existingOff ? existingOff.manager : ''),
+        manager: managerName || (targetOff ? targetOff.manager : ''),
         managerKey: mKey,
         target: numTarget,
         emp_code: (callerObj && callerObj.emp_code !== undefined) ? callerObj.emp_code : (existingOff ? (existingOff.emp_code || '') : ''),
@@ -8949,9 +8700,59 @@ const CANONICAL_CALLER_DIRECTORY = {
         localStorage.setItem('shaha_authoritative_hardlocked_targets_v2', JSON.stringify(hardLocks));
         localStorage.setItem('shaha_officer_target_registry_v1', JSON.stringify(officerTargetRegistry));
       } catch(e) {}
+
+      // Keep pinned callers synchronized so restorePinnedNewCallers never clobbers new target
+      try {
+        let pins = readLocalAddedCallerPins();
+        let pinFound = false;
+        pins.forEach(p => {
+          if (p && isOfficerMatch(p, cleanName) && (!managerName || isOfficerUnderManager(p, managerName))) {
+            p.target = numTarget;
+            p._pinnedAt = nowTs;
+            p.authoritativeLocked = true;
+            p._authoritativeLocked = true;
+            if (isAdminActor) {
+              p.adminLocked = true;
+              p._adminLocked = true;
+              p._adminUpdatedAt = nowTs;
+              p._updatedBy = 'ADMIN';
+            }
+            if (isMgrActor) {
+              p.managerLocked = true;
+              p._managerLocked = true;
+              p._managerUpdatedAt = nowTs;
+              p._updatedBy = activeMgrName || updatedBy;
+            }
+            pinFound = true;
+          }
+        });
+        if (!pinFound && targetOff) {
+          const toPin = Object.assign({}, targetOff, {
+            name: cleanName,
+            manager: managerName || targetOff.manager || '',
+            target: numTarget,
+            _pinnedAt: nowTs,
+            authoritativeLocked: true,
+            _authoritativeLocked: true,
+            adminLocked: isAdminActor,
+            _adminLocked: isAdminActor,
+            _adminUpdatedAt: isAdminActor ? nowTs : 0,
+            managerLocked: isMgrActor,
+            _managerLocked: isMgrActor,
+            _managerUpdatedAt: isMgrActor ? nowTs : 0,
+            _updatedBy: isAdminActor ? 'ADMIN' : (activeMgrName || updatedBy)
+          });
+          pins.push(toPin);
+        }
+        localStorage.setItem('shaha_added_callers_pin_v1', JSON.stringify(pins));
+      } catch(_) {}
+
       window.__lastLocalTargetEditTime = Date.now();
       if (supabaseClient) {
         syncTargetRegistryWithCloud(true);
+        if (typeof syncAddedCallerPinsWithCloud === 'function') {
+          syncAddedCallerPinsWithCloud(true);
+        }
       }
     }
 
@@ -9623,8 +9424,12 @@ const CANONICAL_CALLER_DIRECTORY = {
       document.getElementById('sct-caller-display').innerText = callerName;
       document.getElementById('sct-manager-display').innerText = managerName + ' (' + getBranchForManager(managerName) + ')';
       
-      const off = (Array.isArray(leaderboardOfficers) ? leaderboardOfficers : []).find(o => isOfficerMatch(o, callerName) && (!managerName || isOfficerUnderManager(o, managerName)));
-      const curTarget = off ? Number(off.target) || 0 : (getLockedTargetForCaller(callerName, managerName) || 0);
+      const off = (Array.isArray(leaderboardOfficers) ? leaderboardOfficers : []).find(o => isOfficerMatch(o, callerName) && (!managerName || isOfficerUnderManager(o, managerName))) || (Array.isArray(leaderboardOfficers) ? leaderboardOfficers : []).find(o => isOfficerMatch(o, callerName));
+      if (off && off.manager) {
+        document.getElementById('sct-manager-name').value = off.manager;
+        document.getElementById('sct-manager-display').innerText = off.manager + ' (' + getBranchForManager(off.manager) + ')';
+      }
+      const curTarget = off ? Number(off.target) || 0 : (getLockedTargetForCaller(callerName, managerName || (off ? off.manager : '')) || 0);
       document.getElementById('sct-input-target').value = curTarget > 0 ? curTarget : '';
       modal.classList.remove('hidden');
       safeCreateIcons();
@@ -9650,14 +9455,40 @@ const CANONICAL_CALLER_DIRECTORY = {
         return;
       }
 
+      const isAdminActor = (currentRole === 'ADMIN');
+      const isManagerActor = (currentRole === 'MANAGER');
+      const nowTs = Date.now();
       const updater = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || currentRole || 'ADMIN';
-      const off = (Array.isArray(leaderboardOfficers) ? leaderboardOfficers : []).find(o => isOfficerMatch(o, callerName) && (!managerName || isOfficerUnderManager(o, managerName)));
+      const off = (Array.isArray(leaderboardOfficers) ? leaderboardOfficers : []).find(o => isOfficerMatch(o, callerName) && (!managerName || isOfficerUnderManager(o, managerName))) || (Array.isArray(leaderboardOfficers) ? leaderboardOfficers : []).find(o => isOfficerMatch(o, callerName));
+      const targetMgr = (off && off.manager) || managerName;
       if (off) {
         off.target = newTarget;
+        if (targetMgr) off.manager = targetMgr;
+        if (isAdminActor) {
+          off._adminLocked = true;
+          off._authoritativeLocked = true;
+          off._updatedBy = 'ADMIN';
+          off._adminUpdatedAt = nowTs;
+        } else if (isManagerActor) {
+          off._managerLocked = true;
+          off._authoritativeLocked = true;
+          off._updatedBy = updater;
+          off._managerUpdatedAt = nowTs;
+        }
       }
-      recordCallerTargetEdit(callerName, managerName, newTarget, updater, off);
+      recordCallerTargetEdit(callerName, targetMgr, newTarget, updater, off);
+      if (off && typeof updateEditedCallerPin === 'function') {
+        try { await updateEditedCallerPin(callerName, targetMgr, off); } catch(e) {}
+      }
       closeSingleCallerTargetModal();
+      window.__lastLocalTargetEditTime = Date.now();
       await saveLeaderboardToCloud(true);
+      if (typeof syncTargetRegistryWithCloud === 'function') {
+        try { await syncTargetRegistryWithCloud(true); } catch(e) {}
+      }
+      if (typeof syncAddedCallerPinsWithCloud === 'function') {
+        try { await syncAddedCallerPinsWithCloud(true); } catch(e) {}
+      }
       calculateLeaderboard();
       renderLeaderboardMIS();
       if (typeof renderCallerTargetsTab === 'function') renderCallerTargetsTab();
@@ -10807,7 +10638,6 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (role === 'ADMIN') {
             syncCredentialsWithCloud().then(() => renderUserManagerTable()).catch(console.error);
             renderUserManagerTable();
-            if (typeof renderSecurityAuditLogsTable === 'function') renderSecurityAuditLogsTable();
           }
         }
       } catch (tabErr) {
@@ -16895,7 +16725,6 @@ const CANONICAL_CALLER_DIRECTORY = {
         const passOk = validHashes.has(rawHash) || validHashes.has(lowerHash) || validHashes.has(cleanHash);
 
         if (!passOk) {
-          logSecurityAuditEvent('FAILED_LOGIN_ATTEMPT', `Failed login attempt for username: ${rawInput}`);
           showLoginError('Incorrect Password. Please check your password and try again.');
           return;
         }
@@ -16924,7 +16753,6 @@ const CANONICAL_CALLER_DIRECTORY = {
         startConcurrentSessionMonitor();
         showPortal();
         showToast(`Welcome back, ${meta.name}!`, 'success');
-        logSecurityAuditEvent('LOGIN', 'Signed in successfully');
 
         // Fast instant cached hydration so user never waits for UI
         const { localKey: loginLocalKey } = getLeaderboardStorageKeys();
@@ -17113,7 +16941,6 @@ const CANONICAL_CALLER_DIRECTORY = {
 
     function confirmLogoutAction() {
       closeLogoutConfirmModal();
-      logSecurityAuditEvent('LOGOUT', 'User signed out manually');
       if (_concurrentCheckInterval) clearInterval(_concurrentCheckInterval);
       _activeSessionToken = null;
       handleLogoutSilent();
@@ -18949,7 +18776,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         restorePinnedNewCallers(leaderboardOfficers, isAdm ? '' : myMgr);
       }
       leaderboardOfficers = leaderboardOfficers.filter(o => {
-        if (!o || isOfficerTombstoned(o) || isManagerName(o.name)) return false;
+        if (!o || isOfficerTombstoned(o)) return false;
         if (o.manager && isUserDeleted(o.manager)) return false;
         return true;
       });
@@ -21124,11 +20951,11 @@ var misExpandedManagers = new Set();
 
       window.__lastLocalTargetEditTime = Date.now();
       if (Array.isArray(exportList)) {
-        exportList.forEach(off => {
+        for (const off of exportList) {
           if (off && off.name) {
-            try { updateEditedCallerPin(off.name, off.manager, off); } catch(e) {}
+            try { await updateEditedCallerPin(off.name, off.manager, off); } catch(e) {}
           }
-        });
+        }
       }
 
       updatedManagers.forEach(mgrName => {
