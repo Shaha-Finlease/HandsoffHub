@@ -3022,15 +3022,17 @@
                   <tr>
                     <th>Timestamp</th>
                     <th>User</th>
-                    <th>Role</th>
-                    <th>Event / Action</th>
+                    <th>Branch</th>
+                    <th>Location (City, State)</th>
                     <th>Device &amp; OS</th>
+                    <th>Security Status</th>
+                    <th>Event / Action</th>
                     <th>Details</th>
                   </tr>
                 </thead>
                 <tbody id="security-audit-tbody">
                   <tr>
-                    <td colspan="6" class="p-4 text-center text-slate-400">Loading audit records...</td>
+                    <td colspan="8" class="p-4 text-center text-slate-400">Loading audit records with location...</td>
                   </tr>
                 </tbody>
               </table>
@@ -4193,6 +4195,134 @@
       }, 1500);
     })();
 
+        let _cachedGeoLocation = null;
+
+    // 📍 GPS / High-Accuracy Device Geolocation (Exact Suburb/Area in Mumbai)
+    async function getDeviceGpsCoordinates(timeoutMs = 2500) {
+      if (typeof window === 'undefined' || !navigator || !navigator.geolocation) return null;
+      return new Promise((resolve) => {
+        let finished = false;
+        const timer = setTimeout(() => {
+          if (!finished) { finished = true; resolve(null); }
+        }, timeoutMs);
+        try {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              if (!finished) {
+                finished = true;
+                clearTimeout(timer);
+                resolve({
+                  lat: pos.coords.latitude,
+                  lng: pos.coords.longitude,
+                  accuracy: pos.coords.accuracy
+                });
+              }
+            },
+            (err) => {
+              if (!finished) {
+                finished = true;
+                clearTimeout(timer);
+                resolve(null);
+              }
+            },
+            { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 60000 }
+          );
+        } catch(e) {
+          if (!finished) { finished = true; clearTimeout(timer); resolve(null); }
+        }
+      });
+    }
+
+    // 🌐 HYBRID GEOLOCATION ENGINE: GPS High-Accuracy + Silent IP Geolocation Fallback
+    async function fetchClientLocation() {
+      if (_cachedGeoLocation) return _cachedGeoLocation;
+
+      // 1. Try High-Accuracy GPS Geolocation first (Exact Mumbai Area / Suburb)
+      try {
+        const coords = await getDeviceGpsCoordinates(2500);
+        if (coords && coords.lat && coords.lng) {
+          // Reverse-geocoding via BigDataCloud (fast, CORS-enabled, reliable)
+          try {
+            const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.lat}&longitude=${coords.lng}&localityLanguage=en`;
+            const bdcRes = await Promise.race([
+              fetch(bdcUrl).then(r => r.json()),
+              new Promise((_, rej) => setTimeout(() => rej('timeout'), 2000))
+            ]);
+            if (bdcRes) {
+              const subArea = bdcRes.locality || '';
+              const mainCity = bdcRes.city || 'Mumbai';
+              const post = bdcRes.postcode ? ` (${bdcRes.postcode})` : '';
+              const state = bdcRes.principalSubdivision || 'Maharashtra';
+              const locStr = subArea && subArea !== mainCity ? `${subArea}, ${mainCity}${post}` : `${mainCity}, ${state}${post}`;
+              _cachedGeoLocation = {
+                city: mainCity,
+                region: state,
+                suburb: subArea,
+                location: locStr,
+                mapsUrl: `https://www.google.com/maps?q=${coords.lat.toFixed(5)},${coords.lng.toFixed(5)}`,
+                isGps: true
+              };
+              return _cachedGeoLocation;
+            }
+          } catch(e) {}
+        }
+      } catch (e) {}
+
+      // 2. Silent IP Geolocation Fallback (Fast, zero popups: City & State level)
+      try {
+        const res = await Promise.race([
+          fetch('https://get.geojs.io/v1/ip/geo.json').then(r => r.json()),
+          new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
+        ]);
+        if (res && (res.city || res.region)) {
+          const city = res.city || '';
+          const region = res.region || '';
+          const locStr = [city, region].filter(Boolean).join(', ');
+          _cachedGeoLocation = {
+            city: city,
+            region: region,
+            suburb: '',
+            location: locStr || 'India',
+            mapsUrl: '',
+            isGps: false
+          };
+          return _cachedGeoLocation;
+        }
+      } catch (e) {}
+
+      try {
+        const res2 = await Promise.race([
+          fetch('https://ipwho.is/').then(r => r.json()),
+          new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
+        ]);
+        if (res2 && res2.success !== false && (res2.city || res2.region)) {
+          const city = res2.city || '';
+          const region = res2.region || '';
+          const locStr = [city, region].filter(Boolean).join(', ');
+          _cachedGeoLocation = {
+            city: city,
+            region: region,
+            suburb: '',
+            location: locStr || 'India',
+            mapsUrl: '',
+            isGps: false
+          };
+          return _cachedGeoLocation;
+        }
+      } catch (e) {}
+
+      _cachedGeoLocation = {
+        city: '',
+        region: '',
+        suburb: '',
+        location: 'Location Unavailable',
+        mapsUrl: '',
+        isGps: false
+      };
+      return _cachedGeoLocation;
+    }
+
+
     // Client Device Detector (Privacy-preserving: No IP Address)
     function getClientDeviceInfo() {
       const ua = navigator.userAgent || '';
@@ -4256,6 +4386,27 @@
     async function logSecurityAuditEvent(action, details = '', userOverride = null) {
       const u = userOverride || currentUser;
       const dev = getClientDeviceInfo();
+      let loc = { location: 'Location Pending', city: '', region: '' };
+      try {
+        loc = await fetchClientLocation();
+      } catch(e) {}
+
+      // Assigned Branch vs Geolocation Region Check (Intrusion / Fraud Prevention)
+      const uBranch = u ? String(u.branch || u.agency || '').toUpperCase().trim() : '';
+      let isMismatch = false;
+      let mismatchReason = '';
+
+      if (loc && loc.region) {
+        const regUp = loc.region.toUpperCase();
+        if (uBranch === 'BANGALORE' && !regUp.includes('KARNATAKA')) {
+          isMismatch = true;
+          mismatchReason = `Location Mismatch: Logged in from ${loc.location}, expected Karnataka (Bangalore Branch)`;
+        } else if ((uBranch === 'JOGESHWARI' || uBranch === 'WORLI' || uBranch === 'AGENCY' || uBranch === 'SAROJ') && !regUp.includes('MAHARASHTRA')) {
+          isMismatch = true;
+          mismatchReason = `Location Mismatch: Logged in from ${loc.location}, expected Maharashtra (${uBranch} Branch)`;
+        }
+      }
+
       const now = new Date();
       const event = {
         id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -4264,8 +4415,16 @@
         username: u ? (u.username || u.key || 'UNKNOWN') : 'ANONYMOUS',
         name: u ? (u.name || 'Anonymous User') : 'Anonymous User',
         role: u ? (u.role || 'GUEST') : 'GUEST',
+        branch: uBranch || 'HEAD OFFICE',
         action: action,
         details: details,
+        location: loc ? loc.location : 'Location Unavailable',
+        city: loc ? loc.city : '',
+        region: loc ? loc.region : '',
+        mapsUrl: loc ? (loc.mapsUrl || '') : '',
+        isGps: loc ? Boolean(loc.isGps) : false,
+        isMismatch: isMismatch,
+        mismatchReason: mismatchReason,
         device: dev.summary,
         screen: dev.screenSize
       };
@@ -4315,6 +4474,8 @@
       const token = 'tok_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       _activeSessionToken = token;
       const dev = getClientDeviceInfo();
+      let loc = { location: 'Location Pending' };
+      try { loc = await fetchClientLocation(); } catch(e) {}
       const uKey = String(username).toLowerCase().trim();
 
       if (supabaseClient) {
@@ -4332,6 +4493,9 @@
             sessions[uKey] = {
               token: token,
               device: dev.summary,
+              location: loc ? loc.location : 'Location Pending',
+              mapsUrl: loc ? (loc.mapsUrl || '') : '',
+              isGps: loc ? Boolean(loc.isGps) : false,
               login_time: new Date().toISOString()
             };
             await supabaseClient
@@ -4410,7 +4574,7 @@
       safeCreateIcons();
     }
 
-    async function renderSecurityAuditLogsTable(forceCloud = false) {
+    window.renderSecurityAuditLogsTable = async function renderSecurityAuditLogsTable(forceCloud = false) {
       const tbody = document.getElementById('security-audit-tbody');
       if (!tbody) return;
 
@@ -4437,7 +4601,7 @@
       }
 
       if (!logs || logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">No security audit logs recorded yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No security audit logs recorded yet.</td></tr>`;
         return;
       }
 
@@ -4449,13 +4613,35 @@
           (log.action === 'DEVTOOLS_INSPECT_DETECTED' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">INSPECT ALERT</span>' :
           `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">${escHtml(log.action)}</span>`)));
 
+        const isMismatch = Boolean(log.isMismatch);
+        const mapLink = log.mapsUrl
+          ? `<a href="${escHtml(log.mapsUrl)}" target="_blank" rel="noopener noreferrer" class="ml-1.5 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded text-[10px] font-bold border border-blue-200 transition-colors" title="Exact GPS coordinates - Open Google Maps"><svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg> Map</a>`
+          : '';
+        const gpsIndicator = log.isGps
+          ? `<span class="px-1 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 ml-1 border border-emerald-300" title="High-precision GPS Pinpoint">GPS</span>`
+          : '';
+
+        const locBadge = isMismatch
+          ? `<div class="flex items-center flex-wrap gap-1"><span class="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="${escHtml(log.mismatchReason || 'Unusual location')}"><svg class="w-3.5 h-3.5 text-rose-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> ${escHtml(log.location || 'Unknown')}</span>${gpsIndicator}${mapLink}</div>`
+          : `<div class="flex items-center flex-wrap gap-1"><span class="inline-flex items-center gap-1 font-semibold text-slate-800"><svg class="w-3.5 h-3.5 text-slate-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> ${escHtml(log.location || 'Location Pending')}</span>${gpsIndicator}${mapLink}</div>`;
+
+        const secStatusBadge = isMismatch
+          ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">🚨 UNUSUAL LOCATION</span>`
+          : (log.action === 'CONCURRENT_LOGOUT'
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-800 border border-red-300">🚨 MULTI-LOGIN BLOCKED</span>`
+            : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ Authorized</span>`);
+
+        const rowBg = isMismatch ? 'bg-rose-50/40 hover:bg-rose-50/70' : 'hover:bg-slate-50';
+
         return `
-          <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+          <tr class="${rowBg} border-b border-slate-100 transition-colors">
             <td class="p-2.5 font-mono text-[11px] text-slate-600 whitespace-nowrap">${escHtml(timeStr)}</td>
-            <td class="p-2.5 font-bold text-slate-800">${escHtml(log.name || log.username || '-')}</td>
-            <td class="p-2.5 text-[11px] font-semibold text-slate-600">${escHtml(log.role || '-')}</td>
-            <td class="p-2.5">${actionBadge}</td>
+            <td class="p-2.5 font-bold text-slate-900">${escHtml(log.name || log.username || '-')}</td>
+            <td class="p-2.5 text-[11px] font-semibold text-slate-600">${escHtml(log.branch || '-')}</td>
+            <td class="p-2.5 text-xs">${locBadge}</td>
             <td class="p-2.5 text-[11px] text-slate-700">${escHtml(log.device || '-')}</td>
+            <td class="p-2.5">${secStatusBadge}</td>
+            <td class="p-2.5">${actionBadge}</td>
             <td class="p-2.5 text-[11px] text-slate-600">${escHtml(log.details || '-')}</td>
           </tr>
         `;
@@ -4875,6 +5061,42 @@
     let paidFileRecords = [];
     let octoberPaidFileRecords = [];
     let isOctoberPaidLoading = false;
+
+    function earlyRestorePaidRecords() {
+      try {
+        const rawPins = localStorage.getItem('shaha_pinned_paid_cases_v1');
+        if (rawPins) {
+          const pins = JSON.parse(rawPins);
+          if (Array.isArray(pins) && pins.length > 0) {
+            pins.forEach(p => {
+              if (p && (!deletedPaidRecordIds || !deletedPaidRecordIds.has(String(p.id)))) {
+                const exist = (paidFileRecords || []).some(r => r && String(r.id) === String(p.id));
+                if (!exist) paidFileRecords.unshift(p);
+              }
+            });
+          }
+        }
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith('shaha_paid_file_records_') || k === 'shaha_paid_file_records_v1')) {
+            const raw = localStorage.getItem(k);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                const seen = new Set((paidFileRecords || []).map(r => r && r.id ? String(r.id) : null).filter(Boolean));
+                parsed.forEach(r => {
+                  if (r && r.id && !seen.has(String(r.id)) && (!deletedPaidRecordIds || !deletedPaidRecordIds.has(String(r.id)))) {
+                    seen.add(String(r.id));
+                    paidFileRecords.push(r);
+                  }
+                });
+              }
+            }
+          }
+        }
+      } catch(e) {}
+    }
+    try { earlyRestorePaidRecords(); } catch(e) {}
 
     function syncSdlmFromOctoberPaidRecords() {
       const recs = (typeof octoberPaidFileRecords !== 'undefined' && Array.isArray(octoberPaidFileRecords) && octoberPaidFileRecords.length > 0)
@@ -5524,6 +5746,23 @@ const CANONICAL_CALLER_DIRECTORY = {
       return changed;
     }
 
+    function earlyRestorePinnedNewCallers(targetList) {
+      if (!Array.isArray(targetList)) return false;
+      try {
+        const raw = localStorage.getItem('shaha_added_callers_pin_v1');
+        const pins = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(pins) || pins.length === 0) return false;
+        for (const p of pins) {
+          if (!p || !p.name || (typeof isManagerName === 'function' && isManagerName(p.name))) continue;
+          const pName = String(p.name).toUpperCase().trim();
+          const exists = targetList.some(o => String(o.name || '').toUpperCase().trim() === pName);
+          if (!exists) {
+            targetList.push(Object.assign({}, p, { aoy: 0, today: 0, total: 0, baseline_aoy: 0, baseline_today: 0 }));
+          }
+        }
+      } catch(e) {}
+    }
+
     function createFreshLeaderboardOfficers() {
       const fresh = JSON.parse(JSON.stringify(SEED_OFFICERS));
       fresh.forEach(o => {
@@ -5532,6 +5771,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
       });
       try {
+        earlyRestorePinnedNewCallers(fresh);
         if (typeof restorePinnedNewCallers === 'function') {
           restorePinnedNewCallers(fresh);
         }
@@ -7705,59 +7945,261 @@ const CANONICAL_CALLER_DIRECTORY = {
       } catch(e) {}
     }
 
+    // ==============================================================
+    // ANTI-WIPEOUT PAID CASE SYNC ENGINE (100% DURABILITY ACROSS REFRESHES)
+    // Guarantees manager & admin added paid records NEVER disappear on page refresh
+    // ==============================================================
+    function readLocalPinnedPaidCases() {
+      try {
+        const raw = localStorage.getItem('shaha_pinned_paid_cases_v1');
+        const pins = raw ? JSON.parse(raw) : [];
+        return Array.isArray(pins) ? pins : [];
+      } catch(e) { return []; }
+    }
+
+    function writeLocalPinnedPaidCases(cases) {
+      try {
+        localStorage.setItem('shaha_pinned_paid_cases_v1', JSON.stringify(cases || []));
+      } catch(e) {}
+    }
+
+    function getPaidRecUniqKey(r, idx = '') {
+      if (!r) return '';
+      if (r.id !== undefined && r.id !== null && String(r.id).trim() !== '') return String(r.id);
+      return `${r.cust_id || ''}_${r.amount || ''}_${r.pay_date || ''}_${r.officer || ''}_${idx}`;
+    }
+
+    function mergePaidCaseArrays(baseCases, extraCases) {
+      const byKey = new Map();
+      [...(Array.isArray(baseCases) ? baseCases : []), ...(Array.isArray(extraCases) ? extraCases : [])].forEach((c, idx) => {
+        if (!c || (typeof deletedPaidRecordIds !== 'undefined' && deletedPaidRecordIds.has(String(c.id)))) return;
+        const key = getPaidRecUniqKey(c, idx);
+        if (!key) return;
+        const prev = byKey.get(key);
+        if (!prev || (Number(c._pinnedAt) || 0) >= (Number(prev._pinnedAt) || 0)) {
+          byKey.set(key, Object.assign({}, prev || {}, c));
+        }
+      });
+      return Array.from(byKey.values());
+    }
+
+    function pinNewPaidCase(rec) {
+      if (!rec) return;
+      try {
+        const nowTs = Date.now();
+        const entry = Object.assign({}, rec, {
+          _pinnedAt: nowTs,
+          _pinnedBy: currentUser ? (currentUser.name || currentUser.username) : currentManager,
+          _pinnedRole: currentRole
+        });
+        const currentPins = readLocalPinnedPaidCases();
+        const merged = mergePaidCaseArrays(currentPins, [entry]);
+        writeLocalPinnedPaidCases(merged);
+        if (typeof syncPinnedPaidCasesWithCloud === 'function') {
+          syncPinnedPaidCasesWithCloud().catch(() => {});
+        }
+      } catch(e) {}
+    }
+
+    function unpinPaidCase(caseId) {
+      if (!caseId) return;
+      try {
+        const strId = String(caseId);
+        const currentPins = readLocalPinnedPaidCases();
+        const filtered = currentPins.filter(c => c && String(c.id) !== strId);
+        writeLocalPinnedPaidCases(filtered);
+        if (typeof syncPinnedPaidCasesWithCloud === 'function') {
+          syncPinnedPaidCasesWithCloud().catch(() => {});
+        }
+      } catch(e) {}
+    }
+
+    function restorePinnedPaidCases(targetList, forManager = '') {
+      const list = Array.isArray(targetList) ? targetList : paidFileRecords;
+      if (!Array.isArray(list)) return;
+      const isAdmRole = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+      const filterMgr = forManager || (!isAdmRole ? (currentUser ? (currentUser.name || currentUser.username) : currentManager) : '');
+      const pins = readLocalPinnedPaidCases();
+      if (!pins || pins.length === 0) return;
+
+      const seen = new Set();
+      list.forEach((r, idx) => {
+        const k = getPaidRecUniqKey(r, idx);
+        if (k) seen.add(k);
+      });
+
+      pins.forEach((p, idx) => {
+        if (!p || (typeof deletedPaidRecordIds !== 'undefined' && deletedPaidRecordIds.has(String(p.id)))) return;
+        if (filterMgr && typeof isRecordOwnedByManager === 'function' && !isRecordOwnedByManager(p, filterMgr)) return;
+        const k = getPaidRecUniqKey(p, idx);
+        if (k && !seen.has(k)) {
+          seen.add(k);
+          list.unshift(p);
+        }
+      });
+    }
+
+    async function syncPinnedPaidCasesWithCloud() {
+      if (!supabaseClient) return;
+      try {
+        const localPins = readLocalPinnedPaidCases();
+        const { data: rows, error } = await supabaseClient
+          .from('bank_transactions')
+          .select('id, narration')
+          .eq('ref_no', 'SYS_PINNED_PAID_CASES')
+          .order('id', { ascending: false });
+
+        let cloudPins = [];
+        if (!error && rows && rows.length > 0) {
+          rows.forEach(r => {
+            try {
+              const p = JSON.parse(r.narration);
+              if (Array.isArray(p)) cloudPins.push(...p);
+            } catch(e) {}
+          });
+        }
+
+        const merged = mergePaidCaseArrays(localPins, cloudPins);
+        writeLocalPinnedPaidCases(merged);
+
+        if (rows && rows.length > 0) {
+          const primaryId = rows[0].id;
+          await supabaseClient
+            .from('bank_transactions')
+            .update({
+              amount: merged.length,
+              narration: JSON.stringify(merged),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', primaryId);
+
+          if (rows.length > 1) {
+            for (let i = 1; i < rows.length; i++) {
+              await supabaseClient
+                .from('bank_transactions')
+                .delete()
+                .eq('id', rows[i].id);
+            }
+          }
+        } else {
+          await supabaseClient
+            .from('bank_transactions')
+            .insert([{
+              bank_name: 'SYSTEM',
+              ref_no: 'SYS_PINNED_PAID_CASES',
+              tx_date: '01-01-2026',
+              amount: merged.length,
+              narration: JSON.stringify(merged),
+              status: 'SYSTEM'
+            }]);
+        }
+      } catch(e) {}
+    }
+
     async function loadPaidFileFromCloud() {
       const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
       let loaded = false;
 
+      // 1. Sync Pinned Cases with Supabase in background
+      if (typeof syncPinnedPaidCasesWithCloud === 'function') {
+        try { await syncPinnedPaidCasesWithCloud(); } catch(e) {}
+      }
+
       if (!isAdm) {
-        // NON-ADMIN MANAGER: STRICT PRIVACY ISOLATION
-        // Only load this manager's private records from local and cloud!
+        // NON-ADMIN MANAGER: STRICT PRIVACY ISOLATION WITH 100% PERSISTENCE
+        // Step A: Load manager's cached records from local storage
         try {
           const local = localStorage.getItem(localKey);
           if (local !== null && local !== undefined) {
             const parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
-              paidFileRecords = parsed.filter(r => !deletedPaidRecordIds.has(String(r.id)));
+              paidFileRecords = parsed.filter(r => r && !deletedPaidRecordIds.has(String(r.id)));
               if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
               loaded = true;
             }
           }
         } catch(e) {}
 
+        // Step B: Fetch cloud records from Supabase for this manager (multi-row and alias safe)
         if (supabaseClient) {
           try {
+            const queryKeys = [cloudRef];
+            if (cloudRef.includes('_')) {
+              queryKeys.push(cloudRef.replace(/_/g, ''));
+            }
             const { data, error } = await supabaseClient
               .from('bank_transactions')
               .select('*')
-              .eq('ref_no', cloudRef)
-              .limit(1);
+              .in('ref_no', queryKeys)
+              .order('updated_at', { ascending: false, nullsFirst: false })
+              .order('id', { ascending: false });
 
-            if (!error && data && data.length > 0 && data[0].narration) {
-              const cloudRecords = JSON.parse(data[0].narration);
-              if (Array.isArray(cloudRecords)) {
-                const localMap = new Map();
-                (paidFileRecords || []).forEach(m => { if (m && m.id) localMap.set(String(m.id), m); });
-                paidFileRecords = cloudRecords.map(cRec => {
-                  if (!cRec || deletedPaidRecordIds.has(String(cRec.id))) return null;
-                  const loc = localMap.get(String(cRec.id));
-                  const keepOfficer = (loc && loc.officer && loc.officer_locked) ? loc.officer : (cRec.officer || (loc ? loc.officer : ''));
-                  return { ...cRec, officer: keepOfficer, officer_locked: !!(loc && loc.officer_locked) || !!cRec.officer_locked };
-                }).filter(Boolean);
-                if (typeof purgeStaleDuplicatePaidRecords === 'function') purgeStaleDuplicatePaidRecords();
-                if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
-                localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
-                loaded = true;
-              }
+            let cloudRecords = [];
+            if (!error && data && data.length > 0) {
+              data.forEach(row => {
+                try {
+                  const parsed = JSON.parse(row.narration);
+                  if (Array.isArray(parsed)) cloudRecords.push(...parsed);
+                } catch(e) {}
+              });
+            }
+
+            if (cloudRecords.length > 0 || loaded) {
+              // SAFE TWO-WAY BIDIRECTIONAL MERGE: Never discard locally added records that haven't hit cloud yet!
+              const localMap = new Map();
+              (paidFileRecords || []).forEach((m, idx) => {
+                if (m && !deletedPaidRecordIds.has(String(m.id))) {
+                  const k = getPaidRecUniqKey(m, idx);
+                  localMap.set(k, m);
+                }
+              });
+
+              const mergedRecs = [];
+              const seenKeys = new Set();
+
+              cloudRecords.forEach((cRec, idx) => {
+                if (!cRec || deletedPaidRecordIds.has(String(cRec.id))) return;
+                const k = getPaidRecUniqKey(cRec, idx);
+                seenKeys.add(k);
+                const loc = localMap.get(k);
+                const keepOfficer = (loc && loc.officer && loc.officer_locked) ? loc.officer : (cRec.officer || (loc ? loc.officer : ''));
+                mergedRecs.push({
+                  ...cRec,
+                  officer: keepOfficer,
+                  officer_locked: !!(loc && loc.officer_locked) || !!cRec.officer_locked
+                });
+              });
+
+              // PRESERVE ALL NEWLY ADDED LOCAL CASES THAT ARE NOT YET IN CLOUD!
+              localMap.forEach((locRec, k) => {
+                if (!seenKeys.has(k) && !deletedPaidRecordIds.has(String(locRec.id))) {
+                  seenKeys.add(k);
+                  mergedRecs.unshift(locRec);
+                }
+              });
+
+              paidFileRecords = mergedRecs;
+              if (typeof purgeStaleDuplicatePaidRecords === 'function') purgeStaleDuplicatePaidRecords();
+              if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
+              localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+              loaded = true;
             }
           } catch(e) {}
         }
 
+        // Step C: Ensure pinned paid cases are restored
+        if (typeof restorePinnedPaidCases === 'function') {
+          restorePinnedPaidCases(paidFileRecords, myMgrName);
+        }
+
         if (!loaded && leaderboardOfficers.length === 0) {
           if (paidFileRecords.length === 0) paidFileRecords = [];
-          if (typeof paidFileRecords !== 'undefined' && localKey.includes('paid')) { if (paidFileRecords.length === 0) localStorage.setItem(localKey, '[]'); else localStorage.setItem(localKey, JSON.stringify(paidFileRecords)); } else { if (leaderboardOfficers.length === 0) localStorage.setItem(localKey, '[]'); else localStorage.setItem(localKey, JSON.stringify(leaderboardOfficers)); }
+          if (typeof paidFileRecords !== 'undefined' && localKey.includes('paid')) {
+            localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+          }
         }
       } else {
-        // SUPER ADMIN: Load all partitions across all managers + master
+        // SUPER ADMIN: Load all partitions across all managers + master with safe merge
         try {
           let allLocal = [];
           const seenLocalIds = new Set();
@@ -7795,16 +8237,13 @@ const CANONICAL_CALLER_DIRECTORY = {
 
             let allRecs = [];
             const seenIds = new Set();
-            const getRecKey = (r, idx) => (r && r.id !== undefined && r.id !== null && String(r.id).trim() !== '')
-              ? String(r.id)
-              : `${r.pay_date}_${r.amount}_${r.cust_id}_${r.officer}_${idx}`;
 
             if (!error && data && data.length > 0) {
               data.forEach(row => {
                 try {
                   let rowMgr = '';
                   const pMatch = (row.ref_no || '').match(/^SYS_PAID_RECORDS_(.+)$/i);
-                  if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026') return; // Strict partition isolation for historical October data
+                  if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026' || row.ref_no === 'SYS_PINNED_PAID_CASES') return;
                   if (pMatch) {
                     const mk = pMatch[1].toLowerCase();
                     const rk = USER_CREDENTIALS[mk] ? mk : resolveManagerUserKey(mk.replace(/_/g, ' '));
@@ -7815,7 +8254,7 @@ const CANONICAL_CALLER_DIRECTORY = {
                     list.forEach((r, idx) => {
                       if (!r) return;
                       if (!r.manager && rowMgr) r.manager = rowMgr;
-                      const rKey = getRecKey(r, idx);
+                      const rKey = getPaidRecUniqKey(r, idx);
                       if (!seenIds.has(rKey) && !deletedPaidRecordIds.has(String(r.id))) {
                         seenIds.add(rKey);
                         allRecs.push(r);
@@ -7826,7 +8265,7 @@ const CANONICAL_CALLER_DIRECTORY = {
               });
             }
 
-            // Also check legacy/direct master SYS_PAID_FILE_RECORDS (latest row first)
+            // Also check master SYS_PAID_FILE_RECORDS
             const { data: masterData, error: masterError } = await supabaseClient
               .from('bank_transactions')
               .select('*')
@@ -7834,15 +8273,14 @@ const CANONICAL_CALLER_DIRECTORY = {
               .order('updated_at', { ascending: false, nullsFirst: false })
               .order('id', { ascending: false })
               .limit(1);
-            if (masterError) throw masterError;
 
-            if (masterData && masterData.length > 0 && masterData[0].narration) {
+            if (!masterError && masterData && masterData.length > 0 && masterData[0].narration) {
               try {
                 const mList = JSON.parse(masterData[0].narration);
                 if (Array.isArray(mList)) {
                   mList.forEach((r, idx) => {
                     if (!r) return;
-                    const rKey = getRecKey(r, idx);
+                    const rKey = getPaidRecUniqKey(r, idx);
                     if (!seenIds.has(rKey) && !deletedPaidRecordIds.has(String(r.id))) {
                       seenIds.add(rKey);
                       allRecs.push(r);
@@ -7852,27 +8290,47 @@ const CANONICAL_CALLER_DIRECTORY = {
               } catch(e) {}
             }
 
+            // CRUCIAL: Also preserve any locally held records not yet in cloud
+            const localMap = new Map();
+            (paidFileRecords || []).forEach((m, idx) => {
+              if (m && !deletedPaidRecordIds.has(String(m.id))) {
+                const k = getPaidRecUniqKey(m, idx);
+                localMap.set(k, m);
+              }
+            });
+            localMap.forEach((locRec, k) => {
+              if (!seenIds.has(k) && !deletedPaidRecordIds.has(String(locRec.id))) {
+                seenIds.add(k);
+                allRecs.unshift(locRec);
+              }
+            });
+
             paidFileRecords = allRecs;
             if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
             localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
           } catch(e) {}
         }
+
+        // Restore pinned cases for admin
+        if (typeof restorePinnedPaidCases === 'function') {
+          restorePinnedPaidCases(paidFileRecords, '');
+        }
       }
 
       if (typeof purgeOctoberPaidRecordsFromMemoryAndLocal === 'function') purgeOctoberPaidRecordsFromMemoryAndLocal();
-      if (currentTab === 'paid-file') renderPaidFileTable(); // hidden tab renders on switchTab
+      if (currentTab === 'paid-file') renderPaidFileTable();
       populateOfficerDropdowns();
       syncLiveCollectionFromPaidFile(false);
     }
 
     async function savePaidFileToCloud(notify = false) {
       if (currentRole === 'MANAGEMENT') {
-        return; // Senior Management is strictly a collection viewer
+        return;
       }
       const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
 
       if (!isAdm) {
-        // NON-ADMIN MANAGER: Strictly save only own records to dedicated cloud key
+        // NON-ADMIN MANAGER: Save dedicated partition and update master safely
         localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
         if (supabaseClient) {
           try {
@@ -7880,13 +8338,21 @@ const CANONICAL_CALLER_DIRECTORY = {
               .from('bank_transactions')
               .select('id')
               .eq('ref_no', cloudRef)
-              .limit(1);
+              .order('updated_at', { ascending: false })
+              .order('id', { ascending: false });
 
             if (data && data.length > 0) {
+              const primaryId = data[0].id;
               await supabaseClient
                 .from('bank_transactions')
-                .update({ narration: JSON.stringify(paidFileRecords), updated_at: new Date().toISOString() })
-                .eq('id', data[0].id);
+                .update({ narration: JSON.stringify(paidFileRecords), amount: paidFileRecords.length, updated_at: new Date().toISOString() })
+                .eq('id', primaryId);
+
+              if (data.length > 1) {
+                for (let i = 1; i < data.length; i++) {
+                  await supabaseClient.from('bank_transactions').delete().eq('id', data[i].id);
+                }
+              }
             } else {
               await supabaseClient
                 .from('bank_transactions')
@@ -7899,12 +8365,15 @@ const CANONICAL_CALLER_DIRECTORY = {
                   status: 'SYSTEM'
                 }]);
             }
-            // Non-admin manager: Also update master copy SYS_PAID_FILE_RECORDS in Supabase
+
+            // Safe update of master copy SYS_PAID_FILE_RECORDS
             try {
               const { data: mRow } = await supabaseClient
                 .from('bank_transactions')
                 .select('id, narration')
                 .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+                .order('updated_at', { ascending: false })
+                .order('id', { ascending: false })
                 .limit(1);
 
               let masterPaidList = [];
@@ -7918,7 +8387,7 @@ const CANONICAL_CALLER_DIRECTORY = {
               if (mRow && mRow.length > 0) {
                 await supabaseClient
                   .from('bank_transactions')
-                  .update({ narration: JSON.stringify(masterPaidList), updated_at: new Date().toISOString() })
+                  .update({ narration: JSON.stringify(masterPaidList), amount: masterPaidList.length, updated_at: new Date().toISOString() })
                   .eq('id', mRow[0].id);
               } else {
                 await supabaseClient
@@ -7948,7 +8417,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (typeof updateTopKpis === 'function') updateTopKpis();
         notifyOtherSystemsLocal(cloudRef);
       } else {
-        // SUPER ADMIN: Group records by manager and sync each manager's cloud partition
+        // SUPER ADMIN: Group records by manager and sync each manager's partition safely
         localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
         if (supabaseClient) {
           try {
@@ -7964,12 +8433,19 @@ const CANONICAL_CALLER_DIRECTORY = {
               .from('bank_transactions')
               .select('id')
               .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
-              .limit(1);
+              .order('updated_at', { ascending: false })
+              .order('id', { ascending: false });
+
             if (admRow && admRow.length > 0) {
               await supabaseClient
                 .from('bank_transactions')
-                .update({ narration: JSON.stringify(paidFileRecords), updated_at: new Date().toISOString() })
+                .update({ narration: JSON.stringify(paidFileRecords), amount: paidFileRecords.length, updated_at: new Date().toISOString() })
                 .eq('id', admRow[0].id);
+              if (admRow.length > 1) {
+                for (let i = 1; i < admRow.length; i++) {
+                  await supabaseClient.from('bank_transactions').delete().eq('id', admRow[i].id);
+                }
+              }
             } else {
               await supabaseClient
                 .from('bank_transactions')
@@ -7983,28 +8459,57 @@ const CANONICAL_CALLER_DIRECTORY = {
                 }]);
             }
 
-            // Sync per-manager partitions
+            // Sync per-manager partitions with SAFE MERGE (never wipe manager additions)
             for (const mgrKey in byManager) {
               const ref = `SYS_PAID_RECORDS_${mgrKey}`;
               const list = byManager[mgrKey];
-              const { data: mRow } = await supabaseClient.from('bank_transactions').select('id').eq('ref_no', ref).limit(1);
-              if (mRow && mRow.length > 0) {
-                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(list), updated_at: new Date().toISOString() }).eq('id', mRow[0].id);
+              const { data: mRows } = await supabaseClient
+                .from('bank_transactions')
+                .select('id, narration')
+                .eq('ref_no', ref)
+                .order('updated_at', { ascending: false })
+                .order('id', { ascending: false });
+
+              let mergedList = [...list];
+              if (mRows && mRows.length > 0 && mRows[0].narration) {
+                try {
+                  const existingList = JSON.parse(mRows[0].narration);
+                  if (Array.isArray(existingList)) {
+                    const seen = new Set(mergedList.map(r => getPaidRecUniqKey(r)));
+                    existingList.forEach((er, eIdx) => {
+                      const ek = getPaidRecUniqKey(er, eIdx);
+                      if (ek && !seen.has(ek) && !deletedPaidRecordIds.has(String(er.id))) {
+                        seen.add(ek);
+                        mergedList.push(er);
+                      }
+                    });
+                  }
+                } catch(e) {}
+              }
+
+              if (mRows && mRows.length > 0) {
+                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(mergedList), amount: mergedList.length, updated_at: new Date().toISOString() }).eq('id', mRows[0].id);
+                if (mRows.length > 1) {
+                  for (let i = 1; i < mRows.length; i++) {
+                    await supabaseClient.from('bank_transactions').delete().eq('id', mRows[i].id);
+                  }
+                }
               } else {
-                await supabaseClient.from('bank_transactions').insert([{ bank_name: 'SYSTEM', ref_no: ref, tx_date: '01-01-2026', amount: list.length, narration: JSON.stringify(list), status: 'SYSTEM' }]);
+                await supabaseClient.from('bank_transactions').insert([{ bank_name: 'SYSTEM', ref_no: ref, tx_date: '01-01-2026', amount: mergedList.length, narration: JSON.stringify(mergedList), status: 'SYSTEM' }]);
               }
             }
-            // Partitions with no records left are not in byManager. Remove deleted records from them too.
+
+            // Partitions with no records left in byManager
             const { data: otherRows } = await supabaseClient.from('bank_transactions').select('id, ref_no, narration').like('ref_no', 'SYS_PAID_RECORDS_%');
             for (const row of (otherRows || [])) {
-              if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026') continue;
+              if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026' || row.ref_no === 'SYS_PINNED_PAID_CASES') continue;
               if (byManager[row.ref_no.replace('SYS_PAID_RECORDS_', '')]) continue;
               let list = [];
               try { list = JSON.parse(row.narration) || []; } catch(e) { continue; }
               if (!Array.isArray(list)) continue;
               const kept = list.filter(r => !deletedPaidRecordIds.has(String(r.id)));
               if (kept.length !== list.length) {
-                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(kept), updated_at: new Date().toISOString() }).eq('id', row.id);
+                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(kept), amount: kept.length, updated_at: new Date().toISOString() }).eq('id', row.id);
               }
             }
             if (notify) showToast('All PAID DATA partitions synchronized across managers!', 'success');
@@ -8127,24 +8632,27 @@ const CANONICAL_CALLER_DIRECTORY = {
       } catch(e) {}
     }
 
-    async function syncAddedCallerPinsWithCloud(pushLocal = false) {
+        async function syncAddedCallerPinsWithCloud(pushLocal = false) {
       let localPins = mergePinArrays(readLocalAddedCallerPins(), []);
       localStorage.setItem('shaha_added_callers_pin_v1', JSON.stringify(localPins));
       if (!supabaseClient) return localPins;
       try {
+        // Query ALL rows matching SYS_ADDED_CALLERS_PIN (merge across all rows to prevent any split-brain drop)
         const { data } = await supabaseClient
           .from('bank_transactions')
           .select('id, narration')
           .eq('ref_no', 'SYS_ADDED_CALLERS_PIN')
-          .order('updated_at', { ascending: false, nullsFirst: false })
-          .order('id', { ascending: false })
-          .limit(1);
+          .order('updated_at', { ascending: false, nullsFirst: false });
         let cloudPins = [];
-        if (data && data.length > 0 && data[0].narration) {
-          try {
-            const parsed = JSON.parse(data[0].narration);
-            if (Array.isArray(parsed)) cloudPins = parsed;
-          } catch(e) {}
+        if (data && data.length > 0) {
+          data.forEach(row => {
+            if (row && row.narration) {
+              try {
+                const parsed = JSON.parse(row.narration);
+                if (Array.isArray(parsed)) cloudPins = mergePinArrays(cloudPins, parsed);
+              } catch(e) {}
+            }
+          });
         }
         const merged = mergePinArrays(cloudPins, localPins);
         localStorage.setItem('shaha_added_callers_pin_v1', JSON.stringify(merged));
@@ -8155,6 +8663,14 @@ const CANONICAL_CALLER_DIRECTORY = {
               .from('bank_transactions')
               .update({ narration: payload, updated_at: new Date().toISOString() })
               .eq('id', data[0].id);
+            // Clean up any duplicate rows to maintain strict 1-to-1 integrity
+            if (data.length > 1) {
+              const extraIds = data.slice(1).map(d => d.id);
+              await supabaseClient
+                .from('bank_transactions')
+                .delete()
+                .in('id', extraIds);
+            }
           } else {
             await supabaseClient
               .from('bank_transactions')
@@ -9982,6 +10498,10 @@ const CANONICAL_CALLER_DIRECTORY = {
       const activeMgrDisplay = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
 
       // Prune tombstoned callers and ensure manager teams
+      // Hard-lock caller durability: ALWAYS restore all pinned callers before cloud write
+      if (typeof restorePinnedNewCallers === 'function') {
+        restorePinnedNewCallers(leaderboardOfficers);
+      }
       leaderboardOfficers = (leaderboardOfficers || []).filter(o => o && o.name && !isOfficerTombstoned(o));
       if (typeof ensureManagersInTeams === 'function') {
         ensureManagersInTeams(leaderboardOfficers, isAdm ? '' : activeMgrDisplay);
@@ -10041,7 +10561,10 @@ const CANONICAL_CALLER_DIRECTORY = {
             for (const mName of allManagers) {
               const mk = getManagerStorageKey(mName);
               const mRef = `SYS_LEADERBOARD_MIS_${mk}`;
-              const mgrCallers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, mName));
+              let mgrCallers = leaderboardOfficers.filter(o => !isOfficerTombstoned(o) && isOfficerUnderManager(o, mName));
+              if (typeof restorePinnedNewCallers === 'function') {
+                restorePinnedNewCallers(mgrCallers, mName);
+              }
               localStorage.setItem(`shaha_leaderboard_mis_v2_${mk}`, JSON.stringify(mgrCallers));
               try {
                 const { data: pData } = await supabaseClient
@@ -16037,6 +16560,20 @@ const CANONICAL_CALLER_DIRECTORY = {
                   }
                 }
               } catch(e) {}
+              // CRUCIAL: Instant cache hydration for Paid Records (guarantees zero-blank on refresh)
+              const { localKey: authPaidLocalKey } = getPaidFileStorageKeys();
+              try {
+                const cachedPaid = localStorage.getItem(authPaidLocalKey);
+                if (cachedPaid) {
+                  const parsedPaid = JSON.parse(cachedPaid);
+                  if (Array.isArray(parsedPaid) && parsedPaid.length > 0) {
+                    paidFileRecords = parsedPaid.filter(r => r && !deletedPaidRecordIds.has(String(r.id)));
+                  }
+                }
+              } catch(e) {}
+              if (typeof restorePinnedPaidCases === 'function') {
+                restorePinnedPaidCases();
+              }
               syncLiveCollectionFromPaidFile(false);
               calculateLeaderboard();
               updateTopKpis();
@@ -16998,6 +17535,7 @@ const CANONICAL_CALLER_DIRECTORY = {
             officer: officer || paidFileRecords[idx].officer, officer_locked: true, locked_officer: (officer || paidFileRecords[idx].officer),
             splits: splits
           };
+          if (typeof pinNewPaidCase === 'function') pinNewPaidCase(paidFileRecords[idx]);
           showToast(`Updated payment for ${custName}!`, 'success');
         }
       } else {
@@ -17016,12 +17554,22 @@ const CANONICAL_CALLER_DIRECTORY = {
           splits: splits
         };
         paidFileRecords.unshift(newRecord);
+        if (typeof pinNewPaidCase === 'function') pinNewPaidCase(newRecord);
         showToast(`Added ₹${amount.toLocaleString('en-IN')} payment for ${custName}!`, 'success');
       }
 
       closePaidCaseModal(); if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
+
+      // Instantly persist in manager local storage partition
+      try {
+        if (typeof getPaidFileStorageKeys === 'function') {
+          const { localKey } = getPaidFileStorageKeys();
+          if (localKey) localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+        }
+      } catch(e) {}
+
       // Auto-update master paid records in localStorage so Admin immediately reflects it
       try {
         const masterPaidStr = localStorage.getItem('shaha_paid_file_records_admin');
@@ -17034,7 +17582,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         });
         localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(masterPaid));
       } catch(e) {}
-      await savePaidFileToCloud();
+      await savePaidFileToCloud(true);
       await saveLeaderboardToCloud();
     }
 
@@ -17051,6 +17599,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       if (!confirm(`Are you sure you want to delete payment of ₹${item.amount} for '${item.cust_name}'?`)) return;
 
       deletedPaidRecordIds.add(String(editId));
+      if (typeof unpinPaidCase === 'function') unpinPaidCase(editId);
       await saveDeletedTombstonesToCloud();
 
       paidFileRecords = paidFileRecords.filter(r => r.id !== editId);
