@@ -7887,9 +7887,12 @@ const CANONICAL_CALLER_DIRECTORY = {
               cloudRecords.forEach((cRec, idx) => {
                 if (!cRec || deletedPaidRecordIds.has(String(cRec.id))) return;
                 const k = getPaidRecUniqKey(cRec, idx);
+                if (seenKeys.has(k)) return;
                 seenKeys.add(k);
                 const loc = localMap.get(k);
-                const keepOfficer = (loc && loc.officer && loc.officer_locked) ? loc.officer : (cRec.officer || (loc ? loc.officer : ''));
+                let keepOfficer = cRec.officer;
+                if (!keepOfficer && loc && loc.officer) keepOfficer = loc.officer;
+                else if (loc && loc.officer && loc._updatedAt && (!cRec._updatedAt || loc._updatedAt > cRec._updatedAt)) keepOfficer = loc.officer;
                 mergedRecs.push({
                   ...cRec,
                   officer: keepOfficer,
@@ -8205,7 +8208,9 @@ const CANONICAL_CALLER_DIRECTORY = {
                     const seen = new Set(mergedList.map(r => getPaidRecUniqKey(r)));
                     existingList.forEach((er, eIdx) => {
                       const ek = getPaidRecUniqKey(er, eIdx);
-                      if (ek && !seen.has(ek) && !deletedPaidRecordIds.has(String(er.id))) {
+                      const erIdStr = String(er && er.id || '');
+                      const isOwnedByOther = erIdStr && paidFileRecords.some(p => String(p.id) === erIdStr && getManagerStorageKey(p.manager) !== mgrKey);
+                      if (ek && !seen.has(ek) && !deletedPaidRecordIds.has(erIdStr) && !isOwnedByOther) {
                         seen.add(ek);
                         mergedList.push(er);
                       }
@@ -17004,8 +17009,8 @@ const CANONICAL_CALLER_DIRECTORY = {
       const isAdm = (roleUpper === 'ADMIN' || roleUpper === 'MANAGEMENT' || roleUpper === 'BACKEND');
       let targetModalMgr = '';
       if (editId !== null) {
-        const item = (typeof paidFileRecords !== 'undefined' ? paidFileRecords.find(r => r.id === editId) : null) ||
-                     (typeof octoberPaidFileRecords !== 'undefined' ? octoberPaidFileRecords.find(r => r.id === editId) : null);
+        const item = (typeof paidFileRecords !== 'undefined' ? paidFileRecords.find(r => String(r.id) === String(editId)) : null) ||
+                     (typeof octoberPaidFileRecords !== 'undefined' ? octoberPaidFileRecords.find(r => String(r.id) === String(editId)) : null);
         if (item && (item.isLocked || (item.pay_date && item.pay_date.toLowerCase().includes('oct')))) {
           showToast('Audited past month record is locked and cannot be edited.', 'warning');
           return;
@@ -17037,7 +17042,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       populateOfficerDropdowns(targetModalMgr);
 
       if (editId !== null) {
-        const item = paidFileRecords.find(r => r.id === editId);
+        const item = paidFileRecords.find(r => String(r.id) === String(editId));
         if (!item) return;
         const myMgrName = (currentUser ? (currentUser.name || currentUser.username) : currentManager).toLowerCase().trim();
         if (!isAdm && !isRecordOwnedByManager(item, myMgrName)) {
@@ -17344,9 +17349,9 @@ const CANONICAL_CALLER_DIRECTORY = {
       }
 
       if (editIdStr) {
-        const editId = parseInt(editIdStr, 10);
-        const idx = paidFileRecords.findIndex(r => r.id === editId);
+        const idx = paidFileRecords.findIndex(r => String(r.id) === String(editIdStr));
         if (idx >= 0) {
+          const nowTs = Date.now();
           paidFileRecords[idx] = {
             ...paidFileRecords[idx],
             cust_id: custId,
@@ -17359,11 +17364,17 @@ const CANONICAL_CALLER_DIRECTORY = {
             narr: narr,
             manager: managerName || paidFileRecords[idx].manager,
             locked_manager: managerName || paidFileRecords[idx].locked_manager,
-            officer: officer || paidFileRecords[idx].officer, officer_locked: true, locked_officer: (officer || paidFileRecords[idx].officer),
-            splits: splits
+            officer: officer || paidFileRecords[idx].officer,
+            officer_locked: true,
+            locked_officer: (officer || paidFileRecords[idx].officer),
+            splits: splits,
+            _updatedAt: nowTs,
+            _updatedBy: (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'Admin'
           };
           if (typeof pinNewPaidCase === 'function') pinNewPaidCase(paidFileRecords[idx]);
           showToast(`Updated payment for ${custName}!`, 'success');
+        } else {
+          console.warn('Could not find record for id:', editIdStr);
         }
       } else {
         const newRecord = {
@@ -17403,7 +17414,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         let masterPaid = masterPaidStr ? JSON.parse(masterPaidStr) : [];
         if (!Array.isArray(masterPaid)) masterPaid = [];
         paidFileRecords.forEach(r => {
-          const existIdx = masterPaid.findIndex(m => m.id === r.id);
+          const existIdx = masterPaid.findIndex(m => String(m.id) === String(r.id));
           if (existIdx >= 0) masterPaid[existIdx] = r;
           else masterPaid.unshift(r);
         });
@@ -17421,7 +17432,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       const editIdStr = document.getElementById('paid-edit-id').value;
       if (!editIdStr) return;
       const editId = parseInt(editIdStr, 10);
-      const item = paidFileRecords.find(r => r.id === editId);
+      const item = paidFileRecords.find(r => String(r.id) === String(editId));
       if (!item) return;
       if (!confirm(`Are you sure you want to delete payment of ₹${item.amount} for '${item.cust_name}'?`)) return;
 
@@ -17429,7 +17440,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       if (typeof unpinPaidCase === 'function') unpinPaidCase(editId);
       await saveDeletedTombstonesToCloud();
 
-      paidFileRecords = paidFileRecords.filter(r => r.id !== editId);
+      paidFileRecords = paidFileRecords.filter(r => String(r.id) !== String(editIdStr));
       closePaidCaseModal(); if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
@@ -17442,7 +17453,7 @@ const CANONICAL_CALLER_DIRECTORY = {
             try {
               let pList = JSON.parse(localStorage.getItem(lk));
               if (Array.isArray(pList)) {
-                pList = pList.filter(r => r.id !== editId && !deletedPaidRecordIds.has(String(r.id)));
+                pList = pList.filter(r => String(r.id) !== String(editIdStr) && !deletedPaidRecordIds.has(String(r.id)));
                 localStorage.setItem(lk, JSON.stringify(pList));
               }
             } catch(e) {}
@@ -17459,7 +17470,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (mData && mData.length > 0 && mData[0].narration) {
             let mList = JSON.parse(mData[0].narration);
             if (Array.isArray(mList)) {
-              mList = mList.filter(r => r.id !== editId && !deletedPaidRecordIds.has(String(r.id)));
+              mList = mList.filter(r => String(r.id) !== String(editIdStr) && !deletedPaidRecordIds.has(String(r.id)));
               await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(mList), updated_at: new Date().toISOString() }).eq('id', mData[0].id);
             }
           }
