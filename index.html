@@ -2952,28 +2952,37 @@
           </div>
 
           <div id="add-user-box" class="hidden card" style="padding: 20px; margin-bottom: 16px">
-            <h2 class="card-title" style="margin-bottom: 14px">New manager</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <h2 class="card-title" style="margin-bottom: 14px">New user / manager</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
               <label class="field"><span>Full name *</span><input type="text" id="new-user-name" placeholder="Full name" class="control"></label>
               <label class="field"><span>Login ID *</span><input type="text" id="new-user-username" placeholder="Login ID" class="control font-mono"></label>
+              <label class="field"><span>Role *</span>
+                <select id="new-user-role" onchange="handleNewUserRoleChange()" class="control">
+                  <option value="MANAGER" selected>Manager (MIS &amp; Callers)</option>
+                  <option value="BACKEND">Backend Team (Paid + Collections)</option>
+                  <option value="MANAGEMENT">Senior Management (View Only)</option>
+                  <option value="ADMIN">Administrator (Full Access)</option>
+                </select>
+              </label>
               <label class="field"><span>Branch *</span>
                 <select id="new-user-agency" class="control">
-                  <option value="BANGALORE">BANGALORE</option>
                   <option value="JOGESHWARI">JOGESHWARI</option>
+                  <option value="BANGALORE">BANGALORE</option>
                   <option value="SAROJ">SAROJ</option>
                   <option value="WORLI">WORLI</option>
                   <option value="AGENCY">AGENCY</option>
+                  <option value="ALL">ALL</option>
                 </select>
               </label>
               <label class="field"><span>Initial password *</span><input type="text" id="new-user-pin" placeholder="Password" class="control font-mono"></label>
-              <label class="sm:col-span-4 flex items-center gap-2.5 text-[13px] cursor-pointer" style="color: var(--ink-2); padding-top: 4px">
+              <label id="new-user-mis-box" class="sm:col-span-5 flex items-center gap-2.5 text-[13px] cursor-pointer" style="color: var(--ink-2); padding-top: 4px">
                 <input type="checkbox" id="new-user-mis-access" class="w-4 h-4" checked>
-                <span>Give this manager access to the Daily MIS</span>
+                <span id="new-user-mis-label">Give this manager access to the Daily MIS</span>
               </label>
             </div>
             <div class="flex justify-end gap-2" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line)">
               <button onclick="toggleAddUserForm()" class="btn btn-ghost">Cancel</button>
-              <button onclick="addNewUserProfile()" class="btn btn-primary">Save manager</button>
+              <button onclick="addNewUserProfile()" class="btn btn-primary">Save user</button>
             </div>
           </div>
 
@@ -4310,7 +4319,7 @@
       return cid;
     }
 
-    const APP_BUILD_ID = "BUILD_20261126_172500";
+    const APP_BUILD_ID = "BUILD_20261126_181500";
     const DEFAULT_GOOGLE_SHEET_URL = ''; // Paste your deployed Google Apps Script Web App URL here
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
@@ -5590,22 +5599,27 @@ const CANONICAL_CALLER_DIRECTORY = {
     // ==========================================
     function autoMigrateAnuradhaToSubhashree() {
       try {
+        let credsMigrated = false;
         // 1. Ensure USER_CREDENTIALS has SUBHASHREE and unconditionally purge ANURADHA
         if (typeof USER_CREDENTIALS !== 'undefined') {
-          const oldEntry = USER_CREDENTIALS['anuradha'] || USER_CREDENTIALS['ANURADHA'] || USER_CREDENTIALS['subhashree'];
-          const pin = (oldEntry && oldEntry.pin) ? oldEntry.pin : 'BLR@123';
-          const hasMis = (oldEntry && oldEntry.has_mis_access !== undefined) ? oldEntry.has_mis_access : true;
-          USER_CREDENTIALS['subhashree'] = {
-            name: 'SUBHASHREE',
-            role: 'MANAGER',
-            branch: 'BANGALORE',
-            agency: 'BANGALORE',
-            pin: pin,
-            username: 'SUBHASHREE',
-            has_mis_access: hasMis
-          };
-          delete USER_CREDENTIALS['anuradha'];
-          delete USER_CREDENTIALS['ANURADHA'];
+          const hadAnuradha = Boolean(USER_CREDENTIALS['anuradha'] || USER_CREDENTIALS['ANURADHA'] || Object.keys(USER_CREDENTIALS).some(ck => ck.toLowerCase() === 'anuradha' || (USER_CREDENTIALS[ck] && String(USER_CREDENTIALS[ck].name || '').toUpperCase().trim() === 'ANURADHA')));
+          if (hadAnuradha || !USER_CREDENTIALS['subhashree']) {
+            const oldEntry = USER_CREDENTIALS['anuradha'] || USER_CREDENTIALS['ANURADHA'] || USER_CREDENTIALS['subhashree'];
+            const pin = (oldEntry && oldEntry.pin) ? oldEntry.pin : 'BLR@123';
+            const hasMis = (oldEntry && oldEntry.has_mis_access !== undefined) ? oldEntry.has_mis_access : true;
+            USER_CREDENTIALS['subhashree'] = Object.assign({}, oldEntry || {}, {
+              name: 'SUBHASHREE',
+              role: 'MANAGER',
+              branch: 'BANGALORE',
+              agency: 'BANGALORE',
+              pin: pin,
+              username: 'SUBHASHREE',
+              has_mis_access: hasMis
+            });
+            delete USER_CREDENTIALS['anuradha'];
+            delete USER_CREDENTIALS['ANURADHA'];
+            credsMigrated = hadAnuradha;
+          }
         }
 
         // 2. Remove SUBHASHREE from deleted keys, permanently tombstone ANURADHA
@@ -5622,20 +5636,24 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (credStr) {
             const parsedCred = JSON.parse(credStr);
             if (parsedCred && typeof parsedCred === 'object') {
-              const oldEntry = parsedCred['anuradha'] || parsedCred['subhashree'];
-              const pin = (oldEntry && oldEntry.pin) ? oldEntry.pin : 'BLR@123';
-              const hasMis = (oldEntry && oldEntry.has_mis_access !== undefined) ? oldEntry.has_mis_access : true;
-              parsedCred['subhashree'] = {
-                name: 'SUBHASHREE',
-                role: 'MANAGER',
-                branch: 'BANGALORE',
-                agency: 'BANGALORE',
-                pin: pin,
-                username: 'SUBHASHREE',
-                has_mis_access: hasMis
-              };
-              delete parsedCred['anuradha'];
-              localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(parsedCred));
+              const hadLocalAnu = Boolean(parsedCred['anuradha'] || parsedCred['ANURADHA']);
+              if (hadLocalAnu || !parsedCred['subhashree']) {
+                const oldEntry = parsedCred['anuradha'] || parsedCred['subhashree'];
+                const pin = (oldEntry && oldEntry.pin) ? oldEntry.pin : 'BLR@123';
+                const hasMis = (oldEntry && oldEntry.has_mis_access !== undefined) ? oldEntry.has_mis_access : true;
+                parsedCred['subhashree'] = Object.assign({}, oldEntry || {}, {
+                  name: 'SUBHASHREE',
+                  role: 'MANAGER',
+                  branch: 'BANGALORE',
+                  agency: 'BANGALORE',
+                  pin: pin,
+                  username: 'SUBHASHREE',
+                  has_mis_access: hasMis
+                });
+                delete parsedCred['anuradha'];
+                delete parsedCred['ANURADHA'];
+                localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(parsedCred));
+              }
             }
           }
         } catch(e) {}
@@ -5924,9 +5942,9 @@ const CANONICAL_CALLER_DIRECTORY = {
           }
         } catch(e) {}
 
-        // 9. Sync migrated data to Supabase cloud in background (STRICTLY only when authenticated!)
+        // 9. Sync migrated data to Supabase cloud in background (ONLY when Anuradha credentials actually migrated)
         if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof currentUser !== 'undefined' && currentUser) {
-          if (typeof saveCredentialsToCloud === 'function') saveCredentialsToCloud().catch(()=>{});
+          if (credsMigrated && typeof saveCredentialsToCloud === 'function') saveCredentialsToCloud().catch(()=>{});
           if (typeof savePaidFileToCloud === 'function' && paidUpdated) savePaidFileToCloud().catch(()=>{});
           if (typeof saveLeaderboardToCloud === 'function' && misUpdated) saveLeaderboardToCloud().catch(()=>{});
           try {
@@ -6576,6 +6594,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           'SYS_ADDED_CALLERS_PIN',
           'SYS_PAID_FILE_RECORDS',
           'SYS_PORTAL_CREDENTIALS',
+          'SYS_PINNED_PORTAL_USERS',
           'SYS_DELETED_USER_KEYS',
           'SYS_DELETED_TOMBSTONES',
           'SYS_COLLECTION_REQUESTS',
@@ -7148,67 +7167,160 @@ const CANONICAL_CALLER_DIRECTORY = {
       return client;
     }
 
+    function isAnuradhaCredEntry(k, u) {
+      return String(k || '').toLowerCase() === 'anuradha' || (u && String(u.name || '').toUpperCase().trim() === 'ANURADHA');
+    }
+
+    function readPinnedPortalUsersLocal() {
+      try {
+        const raw = localStorage.getItem('shaha_pinned_portal_users_v1');
+        return raw ? (JSON.parse(raw) || {}) : {};
+      } catch (e) { return {}; }
+    }
+
+    function mergeCredentialMaps(target, src, skipPredicate) {
+      if (!src || typeof src !== 'object') return;
+      for (const k of Object.keys(src)) {
+        const u = src[k];
+        if (!u || typeof u !== 'object' || isAnuradhaCredEntry(k, u)) continue;
+        if (skipPredicate && skipPredicate(k, u)) continue;
+        const prev = target[k];
+        const prevTs = Number(prev && (prev._updatedAt || prev._createdAt)) || 0;
+        const curTs = Number(u._updatedAt || u._createdAt) || 0;
+        if (!prev || curTs >= prevTs) {
+          target[k] = Object.assign({}, prev || {}, u);
+        }
+      }
+    }
+
+    async function fetchLatestCloudJsonRow(refNo, fallback) {
+      if (!supabaseClient) return null;
+      try {
+        const { data, error } = await supabaseClient
+          .from('bank_transactions')
+          .select('id, narration, updated_at')
+          .eq('ref_no', refNo)
+          .order('updated_at', { ascending: false, nullsFirst: false })
+          .order('id', { ascending: false })
+          .limit(1);
+        if (!error && data && data.length > 0 && data[0].narration) {
+          return { id: data[0].id, parsed: JSON.parse(data[0].narration) || fallback };
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    async function upsertCloudSystemJsonRow(refNo, jsonStr, amountVal = 0) {
+      if (!supabaseClient) return false;
+      try {
+        const nowIso = new Date().toISOString();
+        const { data, error: selErr } = await supabaseClient
+          .from('bank_transactions')
+          .select('id')
+          .eq('ref_no', refNo)
+          .order('updated_at', { ascending: false, nullsFirst: false })
+          .order('id', { ascending: false })
+          .limit(1);
+        if (selErr) return false;
+        if (data && data.length > 0) {
+          const { error: updErr } = await supabaseClient
+            .from('bank_transactions')
+            .update({ narration: jsonStr, amount: amountVal, updated_at: nowIso })
+            .eq('id', data[0].id);
+          return !updErr;
+        }
+        const { error: insErr } = await supabaseClient
+          .from('bank_transactions')
+          .insert([{
+            bank_name: 'SYSTEM',
+            ref_no: refNo,
+            tx_date: '01-01-2026',
+            amount: amountVal,
+            narration: jsonStr,
+            status: 'SYSTEM'
+          }]);
+        return !insErr;
+      } catch (e) {
+        return false;
+      }
+    }
+
     async function syncCredentialsWithCloud() {
       let localUsers = {};
       try {
         const saved = localStorage.getItem('shaha_custom_credentials_v3');
         if (saved) localUsers = JSON.parse(saved) || {};
       } catch (e) {}
+      const localPinned = readPinnedPortalUsersLocal();
 
       let cloudUsers = {};
+      let cloudPinned = {};
+      let hasCloudCredRow = false;
+      let hasCloudPinRow = false;
+
       if (supabaseClient) {
-        try {
-          const { data, error } = await supabaseClient
-            .from('bank_transactions')
-            .select('*')
-            .eq('ref_no', 'SYS_PORTAL_CREDENTIALS')
-            .limit(1);
-
-          if (!error && data && data.length > 0 && data[0].narration) {
-            cloudUsers = JSON.parse(data[0].narration) || {};
-          }
-        } catch (e) {}
-
-        try {
-          const { data: delData } = await supabaseClient
-            .from('bank_transactions')
-            .select('*')
-            .eq('ref_no', 'SYS_DELETED_USER_KEYS')
-            .limit(1);
-
-          if (delData && delData.length > 0 && delData[0].narration) {
-            const list = JSON.parse(delData[0].narration) || [];
-            list.forEach(k => deletedUserKeys.add(k));
-          }
-        } catch (e) {}
-      }
-
-      localStorage.setItem('shaha_deleted_user_keys_v1', JSON.stringify(Array.from(deletedUserKeys)));
-
-      // Cloud is primary source of truth, fallback to local and seeds
-      if (cloudUsers && Object.keys(cloudUsers).length > 0) {
-        USER_CREDENTIALS = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, cloudUsers);
-        localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(cloudUsers));
-      } else {
-        USER_CREDENTIALS = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, localUsers);
-      }
-
-      // PERMANENT PURGE: Strip any custom user that was explicitly deleted (never delete core accounts or managers)
-      for (const delKey of deletedUserKeys) {
-        const dkLower = String(delKey || '').toLowerCase().trim();
-        const dkClean = dkLower.replace(/[^a-z0-9]/g, '');
-        if (CORE_SYSTEM_MANAGERS.has(dkLower) || CORE_SYSTEM_MANAGERS.has(dkClean) || DEFAULT_INITIAL_CREDENTIALS[dkLower]) {
-          continue;
+        const [credRes, pinRes, delRes] = await Promise.all([
+          fetchLatestCloudJsonRow('SYS_PORTAL_CREDENTIALS', {}),
+          fetchLatestCloudJsonRow('SYS_PINNED_PORTAL_USERS', {}),
+          fetchLatestCloudJsonRow('SYS_DELETED_USER_KEYS', [])
+        ]);
+        if (credRes && credRes.parsed && typeof credRes.parsed === 'object') {
+          cloudUsers = credRes.parsed;
+          hasCloudCredRow = true;
         }
-        delete USER_CREDENTIALS[delKey];
+        if (pinRes && pinRes.parsed && typeof pinRes.parsed === 'object' && !Array.isArray(pinRes.parsed)) {
+          cloudPinned = pinRes.parsed;
+          hasCloudPinRow = true;
+        }
+        if (delRes && Array.isArray(delRes.parsed)) {
+          delRes.parsed.forEach(k => deletedUserKeys.add(k));
+        }
       }
+
+      // Active custom users stored in SYS_PINNED_PORTAL_USERS take precedence over stale deletedUserKeys
+      Object.keys(cloudPinned).forEach(pk => {
+        const pu = cloudPinned[pk];
+        if (!pu || isAnuradhaCredEntry(pk, pu)) return;
+        deletedUserKeys.delete(pk);
+        deletedUserKeys.delete(pk.toLowerCase());
+        if (pu.username) deletedUserKeys.delete(String(pu.username).toLowerCase().trim());
+        if (pu.name) {
+          deletedUserKeys.delete(String(pu.name).toLowerCase().trim());
+          deletedUserKeys.delete(String(pu.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '_'));
+        }
+      });
+
+      const isExplicitlyDeleted = (k, u) => {
+        if (hasCloudPinRow && cloudPinned[k]) return false;
+        const dkLower = String(k || '').toLowerCase().trim();
+        const dkClean = dkLower.replace(/[^a-z0-9]/g, '');
+        if (CORE_SYSTEM_MANAGERS.has(dkLower) || CORE_SYSTEM_MANAGERS.has(dkClean) || DEFAULT_INITIAL_CREDENTIALS[dkLower]) return false;
+        return deletedUserKeys.has(k) || deletedUserKeys.has(dkLower) ||
+          (u && u.name && (deletedUserKeys.has(String(u.name).toLowerCase().trim()) || deletedUserKeys.has(String(u.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '_'))));
+      };
+
+      const merged = {};
+      mergeCredentialMaps(merged, DEFAULT_INITIAL_CREDENTIALS);
+      if (!hasCloudCredRow) {
+        mergeCredentialMaps(merged, localUsers, isExplicitlyDeleted);
+      } else {
+        // Keep recently added local custom entries too unless deleted in cloud/local
+        mergeCredentialMaps(merged, localUsers, (k, u) => isExplicitlyDeleted(k, u) || (!cloudPinned[k] && !cloudUsers[k] && !DEFAULT_INITIAL_CREDENTIALS[k] && !localPinned[k]));
+        mergeCredentialMaps(merged, cloudUsers, isExplicitlyDeleted);
+      }
+      mergeCredentialMaps(merged, localPinned, (k, u) => isExplicitlyDeleted(k, u) || (hasCloudPinRow && !cloudPinned[k] && (Number(u._updatedAt || 0) < Date.now() - 15000)));
+      mergeCredentialMaps(merged, cloudPinned, isExplicitlyDeleted);
+      USER_CREDENTIALS = merged;
 
       // GUARANTEE ALL CORE ACCOUNTS ARE ALWAYS INTACT AND HEALTHY
       for (const k in DEFAULT_INITIAL_CREDENTIALS) {
         if (!USER_CREDENTIALS[k]) {
           USER_CREDENTIALS[k] = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS[k]);
         } else {
-          USER_CREDENTIALS[k].accepted_pins = DEFAULT_INITIAL_CREDENTIALS[k].accepted_pins;
+          if (DEFAULT_INITIAL_CREDENTIALS[k].accepted_pins) USER_CREDENTIALS[k].accepted_pins = DEFAULT_INITIAL_CREDENTIALS[k].accepted_pins;
+          if (DEFAULT_INITIAL_CREDENTIALS[k].pin_hashes && (!USER_CREDENTIALS[k]._updatedAt || USER_CREDENTIALS[k].pin === '••••••••')) {
+            USER_CREDENTIALS[k].pin_hashes = DEFAULT_INITIAL_CREDENTIALS[k].pin_hashes;
+          }
         }
       }
       CORE_SYSTEM_MANAGERS.forEach(cm => {
@@ -7218,7 +7330,7 @@ const CANONICAL_CALLER_DIRECTORY = {
 
       // SUBHASHREE MIGRATION: Inherit password & permissions from Anuradha if present, then purge Anuradha completely
       const anuSource = USER_CREDENTIALS['subhashree'] || USER_CREDENTIALS['anuradha'] || USER_CREDENTIALS['ANURADHA'] || (cloudUsers && (cloudUsers['subhashree'] || cloudUsers['anuradha'] || cloudUsers['ANURADHA'])) || (localUsers && (localUsers['subhashree'] || localUsers['anuradha'] || localUsers['ANURADHA'])) || {};
-      USER_CREDENTIALS['subhashree'] = {
+      USER_CREDENTIALS['subhashree'] = Object.assign({}, anuSource, {
         name: 'SUBHASHREE',
         role: anuSource.role || 'MANAGER',
         branch: 'BANGALORE',
@@ -7227,104 +7339,117 @@ const CANONICAL_CALLER_DIRECTORY = {
         accepted_pins: ['SUBHASHREE@123', 'BLR@123', 'ANURADHA@123', 'subhashree123', 'blr123', 'anuradha123'],
         username: 'SUBHASHREE',
         has_mis_access: anuSource.has_mis_access !== undefined ? anuSource.has_mis_access : true
-      };
+      });
 
-      // UNCONDITIONALLY PURGE ALL ANURADHA KEYS FROM MEMORY, CLOUD USERS AND LOCAL USERS
-      delete USER_CREDENTIALS['anuradha'];
-      delete USER_CREDENTIALS['ANURADHA'];
-      if (cloudUsers) {
-        delete cloudUsers['anuradha'];
-        delete cloudUsers['ANURADHA'];
-      }
       for (const ck of Object.keys(USER_CREDENTIALS)) {
-        if (ck.toLowerCase() === 'anuradha' || (USER_CREDENTIALS[ck] && String(USER_CREDENTIALS[ck].name || '').toUpperCase().trim() === 'ANURADHA')) {
-          delete USER_CREDENTIALS[ck];
-        }
+        if (isAnuradhaCredEntry(ck, USER_CREDENTIALS[ck])) delete USER_CREDENTIALS[ck];
       }
       deletedUserKeys.delete('subhashree');
       deletedUserKeys.delete('SUBHASHREE');
       deletedUserKeys.add('anuradha');
       deletedUserKeys.add('ANURADHA');
+
+      const pinnedSnapshot = {};
+      for (const k of Object.keys(USER_CREDENTIALS)) {
+        const u = USER_CREDENTIALS[k];
+        if (u && (!DEFAULT_INITIAL_CREDENTIALS[k] || Number(u._updatedAt) > 0)) {
+          pinnedSnapshot[k] = u;
+        }
+      }
       localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      localStorage.setItem('shaha_pinned_portal_users_v1', JSON.stringify(pinnedSnapshot));
       localStorage.setItem('shaha_deleted_user_keys_v1', JSON.stringify(Array.from(deletedUserKeys)));
+
+      // Auto-heal SYS_PORTAL_CREDENTIALS if an older tab overwrote it without a newly pinned user
+      if (supabaseClient && hasCloudCredRow && Object.keys(cloudPinned).some(pk => USER_CREDENTIALS[pk] && !cloudUsers[pk])) {
+        upsertCloudSystemJsonRow('SYS_PORTAL_CREDENTIALS', JSON.stringify(USER_CREDENTIALS)).catch(() => {});
+      }
+
       populateOfficerDropdowns();
       if (currentRole === 'ADMIN' && typeof renderUserManagerTable === 'function') {
         renderUserManagerTable();
       }
     }
 
-    async function saveCredentialsToCloud() {
-      delete USER_CREDENTIALS['anuradha'];
-      delete USER_CREDENTIALS['ANURADHA'];
+    async function saveCredentialsToCloud(removedKeys = []) {
+      const removedSet = new Set((Array.isArray(removedKeys) ? removedKeys : []).map(x => String(x || '').toLowerCase().trim()).filter(Boolean));
+      removedSet.forEach(rk => deletedUserKeys.add(rk));
+
       for (const ck of Object.keys(USER_CREDENTIALS)) {
-        if (ck.toLowerCase() === 'anuradha' || (USER_CREDENTIALS[ck] && String(USER_CREDENTIALS[ck].name || '').toUpperCase().trim() === 'ANURADHA')) {
+        if (isAnuradhaCredEntry(ck, USER_CREDENTIALS[ck]) || removedSet.has(ck.toLowerCase())) {
           delete USER_CREDENTIALS[ck];
         }
       }
       for (const delKey of deletedUserKeys) {
-        delete USER_CREDENTIALS[delKey];
+        if (!CORE_SYSTEM_MANAGERS.has(String(delKey || '').toLowerCase().replace(/[^a-z0-9]/g, ''))) {
+          delete USER_CREDENTIALS[delKey];
+        }
       }
+
+      let credOk = true, pinOk = true, delOk = true;
+      if (supabaseClient) {
+        try {
+          const [credRes, pinRes, delRes] = await Promise.all([
+            fetchLatestCloudJsonRow('SYS_PORTAL_CREDENTIALS', {}),
+            fetchLatestCloudJsonRow('SYS_PINNED_PORTAL_USERS', {}),
+            fetchLatestCloudJsonRow('SYS_DELETED_USER_KEYS', [])
+          ]);
+          const cloudCreds = (credRes && credRes.parsed && typeof credRes.parsed === 'object') ? credRes.parsed : {};
+          const cloudPinned = (pinRes && pinRes.parsed && typeof pinRes.parsed === 'object' && !Array.isArray(pinRes.parsed)) ? pinRes.parsed : {};
+
+          // Clear explicitly removed users from deletedUserKeys? No, keep them in deletedUserKeys; merge cloud custom users not deleted
+          const isSkipMerge = (k, u) => {
+            const kl = String(k || '').toLowerCase().trim();
+            return removedSet.has(kl) || (!DEFAULT_INITIAL_CREDENTIALS[k] && (deletedUserKeys.has(k) || deletedUserKeys.has(kl) || (u && u.name && deletedUserKeys.has(String(u.name).toLowerCase().trim()))));
+          };
+          // Only pull in cloud custom users we don't already have locally (or strictly newer edits)
+          mergeCredentialMaps(USER_CREDENTIALS, cloudCreds, (k, u) => isSkipMerge(k, u) || Boolean(USER_CREDENTIALS[k] && Number(USER_CREDENTIALS[k]._updatedAt || 0) >= Number(u._updatedAt || 0)));
+          mergeCredentialMaps(USER_CREDENTIALS, cloudPinned, (k, u) => isSkipMerge(k, u) || Boolean(USER_CREDENTIALS[k] && Number(USER_CREDENTIALS[k]._updatedAt || 0) >= Number(u._updatedAt || 0)));
+
+          if (delRes && Array.isArray(delRes.parsed)) {
+            delRes.parsed.forEach(dk => {
+              const kl = String(dk || '').toLowerCase().trim();
+              if (!USER_CREDENTIALS[dk] && !USER_CREDENTIALS[kl]) {
+                deletedUserKeys.add(dk);
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Merge before credential save notice:', e);
+        }
+      }
+
+      const pinnedUsers = {};
+      for (const k of Object.keys(USER_CREDENTIALS)) {
+        const u = USER_CREDENTIALS[k];
+        if (!u || isAnuradhaCredEntry(k, u)) continue;
+        if (!DEFAULT_INITIAL_CREDENTIALS[k] || Number(u._updatedAt) > 0) {
+          pinnedUsers[k] = u;
+        }
+      }
+
       localStorage.setItem('shaha_custom_credentials_v3', JSON.stringify(USER_CREDENTIALS));
+      localStorage.setItem('shaha_pinned_portal_users_v1', JSON.stringify(pinnedUsers));
       localStorage.setItem('shaha_deleted_user_keys_v1', JSON.stringify(Array.from(deletedUserKeys)));
 
       if (supabaseClient) {
         try {
-          const { data } = await supabaseClient
-            .from('bank_transactions')
-            .select('id')
-            .eq('ref_no', 'SYS_PORTAL_CREDENTIALS')
-            .limit(1);
-
-          if (data && data.length > 0) {
-            await supabaseClient
-              .from('bank_transactions')
-              .update({ narration: JSON.stringify(USER_CREDENTIALS), updated_at: new Date().toISOString() })
-              .eq('id', data[0].id);
-          } else {
-            await supabaseClient
-              .from('bank_transactions')
-              .insert([{
-                bank_name: 'SYSTEM',
-                ref_no: 'SYS_PORTAL_CREDENTIALS',
-                tx_date: '01-01-2026',
-                amount: 0,
-                narration: JSON.stringify(USER_CREDENTIALS),
-                status: 'SYSTEM'
-              }]);
-          }
-
-          // Save deleted keys to Cloud
-          const { data: delRec } = await supabaseClient
-            .from('bank_transactions')
-            .select('id')
-            .eq('ref_no', 'SYS_DELETED_USER_KEYS')
-            .limit(1);
-
-          if (delRec && delRec.length > 0) {
-            await supabaseClient
-              .from('bank_transactions')
-              .update({ narration: JSON.stringify(Array.from(deletedUserKeys)), updated_at: new Date().toISOString() })
-              .eq('id', delRec[0].id);
-          } else {
-            await supabaseClient
-              .from('bank_transactions')
-              .insert([{
-                bank_name: 'SYSTEM',
-                ref_no: 'SYS_DELETED_USER_KEYS',
-                tx_date: '01-01-2026',
-                amount: 0,
-                narration: JSON.stringify(Array.from(deletedUserKeys)),
-                status: 'SYSTEM'
-              }]);
-          }
+          [credOk, pinOk, delOk] = await Promise.all([
+            upsertCloudSystemJsonRow('SYS_PORTAL_CREDENTIALS', JSON.stringify(USER_CREDENTIALS), Object.keys(USER_CREDENTIALS).length),
+            upsertCloudSystemJsonRow('SYS_PINNED_PORTAL_USERS', JSON.stringify(pinnedUsers), Object.keys(pinnedUsers).length),
+            upsertCloudSystemJsonRow('SYS_DELETED_USER_KEYS', JSON.stringify(Array.from(deletedUserKeys)), deletedUserKeys.size)
+          ]);
           if (typeof notifyOtherSystemsLocal === 'function') {
             notifyOtherSystemsLocal('SYS_PORTAL_CREDENTIALS');
+            notifyOtherSystemsLocal('SYS_PINNED_PORTAL_USERS');
             notifyOtherSystemsLocal('SYS_DELETED_USER_KEYS');
           }
         } catch (e) {
           console.error('Error saving credentials:', e);
+          return false;
         }
       }
+      return credOk && pinOk && delOk;
     }
 
     // ==============================================================
@@ -16892,10 +17017,12 @@ const CANONICAL_CALLER_DIRECTORY = {
       if (btnLabel) btnLabel.innerText = 'Verifying Credentials...';
 
       try {
+        let syncCredPromise = null;
         try {
+          syncCredPromise = syncCredentialsWithCloud();
           await Promise.race([
-            syncCredentialsWithCloud(),
-            new Promise(resolve => setTimeout(resolve, 500))
+            syncCredPromise,
+            new Promise(resolve => setTimeout(resolve, 600))
           ]);
         } catch (e) {}
 
@@ -17007,6 +17134,25 @@ const CANONICAL_CALLER_DIRECTORY = {
             matchedKey = firstNameHits[0];
             if (!USER_CREDENTIALS[matchedKey]) USER_CREDENTIALS[matchedKey] = Object.assign({}, allUsers[matchedKey]);
           }
+        }
+
+        if (!matchedKey && syncCredPromise) {
+          try {
+            await Promise.race([syncCredPromise, new Promise(resolve => setTimeout(resolve, 4000))]);
+            for (const k in USER_CREDENTIALS) {
+              const u = USER_CREDENTIALS[k];
+              if (!u) continue;
+              const uName = (u.username || k).toLowerCase().trim();
+              const fName = (u.name || '').toLowerCase().trim();
+              const uClean = uName.replace(/[^a-z0-9]/g, '');
+              const fClean = fName.replace(/[^a-z0-9]/g, '');
+              if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName ||
+                  cleanAlphaNum === uClean || cleanAlphaNum === k.toLowerCase().replace(/[^a-z0-9]/g, '') || cleanAlphaNum === fClean) {
+                matchedKey = k;
+                break;
+              }
+            }
+          } catch (e) {}
         }
 
         if (!matchedKey) {
@@ -21600,21 +21746,35 @@ var misExpandedManagers = new Set();
       }
 
       const hasMisAccess = document.getElementById('new-user-mis-access') ? document.getElementById('new-user-mis-access').checked : false;
-
-      deletedUserKeys.delete(rawUser);
       const chosenRole = document.getElementById('new-user-role') ? document.getElementById('new-user-role').value : 'MANAGER';
+      const cleanMgrKey = rawUser.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const nameLow = name.toLowerCase().trim();
+      const nameUnder = nameLow.replace(/[^a-z0-9]/g, '_');
+      [rawUser, rawUser.replace(/[^a-z0-9]/g, ''), cleanMgrKey, nameLow, nameUnder, nameLow.replace(/[^a-z0-9]/g, '')].forEach(dk => {
+        if (dk) deletedUserKeys.delete(dk);
+      });
+      const nowTs = Date.now();
+      const pinHashes = [];
+      if (typeof sha256Hex === 'function') {
+        pinHashes.push(await sha256Hex(pin));
+        pinHashes.push(await sha256Hex(pin.toLowerCase()));
+        pinHashes.push(await sha256Hex(pin.toLowerCase().replace(/[^a-z0-9]/g, '')));
+      }
       USER_CREDENTIALS[rawUser] = {
         name: name,
         role: chosenRole,
         branch: agency,
         agency: agency,
         pin: pin,
+        pin_hashes: Array.from(new Set(pinHashes)),
         username: rawUser,
-        has_mis_access: (chosenRole === 'MANAGER' || chosenRole === 'ADMIN') ? hasMisAccess : false
+        has_mis_access: (chosenRole === 'MANAGER' || chosenRole === 'ADMIN') ? hasMisAccess : false,
+        _createdAt: nowTs,
+        _updatedAt: nowTs,
+        _updatedBy: 'ADMIN'
       };
 
       // Explicitly initialize dedicated 100% fresh clean slate MIS & PAID DATA for the new manager
-      const cleanMgrKey = rawUser.toLowerCase().replace(/[^a-z0-9]/g, '_');
       const freshMis = createFreshLeaderboardOfficers();
       localStorage.setItem(`shaha_leaderboard_mis_v2_${cleanMgrKey}`, JSON.stringify(freshMis));
       localStorage.setItem(`shaha_paid_file_records_${cleanMgrKey}`, '[]');
@@ -21672,14 +21832,18 @@ var misExpandedManagers = new Set();
         } catch(e) {}
       }
 
-      await saveCredentialsToCloud();
+      const savedOk = await saveCredentialsToCloud();
       document.getElementById('new-user-name').value = '';
       document.getElementById('new-user-username').value = '';
       document.getElementById('new-user-pin').value = '';
+      if (document.getElementById('new-user-role')) {
+        document.getElementById('new-user-role').value = 'MANAGER';
+        if (typeof handleNewUserRoleChange === 'function') handleNewUserRoleChange();
+      }
       toggleAddUserForm();
       renderUserManagerTable();
       populateOfficerDropdowns();
-      showToast(`Profile created for ${name} & synced to Cloud!`, 'success');
+      showToast(savedOk !== false ? `Profile created for ${name} & synced to Cloud!` : `Profile saved locally for ${name}, but Cloud sync failed. Check internet.`, savedOk !== false ? 'success' : 'error');
     }
 
     function handleNewUserRoleChange() {
@@ -21722,6 +21886,7 @@ var misExpandedManagers = new Set();
       }
 
       USER_CREDENTIALS[userKey].role = newRole;
+      USER_CREDENTIALS[userKey]._updatedAt = Date.now();
       if (newRole !== 'MANAGER' && newRole !== 'ADMIN') {
         USER_CREDENTIALS[userKey].has_mis_access = false;
       }
@@ -21748,6 +21913,7 @@ var misExpandedManagers = new Set();
       }
       if (!USER_CREDENTIALS[userKey]) return;
       USER_CREDENTIALS[userKey].has_mis_access = !USER_CREDENTIALS[userKey].has_mis_access;
+      USER_CREDENTIALS[userKey]._updatedAt = Date.now();
       await saveCredentialsToCloud();
       renderUserManagerTable();
       const status = USER_CREDENTIALS[userKey].has_mis_access ? 'Granted' : 'Revoked';
@@ -21859,6 +22025,14 @@ var misExpandedManagers = new Set();
       }
       const newPin = inp.value.trim();
       USER_CREDENTIALS[userKey].pin = newPin;
+      USER_CREDENTIALS[userKey]._updatedAt = Date.now();
+      if (typeof sha256Hex === 'function') {
+        USER_CREDENTIALS[userKey].pin_hashes = Array.from(new Set([
+          await sha256Hex(newPin),
+          await sha256Hex(newPin.toLowerCase()),
+          await sha256Hex(newPin.toLowerCase().replace(/[^a-z0-9]/g, ''))
+        ]));
+      }
       await saveCredentialsToCloud();
       inp.value = '';
       renderUserManagerTable();
@@ -21900,6 +22074,7 @@ var misExpandedManagers = new Set();
       u.username = cleanNewLogin;
       u.branch = cleanNewBranch;
       u.agency = cleanNewBranch;
+      u._updatedAt = Date.now();
       _lc = null; // the user changed in place: drop the speed cache
 
       if (isLoginChanged) {
@@ -21996,7 +22171,7 @@ var misExpandedManagers = new Set();
         }
       }
 
-      await saveCredentialsToCloud();
+      await saveCredentialsToCloud(isLoginChanged ? [userKey] : []);
       renderUserManagerTable();
       populateOfficerDropdowns();
       if (typeof calculateLeaderboard === 'function') calculateLeaderboard();
@@ -22106,7 +22281,7 @@ var misExpandedManagers = new Set();
       }
 
       // 6. Save updated master credentials, tombstones, leaderboard & paid records to cloud
-      await saveCredentialsToCloud();
+      await saveCredentialsToCloud([userKey, cleanK, mgrUsername.toLowerCase(), mgrName.toLowerCase(), safeKey].filter(Boolean));
       await saveDeletedTombstonesToCloud();
       await saveLeaderboardToCloud(true);
       await savePaidFileToCloud();
