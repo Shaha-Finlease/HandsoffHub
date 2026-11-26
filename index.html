@@ -4310,7 +4310,7 @@
       return cid;
     }
 
-    const APP_BUILD_ID = "BUILD_20261125_160000";
+    const APP_BUILD_ID = "BUILD_20261126_172500";
     const DEFAULT_GOOGLE_SHEET_URL = ''; // Paste your deployed Google Apps Script Web App URL here
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
@@ -4530,11 +4530,28 @@
       return !isTop5ExcludedManagerOrAgency(o);
     }
 
-    function formatCallerDisplayName(name) {
+    function normalizeCreditTraingleString(str) {
+      if (!str) return str;
+      return String(str).replace(/\b(?:CREDIT|CEDIT)\s*TR(?:AI|IA|I)?NG(?:LE|EL)(?:\s*AGENCY)?\b/gi, 'CREDIT TRIANGLE AGENCY');
+    }
+
+    function isCreditTraingleVariant(name) {
+      const raw = String(name || '').trim().toUpperCase();
+      if (!raw || raw.includes('/')) return false;
+      const clean = raw.replace(/\([^)]*\)/g, '').replace(/[^A-Z0-9]/g, '');
+      return /^(?:CREDIT|CEDIT)TR(?:AI|IA|I)?NG(?:LE|EL)(?:AGENCY)?$/.test(clean);
+    }
+
+    function normalizeCreditTraingleName(name) {
       const s = String(name || '').trim();
-      if (/^CREDIT\s*TRINGLE\s*AGENCY$/i.test(s) || /^CREDIT\s*TRINGLE$/i.test(s) || /^CREDIT\s*TRIANGLE\s*AGENCY$/i.test(s)) {
-        return 'CREDIT TRAINGLE AGENCY';
-      }
+      if (!s) return s;
+      if (isCreditTraingleVariant(s)) return 'CREDIT TRIANGLE AGENCY';
+      if (s.includes('/')) return normalizeCreditTraingleString(s);
+      return s;
+    }
+
+    function formatCallerDisplayName(name) {
+      const s = normalizeCreditTraingleName(name);
       return /^CUSTOMER\s*SERVICE\s*\(SELF\)$/i.test(s) ? 'CUSTOMER SERVICE' : s;
     }
 
@@ -4717,36 +4734,44 @@
 
     function earlyRestorePaidRecords() {
       try {
+        const sessRaw = localStorage.getItem('shaha_portal_session_v4');
+        if (!sessRaw) return;
+        const sess = JSON.parse(sessRaw);
+        if (!sess || !sess.key) return;
+        const sessRole = String(sess.role || 'MANAGER').toUpperCase();
+        const isAdmSess = (sessRole === 'ADMIN' || sessRole === 'MANAGEMENT' || sessRole === 'BACKEND');
+        const mgrIdent = String(sess.username || sess.name || sess.key || '').toLowerCase().trim();
+        const mk = isAdmSess ? 'admin' : getManagerStorageKey(mgrIdent);
+        if (!isAdmSess && (!mk || mk === 'general')) return;
+        const targetKey = isAdmSess ? 'shaha_paid_file_records_admin' : ('shaha_paid_file_records_' + mk);
+
+        const byKey = new Map();
+        const addIfBetter = (r, checkMgr) => {
+          if (!r || (deletedPaidRecordIds && deletedPaidRecordIds.has(String(r.id)))) return;
+          if (r.officer) r.officer = normalizeCreditTraingleName(r.officer);
+          if (r.locked_officer) r.locked_officer = normalizeCreditTraingleName(r.locked_officer);
+          if (Array.isArray(r.splits)) {
+            r.splits.forEach(s => { if (s && s.officer) s.officer = normalizeCreditTraingleName(s.officer); });
+          }
+          if (!isAdmSess && checkMgr && r.manager && getManagerStorageKey(r.manager) !== mk) return;
+          const k = getPaidRecUniqKey(r);
+          if (!k) return;
+          const ts = Math.max(Number(r._updatedAt) || 0, Number(r._pinnedAt) || 0);
+          const prev = byKey.get(k);
+          const prevTs = prev ? Math.max(Number(prev._updatedAt) || 0, Number(prev._pinnedAt) || 0) : -1;
+          if (!prev || ts >= prevTs) byKey.set(k, r);
+        };
+        const rawLocal = localStorage.getItem(targetKey);
+        if (rawLocal) {
+          const parsed = JSON.parse(rawLocal);
+          if (Array.isArray(parsed)) parsed.forEach(r => addIfBetter(r, !!r && !!r.manager));
+        }
         const rawPins = localStorage.getItem('shaha_pinned_paid_cases_v1');
         if (rawPins) {
           const pins = JSON.parse(rawPins);
-          if (Array.isArray(pins) && pins.length > 0) {
-            pins.forEach(p => {
-              if (p && (!deletedPaidRecordIds || !deletedPaidRecordIds.has(String(p.id)))) {
-                const exist = (paidFileRecords || []).some(r => r && String(r.id) === String(p.id));
-                if (!exist) paidFileRecords.unshift(p);
-              }
-            });
-          }
+          if (Array.isArray(pins)) pins.forEach(r => addIfBetter(r, true));
         }
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && (k.startsWith('shaha_paid_file_records_') || k === 'shaha_paid_file_records_v1')) {
-            const raw = localStorage.getItem(k);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                const seen = new Set((paidFileRecords || []).map(r => r && r.id ? String(r.id) : null).filter(Boolean));
-                parsed.forEach(r => {
-                  if (r && r.id && !seen.has(String(r.id)) && (!deletedPaidRecordIds || !deletedPaidRecordIds.has(String(r.id)))) {
-                    seen.add(String(r.id));
-                    paidFileRecords.push(r);
-                  }
-                });
-              }
-            }
-          }
-        }
+        paidFileRecords = Array.from(byKey.values());
       } catch(e) {}
     }
     try { earlyRestorePaidRecords(); } catch(e) {}
@@ -4805,10 +4830,7 @@
 
         let mgr = String(r.manager || '').trim().toUpperCase();
         if (mgr === 'ANURADHA') mgr = 'SUBHASHREE';
-        let caller = String(r.officer || '').trim().toUpperCase();
-        if (caller === 'CREDIT TRINGLE AGENCY' || caller === 'CREDIT TRINGLE' || caller === 'CREDIT TRIANGLE' || caller === 'CREDIT TRIANGLE AGENCY') {
-          caller = 'CREDIT TRAINGLE AGENCY';
-        }
+        let caller = normalizeCreditTraingleName(String(r.officer || '').trim().toUpperCase());
         if (['AMBIKA', 'GOPAL', 'VENU'].some(k => caller.includes(k))) {
           mgr = 'SUBHASHREE';
         }
@@ -4921,13 +4943,10 @@
           if (Array.isArray(parsed) && parsed.length > 0) {
             parsed.forEach(r => {
               if (r) {
-                const off = String(r.officer || '').toUpperCase().trim();
-                if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
-                  r.officer = 'CREDIT TRAINGLE AGENCY';
-                }
-                const loff = String(r.locked_officer || '').toUpperCase().trim();
-                if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
-                  r.locked_officer = 'CREDIT TRAINGLE AGENCY';
+                if (r.officer) r.officer = normalizeCreditTraingleName(String(r.officer).toUpperCase().trim());
+                if (r.locked_officer) r.locked_officer = normalizeCreditTraingleName(String(r.locked_officer).toUpperCase().trim());
+                if (Array.isArray(r.splits)) {
+                  r.splits.forEach(s => { if (s && s.officer) s.officer = normalizeCreditTraingleName(String(s.officer).toUpperCase().trim()); });
                 }
               }
             });
@@ -4954,13 +4973,10 @@
                 if (r) {
                   r.isLocked = true;
                   r.officer_locked = true;
-                  const off = String(r.officer || '').toUpperCase().trim();
-                  if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
-                    r.officer = 'CREDIT TRAINGLE AGENCY';
-                  }
-                  const loff = String(r.locked_officer || '').toUpperCase().trim();
-                  if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
-                    r.locked_officer = 'CREDIT TRAINGLE AGENCY';
+                  if (r.officer) r.officer = normalizeCreditTraingleName(String(r.officer).toUpperCase().trim());
+                  if (r.locked_officer) r.locked_officer = normalizeCreditTraingleName(String(r.locked_officer).toUpperCase().trim());
+                  if (Array.isArray(r.splits)) {
+                    r.splits.forEach(s => { if (s && s.officer) s.officer = normalizeCreditTraingleName(String(s.officer).toUpperCase().trim()); });
                   }
                 }
               });
@@ -5086,7 +5102,7 @@
 
       // 10. POONAM I (5 Callers/Agencies, Target: ₹29,00,000, Branch: AGENCY)
       { name: 'SHETH ENTRPRISES', manager: 'POONAM I', target: 1000000, branch: 'AGENCY', emp_code: 'AG002', joining_date: '01-Jan-2024', status: 'Active', aliases: 'SHETH,SHETH ENTERPRISES' },
-      { name: 'CREDIT TRAINGLE AGENCY', manager: 'POONAM I', target: 1200000, branch: 'AGENCY', emp_code: 'AG001', joining_date: '01-Jan-2024', status: 'Active', aliases: 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE,CREDITTRIANGLE' },
+      { name: 'CREDIT TRIANGLE AGENCY', manager: 'POONAM I', target: 1200000, branch: 'AGENCY', emp_code: 'AG001', joining_date: '01-Jan-2024', status: 'Active', aliases: 'CREDIT TRAINGLE AGENCY,CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE,CREDITTRIANGLE,CREDITTRAINGLE' },
       { name: 'KP ASSOCIATE 2U', manager: 'POONAM I', target: 200000, branch: 'AGENCY', emp_code: 'AG004', joining_date: '01-Jan-2024', status: 'Active', aliases: 'KP,KP ASSOCIATE' },
       { name: 'SCUBE AGENCY', manager: 'POONAM I', target: 500000, branch: 'AGENCY', emp_code: 'AG003', joining_date: '01-Jan-2024', status: 'Active', aliases: 'SCUBE' },
       { name: 'KAMAL INFINITY', manager: 'POONAM I', target: 0, branch: 'AGENCY', emp_code: 'AG006', joining_date: '01-Jan-2024', status: 'Active' },
@@ -5316,12 +5332,16 @@ const CANONICAL_CALLER_DIRECTORY = {
       "SHETH ENTRPRISES": { manager: "POONAM I", emp: "AG002", doj: "01-01-2024", branch: "AGENCY", aliases: ["SHETH", "SHETH ENTERPRISES"] },
       "SHETH": { manager: "POONAM I", emp: "AG002", doj: "01-01-2024", branch: "AGENCY", canonical: "SHETH ENTRPRISES" },
       "SHETH ENTERPRISES": { manager: "POONAM I", emp: "AG002", doj: "01-01-2024", branch: "AGENCY", canonical: "SHETH ENTRPRISES" },
-      "CREDIT TRAINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", aliases: ["CREDIT TRINGLE AGENCY", "CREDIT TRINGLE", "CREDIT TRIANGLE", "CREDIT TRAINGLE", "CREDITTRIANGLE"] },
-      "CREDIT TRINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
-      "CREDIT TRINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
-      "CREDIT TRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
-      "CREDIT TRAINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
-      "CREDITTRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRAINGLE AGENCY" },
+      "CREDIT TRIANGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", aliases: ["CREDIT TRAINGLE AGENCY", "CREDIT TRINGLE AGENCY", "CREDIT TRINGLE", "CREDIT TRIANGLE", "CREDIT TRAINGLE", "CREDITTRIANGLE", "CREDITTRAINGLE", "CREDITTRINGLE", "CEDITTRIANGLE"] },
+      "CREDIT TRAINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDIT TRINGLE AGENCY": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDIT TRINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDIT TRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDIT TRAINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDITTRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDITTRAINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CREDITTRINGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
+      "CEDITTRIANGLE": { manager: "POONAM I", emp: "AG001", doj: "01-01-2024", branch: "AGENCY", canonical: "CREDIT TRIANGLE AGENCY" },
       "KP ASSOCIATE 2U": { manager: "POONAM I", emp: "AG004", doj: "01-01-2024", branch: "AGENCY", aliases: ["KP", "KP ASSOCIATE"] },
       "KP": { manager: "POONAM I", emp: "AG004", doj: "01-01-2024", branch: "AGENCY", canonical: "KP ASSOCIATE 2U" },
       "KP ASSOCIATE": { manager: "POONAM I", emp: "AG004", doj: "01-01-2024", branch: "AGENCY", canonical: "KP ASSOCIATE 2U" },
@@ -5356,12 +5376,14 @@ const CANONICAL_CALLER_DIRECTORY = {
           else if (!o.aliases.toUpperCase().includes('ANKITA BAWASKAR')) o.aliases += ',ANKITA BAWASKAR';
           changed = true;
         }
-        // Explicit agency name correction: Poonam's team CREDIT TRINGLE AGENCY -> CREDIT TRAINGLE AGENCY
-        if (uName === 'CREDIT TRINGLE AGENCY' || uName === 'CREDIT TRINGLE' || uName === 'CREDIT TRIANGLE' || uName === 'CREDIT TRIANGLE AGENCY') {
-          o.name = 'CREDIT TRAINGLE AGENCY';
-          if (!o.aliases) o.aliases = 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE';
-          else if (!o.aliases.toUpperCase().includes('CREDIT TRINGLE AGENCY')) o.aliases += ',CREDIT TRINGLE AGENCY';
-          changed = true;
+        // Explicit agency name correction: Poonam's team Credit Triangle variants -> CREDIT TRIANGLE AGENCY
+        if (isCreditTraingleVariant(uName)) {
+          if (o.name !== 'CREDIT TRIANGLE AGENCY') {
+            o.name = 'CREDIT TRIANGLE AGENCY';
+            changed = true;
+          }
+          if (!o.aliases) { o.aliases = 'CREDIT TRAINGLE AGENCY,CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE,CREDITTRIANGLE,CREDITTRAINGLE'; changed = true; }
+          else if (!o.aliases.toUpperCase().includes('CREDIT TRAINGLE AGENCY')) { o.aliases += ',CREDIT TRAINGLE AGENCY'; changed = true; }
         }
         if (o.joining_date && typeof formatHrDateDisplay === 'function') {
           const normDoj = formatHrDateDisplay(o.joining_date);
@@ -5396,6 +5418,31 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (!o.joining_date && entry.doj) { o.joining_date = (typeof formatHrDateDisplay === 'function' ? formatHrDateDisplay(entry.doj) : entry.doj) || entry.doj; changed = true; }
         }
       });
+      // Collapse duplicate CREDIT TRIANGLE AGENCY caller entries if present
+      const ctIndices = [];
+      officers.forEach((o, i) => {
+        if (o && isCreditTraingleVariant(o.name)) {
+          if (o.name !== 'CREDIT TRIANGLE AGENCY') { o.name = 'CREDIT TRIANGLE AGENCY'; changed = true; }
+          ctIndices.push(i);
+        }
+      });
+      if (ctIndices.length > 1) {
+        let bestIdx = ctIndices[0];
+        for (const i of ctIndices.slice(1)) {
+          const cur = officers[i], best = officers[bestIdx];
+          const curTs = Math.max(Number(cur._adminUpdatedAt) || 0, Number(cur._managerUpdatedAt) || 0, Number(cur._pinnedAt) || 0);
+          const bestTs = Math.max(Number(best._adminUpdatedAt) || 0, Number(best._managerUpdatedAt) || 0, Number(best._pinnedAt) || 0);
+          if (curTs > bestTs || (curTs === bestTs && (Number(cur.target) || 0) > (Number(best.target) || 0))) bestIdx = i;
+        }
+        const keeper = officers[bestIdx];
+        for (let k = ctIndices.length - 1; k >= 0; k--) {
+          if (ctIndices[k] !== bestIdx) {
+            if (!keeper.target && officers[ctIndices[k]].target) keeper.target = officers[ctIndices[k]].target;
+            officers.splice(ctIndices[k], 1);
+          }
+        }
+        changed = true;
+      }
       return changed;
     }
 
@@ -5602,23 +5649,27 @@ const CANONICAL_CALLER_DIRECTORY = {
           const off = String(r.officer || '').toUpperCase().trim();
           const loff = String(r.locked_officer || '').toUpperCase().trim();
           const isBlrCaller = ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => off.includes(k));
-          if (m === 'ANURADHA' || lm === 'ANURADHA' || isBlrCaller) {
+          if (m === 'ANURADHA' || lm === 'ANURADHA' || (isBlrCaller && (m !== 'SUBHASHREE' || lm !== 'SUBHASHREE'))) {
             r.manager = 'SUBHASHREE';
             r.locked_manager = 'SUBHASHREE';
             paidUpdated = true;
           }
-          if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
-            r.officer = 'CREDIT TRAINGLE AGENCY';
+          if (isCreditTraingleVariant(off) && r.officer !== 'CREDIT TRIANGLE AGENCY') {
+            r.officer = 'CREDIT TRIANGLE AGENCY';
             paidUpdated = true;
           }
-          if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
-            r.locked_officer = 'CREDIT TRAINGLE AGENCY';
+          if (isCreditTraingleVariant(loff) && r.locked_officer !== 'CREDIT TRIANGLE AGENCY') {
+            r.locked_officer = 'CREDIT TRIANGLE AGENCY';
             paidUpdated = true;
           }
           if (r.splits && Array.isArray(r.splits)) {
             r.splits.forEach(sp => {
               if (sp && sp.manager && sp.manager.toUpperCase().trim() === 'ANURADHA') {
                 sp.manager = 'SUBHASHREE';
+                paidUpdated = true;
+              }
+              if (sp && sp.officer && isCreditTraingleVariant(sp.officer) && sp.officer !== 'CREDIT TRIANGLE AGENCY') {
+                sp.officer = 'CREDIT TRIANGLE AGENCY';
                 paidUpdated = true;
               }
             });
@@ -5646,19 +5697,19 @@ const CANONICAL_CALLER_DIRECTORY = {
                       const off = String(r.officer || '').toUpperCase().trim();
                       const loff = String(r.locked_officer || '').toUpperCase().trim();
                       const isBlrCaller = ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => off.includes(k));
-                      if (m === 'ANURADHA' || lm === 'ANURADHA' || isBlrCaller) {
+                      if (m === 'ANURADHA' || lm === 'ANURADHA' || (isBlrCaller && (m !== 'SUBHASHREE' || lm !== 'SUBHASHREE'))) {
                         r.manager = 'SUBHASHREE';
                         r.locked_manager = 'SUBHASHREE';
                         partUpdated = true;
                         paidUpdated = true;
                       }
-                      if (off === 'CREDIT TRINGLE AGENCY' || off === 'CREDIT TRINGLE' || off === 'CREDIT TRIANGLE' || off === 'CREDIT TRIANGLE AGENCY') {
-                        r.officer = 'CREDIT TRAINGLE AGENCY';
+                      if (isCreditTraingleVariant(off) && r.officer !== 'CREDIT TRIANGLE AGENCY') {
+                        r.officer = 'CREDIT TRIANGLE AGENCY';
                         partUpdated = true;
                         paidUpdated = true;
                       }
-                      if (loff === 'CREDIT TRINGLE AGENCY' || loff === 'CREDIT TRINGLE' || loff === 'CREDIT TRIANGLE' || loff === 'CREDIT TRIANGLE AGENCY') {
-                        r.locked_officer = 'CREDIT TRAINGLE AGENCY';
+                      if (isCreditTraingleVariant(loff) && r.locked_officer !== 'CREDIT TRIANGLE AGENCY') {
+                        r.locked_officer = 'CREDIT TRIANGLE AGENCY';
                         partUpdated = true;
                         paidUpdated = true;
                       }
@@ -5666,6 +5717,11 @@ const CANONICAL_CALLER_DIRECTORY = {
                         r.splits.forEach(sp => {
                           if (sp && sp.manager && sp.manager.toUpperCase().trim() === 'ANURADHA') {
                             sp.manager = 'SUBHASHREE';
+                            partUpdated = true;
+                            paidUpdated = true;
+                          }
+                          if (sp && sp.officer && isCreditTraingleVariant(sp.officer) && sp.officer !== 'CREDIT TRIANGLE AGENCY') {
+                            sp.officer = 'CREDIT TRIANGLE AGENCY';
                             partUpdated = true;
                             paidUpdated = true;
                           }
@@ -5693,16 +5749,32 @@ const CANONICAL_CALLER_DIRECTORY = {
           }
           try {
             const pinStr = localStorage.getItem('shaha_added_callers_pin_v1');
-            if (pinStr && pinStr.includes('TRINGLE')) {
-              localStorage.setItem('shaha_added_callers_pin_v1', pinStr.replace(/CREDIT\s*TRINGLE\s*AGENCY/g, 'CREDIT TRAINGLE AGENCY'));
+            if (pinStr && /CREDIT|CEDIT/i.test(pinStr)) {
+              const parsedPins = JSON.parse(pinStr);
+              if (Array.isArray(parsedPins)) {
+                localStorage.setItem('shaha_added_callers_pin_v1', JSON.stringify(mergePinArrays(parsedPins, [])));
+              }
             }
             const regStr = localStorage.getItem('shaha_officer_target_registry_v1');
-            if (regStr && regStr.includes('TRINGLE')) {
-              localStorage.setItem('shaha_officer_target_registry_v1', regStr.replace(/CREDIT\s*TRINGLE\s*AGENCY/g, 'CREDIT TRAINGLE AGENCY'));
+            if (regStr && /CREDIT|CEDIT/i.test(regStr)) {
+              const parsedReg = JSON.parse(regStr);
+              if (parsedReg && typeof normalizeTargetRegistryMap === 'function' && normalizeTargetRegistryMap(parsedReg)) {
+                localStorage.setItem('shaha_officer_target_registry_v1', JSON.stringify(parsedReg));
+              }
             }
             const octStr = localStorage.getItem('shaha_paid_file_records_october_2026');
-            if (octStr && octStr.includes('TRINGLE')) {
-              localStorage.setItem('shaha_paid_file_records_october_2026', octStr.replace(/CREDIT\s*TRINGLE\s*AGENCY/g, 'CREDIT TRAINGLE AGENCY'));
+            if (octStr && /CREDIT|CEDIT/i.test(octStr)) {
+              const parsedOct = JSON.parse(octStr);
+              if (Array.isArray(parsedOct)) {
+                let octMod = false;
+                parsedOct.forEach(r => {
+                  if (!r) return;
+                  if (r.officer && isCreditTraingleVariant(r.officer) && r.officer !== 'CREDIT TRIANGLE AGENCY') { r.officer = 'CREDIT TRIANGLE AGENCY'; octMod = true; }
+                  if (r.locked_officer && isCreditTraingleVariant(r.locked_officer) && r.locked_officer !== 'CREDIT TRIANGLE AGENCY') { r.locked_officer = 'CREDIT TRIANGLE AGENCY'; octMod = true; }
+                  if (Array.isArray(r.splits)) r.splits.forEach(s => { if (s && s.officer && isCreditTraingleVariant(s.officer) && s.officer !== 'CREDIT TRIANGLE AGENCY') { s.officer = 'CREDIT TRIANGLE AGENCY'; octMod = true; } });
+                });
+                if (octMod) localStorage.setItem('shaha_paid_file_records_october_2026', JSON.stringify(parsedOct));
+              }
             }
           } catch(e) {}
         } catch(e) {}
@@ -5714,7 +5786,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           const m = String(o.manager || '').toUpperCase().trim();
           const oName = String(o.name || '').toUpperCase().trim();
           const isBlrCaller = ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => oName.includes(k));
-          if (m === 'ANURADHA' || isBlrCaller) {
+          if (m === 'ANURADHA' || (isBlrCaller && m !== 'SUBHASHREE')) {
             o.manager = 'SUBHASHREE';
             misUpdated = true;
           }
@@ -5724,10 +5796,9 @@ const CANONICAL_CALLER_DIRECTORY = {
             if (o.aliases) o.aliases = 'SUBHASHREE';
             misUpdated = true;
           }
-          if (oName === 'CREDIT TRINGLE AGENCY' || oName === 'CREDIT TRINGLE' || oName === 'CREDIT TRIANGLE' || oName === 'CREDIT TRIANGLE AGENCY') {
-            o.name = 'CREDIT TRAINGLE AGENCY';
-            if (!o.aliases) o.aliases = 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE';
-            misUpdated = true;
+          if (isCreditTraingleVariant(oName)) {
+            if (o.name !== 'CREDIT TRIANGLE AGENCY') { o.name = 'CREDIT TRIANGLE AGENCY'; misUpdated = true; }
+            if (!o.aliases) { o.aliases = 'CREDIT TRAINGLE AGENCY,CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE,CREDITTRIANGLE,CREDITTRAINGLE'; misUpdated = true; }
           }
         };
 
@@ -5750,7 +5821,7 @@ const CANONICAL_CALLER_DIRECTORY = {
                       const m = String(o.manager || '').toUpperCase().trim();
                       const oName = String(o.name || '').toUpperCase().trim();
                       const isBlrCaller = ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => oName.includes(k));
-                      if (m === 'ANURADHA' || isBlrCaller) {
+                      if (m === 'ANURADHA' || (isBlrCaller && m !== 'SUBHASHREE')) {
                         o.manager = 'SUBHASHREE';
                         misPartUpdated = true;
                         misUpdated = true;
@@ -5762,11 +5833,9 @@ const CANONICAL_CALLER_DIRECTORY = {
                         misPartUpdated = true;
                         misUpdated = true;
                       }
-                      if (oName === 'CREDIT TRINGLE AGENCY' || oName === 'CREDIT TRINGLE' || oName === 'CREDIT TRIANGLE' || oName === 'CREDIT TRIANGLE AGENCY') {
-                        o.name = 'CREDIT TRAINGLE AGENCY';
-                        if (!o.aliases) o.aliases = 'CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE';
-                        misPartUpdated = true;
-                        misUpdated = true;
+                      if (isCreditTraingleVariant(oName)) {
+                        if (o.name !== 'CREDIT TRIANGLE AGENCY') { o.name = 'CREDIT TRIANGLE AGENCY'; misPartUpdated = true; misUpdated = true; }
+                        if (!o.aliases) { o.aliases = 'CREDIT TRAINGLE AGENCY,CREDIT TRINGLE AGENCY,CREDIT TRINGLE,CREDIT TRIANGLE,CREDITTRIANGLE,CREDITTRAINGLE'; misPartUpdated = true; misUpdated = true; }
                       }
                     });
                     if (misPartUpdated) {
@@ -5855,8 +5924,8 @@ const CANONICAL_CALLER_DIRECTORY = {
           }
         } catch(e) {}
 
-        // 9. Sync migrated data to Supabase cloud in background
-        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        // 9. Sync migrated data to Supabase cloud in background (STRICTLY only when authenticated!)
+        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof currentUser !== 'undefined' && currentUser) {
           if (typeof saveCredentialsToCloud === 'function') saveCredentialsToCloud().catch(()=>{});
           if (typeof savePaidFileToCloud === 'function' && paidUpdated) savePaidFileToCloud().catch(()=>{});
           if (typeof saveLeaderboardToCloud === 'function' && misUpdated) saveLeaderboardToCloud().catch(()=>{});
@@ -7696,34 +7765,51 @@ const CANONICAL_CALLER_DIRECTORY = {
       return `${r.cust_id || ''}_${r.amount || ''}_${r.pay_date || ''}_${r.officer || ''}_${idx}`;
     }
 
-    function mergePaidCaseArrays(baseCases, extraCases) {
+    function getPaidRecTs(r) {
+      if (!r) return 0;
+      return Math.max(Number(r._updatedAt) || 0, Number(r._pinnedAt) || 0);
+    }
+
+    function mergePaidCaseArrays(baseCases, extraCases, priorityIdSet = null) {
       const byKey = new Map();
-      [...(Array.isArray(baseCases) ? baseCases : []), ...(Array.isArray(extraCases) ? extraCases : [])].forEach((c, idx) => {
+      [...(Array.isArray(baseCases) ? baseCases : [])].forEach((c, idx) => {
         if (!c || (typeof deletedPaidRecordIds !== 'undefined' && deletedPaidRecordIds.has(String(c.id)))) return;
         const key = getPaidRecUniqKey(c, idx);
         if (!key) return;
         const prev = byKey.get(key);
-        if (!prev || (Number(c._pinnedAt) || 0) >= (Number(prev._pinnedAt) || 0)) {
+        if (!prev || getPaidRecTs(c) >= getPaidRecTs(prev)) {
+          byKey.set(key, Object.assign({}, prev || {}, c));
+        }
+      });
+      [...(Array.isArray(extraCases) ? extraCases : [])].forEach((c, idx) => {
+        if (!c || (typeof deletedPaidRecordIds !== 'undefined' && deletedPaidRecordIds.has(String(c.id)))) return;
+        const key = getPaidRecUniqKey(c, idx);
+        if (!key) return;
+        const prev = byKey.get(key);
+        const isPriority = priorityIdSet && (priorityIdSet.has(key) || (c.id !== undefined && priorityIdSet.has(String(c.id))));
+        if (!prev || isPriority || getPaidRecTs(c) >= getPaidRecTs(prev)) {
           byKey.set(key, Object.assign({}, prev || {}, c));
         }
       });
       return Array.from(byKey.values());
     }
 
-    function pinNewPaidCase(rec) {
+    async function pinNewPaidCase(rec) {
       if (!rec) return;
       try {
-        const nowTs = Date.now();
+        const nowTs = Math.max(Date.now(), getPaidRecTs(rec));
         const entry = Object.assign({}, rec, {
+          _updatedAt: rec._updatedAt || nowTs,
           _pinnedAt: nowTs,
           _pinnedBy: currentUser ? (currentUser.name || currentUser.username) : currentManager,
           _pinnedRole: currentRole
         });
         const currentPins = readLocalPinnedPaidCases();
-        const merged = mergePaidCaseArrays(currentPins, [entry]);
+        const prioIds = new Set([getPaidRecUniqKey(entry), entry.id !== undefined ? String(entry.id) : ''].filter(Boolean));
+        const merged = mergePaidCaseArrays(currentPins, [entry], prioIds);
         writeLocalPinnedPaidCases(merged);
         if (typeof syncPinnedPaidCasesWithCloud === 'function') {
-          syncPinnedPaidCasesWithCloud().catch(() => {});
+          await syncPinnedPaidCasesWithCloud(entry).catch(() => {});
         }
       } catch(e) {}
     }
@@ -7763,8 +7849,9 @@ const CANONICAL_CALLER_DIRECTORY = {
         const pId = p.id ? String(p.id) : '';
         const existing = (pId && mapByKey.get(pId)) || (k && mapByKey.get(k));
         if (existing) {
-          // Authoritative sync: If pinned case was updated or edited, update existing case fields
-          if ((Number(p._pinnedAt) || 0) >= (Number(existing._updatedAt) || 0)) {
+          const pTs = getPaidRecTs(p);
+          const eTs = getPaidRecTs(existing);
+          if (pTs > eTs) {
             Object.assign(existing, p);
           }
         } else {
@@ -7775,7 +7862,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       });
     }
 
-    async function syncPinnedPaidCasesWithCloud() {
+    async function syncPinnedPaidCasesWithCloud(priorityRec = null) {
       if (!supabaseClient) return;
       try {
         const localPins = readLocalPinnedPaidCases();
@@ -7795,7 +7882,32 @@ const CANONICAL_CALLER_DIRECTORY = {
           });
         }
 
-        const merged = mergePaidCaseArrays(localPins, cloudPins);
+        let merged;
+        if (priorityRec) {
+          const prioKey = getPaidRecUniqKey(priorityRec);
+          const prioId = priorityRec.id !== undefined ? String(priorityRec.id) : '';
+          const prioIds = new Set([prioKey, prioId].filter(Boolean));
+          const maxCloudTs = cloudPins.reduce((mx, c) => {
+            const ck = getPaidRecUniqKey(c);
+            if ((prioKey && ck === prioKey) || (prioId && String(c.id) === prioId)) {
+              return Math.max(mx, getPaidRecTs(c));
+            }
+            return mx;
+          }, 0);
+          const patchedPrio = Object.assign({}, priorityRec);
+          if (maxCloudTs >= getPaidRecTs(patchedPrio)) {
+            const bumped = maxCloudTs + 1;
+            patchedPrio._updatedAt = bumped;
+            patchedPrio._pinnedAt = bumped;
+            if (typeof paidFileRecords !== 'undefined' && Array.isArray(paidFileRecords)) {
+              const memRec = paidFileRecords.find(r => r && String(r.id) === prioId);
+              if (memRec) { memRec._updatedAt = bumped; memRec._pinnedAt = bumped; }
+            }
+          }
+          merged = mergePaidCaseArrays(cloudPins, [...localPins, patchedPrio], prioIds);
+        } else {
+          merged = mergePaidCaseArrays(localPins, cloudPins);
+        }
         writeLocalPinnedPaidCases(merged);
 
         if (rows && rows.length > 0) {
@@ -7836,55 +7948,89 @@ const CANONICAL_CALLER_DIRECTORY = {
       const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
       let loaded = false;
 
-      // 1. Sync Pinned Cases with Supabase in background
       if (typeof syncPinnedPaidCasesWithCloud === 'function') {
         try { await syncPinnedPaidCasesWithCloud(); } catch(e) {}
       }
 
       if (!isAdm) {
-        // NON-ADMIN MANAGER: STRICT PRIVACY ISOLATION WITH 100% PERSISTENCE
-        // Step A: Load manager's cached records from local storage
+        // NON-ADMIN MANAGER: STRICT PRIVACY ISOLATION WITH BIDIRECTIONAL TIMESTAMP MERGE
+        const myDisplayMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || myMgrName;
+        paidFileRecords = [];
+
+        // Step A: Load ONLY this manager's cached records from local storage
         try {
           const local = localStorage.getItem(localKey);
           if (local !== null && local !== undefined) {
             const parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
-              paidFileRecords = parsed.filter(r => r && !deletedPaidRecordIds.has(String(r.id)));
+              const locByKey = new Map();
+              parsed.forEach((r, idx) => {
+                if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+                if (r.manager && !isRecordOwnedByManager(r, myDisplayMgr)) return;
+                const k = getPaidRecUniqKey(r, idx);
+                const prev = locByKey.get(k);
+                if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) locByKey.set(k, r);
+              });
+              paidFileRecords = Array.from(locByKey.values());
               if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
               loaded = true;
             }
           }
         } catch(e) {}
 
-        // Step B: Fetch cloud records from Supabase for this manager (multi-row and alias safe)
-        if (supabaseClient) {
+        // Step B: Fetch manager partition AND master partition from Supabase in parallel
+        if (supabaseClient && myMgrName && myMgrName !== 'general') {
           try {
             const queryKeys = [cloudRef];
-            if (cloudRef.includes('_')) {
-              queryKeys.push(cloudRef.replace(/_/g, ''));
-            }
-            const { data, error } = await supabaseClient
-              .from('bank_transactions')
-              .select('*')
-              .in('ref_no', queryKeys)
-              .order('updated_at', { ascending: false, nullsFirst: false })
-              .order('id', { ascending: false });
+            if (cloudRef.includes('_')) queryKeys.push(cloudRef.replace(/_/g, ''));
 
-            let cloudRecords = [];
-            if (!error && data && data.length > 0) {
-              data.forEach(row => {
+            const [partRes, masterRes] = await Promise.all([
+              supabaseClient
+                .from('bank_transactions')
+                .select('*')
+                .in('ref_no', queryKeys)
+                .order('updated_at', { ascending: false, nullsFirst: false })
+                .order('id', { ascending: false }),
+              supabaseClient
+                .from('bank_transactions')
+                .select('*')
+                .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+                .order('updated_at', { ascending: false, nullsFirst: false })
+                .order('id', { ascending: false })
+                .limit(1)
+            ]);
+
+            const cloudByKey = new Map();
+            const absorbCloud = (rec, idx) => {
+              if (!rec || deletedPaidRecordIds.has(String(rec.id))) return;
+              if (rec.manager && !isRecordOwnedByManager(rec, myDisplayMgr)) return;
+              const k = getPaidRecUniqKey(rec, idx);
+              if (!k) return;
+              const prev = cloudByKey.get(k);
+              if (!prev || getPaidRecTs(rec) > getPaidRecTs(prev)) {
+                cloudByKey.set(k, rec);
+              }
+            };
+
+            if (!partRes.error && partRes.data && partRes.data.length > 0) {
+              partRes.data.forEach(row => {
                 try {
                   const parsed = JSON.parse(row.narration);
-                  if (Array.isArray(parsed)) cloudRecords.push(...parsed);
+                  if (Array.isArray(parsed)) parsed.forEach(absorbCloud);
                 } catch(e) {}
               });
             }
+            if (!masterRes.error && masterRes.data && masterRes.data.length > 0 && masterRes.data[0].narration) {
+              try {
+                const mParsed = JSON.parse(masterRes.data[0].narration);
+                if (Array.isArray(mParsed)) mParsed.forEach(absorbCloud);
+              } catch(e) {}
+            }
 
-            if (cloudRecords.length > 0 || loaded) {
-              // SAFE TWO-WAY BIDIRECTIONAL MERGE: Never discard locally added records that haven't hit cloud yet!
+            if (cloudByKey.size > 0 || loaded) {
               const localMap = new Map();
               (paidFileRecords || []).forEach((m, idx) => {
-                if (m && !deletedPaidRecordIds.has(String(m.id))) {
+                if (m && !deletedPaidRecordIds.has(String(m.id)) && (!m.manager || isRecordOwnedByManager(m, myDisplayMgr))) {
                   const k = getPaidRecUniqKey(m, idx);
                   localMap.set(k, m);
                 }
@@ -7893,23 +8039,23 @@ const CANONICAL_CALLER_DIRECTORY = {
               const mergedRecs = [];
               const seenKeys = new Set();
 
-              cloudRecords.forEach((cRec, idx) => {
-                if (!cRec || deletedPaidRecordIds.has(String(cRec.id))) return;
-                const k = getPaidRecUniqKey(cRec, idx);
-                if (seenKeys.has(k)) return;
+              cloudByKey.forEach((cRec, k) => {
                 seenKeys.add(k);
                 const loc = localMap.get(k);
-                let keepOfficer = cRec.officer;
-                if (!keepOfficer && loc && loc.officer) keepOfficer = loc.officer;
-                else if (loc && loc.officer && loc._updatedAt && (!cRec._updatedAt || loc._updatedAt > cRec._updatedAt)) keepOfficer = loc.officer;
-                mergedRecs.push({
-                  ...cRec,
-                  officer: keepOfficer,
-                  officer_locked: !!(loc && loc.officer_locked) || !!cRec.officer_locked
-                });
+                const cTs = getPaidRecTs(cRec);
+                const lTs = getPaidRecTs(loc);
+                if (loc && lTs > cTs) {
+                  mergedRecs.push({ ...cRec, ...loc });
+                } else {
+                  let keepOfficer = cRec.officer || (loc ? loc.officer : '');
+                  mergedRecs.push({
+                    ...cRec,
+                    officer: keepOfficer,
+                    officer_locked: !!(loc && loc.officer_locked) || !!cRec.officer_locked
+                  });
+                }
               });
 
-              // PRESERVE ALL NEWLY ADDED LOCAL CASES THAT ARE NOT YET IN CLOUD!
               localMap.forEach((locRec, k) => {
                 if (!seenKeys.has(k) && !deletedPaidRecordIds.has(String(locRec.id))) {
                   seenKeys.add(k);
@@ -7926,9 +8072,8 @@ const CANONICAL_CALLER_DIRECTORY = {
           } catch(e) {}
         }
 
-        // Step C: Ensure pinned paid cases are restored
         if (typeof restorePinnedPaidCases === 'function') {
-          restorePinnedPaidCases(paidFileRecords, myMgrName);
+          restorePinnedPaidCases(paidFileRecords, myDisplayMgr);
         }
 
         if (!loaded && leaderboardOfficers.length === 0) {
@@ -7938,54 +8083,71 @@ const CANONICAL_CALLER_DIRECTORY = {
           }
         }
       } else {
-        // SUPER ADMIN: Load all partitions across all managers + master with safe merge
+        // SUPER ADMIN / BACKEND / MANAGEMENT: Timestamp-authoritative merge across all partitions + master + local
+        const localByKey = new Map();
         try {
-          let allLocal = [];
-          const seenLocalIds = new Set();
+          const absorbLocal = (r, idx) => {
+            if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+            const k = getPaidRecUniqKey(r, idx);
+            if (!k) return;
+            const prev = localByKey.get(k);
+            if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) localByKey.set(k, r);
+          };
           const masterLocal = localStorage.getItem(localKey);
           if (masterLocal) {
             const parsed = JSON.parse(masterLocal);
-            if (Array.isArray(parsed)) parsed.forEach(r => { if (!deletedPaidRecordIds.has(String(r.id)) && !seenLocalIds.has(r.id)) { seenLocalIds.add(r.id); allLocal.push(r); } });
+            if (Array.isArray(parsed)) parsed.forEach(absorbLocal);
           }
-          for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('shaha_paid_file_records_') && k !== localKey) {
-              try {
-                const subParsed = JSON.parse(localStorage.getItem(k));
-                if (Array.isArray(subParsed)) subParsed.forEach(r => {
-                  if (!deletedPaidRecordIds.has(String(r.id)) && !seenLocalIds.has(r.id)) {
-                    seenLocalIds.add(r.id);
-                    allLocal.push(r);
-                  }
-                });
-              } catch(e) {}
-            }
-          }
-          if (allLocal.length > 0) paidFileRecords = allLocal;
+          if (localByKey.size > 0) paidFileRecords = Array.from(localByKey.values());
         } catch(e) {}
 
         if (supabaseClient) {
           try {
-            const { data, error } = await supabaseClient
-              .from('bank_transactions')
-              .select('*')
-              .like('ref_no', 'SYS_PAID_RECORDS_%')
-              .order('updated_at', { ascending: false, nullsFirst: false })
-              .order('id', { ascending: false });
-            if (error) throw error;
+            const [partRes, masterRes] = await Promise.all([
+              supabaseClient
+                .from('bank_transactions')
+                .select('*')
+                .like('ref_no', 'SYS_PAID_RECORDS_%')
+                .order('updated_at', { ascending: false, nullsFirst: false })
+                .order('id', { ascending: false }),
+              supabaseClient
+                .from('bank_transactions')
+                .select('*')
+                .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+                .order('updated_at', { ascending: false, nullsFirst: false })
+                .order('id', { ascending: false })
+                .limit(1)
+            ]);
+            if (partRes.error) throw partRes.error;
 
-            let allRecs = [];
-            const seenIds = new Set();
+            const bestByKey = new Map();
+            const upsertBest = (r, idx, preferOnTie = false) => {
+              if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+              const k = getPaidRecUniqKey(r, idx);
+              if (!k) return;
+              const prev = bestByKey.get(k);
+              if (!prev) {
+                bestByKey.set(k, r);
+              } else {
+                const nTs = getPaidRecTs(r);
+                const pTs = getPaidRecTs(prev);
+                if (nTs > pTs || (preferOnTie && nTs === pTs)) {
+                  bestByKey.set(k, r);
+                }
+              }
+            };
 
-            if (!error && data && data.length > 0) {
-              data.forEach(row => {
+            if (partRes.data && partRes.data.length > 0) {
+              partRes.data.forEach(row => {
                 try {
-                  let rowMgr = '';
-                  const pMatch = (row.ref_no || '').match(/^SYS_PAID_RECORDS_(.+)$/i);
                   if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026' || row.ref_no === 'SYS_PINNED_PAID_CASES') return;
+                  if (row.ref_no.toLowerCase() === 'sys_paid_records_general') return;
+                  let rowMgr = '';
+                  let partMk = '';
+                  const pMatch = (row.ref_no || '').match(/^SYS_PAID_RECORDS_(.+)$/i);
                   if (pMatch) {
-                    const mk = pMatch[1].toLowerCase();
-                    const rk = USER_CREDENTIALS[mk] ? mk : resolveManagerUserKey(mk.replace(/_/g, ' '));
+                    partMk = pMatch[1].toLowerCase();
+                    const rk = USER_CREDENTIALS[partMk] ? partMk : resolveManagerUserKey(partMk.replace(/_/g, ' '));
                     if (rk && USER_CREDENTIALS[rk]) rowMgr = USER_CREDENTIALS[rk].name;
                   }
                   const list = JSON.parse(row.narration);
@@ -7993,64 +8155,39 @@ const CANONICAL_CALLER_DIRECTORY = {
                     list.forEach((r, idx) => {
                       if (!r) return;
                       if (!r.manager && rowMgr) r.manager = rowMgr;
-                      const rKey = getPaidRecUniqKey(r, idx);
-                      if (!seenIds.has(rKey) && !deletedPaidRecordIds.has(String(r.id))) {
-                        seenIds.add(rKey);
-                        allRecs.push(r);
+                      if (partMk && r.manager && getManagerStorageKey(r.manager) !== partMk && partMk !== 'unclaimed') {
+                        return;
                       }
+                      upsertBest(r, idx, false);
                     });
                   }
                 } catch(e) {}
               });
             }
 
-            // Also check master SYS_PAID_FILE_RECORDS
-            const { data: masterData, error: masterError } = await supabaseClient
-              .from('bank_transactions')
-              .select('*')
-              .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
-              .order('updated_at', { ascending: false, nullsFirst: false })
-              .order('id', { ascending: false })
-              .limit(1);
-
-            if (!masterError && masterData && masterData.length > 0 && masterData[0].narration) {
+            if (!masterRes.error && masterRes.data && masterRes.data.length > 0 && masterRes.data[0].narration) {
               try {
-                const mList = JSON.parse(masterData[0].narration);
+                const mList = JSON.parse(masterRes.data[0].narration);
                 if (Array.isArray(mList)) {
-                  mList.forEach((r, idx) => {
-                    if (!r) return;
-                    const rKey = getPaidRecUniqKey(r, idx);
-                    if (!seenIds.has(rKey) && !deletedPaidRecordIds.has(String(r.id))) {
-                      seenIds.add(rKey);
-                      allRecs.push(r);
-                    }
-                  });
+                  mList.forEach((r, idx) => upsertBest(r, idx, true));
                 }
               } catch(e) {}
             }
 
-            // CRUCIAL: Also preserve any locally held records not yet in cloud
-            const localMap = new Map();
-            (paidFileRecords || []).forEach((m, idx) => {
-              if (m && !deletedPaidRecordIds.has(String(m.id))) {
-                const k = getPaidRecUniqKey(m, idx);
-                localMap.set(k, m);
-              }
-            });
-            localMap.forEach((locRec, k) => {
-              if (!seenIds.has(k) && !deletedPaidRecordIds.has(String(locRec.id))) {
-                seenIds.add(k);
-                allRecs.unshift(locRec);
+            localByKey.forEach((locRec, k) => {
+              if (deletedPaidRecordIds.has(String(locRec.id))) return;
+              const prev = bestByKey.get(k);
+              if (!prev || getPaidRecTs(locRec) > getPaidRecTs(prev)) {
+                bestByKey.set(k, locRec);
               }
             });
 
-            paidFileRecords = allRecs;
+            paidFileRecords = Array.from(bestByKey.values());
             if (typeof autoMigrateAnuradhaToSubhashree === 'function') autoMigrateAnuradhaToSubhashree();
             localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
           } catch(e) {}
         }
 
-        // Restore pinned cases for admin
         if (typeof restorePinnedPaidCases === 'function') {
           restorePinnedPaidCases(paidFileRecords, '');
         }
@@ -8062,87 +8199,136 @@ const CANONICAL_CALLER_DIRECTORY = {
       syncLiveCollectionFromPaidFile(false);
     }
 
-    async function savePaidFileToCloud(notify = false) {
+    async function savePaidFileToCloud(notify = false, targetMgrKeys = null) {
       if (currentRole === 'MANAGEMENT') {
+        return;
+      }
+      if (typeof currentUser === 'undefined' || !currentUser) {
         return;
       }
       const { isAdm, myMgrName, cloudRef, localKey } = getPaidFileStorageKeys();
 
       if (!isAdm) {
-        // NON-ADMIN MANAGER: Save dedicated partition and update master safely
+        if (!myMgrName || myMgrName === 'general') {
+          console.warn('Refusing anonymous general partition save.');
+          return;
+        }
+        const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
+        // STRICT PARTITION ENFORCEMENT: Never save other managers' cases into this manager's partition
+        const ownMap = new Map();
+        (paidFileRecords || []).forEach((r, idx) => {
+          if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+          if (r.manager && !isRecordOwnedByManager(r, myMgr)) return;
+          if (!r.manager && myMgr) r.manager = myMgr;
+          const k = getPaidRecUniqKey(r, idx);
+          const prev = ownMap.get(k);
+          if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) ownMap.set(k, r);
+        });
+        paidFileRecords = Array.from(ownMap.values());
         localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+
         if (supabaseClient) {
           try {
-            const { data } = await supabaseClient
-              .from('bank_transactions')
-              .select('id')
-              .eq('ref_no', cloudRef)
-              .order('updated_at', { ascending: false })
-              .order('id', { ascending: false });
-
-            if (data && data.length > 0) {
-              const primaryId = data[0].id;
-              await supabaseClient
+            const [partQuery, masterQuery] = await Promise.all([
+              supabaseClient
                 .from('bank_transactions')
-                .update({ narration: JSON.stringify(paidFileRecords), amount: paidFileRecords.length, updated_at: new Date().toISOString() })
-                .eq('id', primaryId);
-
-              if (data.length > 1) {
-                for (let i = 1; i < data.length; i++) {
-                  await supabaseClient.from('bank_transactions').delete().eq('id', data[i].id);
-                }
-              }
-            } else {
-              await supabaseClient
-                .from('bank_transactions')
-                .insert([{
-                  bank_name: 'SYSTEM',
-                  ref_no: cloudRef,
-                  tx_date: '01-01-2026',
-                  amount: paidFileRecords.length,
-                  narration: JSON.stringify(paidFileRecords),
-                  status: 'SYSTEM'
-                }]);
-            }
-
-            // Safe update of master copy SYS_PAID_FILE_RECORDS
-            try {
-              const { data: mRow } = await supabaseClient
+                .select('id, narration')
+                .eq('ref_no', cloudRef)
+                .order('updated_at', { ascending: false })
+                .order('id', { ascending: false }),
+              supabaseClient
                 .from('bank_transactions')
                 .select('id, narration')
                 .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
                 .order('updated_at', { ascending: false })
                 .order('id', { ascending: false })
-                .limit(1);
+                .limit(1)
+            ]);
 
-              let masterPaidList = [];
-              if (mRow && mRow.length > 0 && mRow[0].narration) {
-                try { masterPaidList = JSON.parse(mRow[0].narration) || []; } catch(e) {}
-              }
-              const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-              const incomingIds = new Set(paidFileRecords.map(r => String(r.id)).filter(Boolean));
-              masterPaidList = masterPaidList.filter(r => !isRecordOwnedByManager(r, myMgr) && !incomingIds.has(String(r.id)));
-              masterPaidList.push(...paidFileRecords);
+            const partMergedMap = new Map(ownMap);
+            if (partQuery.data && partQuery.data.length > 0 && partQuery.data[0].narration) {
+              try {
+                const cloudPart = JSON.parse(partQuery.data[0].narration) || [];
+                if (Array.isArray(cloudPart)) {
+                  cloudPart.forEach((cr, idx) => {
+                    if (!cr || deletedPaidRecordIds.has(String(cr.id))) return;
+                    if (cr.manager && !isRecordOwnedByManager(cr, myMgr)) return;
+                    const ck = getPaidRecUniqKey(cr, idx);
+                    const prev = partMergedMap.get(ck);
+                    if (prev && getPaidRecTs(cr) > getPaidRecTs(prev)) {
+                      partMergedMap.set(ck, cr);
+                    }
+                  });
+                }
+              } catch(e) {}
+            }
+            paidFileRecords = Array.from(partMergedMap.values());
+            localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
 
-              if (mRow && mRow.length > 0) {
-                await supabaseClient
+            const nowIso = new Date().toISOString();
+            const partPromise = (partQuery.data && partQuery.data.length > 0)
+              ? supabaseClient
                   .from('bank_transactions')
-                  .update({ narration: JSON.stringify(masterPaidList), amount: masterPaidList.length, updated_at: new Date().toISOString() })
-                  .eq('id', mRow[0].id);
+                  .update({ narration: JSON.stringify(paidFileRecords), amount: paidFileRecords.length, updated_at: nowIso })
+                  .eq('id', partQuery.data[0].id)
+              : supabaseClient
+                  .from('bank_transactions')
+                  .insert([{
+                    bank_name: 'SYSTEM',
+                    ref_no: cloudRef,
+                    tx_date: '01-01-2026',
+                    amount: paidFileRecords.length,
+                    narration: JSON.stringify(paidFileRecords),
+                    status: 'SYSTEM'
+                  }]);
+
+            let masterPaidList = [];
+            if (masterQuery.data && masterQuery.data.length > 0 && masterQuery.data[0].narration) {
+              try { masterPaidList = JSON.parse(masterQuery.data[0].narration) || []; } catch(e) {}
+            }
+            const masterMap = new Map();
+            (Array.isArray(masterPaidList) ? masterPaidList : []).forEach((r, idx) => {
+              if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+              const k = getPaidRecUniqKey(r, idx);
+              const prev = masterMap.get(k);
+              if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) masterMap.set(k, r);
+            });
+            const finalMasterMap = new Map();
+            masterMap.forEach((r, k) => {
+              if (!isRecordOwnedByManager(r, myMgr)) {
+                finalMasterMap.set(k, r);
               } else {
-                await supabaseClient
+                // Keep master copy if Admin just edited it with a strictly newer timestamp than manager's own copy
+                const mgrCopy = partMergedMap.get(k);
+                if (mgrCopy && getPaidRecTs(r) > getPaidRecTs(mgrCopy)) {
+                  finalMasterMap.set(k, r);
+                }
+              }
+            });
+            paidFileRecords.forEach((r, idx) => {
+              const k = getPaidRecUniqKey(r, idx);
+              const prev = finalMasterMap.get(k);
+              if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) finalMasterMap.set(k, r);
+            });
+            const finalMasterList = Array.from(finalMasterMap.values());
+
+            const masterPromise = (masterQuery.data && masterQuery.data.length > 0)
+              ? supabaseClient
+                  .from('bank_transactions')
+                  .update({ narration: JSON.stringify(finalMasterList), amount: finalMasterList.length, updated_at: nowIso })
+                  .eq('id', masterQuery.data[0].id)
+              : supabaseClient
                   .from('bank_transactions')
                   .insert([{
                     bank_name: 'SYSTEM',
                     ref_no: 'SYS_PAID_FILE_RECORDS',
                     tx_date: '01-01-2026',
-                    amount: masterPaidList.length,
-                    narration: JSON.stringify(masterPaidList),
+                    amount: finalMasterList.length,
+                    narration: JSON.stringify(finalMasterList),
                     status: 'SYSTEM'
                   }]);
-              }
-            } catch(e) {}
 
+            await Promise.all([partPromise, masterPromise]);
             if (notify) showToast('PAID DATA saved to Cloud server!', 'success');
           } catch (e) {
             if (notify) showToast('Saved locally', 'info');
@@ -8157,103 +8343,176 @@ const CANONICAL_CALLER_DIRECTORY = {
         if (typeof updateTopKpis === 'function') updateTopKpis();
         notifyOtherSystemsLocal(cloudRef);
       } else {
-        // SUPER ADMIN: Group records by manager and sync each manager's partition safely
+        // SUPER ADMIN / BACKEND: Single-fetch + timestamp-safe parallel partition sync
+        const dedupAdminMap = new Map();
+        (paidFileRecords || []).forEach((r, idx) => {
+          if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+          const k = getPaidRecUniqKey(r, idx);
+          const prev = dedupAdminMap.get(k);
+          if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) dedupAdminMap.set(k, r);
+        });
+        paidFileRecords = Array.from(dedupAdminMap.values());
         localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+
         if (supabaseClient) {
           try {
+            const [admQuery, allPartQuery] = await Promise.all([
+              supabaseClient
+                .from('bank_transactions')
+                .select('id, narration')
+                .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
+                .order('updated_at', { ascending: false })
+                .order('id', { ascending: false }),
+              supabaseClient
+                .from('bank_transactions')
+                .select('id, ref_no, narration')
+                .like('ref_no', 'SYS_PAID_RECORDS_%')
+                .order('updated_at', { ascending: false })
+                .order('id', { ascending: false })
+            ]);
+
+            const existingPartByRef = new Map();
+            (allPartQuery.data || []).forEach(row => {
+              if (!existingPartByRef.has(row.ref_no)) existingPartByRef.set(row.ref_no, row);
+            });
+
+            // Concurrent-safe merge with existing cloud SYS_PAID_FILE_RECORDS so rapid multi-user edits never clobber
+            const masterMergedMap = new Map();
+            paidFileRecords.forEach((r, idx) => {
+              if (r && !deletedPaidRecordIds.has(String(r.id))) masterMergedMap.set(getPaidRecUniqKey(r, idx), r);
+            });
+            if (admQuery.data && admQuery.data.length > 0 && admQuery.data[0].narration) {
+              try {
+                const cloudMaster = JSON.parse(admQuery.data[0].narration);
+                if (Array.isArray(cloudMaster)) {
+                  cloudMaster.forEach((cr, idx) => {
+                    if (!cr || deletedPaidRecordIds.has(String(cr.id))) return;
+                    const ck = getPaidRecUniqKey(cr, idx);
+                    const prev = masterMergedMap.get(ck);
+                    if (!prev || getPaidRecTs(cr) > getPaidRecTs(prev)) {
+                      masterMergedMap.set(ck, cr);
+                    }
+                  });
+                }
+              } catch(e) {}
+            }
+            paidFileRecords = Array.from(masterMergedMap.values());
+            localStorage.setItem(localKey, JSON.stringify(paidFileRecords));
+
+            const scopedTargetSet = (Array.isArray(targetMgrKeys) && targetMgrKeys.length > 0)
+              ? new Set(targetMgrKeys.map(k => String(k || '').toLowerCase()).filter(Boolean))
+              : null;
+
             const byManager = {};
+            const globalOwnerMap = new Map();
             paidFileRecords.forEach(r => {
               const mgrKey = getManagerStorageKey(r.manager);
               if (!byManager[mgrKey]) byManager[mgrKey] = [];
               byManager[mgrKey].push(r);
+              if (r.id !== undefined) globalOwnerMap.set(String(r.id), mgrKey);
             });
 
-            // Master copy
-            const { data: admRow } = await supabaseClient
-              .from('bank_transactions')
-              .select('id')
-              .eq('ref_no', 'SYS_PAID_FILE_RECORDS')
-              .order('updated_at', { ascending: false })
-              .order('id', { ascending: false });
+            const updateTasks = [];
+            const nowIso = new Date().toISOString();
 
-            if (admRow && admRow.length > 0) {
-              await supabaseClient
-                .from('bank_transactions')
-                .update({ narration: JSON.stringify(paidFileRecords), amount: paidFileRecords.length, updated_at: new Date().toISOString() })
-                .eq('id', admRow[0].id);
-              if (admRow.length > 1) {
-                for (let i = 1; i < admRow.length; i++) {
-                  await supabaseClient.from('bank_transactions').delete().eq('id', admRow[i].id);
-                }
-              }
+            if (admQuery.data && admQuery.data.length > 0) {
+              updateTasks.push(
+                supabaseClient
+                  .from('bank_transactions')
+                  .update({ narration: JSON.stringify(paidFileRecords), amount: paidFileRecords.length, updated_at: nowIso })
+                  .eq('id', admQuery.data[0].id)
+              );
             } else {
-              await supabaseClient
-                .from('bank_transactions')
-                .insert([{
-                  bank_name: 'SYSTEM',
-                  ref_no: 'SYS_PAID_FILE_RECORDS',
-                  tx_date: '01-01-2026',
-                  amount: paidFileRecords.length,
-                  narration: JSON.stringify(paidFileRecords),
-                  status: 'SYSTEM'
-                }]);
+              updateTasks.push(
+                supabaseClient
+                  .from('bank_transactions')
+                  .insert([{
+                    bank_name: 'SYSTEM',
+                    ref_no: 'SYS_PAID_FILE_RECORDS',
+                    tx_date: '01-01-2026',
+                    amount: paidFileRecords.length,
+                    narration: JSON.stringify(paidFileRecords),
+                    status: 'SYSTEM'
+                  }])
+              );
             }
 
-            // Sync per-manager partitions with SAFE MERGE (never wipe manager additions)
             for (const mgrKey in byManager) {
+              if (mgrKey === 'general') continue;
+              if (scopedTargetSet && !scopedTargetSet.has(mgrKey)) continue;
               const ref = `SYS_PAID_RECORDS_${mgrKey}`;
               const list = byManager[mgrKey];
-              const { data: mRows } = await supabaseClient
-                .from('bank_transactions')
-                .select('id, narration')
-                .eq('ref_no', ref)
-                .order('updated_at', { ascending: false })
-                .order('id', { ascending: false });
+              const mRow = existingPartByRef.get(ref);
 
-              let mergedList = [...list];
-              if (mRows && mRows.length > 0 && mRows[0].narration) {
+              const partMap = new Map();
+              list.forEach((r, idx) => partMap.set(getPaidRecUniqKey(r, idx), r));
+
+              if (mRow && mRow.narration) {
                 try {
-                  const existingList = JSON.parse(mRows[0].narration);
+                  const existingList = JSON.parse(mRow.narration);
                   if (Array.isArray(existingList)) {
-                    const seen = new Set(mergedList.map(r => getPaidRecUniqKey(r)));
                     existingList.forEach((er, eIdx) => {
+                      if (!er) return;
                       const ek = getPaidRecUniqKey(er, eIdx);
-                      const erIdStr = String(er && er.id || '');
-                      const isOwnedByOther = erIdStr && paidFileRecords.some(p => String(p.id) === erIdStr && getManagerStorageKey(p.manager) !== mgrKey);
-                      if (ek && !seen.has(ek) && !deletedPaidRecordIds.has(erIdStr) && !isOwnedByOther) {
-                        seen.add(ek);
-                        mergedList.push(er);
+                      const erIdStr = String(er.id || '');
+                      const isOwnedByOther = er.manager && getManagerStorageKey(er.manager) !== mgrKey;
+                      const reassignedElsewhere = erIdStr && globalOwnerMap.has(erIdStr) && globalOwnerMap.get(erIdStr) !== mgrKey;
+                      if (!ek || deletedPaidRecordIds.has(erIdStr) || isOwnedByOther || reassignedElsewhere) return;
+                      const prev = partMap.get(ek);
+                      if (!prev || getPaidRecTs(er) > getPaidRecTs(prev)) {
+                        partMap.set(ek, er);
                       }
                     });
                   }
                 } catch(e) {}
               }
 
-              if (mRows && mRows.length > 0) {
-                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(mergedList), amount: mergedList.length, updated_at: new Date().toISOString() }).eq('id', mRows[0].id);
-                if (mRows.length > 1) {
-                  for (let i = 1; i < mRows.length; i++) {
-                    await supabaseClient.from('bank_transactions').delete().eq('id', mRows[i].id);
-                  }
-                }
+              const mergedList = Array.from(partMap.values());
+              if (mRow) {
+                updateTasks.push(
+                  supabaseClient.from('bank_transactions')
+                    .update({ narration: JSON.stringify(mergedList), amount: mergedList.length, updated_at: nowIso })
+                    .eq('id', mRow.id)
+                );
               } else {
-                await supabaseClient.from('bank_transactions').insert([{ bank_name: 'SYSTEM', ref_no: ref, tx_date: '01-01-2026', amount: mergedList.length, narration: JSON.stringify(mergedList), status: 'SYSTEM' }]);
+                updateTasks.push(
+                  supabaseClient.from('bank_transactions')
+                    .insert([{ bank_name: 'SYSTEM', ref_no: ref, tx_date: '01-01-2026', amount: mergedList.length, narration: JSON.stringify(mergedList), status: 'SYSTEM' }])
+                );
               }
             }
 
-            // Partitions with no records left in byManager
-            const { data: otherRows } = await supabaseClient.from('bank_transactions').select('id, ref_no, narration').like('ref_no', 'SYS_PAID_RECORDS_%');
-            for (const row of (otherRows || [])) {
-              if (row.ref_no === 'SYS_PAID_RECORDS_OCTOBER_2026' || row.ref_no === 'SYS_PINNED_PAID_CASES') continue;
-              if (byManager[row.ref_no.replace('SYS_PAID_RECORDS_', '')]) continue;
+            for (const [refNo, row] of existingPartByRef.entries()) {
+              if (refNo === 'SYS_PAID_RECORDS_OCTOBER_2026' || refNo === 'SYS_PINNED_PAID_CASES') continue;
+              if (scopedTargetSet && refNo.toLowerCase() !== 'sys_paid_records_general' && !scopedTargetSet.has(refNo.replace('SYS_PAID_RECORDS_', '').toLowerCase())) continue;
+              if (refNo.toLowerCase() === 'sys_paid_records_general') {
+                if (row.narration && row.narration !== '[]') {
+                  updateTasks.push(
+                    supabaseClient.from('bank_transactions').update({ narration: '[]', amount: 0, updated_at: nowIso }).eq('id', row.id)
+                  );
+                }
+                continue;
+              }
+              const mk = refNo.replace('SYS_PAID_RECORDS_', '');
+              if (byManager[mk]) continue;
               let list = [];
               try { list = JSON.parse(row.narration) || []; } catch(e) { continue; }
               if (!Array.isArray(list)) continue;
-              const kept = list.filter(r => !deletedPaidRecordIds.has(String(r.id)));
+              const kept = list.filter(r => {
+                if (!r) return false;
+                const rid = String(r.id || '');
+                if (deletedPaidRecordIds.has(rid)) return false;
+                if (rid && globalOwnerMap.has(rid) && globalOwnerMap.get(rid) !== mk) return false;
+                return true;
+              });
               if (kept.length !== list.length) {
-                await supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(kept), amount: kept.length, updated_at: new Date().toISOString() }).eq('id', row.id);
+                updateTasks.push(
+                  supabaseClient.from('bank_transactions').update({ narration: JSON.stringify(kept), amount: kept.length, updated_at: nowIso }).eq('id', row.id)
+                );
               }
             }
+
+            await Promise.all(updateTasks);
             if (notify) showToast('All PAID DATA partitions synchronized across managers!', 'success');
           } catch(e) {
             if (notify) showToast('Saved locally', 'info');
@@ -8290,7 +8549,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       const byKey = new Map();
       [...(Array.isArray(basePins) ? basePins : []), ...(Array.isArray(extraPins) ? extraPins : [])].forEach(p => {
         if (!p || !p.name || isManagerName(p.name) || isOfficerTombstoned(p)) return;
-        const cleanName = String(p.name || '').toUpperCase().trim();
+        const cleanName = normalizeCreditTraingleName(String(p.name || '').toUpperCase().trim());
         const mk = getManagerStorageKey(p.manager || '');
         const key = `${mk}_${cleanName}`;
         const prev = byKey.get(key);
@@ -8304,7 +8563,7 @@ const CANONICAL_CALLER_DIRECTORY = {
     function pinNewlyAddedCaller(offObj) {
       if (!offObj || !offObj.name || isManagerName(offObj.name)) return;
       try {
-        const cleanName = String(offObj.name || '').toUpperCase().trim();
+        const cleanName = normalizeCreditTraingleName(String(offObj.name || '').toUpperCase().trim());
         const isAdminActor = (currentRole === 'ADMIN' || offObj._updatedBy === 'ADMIN');
         const isMgrActor = (currentRole === 'MANAGER' || (offObj._updatedBy && offObj._updatedBy !== 'ADMIN' && offObj._updatedBy !== 'MASTER_BASELINE_NOV2026'));
         const nowTs = Date.now();
@@ -8333,13 +8592,13 @@ const CANONICAL_CALLER_DIRECTORY = {
     async function updateEditedCallerPin(oldName, oldMgr, updatedObj) {
       if (!updatedObj || !updatedObj.name || isManagerName(updatedObj.name)) return;
       try {
-        const cleanOld = String(oldName || '').toUpperCase().trim();
+        const cleanOld = normalizeCreditTraingleName(String(oldName || '').toUpperCase().trim());
         const oldMk = getManagerStorageKey(oldMgr || '');
-        const cleanNew = String(updatedObj.name || '').toUpperCase().trim();
+        const cleanNew = normalizeCreditTraingleName(String(updatedObj.name || '').toUpperCase().trim());
         const newMk = getManagerStorageKey(updatedObj.manager || '');
         const isRenamedOrMoved = (cleanOld && cleanOld !== cleanNew) || (oldMk && oldMk !== newMk);
         const isMatchPin = (p, targetName, targetMk) => {
-          const pName = String((p && p.name) || '').toUpperCase().trim();
+          const pName = normalizeCreditTraingleName(String((p && p.name) || '').toUpperCase().trim());
           const pMk = getManagerStorageKey((p && p.manager) || '');
           return pName === targetName && (!targetMk || !pMk || pMk === targetMk);
         };
@@ -8655,7 +8914,7 @@ const CANONICAL_CALLER_DIRECTORY = {
 
     function recordCallerTargetEdit(callerName, managerName, newTarget, updatedBy = '', callerObj = null) {
       if (!callerName) return;
-      const cleanName = String(callerName || '').toUpperCase().trim();
+      const cleanName = normalizeCreditTraingleName(String(callerName || '').toUpperCase().trim());
       const numTarget = Math.max(0, Number(newTarget) || 0);
       const mKey = getManagerStorageKey(managerName || '');
       const key = `${mKey}_${cleanName}`;
@@ -8704,11 +8963,18 @@ const CANONICAL_CALLER_DIRECTORY = {
       officerTargetRegistry[key] = entry;
       officerTargetRegistry[`all_${cleanName}`] = entry;
       officerTargetRegistry[cleanName] = entry;
+      if (typeof normalizeTargetRegistryMap === 'function') normalizeTargetRegistryMap(officerTargetRegistry);
 
       // Absolute Permanent Hard Lock: Persistent across all auto-refreshes and cloud syncs
       try {
         let hardLocks = {};
         try { hardLocks = JSON.parse(localStorage.getItem('shaha_authoritative_hardlocked_targets_v2') || '{}') || {}; } catch(_) {}
+        if (cleanName === 'CREDIT TRIANGLE AGENCY') {
+          for (const hk of Object.keys(hardLocks)) {
+            const hPart = hk.includes('_') ? hk.slice(hk.indexOf('_') + 1) : hk;
+            if (isCreditTraingleVariant(hPart) && hPart !== 'CREDIT TRIANGLE AGENCY') delete hardLocks[hk];
+          }
+        }
         hardLocks[key] = numTarget;
         hardLocks[`all_${cleanName}`] = numTarget;
         hardLocks[cleanName] = numTarget;
@@ -8773,7 +9039,7 @@ const CANONICAL_CALLER_DIRECTORY = {
 
     function getLockedTargetForCaller(callerName, managerName) {
       if (!callerName) return null;
-      const cleanName = String(callerName || '').toUpperCase().trim();
+      const cleanName = normalizeCreditTraingleName(String(callerName || '').toUpperCase().trim());
       const mKey = getManagerStorageKey(managerName || '');
       const specificKey = `${mKey}_${cleanName}`;
       const fallbackKey = `all_${cleanName}`;
@@ -8819,7 +9085,11 @@ const CANONICAL_CALLER_DIRECTORY = {
 
       officersList.forEach(off => {
         if (!off || !off.name) return;
-        const cleanName = String(off.name || '').toUpperCase().trim();
+        const cleanName = normalizeCreditTraingleName(String(off.name || '').toUpperCase().trim());
+        if (off.name !== cleanName) {
+          off.name = cleanName;
+          changed = true;
+        }
         const mKey = getManagerStorageKey(off.manager || '');
         const specificKey = `${mKey}_${cleanName}`;
         const fallbackKey = `all_${cleanName}`;
@@ -8903,6 +9173,41 @@ const CANONICAL_CALLER_DIRECTORY = {
       return changed;
     }
 
+    function normalizeTargetRegistryMap(regMap) {
+      if (!regMap || typeof regMap !== 'object') return false;
+      let changed = false;
+      for (const k of Object.keys(regMap)) {
+        const item = regMap[k];
+        if (!item || typeof item !== 'object') continue;
+        const idxUnder = k.indexOf('_');
+        const prefix = idxUnder >= 0 ? k.slice(0, idxUnder + 1) : '';
+        const rawCallerPart = idxUnder >= 0 ? k.slice(idxUnder + 1) : k;
+        if (isCreditTraingleVariant(rawCallerPart) || isCreditTraingleVariant(item.name)) {
+          const newKey = prefix + 'CREDIT TRIANGLE AGENCY';
+          const normalizedItem = Object.assign({}, item, { name: 'CREDIT TRIANGLE AGENCY' });
+          if (newKey !== k || item.name !== 'CREDIT TRIANGLE AGENCY') changed = true;
+          const existing = regMap[newKey];
+          if (!existing) {
+            regMap[newKey] = normalizedItem;
+          } else {
+            const curTs = Number(normalizedItem.updatedAt) || 0;
+            const exTs = Number(existing.updatedAt) || 0;
+            const curAuth = Boolean(normalizedItem.authoritativeLocked || normalizedItem.adminLocked || normalizedItem.managerLocked || (normalizedItem.updatedBy && normalizedItem.updatedBy !== 'MASTER_BASELINE_NOV2026'));
+            const exAuth = Boolean(existing.authoritativeLocked || existing.adminLocked || existing.managerLocked || (existing.updatedBy && existing.updatedBy !== 'MASTER_BASELINE_NOV2026'));
+            if ((curAuth && !exAuth) || (curAuth === exAuth && curTs > exTs)) {
+              regMap[newKey] = normalizedItem;
+            }
+            regMap[newKey].name = 'CREDIT TRIANGLE AGENCY';
+          }
+          if (newKey !== k) {
+            delete regMap[k];
+            changed = true;
+          }
+        }
+      }
+      return changed;
+    }
+
     async function syncTargetRegistryWithCloud(pushLocal = false) {
       if (!supabaseClient) return officerTargetRegistry;
       try {
@@ -8913,10 +9218,12 @@ const CANONICAL_CALLER_DIRECTORY = {
           .order('updated_at', { ascending: false, nullsFirst: false })
           .limit(1);
 
+        let needsCloudUpdate = false;
         let cloudReg = {};
         if (data && data.length > 0 && data[0].narration) {
           try {
             cloudReg = JSON.parse(data[0].narration) || {};
+            if (normalizeTargetRegistryMap(cloudReg)) needsCloudUpdate = true;
             // Sanitize any baseline entries that carried future timestamps or old baseline targets
             for (const k in cloudReg) {
               if (cloudReg[k] && cloudReg[k].updatedBy === 'MASTER_BASELINE_NOV2026') {
@@ -8929,8 +9236,8 @@ const CANONICAL_CALLER_DIRECTORY = {
             }
           } catch(_) {}
         }
+        if (normalizeTargetRegistryMap(officerTargetRegistry)) needsCloudUpdate = true;
 
-        let needsCloudUpdate = false;
         // Merge cloud & local based on authoritative status and updatedAt timestamps
         for (const k in officerTargetRegistry) {
           const localItem = officerTargetRegistry[k];
@@ -11067,13 +11374,16 @@ const CANONICAL_CALLER_DIRECTORY = {
         const isSingle = key.endsWith('_SINGLE');
         const entryIsUploaded = Boolean(entry.isUserUploaded || entry.updated_by === 'EXCEL_IMPORT' || isUserUploaded);
 
-        // Auto-heal CREDIT TRAINGLE AGENCY in callers dictionary
+        // Auto-heal CREDIT TRIANGLE AGENCY in callers dictionary (remove stale variant keys)
         if (entry.callers && typeof entry.callers === 'object') {
           for (const [cKey, cVal] of Object.entries(entry.callers)) {
-            const cKeyUpper = cKey.toUpperCase().trim();
-            if (cKeyUpper === 'CREDIT TRINGLE AGENCY' || cKeyUpper === 'CREDIT TRINGLE' || cKeyUpper === 'CREDIT TRIANGLE' || cKeyUpper === 'CREDIT TRIANGLE AGENCY') {
-              entry.callers['CREDIT TRAINGLE AGENCY'] = cVal;
-              entry.callers['CREDIT TRINGLE AGENCY'] = cVal;
+            if (cKey !== 'CREDIT TRIANGLE AGENCY' && isCreditTraingleVariant(cKey)) {
+              const curAmt = Number((entry.callers['CREDIT TRIANGLE AGENCY'] && (entry.callers['CREDIT TRIANGLE AGENCY'].amount !== undefined ? entry.callers['CREDIT TRIANGLE AGENCY'].amount : entry.callers['CREDIT TRIANGLE AGENCY'])) || 0);
+              const varAmt = Number((cVal && (cVal.amount !== undefined ? cVal.amount : cVal)) || 0);
+              if (!entry.callers['CREDIT TRIANGLE AGENCY'] || (curAmt === 0 && varAmt > 0)) {
+                entry.callers['CREDIT TRIANGLE AGENCY'] = cVal;
+              }
+              delete entry.callers[cKey];
               healed = true;
             }
           }
@@ -11730,7 +12040,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (callers[canonCaller]) return { amount: Number(callers[canonCaller].amount || callers[canonCaller].total) || 0, cases: Number(callers[canonCaller].cases) || 0 };
           const isCt = (cClean.includes('CREDIT') && (cClean.includes('TRAINGLE') || cClean.includes('TRINGLE') || cClean.includes('TRIANGLE')));
           if (isCt) {
-            const hit = callers['CREDIT TRAINGLE AGENCY'] || callers['CREDIT TRINGLE AGENCY'] || callers['CREDIT TRIANGLE AGENCY'] || callers['CREDIT TRINGLE'];
+            const hit = callers['CREDIT TRIANGLE AGENCY'] || callers['CREDIT TRAINGLE AGENCY'] || callers['CREDIT TRINGLE AGENCY'] || callers['CREDIT TRINGLE'];
             if (hit) return { amount: Number(hit.amount || hit.total) || 0, cases: Number(hit.cases) || 0 };
           }
           for (const [k, v] of Object.entries(callers)) {
@@ -12239,7 +12549,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           dayEntry.cases += 1;
           dayEntry.isZeroCollection = false;
 
-          const caller = callerKey ? String(row[callerKey] || '').trim().toUpperCase() : '';
+          const caller = callerKey ? normalizeCreditTraingleName(String(row[callerKey] || '').trim().toUpperCase()) : '';
           let mgr = String(row[mgrKey] || (caller ? (typeof getCallerCanonicalManager === 'function' ? getCallerCanonicalManager(caller) : caller) : '') || 'UNASSIGNED').trim().toUpperCase();
           if (mgr === 'ANURADHA' || ['VENUGOPALA', 'GOPAL', 'AMBIKA'].some(k => caller.includes(k))) {
             mgr = 'SUBHASHREE';
@@ -16769,10 +17079,32 @@ const CANONICAL_CALLER_DIRECTORY = {
         showPortal();
         showToast(`Welcome back, ${meta.name}!`, 'success');
 
-        // Fast instant cached hydration so user never waits for UI
+        // Fast instant cached hydration so user never waits for UI (strictly isolated to logged-in user)
         const { localKey: loginLocalKey } = getLeaderboardStorageKeys();
+        const { localKey: loginPaidLocalKey } = getPaidFileStorageKeys();
         const myDisplayName = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
         const isAdmRole = (currentRole === 'ADMIN' || currentRole === 'MANAGEMENT' || currentRole === 'BACKEND');
+        paidFileRecords = [];
+        try {
+          const cachedPaidLogin = localStorage.getItem(loginPaidLocalKey);
+          if (cachedPaidLogin) {
+            const parsedPaid = JSON.parse(cachedPaidLogin);
+            if (Array.isArray(parsedPaid)) {
+              const mapL = new Map();
+              parsedPaid.forEach((r, idx) => {
+                if (!r || deletedPaidRecordIds.has(String(r.id))) return;
+                if (!isAdmRole && r.manager && !isRecordOwnedByManager(r, myDisplayName)) return;
+                const k = getPaidRecUniqKey(r, idx);
+                const prev = mapL.get(k);
+                if (!prev || getPaidRecTs(r) >= getPaidRecTs(prev)) mapL.set(k, r);
+              });
+              paidFileRecords = Array.from(mapL.values());
+            }
+          }
+          if (typeof restorePinnedPaidCases === 'function') {
+            restorePinnedPaidCases(paidFileRecords, isAdmRole ? '' : myDisplayName);
+          }
+        } catch(e) {}
         try {
           const cached = localStorage.getItem(loginLocalKey);
           if (cached) {
@@ -17089,24 +17421,33 @@ const CANONICAL_CALLER_DIRECTORY = {
         } else {
           pfSelect.value = 'SCB CC';
         }
+        const editIdInput = document.getElementById('paid-edit-id');
+        if (editIdInput) editIdInput.dataset.origOfficer = item.officer || '';
         if (document.getElementById('paid-input-mode')) document.getElementById('paid-input-mode').value = item.mode || 'ONLINE';
-        document.getElementById('paid-input-bank').value = item.bank || 'HDFC';
+        const bankSel = document.getElementById('paid-input-bank');
+        if (bankSel) {
+          const bVal = String(item.bank || 'HDFC').trim();
+          const bMatch = Array.from(bankSel.options).find(o => o.value.toUpperCase() === bVal.toUpperCase() || o.text.toUpperCase() === bVal.toUpperCase());
+          bankSel.value = bMatch ? bMatch.value : 'HDFC';
+        }
         document.getElementById('paid-input-narr').value = item.narr || '';
 
         if (item.splits && item.splits.length >= 2) {
           document.getElementById('paid-check-split').checked = true;
           togglePaidSplitMode(); clearPaidCallerSearch();
-          document.getElementById('split-caller-1').value = item.splits[0].officer;
+          document.getElementById('split-caller-1').value = normalizeCreditTraingleName(item.splits[0].officer);
           document.getElementById('split-pct-1').value = item.splits[0].pct;
-          document.getElementById('split-caller-2').value = item.splits[1].officer;
+          document.getElementById('split-caller-2').value = normalizeCreditTraingleName(item.splits[1].officer);
           document.getElementById('split-pct-2').value = item.splits[1].pct;
         } else {
           document.getElementById('paid-check-split').checked = false;
           togglePaidSplitMode(); clearPaidCallerSearch();
-          selectPaidCaller(item.officer || '', item.manager || '');
+          selectPaidCaller(normalizeCreditTraingleName(item.officer || ''), item.manager || '');
         }
         document.getElementById('btn-delete-paid').classList.remove('hidden');
       } else {
+        const editIdInput = document.getElementById('paid-edit-id');
+        if (editIdInput) editIdInput.dataset.origOfficer = '';
         document.getElementById('paid-modal-title').innerText = 'Add New Paid Case';
         document.getElementById('paid-input-cust-id').value = '';
         document.getElementById('paid-input-cust-name').value = '';
@@ -17276,9 +17617,9 @@ const CANONICAL_CALLER_DIRECTORY = {
       let splits = null;
 
       if (isSplit) {
-        const off1 = (document.getElementById('split-caller-1') ? document.getElementById('split-caller-1').value : '').trim();
+        const off1 = normalizeCreditTraingleName((document.getElementById('split-caller-1') ? document.getElementById('split-caller-1').value : '').trim().toUpperCase());
         const pct1 = parseFloat(document.getElementById('split-pct-1').value);
-        const off2 = (document.getElementById('split-caller-2') ? document.getElementById('split-caller-2').value : '').trim();
+        const off2 = normalizeCreditTraingleName((document.getElementById('split-caller-2') ? document.getElementById('split-caller-2').value : '').trim().toUpperCase());
         const pct2 = parseFloat(document.getElementById('split-pct-2').value);
 
         if (!off1 || !off2) {
@@ -17297,7 +17638,13 @@ const CANONICAL_CALLER_DIRECTORY = {
         ];
       } else {
         const sel = document.getElementById('paid-select-officer');
-        officer = (sel ? sel.value : '').trim().toUpperCase();
+        officer = normalizeCreditTraingleName((sel ? sel.value : '').trim().toUpperCase());
+        if (!officer && editIdStr) {
+          const existingEditRec = paidFileRecords.find(r => String(r.id) === String(editIdStr));
+          const dsOrig = (document.getElementById('paid-edit-id') && document.getElementById('paid-edit-id').dataset.origOfficer) || '';
+          const fallbackOff = normalizeCreditTraingleName(String(dsOrig || (existingEditRec && existingEditRec.officer) || '').trim().toUpperCase());
+          if (fallbackOff) officer = fallbackOff;
+        }
         if (!officer) {
           showToast('Please select a recovery officer from your Daily MIS dropdown.', 'error');
           if (sel) sel.focus();
@@ -17358,10 +17705,14 @@ const CANONICAL_CALLER_DIRECTORY = {
         return;
       }
 
+      let savedRecForPin = null;
+      let oldRecMgrKey = '';
       if (editIdStr) {
         const idx = paidFileRecords.findIndex(r => String(r.id) === String(editIdStr));
         if (idx >= 0) {
-          const nowTs = Date.now();
+          oldRecMgrKey = typeof getManagerStorageKey === 'function' ? getManagerStorageKey(paidFileRecords[idx].manager) : '';
+          const prevTs = Math.max(Number(paidFileRecords[idx]._updatedAt) || 0, Number(paidFileRecords[idx]._pinnedAt) || 0);
+          const nowTs = Math.max(Date.now(), prevTs + 1);
           paidFileRecords[idx] = {
             ...paidFileRecords[idx],
             cust_id: custId,
@@ -17379,12 +17730,15 @@ const CANONICAL_CALLER_DIRECTORY = {
             locked_officer: (officer || paidFileRecords[idx].officer),
             splits: splits,
             _updatedAt: nowTs,
+            _pinnedAt: nowTs,
             _updatedBy: (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'Admin'
           };
-          if (typeof pinNewPaidCase === 'function') pinNewPaidCase(paidFileRecords[idx]);
+          savedRecForPin = paidFileRecords[idx];
           showToast(`Updated payment for ${custName}!`, 'success');
         } else {
           console.warn('Could not find record for id:', editIdStr);
+          showToast('Record not found in memory. Please click Refresh and try again.', 'error');
+          return;
         }
       } else {
         const newRecord = {
@@ -17401,12 +17755,16 @@ const CANONICAL_CALLER_DIRECTORY = {
           manager: managerName,
           splits: splits
         };
+        const nowTs = Date.now();
+        newRecord._updatedAt = nowTs;
+        newRecord._pinnedAt = nowTs;
+        newRecord._updatedBy = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || 'Admin';
         paidFileRecords.unshift(newRecord);
-        if (typeof pinNewPaidCase === 'function') pinNewPaidCase(newRecord);
+        savedRecForPin = newRecord;
         showToast(`Added ₹${amount.toLocaleString('en-IN')} payment for ${custName}!`, 'success');
       }
 
-      closePaidCaseModal(); if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
+      if (typeof updatePaidDateFilterDropdown === 'function') updatePaidDateFilterDropdown();
       renderPaidFileTable();
       syncLiveCollectionFromPaidFile(true);
 
@@ -17418,20 +17776,35 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
       } catch(e) {}
 
-      // Auto-update master paid records in localStorage so Admin immediately reflects it
+      if (isGlobalViewer) {
+        try {
+          localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(paidFileRecords));
+        } catch(e) {}
+      }
+
+      const saveBtn = document.querySelector('#paid-case-modal button[onclick="savePaidCase()"]');
+      const origBtnText = saveBtn ? saveBtn.innerText : 'Save Paid Case';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerText = 'Saving to Database...';
+      }
       try {
-        const masterPaidStr = localStorage.getItem('shaha_paid_file_records_admin');
-        let masterPaid = masterPaidStr ? JSON.parse(masterPaidStr) : [];
-        if (!Array.isArray(masterPaid)) masterPaid = [];
-        paidFileRecords.forEach(r => {
-          const existIdx = masterPaid.findIndex(m => String(m.id) === String(r.id));
-          if (existIdx >= 0) masterPaid[existIdx] = r;
-          else masterPaid.unshift(r);
-        });
-        localStorage.setItem('shaha_paid_file_records_admin', JSON.stringify(masterPaid));
-      } catch(e) {}
-      await savePaidFileToCloud(true);
-      await saveLeaderboardToCloud();
+        const newRecMgrKey = (savedRecForPin && typeof getManagerStorageKey === 'function')
+          ? getManagerStorageKey(savedRecForPin.manager)
+          : '';
+        const targetMgrKeys = [oldRecMgrKey, newRecMgrKey].filter(Boolean);
+        await Promise.all([
+          (savedRecForPin && typeof pinNewPaidCase === 'function') ? pinNewPaidCase(savedRecForPin) : Promise.resolve(),
+          savePaidFileToCloud(true, targetMgrKeys.length > 0 ? targetMgrKeys : null)
+        ]);
+        await saveLeaderboardToCloud();
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerText = origBtnText;
+        }
+        closePaidCaseModal();
+      }
     }
 
     async function deletePaidCase() {
@@ -17703,7 +18076,7 @@ const CANONICAL_CALLER_DIRECTORY = {
             <td class="p-2.5 border-r border-slate-200 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">${escHtml(r.mode)}</span></td>
             <td class="p-2.5 border-r border-slate-200 font-mono text-[11px] text-slate-600 truncate max-w-xs" title="${escHtml(r.narr)}">${escHtml(r.narr || '-')}</td>
             <td class="p-2.5 border-r border-slate-200 font-bold text-slate-700">${escHtml(r.bank)}</td>
-            <td class="p-2.5 border-r border-slate-200 font-bold text-amber-700"><span class="inline-flex items-center gap-1.5" title="Caller locked to this case">${LOCK_SVG}<span>${escHtml(r.officer || '-')}</span></span></td>
+            <td class="p-2.5 border-r border-slate-200 font-bold text-amber-700"><span class="inline-flex items-center gap-1.5" title="Caller locked to this case">${LOCK_SVG}<span>${escHtml(formatCallerDisplayName(r.officer || '-'))}</span></span></td>
             <td class="p-2.5 border-r border-slate-200 font-bold text-slate-700">${escHtml(dispMgr)}</td>
             ${isMgmtReadOnly ? '' : `<td class="p-2.5 text-center paid-action-col">
               ${(r.isLocked || (r.pay_date && r.pay_date.toLowerCase().includes('oct')) || monthFilter === 'OCTOBER') ? `
@@ -18082,9 +18455,9 @@ const CANONICAL_CALLER_DIRECTORY = {
       if (candWithoutParen && (offClean === candWithoutParen || (offWithoutSelf && offWithoutSelf === candWithoutParen))) return true;
       if (offWithoutSelf && offWithoutSelf === candClean) return true;
 
-      // Credit Triangle alias rule (covers TRAINGLE, TRINGLE, TRIANGLE):
-      const isOffCT = (offClean.includes('TRINGLE') || offClean.includes('TRAINGLE') || offClean.includes('TRIANGLE')) && offClean.includes('CREDIT');
-      const isCandCT = (candClean.includes('TRINGLE') || candClean.includes('TRAINGLE') || candClean.includes('TRIANGLE')) && candClean.includes('CREDIT');
+      // Credit Triangle alias rule (covers TRAINGLE, TRINGLE, TRIANGLE, TRIANGEL, CEDIT):
+      const isOffCT = isCreditTraingleVariant(officer.name);
+      const isCandCT = isCreditTraingleVariant(candidateName);
       if (isOffCT && isCandCT) return true;
 
       if (officer.aliases) {
@@ -18365,7 +18738,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
 
         const ensureOtherCaller = (rawName, rawMgr) => {
-          let cleanName = String(rawName || '').trim().toUpperCase();
+          let cleanName = normalizeCreditTraingleName(String(rawName || '').trim().toUpperCase());
           const rk = rawMgr ? resolveManagerUserKey(rawMgr) : '';
           const canonicalMgr = (rk && USER_CREDENTIALS[rk] && USER_CREDENTIALS[rk].name)
             ? USER_CREDENTIALS[rk].name.toUpperCase()
@@ -18647,7 +19020,7 @@ const CANONICAL_CALLER_DIRECTORY = {
 
       // Ensure callers referenced in paid data (including splits) exist in leaderboardOfficers so they never go missing from Daily MIS
       const ensurePaidCaller = (rawName, rawMgr) => {
-        let cleanName = String(rawName || '').trim().toUpperCase();
+        let cleanName = normalizeCreditTraingleName(String(rawName || '').trim().toUpperCase());
         const rk = rawMgr ? resolveManagerUserKey(rawMgr) : '';
         const canonicalMgr = (rk && USER_CREDENTIALS[rk] && USER_CREDENTIALS[rk].name)
           ? USER_CREDENTIALS[rk].name.toUpperCase()
@@ -20038,7 +20411,7 @@ var misExpandedManagers = new Set();
         showToast('This caller changed while the form was open. Close the form and open it again.', 'error');
         return;
       }
-      const name = document.getElementById('officer-input-name').value.trim().toUpperCase();
+      const name = normalizeCreditTraingleName(document.getElementById('officer-input-name').value.trim().toUpperCase());
       const empCode = document.getElementById('officer-input-emp-code') ? document.getElementById('officer-input-emp-code').value.trim().toUpperCase() : '';
       const joiningDate = document.getElementById('officer-input-joining-date') ? document.getElementById('officer-input-joining-date').value.trim() : '';
       const statusVal = document.getElementById('officer-input-status') ? document.getElementById('officer-input-status').value : 'ACTIVE';
