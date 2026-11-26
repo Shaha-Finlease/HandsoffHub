@@ -7749,18 +7749,27 @@ const CANONICAL_CALLER_DIRECTORY = {
       const pins = readLocalPinnedPaidCases();
       if (!pins || pins.length === 0) return;
 
-      const seen = new Set();
+      const mapByKey = new Map();
       list.forEach((r, idx) => {
         const k = getPaidRecUniqKey(r, idx);
-        if (k) seen.add(k);
+        if (k) mapByKey.set(k, r);
+        if (r.id) mapByKey.set(String(r.id), r);
       });
 
       pins.forEach((p, idx) => {
         if (!p || (typeof deletedPaidRecordIds !== 'undefined' && deletedPaidRecordIds.has(String(p.id)))) return;
         if (filterMgr && typeof isRecordOwnedByManager === 'function' && !isRecordOwnedByManager(p, filterMgr)) return;
         const k = getPaidRecUniqKey(p, idx);
-        if (k && !seen.has(k)) {
-          seen.add(k);
+        const pId = p.id ? String(p.id) : '';
+        const existing = (pId && mapByKey.get(pId)) || (k && mapByKey.get(k));
+        if (existing) {
+          // Authoritative sync: If pinned case was updated or edited, update existing case fields
+          if ((Number(p._pinnedAt) || 0) >= (Number(existing._updatedAt) || 0)) {
+            Object.assign(existing, p);
+          }
+        } else {
+          if (k) mapByKey.set(k, p);
+          if (pId) mapByKey.set(pId, p);
           list.unshift(p);
         }
       });
@@ -8111,7 +8120,8 @@ const CANONICAL_CALLER_DIRECTORY = {
                 try { masterPaidList = JSON.parse(mRow[0].narration) || []; } catch(e) {}
               }
               const myMgr = (currentUser ? (currentUser.name || currentUser.username) : currentManager) || '';
-              masterPaidList = masterPaidList.filter(r => !isRecordOwnedByManager(r, myMgr));
+              const incomingIds = new Set(paidFileRecords.map(r => String(r.id)).filter(Boolean));
+              masterPaidList = masterPaidList.filter(r => !isRecordOwnedByManager(r, myMgr) && !incomingIds.has(String(r.id)));
               masterPaidList.push(...paidFileRecords);
 
               if (mRow && mRow.length > 0) {
@@ -17431,13 +17441,12 @@ const CANONICAL_CALLER_DIRECTORY = {
       }
       const editIdStr = document.getElementById('paid-edit-id').value;
       if (!editIdStr) return;
-      const editId = parseInt(editIdStr, 10);
-      const item = paidFileRecords.find(r => String(r.id) === String(editId));
+      const item = paidFileRecords.find(r => String(r.id) === String(editIdStr));
       if (!item) return;
       if (!confirm(`Are you sure you want to delete payment of ₹${item.amount} for '${item.cust_name}'?`)) return;
 
-      deletedPaidRecordIds.add(String(editId));
-      if (typeof unpinPaidCase === 'function') unpinPaidCase(editId);
+      deletedPaidRecordIds.add(String(editIdStr));
+      if (typeof unpinPaidCase === 'function') unpinPaidCase(editIdStr);
       await saveDeletedTombstonesToCloud();
 
       paidFileRecords = paidFileRecords.filter(r => String(r.id) !== String(editIdStr));
