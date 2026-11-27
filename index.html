@@ -4212,103 +4212,52 @@
     let _activeSessionToken = null;
     let _concurrentCheckInterval = null;
 
-    async function registerActiveUserSession(username) {
+    function isMultiDeviceLoginAllowed() {
+      return true;
+    }
+
+    async function registerActiveUserSession(username, userKey = '') {
       const token = 'tok_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       _activeSessionToken = token;
-      const dev = getClientDeviceInfo();
-      const uKey = String(username).toLowerCase().trim();
 
+      // Multi-device logins are allowed for all users: clear any legacy lock row asynchronously so older cached tabs never kick users out
       if (supabaseClient) {
-        try {
-          const { data } = await supabaseClient
-            .from('bank_transactions')
-            .select('id, narration')
-            .eq('ref_no', 'SYS_ACTIVE_USER_SESSIONS')
-            .order('id', { ascending: false })
-            .limit(1);
-
-          if (data && data.length > 0) {
-            let sessions = {};
-            try { sessions = JSON.parse(data[0].narration) || {}; } catch(e) {}
-            sessions[uKey] = {
-              token: token,
-              device: dev.summary,
-              login_time: new Date().toISOString()
-            };
-            await supabaseClient
+        (async () => {
+          try {
+            const { data } = await supabaseClient
               .from('bank_transactions')
-              .update({
-                narration: JSON.stringify(sessions),
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', data[0].id);
-          }
-        } catch(e) {}
+              .select('id, narration')
+              .eq('ref_no', 'SYS_ACTIVE_USER_SESSIONS')
+              .order('id', { ascending: false })
+              .limit(1);
+
+            if (data && data.length > 0 && data[0].narration && data[0].narration !== '{}') {
+              await supabaseClient
+                .from('bank_transactions')
+                .update({
+                  narration: '{}',
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', data[0].id);
+            }
+          } catch(e) {}
+        })();
       }
       return token;
     }
 
     async function checkConcurrentSession() {
-      if (!currentUser || !_activeSessionToken || !supabaseClient) return true;
-      const uKey = String(currentUser.username || currentUser.key || '').toLowerCase().trim();
-      if (!uKey) return true;
-
-      try {
-        const { data } = await supabaseClient
-          .from('bank_transactions')
-          .select('narration')
-          .eq('ref_no', 'SYS_ACTIVE_USER_SESSIONS')
-          .order('id', { ascending: false })
-          .limit(1);
-
-        if (data && data.length > 0 && data[0].narration) {
-          const sessions = JSON.parse(data[0].narration) || {};
-          const active = sessions[uKey];
-          if (active && active.token && active.token !== _activeSessionToken) {
-            handleLogoutSilent();
-            showConcurrentLoginModal(active.device);
-            return false;
-          }
-        }
-      } catch(e) {}
       return true;
     }
 
     function startConcurrentSessionMonitor() {
       if (_concurrentCheckInterval) clearInterval(_concurrentCheckInterval);
-      _concurrentCheckInterval = setInterval(() => {
-        if (document.hidden) return;
-        checkConcurrentSession();
-      }, 60000);
+      _concurrentCheckInterval = null;
     }
 
-    function showConcurrentLoginModal(otherDevice) {
-      if (document.getElementById('modal-concurrent-logout')) return;
-      const modal = document.createElement('div');
-      modal.id = 'modal-concurrent-logout';
-      modal.className = 'fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4';
-      modal.innerHTML = `
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-rose-500 text-center animate-in fade-in zoom-in-95 duration-200">
-          <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-          </div>
-          <h3 class="text-lg font-black text-slate-900 mb-2">Session Terminated</h3>
-          <p class="text-sm text-slate-600 mb-3">
-            Your account was just logged in from another device:
-          </p>
-          <div class="p-3 bg-rose-50 text-rose-800 font-bold text-xs rounded-xl border border-rose-200 mb-4">
-            ${escHtml(otherDevice || 'Another Device / Browser')}
-          </div>
-          <p class="text-[11px] text-slate-400 mb-6">
-            For security, multiple concurrent logins with the same account are blocked.
-          </p>
-          <button onclick="document.getElementById('modal-concurrent-logout').remove(); showLogin();" class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition">
-            Sign In Again
-          </button>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      safeCreateIcons();
+    function showConcurrentLoginModal() {
+      const existing = document.getElementById('modal-concurrent-logout');
+      if (existing) existing.remove();
     }
 
     // --- System Defaults & Configurations ---
@@ -4319,11 +4268,12 @@
       return cid;
     }
 
-    const APP_BUILD_ID = "BUILD_20261126_181500";
+    const APP_BUILD_ID = "BUILD_20261127_174500";
     const DEFAULT_GOOGLE_SHEET_URL = ''; // Paste your deployed Google Apps Script Web App URL here
     const DEFAULT_SUPABASE_URL = 'https://iidqsjjkhoxehzmzrjho.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpZHFzampraG94ZWh6bXpyamhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzkzNjIsImV4cCI6MjEwODE1NTM2Mn0.rZL7Ebnpjp89qcR6i3Pvzytwefb3__gidew226yyDj0';
-    const SESSION_INACTIVITY_LIMIT_MS = 8 * 60 * 60 * 1000; // 8 Hours (Full Shift Active Session)
+    const SESSION_INACTIVITY_LIMIT_MS = 8 * 60 * 60 * 1000; // 8 Hours (Standard Shift Session)
+    const REMEMBER_ME_SESSION_LIMIT_MS = 30 * 24 * 60 * 60 * 1000; // 30 Days ("Keep me signed in")
 
     // Protected Core System Managers: Immune to deletion or tombstoning
     const CORE_SYSTEM_MANAGERS = new Set([
@@ -5964,6 +5914,7 @@ const CANONICAL_CALLER_DIRECTORY = {
     // INITIALIZATION & DOM READY
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof applyUiTheme === 'function') applyUiTheme(document.documentElement.dataset.theme);
       if (typeof purgeStaleDuplicatePaidRecords === 'function') purgeStaleDuplicatePaidRecords();
       autoMigrateAnuradhaToSubhashree();
       if (typeof initManagerAssignedTargets === 'function') initManagerAssignedTargets();
@@ -5973,13 +5924,7 @@ const CANONICAL_CALLER_DIRECTORY = {
       initTodayProjections();
       initLiveClock();
       initLiveDate();
-      try {
-        await Promise.race([
-          syncCredentialsWithCloud(),
-          new Promise(res => setTimeout(res, 500))
-        ]);
-      } catch (e) {}
-      autoMigrateAnuradhaToSubhashree();
+      syncCredentialsWithCloudOnce().then(() => autoMigrateAnuradhaToSubhashree()).catch(() => {});
       await checkAuthSession();
       if (typeof updateSdlmUploadButtonsVisibility === 'function') updateSdlmUploadButtonsVisibility();
       if (typeof loadSdlmDailyDataFromCloud === 'function') {
@@ -16794,7 +16739,29 @@ const CANONICAL_CALLER_DIRECTORY = {
 
     // AUTHENTICATION & SESSION INACTIVITY
     // ==========================================
+    let _isLoginSubmitting = false;
+    let _inFlightCredSyncPromise = null;
+
+    function syncCredentialsWithCloudOnce() {
+      if (_inFlightCredSyncPromise) return _inFlightCredSyncPromise;
+      _inFlightCredSyncPromise = (async () => {
+        try {
+          if (typeof syncCredentialsWithCloud === 'function') await syncCredentialsWithCloud();
+        } catch (e) {} finally {
+          _inFlightCredSyncPromise = null;
+        }
+      })();
+      return _inFlightCredSyncPromise;
+    }
+
+    function isSessionExpired(session, now = Date.now()) {
+      if (!session || !session.last_active) return true;
+      const limit = session.remember_me ? REMEMBER_ME_SESSION_LIMIT_MS : SESSION_INACTIVITY_LIMIT_MS;
+      return (now - Number(session.last_active)) >= limit;
+    }
+
     async function checkAuthSession() {
+      if (currentUser || _isLoginSubmitting) return;
       const savedSession = localStorage.getItem('shaha_portal_session_v4');
       const now = Date.now();
       
@@ -16812,6 +16779,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           if (session && session.key && session.last_active) {
             // Cryptographic session verification (Anti-Console Tampering)
             const isSigValid = await verifySessionSignature(session);
+            if (currentUser || _isLoginSubmitting) return;
             if (!isSigValid) {
               console.warn('Tampered or invalid session detected.');
               localStorage.removeItem('shaha_portal_session_v4');
@@ -16819,7 +16787,7 @@ const CANONICAL_CALLER_DIRECTORY = {
               showToast('Security Alert: Invalid session signature. Please sign in.', 'error');
               return;
             }
-            if (now - session.last_active < SESSION_INACTIVITY_LIMIT_MS) {
+            if (!isSessionExpired(session, now)) {
               session.last_active = now;
               session.signature = await computeSessionSignature(session);
               localStorage.setItem('shaha_portal_session_v4', JSON.stringify(session));
@@ -16882,7 +16850,7 @@ const CANONICAL_CALLER_DIRECTORY = {
               return;
             } else {
               localStorage.removeItem('shaha_portal_session_v4');
-              showSessionExpiredAlert();
+              showSessionExpiredAlert(session);
             }
           }
         } catch(e) {
@@ -16890,6 +16858,7 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
       }
 
+      if (currentUser || _isLoginSubmitting) return;
       showLogin();
     }
 
@@ -16925,11 +16894,13 @@ const CANONICAL_CALLER_DIRECTORY = {
       }
     }
 
-    function showSessionExpiredAlert() {
+    function showSessionExpiredAlert(session = null) {
       const errBox = document.getElementById('login-error-box');
       const errText = document.getElementById('login-error-text');
       if (errBox && errText) {
-        errText.innerText = 'Session expired after 20 minutes of inactivity. Please sign in again.';
+        errText.innerText = session && session.remember_me
+          ? 'Saved session expired. Please sign in again.'
+          : 'Session expired due to inactivity. Please sign in again.';
         errBox.classList.remove('hidden');
       }
     }
@@ -16969,9 +16940,9 @@ const CANONICAL_CALLER_DIRECTORY = {
         }
         try {
           const s = JSON.parse(savedSession);
-          if (Date.now() - s.last_active >= SESSION_INACTIVITY_LIMIT_MS) {
+          if (isSessionExpired(s, Date.now())) {
             handleLogoutSilent();
-            showSessionExpiredAlert();
+            showSessionExpiredAlert(s);
           }
         } catch(e) {}
       }, 30000);
@@ -16990,12 +16961,160 @@ const CANONICAL_CALLER_DIRECTORY = {
       } catch(e) {}
     }
 
+    // Authoritative Direct Aliases (instant 0-latency resolution)
+    const LOGIN_ALIASES = {
+      'admin': 'admin',
+      'opshead': 'admin',
+      'adminops': 'admin',
+      'adminopshead': 'admin',
+      'management': 'management',
+      'shaha': 'management',
+      'shahafinlease': 'management',
+      'seniormanagement': 'management',
+      'backend': 'backend',
+      'back': 'backend',
+      'ops': 'backend',
+      'backendops': 'backend',
+      'backenduser': 'backend',
+      'backend user': 'backend',
+      'background': 'backend',
+      'backgrounduser': 'backend',
+      'background user': 'backend',
+      'backendoperationsteam': 'backend',
+      'customerservice': 'customerservice',
+      'customer service': 'customerservice',
+      'cs': 'customerservice',
+      'subhashree': 'subhashree',
+      'anuradha': 'subhashree',
+      'blr': 'subhashree',
+      'bangalore': 'subhashree',
+      'ambuj': 'ambuj',
+      'ambuj tripathi': 'ambuj',
+      'ambujtripathi': 'ambuj',
+      'shravanthi': 'shravanthi',
+      'shravanthi p': 'shravanthi',
+      'shravanthip': 'shravanthi',
+      'shweta': 'shweta',
+      'shweta singh': 'shweta',
+      'shwetasingh': 'shweta',
+      'omkar': 'omkar',
+      'omkar singh': 'omkar',
+      'omkarsingh': 'omkar',
+      'aditi': 'aditi',
+      'aditi gawade': 'aditi',
+      'aditigawade': 'aditi',
+      'poonam': 'poonam',
+      'poonam i': 'poonam',
+      'poonami': 'poonam',
+      'agency': 'poonam',
+      'smita': 'smita',
+      'smita jagtap': 'smita',
+      'smitajagtap': 'smita',
+      'worli': 'smita',
+      'saroj': 'saroj'
+    };
+
+    function findCredMatchInMap(credMap, cleanInput, cleanAlphaNum) {
+      if (!credMap) return null;
+      for (const k in credMap) {
+        const u = credMap[k];
+        if (!u) continue;
+        const kClean = String(k).toLowerCase().trim();
+        const kAlpha = kClean.replace(/[^a-z0-9]/g, '');
+        const uName = String(u.username || k).toLowerCase().trim();
+        const fName = String(u.name || '').toLowerCase().trim();
+        const uClean = uName.replace(/[^a-z0-9]/g, '');
+        const fClean = fName.replace(/[^a-z0-9]/g, '');
+        if (cleanInput === uName || cleanInput === kClean || cleanInput === fName ||
+            cleanAlphaNum === uClean || cleanAlphaNum === kAlpha || cleanAlphaNum === fClean) {
+          return k;
+        }
+      }
+      return null;
+    }
+
+    function resolveLoginAccountKey(usernameInput) {
+      const cleanInput = String(usernameInput || '').trim().toLowerCase();
+      const cleanAlphaNum = cleanInput.replace(/[^a-z0-9]/g, '');
+      if (!cleanInput) return null;
+
+      if (LOGIN_ALIASES[cleanInput]) return LOGIN_ALIASES[cleanInput];
+      if (LOGIN_ALIASES[cleanAlphaNum]) return LOGIN_ALIASES[cleanAlphaNum];
+
+      const loadedMatch = findCredMatchInMap(USER_CREDENTIALS, cleanInput, cleanAlphaNum);
+      if (loadedMatch) return loadedMatch;
+
+      const defaultMatch = findCredMatchInMap(DEFAULT_INITIAL_CREDENTIALS, cleanInput, cleanAlphaNum);
+      if (defaultMatch) {
+        USER_CREDENTIALS[defaultMatch] = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS[defaultMatch]);
+        return defaultMatch;
+      }
+
+      const allUsers = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, USER_CREDENTIALS);
+      const firstNameHits = Object.keys(allUsers).filter(k => {
+        const fn = String(allUsers[k].name || '').toLowerCase().trim().split(' ')[0].replace(/[^a-z0-9]/g, '');
+        return fn === cleanAlphaNum || fn === cleanInput;
+      });
+      if (firstNameHits.length === 1) {
+        const key = firstNameHits[0];
+        if (!USER_CREDENTIALS[key]) USER_CREDENTIALS[key] = Object.assign({}, allUsers[key]);
+        return key;
+      }
+      return null;
+    }
+
+    async function verifyAccountPassword(matchedKey, passInput) {
+      const meta = USER_CREDENTIALS[matchedKey] || DEFAULT_INITIAL_CREDENTIALS[matchedKey];
+      if (!meta) return false;
+      if (!USER_CREDENTIALS[matchedKey]) {
+        USER_CREDENTIALS[matchedKey] = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS[matchedKey] || meta);
+      }
+
+      const enteredPassRaw = String(passInput || '').trim();
+      const enteredPassLower = enteredPassRaw.toLowerCase();
+      const enteredPassClean = enteredPassLower.replace(/[^a-z0-9]/g, '');
+
+      const [rawHash, lowerHash, cleanHash] = await Promise.all([
+        sha256Hex(enteredPassRaw),
+        sha256Hex(enteredPassLower),
+        sha256Hex(enteredPassClean)
+      ]);
+
+      const validHashes = new Set();
+      if (Array.isArray(meta.pin_hashes)) {
+        meta.pin_hashes.forEach(h => validHashes.add(h));
+      }
+      if (DEFAULT_INITIAL_CREDENTIALS[matchedKey] && Array.isArray(DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin_hashes)) {
+        DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin_hashes.forEach(h => validHashes.add(h));
+      }
+      if (meta.pin && meta.pin !== '••••••••') {
+        const pStr = String(meta.pin);
+        const [ph1, ph2, ph3] = await Promise.all([
+          sha256Hex(pStr),
+          sha256Hex(pStr.toLowerCase()),
+          sha256Hex(pStr.toLowerCase().replace(/[^a-z0-9]/g, ''))
+        ]);
+        validHashes.add(ph1);
+        validHashes.add(ph2);
+        validHashes.add(ph3);
+      }
+      if (Array.isArray(meta.accepted_pins)) {
+        for (const ap of meta.accepted_pins) {
+          validHashes.add(await sha256Hex(ap));
+          validHashes.add(await sha256Hex(String(ap).toLowerCase()));
+        }
+      }
+      return validHashes.has(rawHash) || validHashes.has(lowerHash) || validHashes.has(cleanHash);
+    }
+
     async function handleLoginSubmit() {
+      if (_isLoginSubmitting) return;
       const uEl = document.getElementById('login-username-input');
       const pEl = document.getElementById('login-password-input');
       const errBox = document.getElementById('login-error-box');
       const errText = document.getElementById('login-error-text');
       const btnLabel = document.getElementById('btn-login-label');
+      const submitBtn = document.getElementById('btn-login-submit');
 
       const showLoginError = (msg) => {
         if (errBox && errText) {
@@ -17014,149 +17133,33 @@ const CANONICAL_CALLER_DIRECTORY = {
         return;
       }
 
-      if (btnLabel) btnLabel.innerText = 'Verifying Credentials...';
+      _isLoginSubmitting = true;
+      if (submitBtn) submitBtn.disabled = true;
+      if (errBox) errBox.classList.add('hidden');
+      if (btnLabel) btnLabel.innerText = 'Signing In...';
 
       try {
-        let syncCredPromise = null;
-        try {
-          syncCredPromise = syncCredentialsWithCloud();
+        const credSyncPromise = syncCredentialsWithCloudOnce();
+        let matchedKey = resolveLoginAccountKey(usernameInput);
+        let passOk = matchedKey ? await verifyAccountPassword(matchedKey, passInput) : false;
+
+        // Only wait for cloud credential sync when local resolution or password match needs fresh cloud users
+        if (!matchedKey || !passOk) {
           await Promise.race([
-            syncCredPromise,
-            new Promise(resolve => setTimeout(resolve, 600))
+            credSyncPromise,
+            new Promise(resolve => setTimeout(resolve, 6000))
           ]);
-        } catch (e) {}
-
-        const rawInput = usernameInput.trim();
-        const cleanInput = rawInput.toLowerCase().trim();
-        const cleanAlphaNum = cleanInput.replace(/[^a-z0-9]/g, '');
-
-        let matchedKey = null;
-
-        // Authoritative Direct Aliases (instant 0-latency resolution)
-        const LOGIN_ALIASES = {
-          'admin': 'admin',
-          'opshead': 'admin',
-          'adminops': 'admin',
-          'adminopshead': 'admin',
-          'management': 'management',
-          'shaha': 'management',
-          'shahafinlease': 'management',
-          'seniormanagement': 'management',
-          'backend': 'backend',
-          'back': 'backend',
-          'ops': 'backend',
-          'backendops': 'backend',
-          'backenduser': 'backend',
-          'backend user': 'backend',
-          'background': 'backend',
-          'backgrounduser': 'backend',
-          'background user': 'backend',
-          'backendoperationsteam': 'backend',
-          'customerservice': 'customerservice',
-          'customer service': 'customerservice',
-          'cs': 'customerservice',
-          'subhashree': 'subhashree',
-          'anuradha': 'subhashree',
-          'blr': 'subhashree',
-          'bangalore': 'subhashree',
-          'ambuj': 'ambuj',
-          'ambuj tripathi': 'ambuj',
-          'ambujtripathi': 'ambuj',
-          'shravanthi': 'shravanthi',
-          'shravanthi p': 'shravanthi',
-          'shravanthip': 'shravanthi',
-          'shweta': 'shweta',
-          'shweta singh': 'shweta',
-          'shwetasingh': 'shweta',
-          'omkar': 'omkar',
-          'omkar singh': 'omkar',
-          'omkarsingh': 'omkar',
-          'aditi': 'aditi',
-          'aditi gawade': 'aditi',
-          'aditigawade': 'aditi',
-          'poonam': 'poonam',
-          'poonam i': 'poonam',
-          'poonami': 'poonam',
-          'agency': 'poonam',
-          'smita': 'smita',
-          'smita jagtap': 'smita',
-          'smitajagtap': 'smita',
-          'worli': 'smita',
-          'saroj': 'saroj'
-        };
-
-        if (LOGIN_ALIASES[cleanInput]) matchedKey = LOGIN_ALIASES[cleanInput];
-        else if (LOGIN_ALIASES[cleanAlphaNum]) matchedKey = LOGIN_ALIASES[cleanAlphaNum];
-
-        // 1. Check in loaded USER_CREDENTIALS
-        if (!matchedKey) {
-          for (const k in USER_CREDENTIALS) {
-            const u = USER_CREDENTIALS[k];
-            if (!u) continue;
-            const uName = (u.username || k).toLowerCase().trim();
-            const fName = (u.name || '').toLowerCase().trim();
-            const uClean = uName.replace(/[^a-z0-9]/g, '');
-            const fClean = fName.replace(/[^a-z0-9]/g, '');
-            if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName ||
-                cleanAlphaNum === uClean || cleanAlphaNum === k.toLowerCase().replace(/[^a-z0-9]/g, '') || cleanAlphaNum === fClean) {
-              matchedKey = k;
-              break;
-            }
-          }
-        }
-
-        // 2. Fallback to DEFAULT_INITIAL_CREDENTIALS (prevents lockout if cloud sync glitched)
-        if (!matchedKey) {
-          for (const k in DEFAULT_INITIAL_CREDENTIALS) {
-            const u = DEFAULT_INITIAL_CREDENTIALS[k];
-            if (!u) continue;
-            const uName = (u.username || k).toLowerCase().trim();
-            const fName = (u.name || '').toLowerCase().trim();
-            const uClean = uName.replace(/[^a-z0-9]/g, '');
-            const fClean = fName.replace(/[^a-z0-9]/g, '');
-            if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName ||
-                cleanAlphaNum === uClean || cleanAlphaNum === k.toLowerCase().replace(/[^a-z0-9]/g, '') || cleanAlphaNum === fClean) {
-              matchedKey = k;
-              USER_CREDENTIALS[k] = Object.assign({}, u);
-              break;
-            }
-          }
-        }
-
-        // 3. First name match
-        if (!matchedKey) {
-          const allUsers = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS, USER_CREDENTIALS);
-          const firstNameHits = Object.keys(allUsers).filter(k => {
-            const fn = String(allUsers[k].name || '').toLowerCase().trim().split(' ')[0].replace(/[^a-z0-9]/g, '');
-            return fn === cleanAlphaNum || fn === cleanInput;
-          });
-          if (firstNameHits.length === 1) {
-            matchedKey = firstNameHits[0];
-            if (!USER_CREDENTIALS[matchedKey]) USER_CREDENTIALS[matchedKey] = Object.assign({}, allUsers[matchedKey]);
-          }
-        }
-
-        if (!matchedKey && syncCredPromise) {
-          try {
-            await Promise.race([syncCredPromise, new Promise(resolve => setTimeout(resolve, 4000))]);
-            for (const k in USER_CREDENTIALS) {
-              const u = USER_CREDENTIALS[k];
-              if (!u) continue;
-              const uName = (u.username || k).toLowerCase().trim();
-              const fName = (u.name || '').toLowerCase().trim();
-              const uClean = uName.replace(/[^a-z0-9]/g, '');
-              const fClean = fName.replace(/[^a-z0-9]/g, '');
-              if (cleanInput === uName || cleanInput === k.toLowerCase().trim() || cleanInput === fName ||
-                  cleanAlphaNum === uClean || cleanAlphaNum === k.toLowerCase().replace(/[^a-z0-9]/g, '') || cleanAlphaNum === fClean) {
-                matchedKey = k;
-                break;
-              }
-            }
-          } catch (e) {}
+          matchedKey = resolveLoginAccountKey(usernameInput);
+          passOk = matchedKey ? await verifyAccountPassword(matchedKey, passInput) : false;
         }
 
         if (!matchedKey) {
           showLoginError('Invalid Username or Login ID. Please check and try again.');
+          return;
+        }
+
+        if (!passOk) {
+          showLoginError('Incorrect Password. Please check your password and try again.');
           return;
         }
 
@@ -17165,46 +17168,12 @@ const CANONICAL_CALLER_DIRECTORY = {
           USER_CREDENTIALS[matchedKey] = Object.assign({}, DEFAULT_INITIAL_CREDENTIALS[matchedKey] || meta);
         }
 
-        // SHA-256 Cryptographic Password Verification
-        const enteredPassRaw = passInput.trim();
-        const enteredPassLower = enteredPassRaw.toLowerCase();
-        const enteredPassClean = enteredPassLower.replace(/[^a-z0-9]/g, '');
-
-        const rawHash = await sha256Hex(enteredPassRaw);
-        const lowerHash = await sha256Hex(enteredPassLower);
-        const cleanHash = await sha256Hex(enteredPassClean);
-
-        const validHashes = new Set();
-        if (meta && Array.isArray(meta.pin_hashes)) {
-          meta.pin_hashes.forEach(h => validHashes.add(h));
-        }
-        if (DEFAULT_INITIAL_CREDENTIALS[matchedKey] && Array.isArray(DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin_hashes)) {
-          DEFAULT_INITIAL_CREDENTIALS[matchedKey].pin_hashes.forEach(h => validHashes.add(h));
-        }
-        if (meta && meta.pin && meta.pin !== '••••••••') {
-          validHashes.add(await sha256Hex(meta.pin));
-          validHashes.add(await sha256Hex(meta.pin.toLowerCase()));
-          validHashes.add(await sha256Hex(meta.pin.toLowerCase().replace(/[^a-z0-9]/g, '')));
-        }
-        if (meta && Array.isArray(meta.accepted_pins)) {
-          for (const ap of meta.accepted_pins) {
-            validHashes.add(await sha256Hex(ap));
-            validHashes.add(await sha256Hex(ap.toLowerCase()));
-          }
-        }
-
-        const passOk = validHashes.has(rawHash) || validHashes.has(lowerHash) || validHashes.has(cleanHash);
-
-        if (!passOk) {
-          showLoginError('Incorrect Password. Please check your password and try again.');
-          return;
-        }
-
         if (errBox) errBox.classList.add('hidden');
         if (btnLabel) btnLabel.innerText = 'Sign In to Portal';
 
         const now = Date.now();
-        const activeToken = await registerActiveUserSession(meta.username || matchedKey);
+        const rememberMe = Boolean(document.getElementById('login-remember-me')?.checked);
+        const activeToken = await registerActiveUserSession(meta.username || matchedKey, matchedKey);
         const sessionObj = {
           key: matchedKey,
           username: meta.username || matchedKey,
@@ -17212,6 +17181,7 @@ const CANONICAL_CALLER_DIRECTORY = {
           role: meta.role,
           agency: meta.agency,
           has_mis_access: meta.has_mis_access === true,
+          remember_me: rememberMe,
           token: activeToken,
           login_time: now,
           last_active: now
@@ -17301,6 +17271,8 @@ const CANONICAL_CALLER_DIRECTORY = {
         console.error('Login process error:', loginErr);
         showLoginError('Login error: ' + (loginErr.message || 'Please check your connection and credentials.'));
       } finally {
+        _isLoginSubmitting = false;
+        if (submitBtn) submitBtn.disabled = false;
         if (btnLabel) btnLabel.innerText = 'Sign In to Portal';
       }
     }
@@ -23771,16 +23743,6 @@ var misExpandedManagers = new Set();
       t.C = { who, n: leaderboardOfficers.length, v };
       return v;
     };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      applyUiTheme(document.documentElement.dataset.theme);
-      if (typeof initManagerAssignedTargets === 'function') initManagerAssignedTargets();
-      startLiveClock();
-      if (typeof checkAuthSession === 'function') {
-        checkAuthSession();
-      }
-      if (typeof updateSdlmUploadButtonsVisibility === 'function') updateSdlmUploadButtonsVisibility();
-    });
 
   </script>
 
